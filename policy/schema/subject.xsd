@@ -1,0 +1,38 @@
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+	<xs:include schemaLocation="./types.xsd"/>
+
+	<xs:complexType name="initial_state_type">
+		<xs:attribute name="stack_address" type="address_type" use="required"/>
+		<xs:attribute name="entry_point"   type="address_type" use="required"/>
+	</xs:complexType>
+
+	<xs:simpleType name="subject_name_type">
+		<xs:restriction base="xs:string">
+			<xs:minLength value="1"/>
+			<xs:maxLength value="16"/>
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:complexType name="device_reference_type">
+		<xs:attribute name="name" type="device_name_type" use="required"/>
+	</xs:complexType>
+
+	<xs:complexType name="subject_type">
+		<xs:sequence>
+			<xs:element name="initial_state" type="initial_state_type"    minOccurs="1" maxOccurs="1"/>
+			<xs:element name="memory_layout" type="memory_layout_type"    minOccurs="1" maxOccurs="1"/>
+			<xs:element name="device"        type="device_reference_type" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+		<xs:attribute name="id"                type="xs:nonNegativeInteger" use="required"/>
+		<xs:attribute name="name"              type="subject_name_type"     use="required"/>
+		<xs:attribute name="pml4_address"      type="address_type"          use="required"/>
+		<xs:attribute name="io_bitmap_address" type="address_type"          use="required"/>
+	</xs:complexType>
+
+	<xs:complexType name="subjects_type">
+		<xs:sequence>
+			<xs:element name="subject" type="subject_type" minOccurs="1" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+
+</xs:schema>
