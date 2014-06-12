@@ -5,11 +5,9 @@
 
 with AUnit.Test_Fixtures;
 
-with Expanders.Subjects;
+with System.Assertions;
 
-with Test_Utils.Expander;
-
-package Expanders.Memory.Test_Data is
+package Msrstore.Tables.Test_Data is
 
 --  begin read only
    type Test is new AUnit.Test_Fixtures.Test_Fixture
@@ -19,4 +17,4 @@ package Expanders.Memory.Test_Data is
    procedure Set_Up (Gnattest_T : in out Test);
    procedure Tear_Down (Gnattest_T : in out Test);
 
-end Expanders.Memory.Test_Data;
+end Msrstore.Tables.Test_Data;
