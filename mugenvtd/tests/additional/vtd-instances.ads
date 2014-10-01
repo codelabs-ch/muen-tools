@@ -16,18 +16,14 @@
 --  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --
 
-with Muxml;
+with VTd.Tables.IR;
 
-package Expanders.Device_Domains
+package VTd.Instances
 is
 
-   --  Add section skeleton.
-   procedure Add_Section_Skeleton (Data : in out Muxml.XML_Data_Type);
+   subtype Test_Range is Tables.IR_Entry_Range range 1 .. 4;
 
-   --  Expand domain IDs (DIDs).
-   procedure Add_Domain_IDs (Data : in out Muxml.XML_Data_Type);
+   package IR_Tables is new Tables.IR
+     (Index_Range => Test_Range);
 
-   --  Add VT-d tables (root, context, address translation and IR tables).
-   procedure Add_Tables (Data : in out Muxml.XML_Data_Type);
-
-end Expanders.Device_Domains;
+end VTd.Instances;

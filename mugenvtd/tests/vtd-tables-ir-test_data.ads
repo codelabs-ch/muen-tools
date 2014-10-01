@@ -5,14 +5,26 @@
 
 with AUnit.Test_Fixtures;
 
-package VTd.Tables.Test_Data is
+with Ada.Directories;
+
+with Test_Utils;
+
+generic
+   type GNATtest_Test_Type is new AUnit.Test_Fixtures.Test_Fixture
+     with private;
+package VTd.Tables.IR.Test_Data is
 
 --  begin read only
    type Test is new AUnit.Test_Fixtures.Test_Fixture
 --  end read only
-   with null record;
+   with record
+      IRT : IR_Table_Type;
+   end record;
 
    procedure Set_Up (Gnattest_T : in out Test);
    procedure Tear_Down (Gnattest_T : in out Test);
 
-end VTd.Tables.Test_Data;
+   procedure User_Set_Up (Gnattest_T : in out Test)is null;
+   procedure User_Tear_Down (Gnattest_T : in out Test)is null;
+
+end VTd.Tables.IR.Test_Data;

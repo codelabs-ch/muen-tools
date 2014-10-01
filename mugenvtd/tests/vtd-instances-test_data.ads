@@ -5,7 +5,7 @@
 
 with AUnit.Test_Fixtures;
 
-package VTd.Tables.Test_Data is
+package VTd.Instances.Test_Data is
 
 --  begin read only
    type Test is new AUnit.Test_Fixtures.Test_Fixture
@@ -15,4 +15,4 @@ package VTd.Tables.Test_Data is
    procedure Set_Up (Gnattest_T : in out Test);
    procedure Tear_Down (Gnattest_T : in out Test);
 
-end VTd.Tables.Test_Data;
+end VTd.Instances.Test_Data;
