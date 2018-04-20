@@ -5,27 +5,12 @@
 
 with AUnit.Test_Fixtures;
 
-with Ada.Exceptions;
-with Ada.Strings.Unbounded;
-
-with DOM.Core.Nodes;
-with DOM.Core.Documents;
-with DOM.Core.Elements;
-
-with McKae.XML.XPath.XIA;
-
-with Muxml.Utils;
-with Mutools.PCI;
-with Mutools.XML_Utils;
-with Mucfgcheck;
-
 with Expanders.Components;
 with Expanders.Subjects;
-with Expanders.Platform;
-with Expanders.XML_Utils;
 
+with Test_Utils.Expander;
 
-package Cfgchecks.Test_Data is
+package Expanders.Siblings.Test_Data is
 
 --  begin read only
    type Test is new AUnit.Test_Fixtures.Test_Fixture
@@ -35,4 +20,7 @@ package Cfgchecks.Test_Data is
    procedure Set_Up (Gnattest_T : in out Test);
    procedure Tear_Down (Gnattest_T : in out Test);
 
-end Cfgchecks.Test_Data;
+   --  Prepare referenced subject profiles.
+   procedure Prepare_Profile (Data: in out Muxml.XML_Data_Type);
+
+end Expanders.Siblings.Test_Data;
