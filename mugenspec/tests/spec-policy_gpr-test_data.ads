@@ -5,15 +5,13 @@
 
 with AUnit.Test_Fixtures;
 
-with Ada.Exceptions;
-
-with DOM.Core.Documents;
-with DOM.Core.Elements;
-with DOM.Core.Nodes;
+with Ada.Directories;
 
 with Muxml.Utils;
 
-package Mucfgcheck.Kernel.Test_Data is
+with Test_Utils;
+
+package Spec.Policy_Gpr.Test_Data is
 
 --  begin read only
    type Test is new AUnit.Test_Fixtures.Test_Fixture
@@ -23,4 +21,4 @@ package Mucfgcheck.Kernel.Test_Data is
    procedure Set_Up (Gnattest_T : in out Test);
    procedure Tear_Down (Gnattest_T : in out Test);
 
-end Mucfgcheck.Kernel.Test_Data;
+end Spec.Policy_Gpr.Test_Data;
