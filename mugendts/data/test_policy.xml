@@ -417,7 +417,7 @@
    </registers>
   </vcpu>
   <bootparams>
-   console=ttyPS0,115200 root=/dev/ram0 initrd=0x0f000000,1451008 earlycon
+    hostname=lnx1 console=ttyPS0,115200 root=/dev/ram0 initrd=0x1b000000,60M earlycon
   </bootparams>
   <memory>
    <memory logical="lowmem" physical="linux|lowmem" virtualAddress="16#0000_0000#" writable="true" executable="false"/>
