@@ -65,14 +65,14 @@
    <irq name="irq" number="53"/>
    <memory caching="UC" name="mem" physicalAddress="16#ff00_0000#" size="16#0001_0000#"/>
    <capabilities>
-    <capability name="serial"/>
+    <capability name="uart"/>
    </capabilities>
   </device>
   <device name="UART1">
    <irq name="irq" number="54"/>
    <memory caching="UC" name="mem" physicalAddress="16#ff01_0000#" size="16#0001_0000#"/>
    <capabilities>
-    <capability name="serial"/>
+    <capability name="uart"/>
    </capabilities>
   </device>
  </devices>
