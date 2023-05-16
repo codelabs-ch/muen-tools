@@ -17,13 +17,31 @@
 --  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --
 
-with Mulog;
+with Ada.Command_Line;
+with Ada.Exceptions;
 
-with DTS;
+with Mulog;
+with Mutools.Cmd_Line.Infile_Outdir;
+with Muxml;
+
+with DTS.Generator;
 
 procedure Mugendts
 is
 begin
-   Mulog.Log (Level => Mulog.Info,
-              Msg   => DTS.Hello);
+   Mutools.Cmd_Line.Infile_Outdir.Init
+     (Description => "Generate DTS according to given system policy");
+   Mutools.Cmd_Line.Infile_Outdir.Run
+     (Kind    => Muxml.Format_B,
+      Process => DTS.Generator.Write'Access);
+
+exception
+   when Mutools.Cmd_Line.Invalid_Cmd_Line =>
+      Ada.Command_Line.Set_Exit_Status (Code => Ada.Command_Line.Failure);
+   when E : others =>
+      Mulog.Log (Level => Mulog.Error,
+                 Msg   => "Unexpected exception");
+      Mulog.Log (Level => Mulog.Error,
+                 Msg   => Ada.Exceptions.Exception_Information (X => E));
+      Ada.Command_Line.Set_Exit_Status (Code => Ada.Command_Line.Failure);
 end Mugendts;
