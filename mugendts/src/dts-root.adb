@@ -38,6 +38,21 @@ is
          Content  => "serial_0");
    end Add_Aliases_Node;
 
+   procedure Add_Chosen_Node
+     (Template : in out Mutools.Templates.Template_Type;
+      Policy   :        Muxml.XML_Data_Type;
+      Subject  :        DOM.Core.Node)
+   is
+      pragma Unreferenced (Policy);
+   begin
+      Mutools.Templates.Replace
+        (Template => Template,
+         Pattern  => "__chosen_bootparams__",
+         Content  => Muxml.Utils.Get_Element_Value
+           (Doc   => Subject,
+            XPath => "bootparams"));
+   end Add_Chosen_Node;
+
    procedure Write
      (Policy       : Muxml.XML_Data_Type;
       Subject      : DOM.Core.Node;
@@ -52,6 +67,9 @@ is
       Add_Aliases_Node (Template => Template,
                         Policy   => Policy,
                         Subject  => Subject);
+      Add_Chosen_Node (Template => Template,
+                       Policy   => Policy,
+                       Subject  => Subject);
 
       Mutools.Templates.Write (Template => Template,
                                Filename => Filename);
