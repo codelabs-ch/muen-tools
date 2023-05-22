@@ -15,10 +15,15 @@
 --  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --
 
-with Mulog;
-with Mutools.Templates;
+with DOM.Core;
+with DOM.Core.Elements;
+with DOM.Core.Nodes;
 
-with String_Templates;
+with McKae.XML.XPath.XIA;
+
+with Mulog;
+
+with DTS.Root;
 
 package body DTS.Generator
 is
@@ -27,21 +32,39 @@ is
      (Output_Dir : String;
       Policy     : Muxml.XML_Data_Type)
    is
-      pragma Unreferenced (Policy);
-
-      DTS_Filename : constant String
-        := Output_Dir & "/" & "devicetree.dts";
-
-      Template : constant Mutools.Templates.Template_Type
-        := Mutools.Templates.Create
-          (Content => String_Templates.devicetree_dsl);
+      Linux_Subjects : constant DOM.Core.Node_List
+        := McKae.XML.XPath.XIA.XPath_Query
+          (N     => Policy.Doc,
+           XPath => "/system/subjects/subject[starts-with(@name,'linux')]");
    begin
-      Mulog.Log (Level => Mulog.Info,
-                 Msg   => DTS.Hello);
-      Mutools.Templates.Write (Template => Template,
-                               Filename => DTS_Filename);
-      Mulog.Log (Level => Mulog.Info,
-                 Msg   => "DTS should now be written!");
+      for I in 0 .. DOM.Core.Nodes.Length (Linux_Subjects) - 1 loop
+         declare
+            Subject      : constant DOM.Core.Node
+              := DOM.Core.Nodes.Item (List  => Linux_Subjects,
+                                      Index => I);
+
+            Subject_Name : constant String
+              := DOM.Core.Elements.Get_Attribute (Elem => Subject,
+                                                  Name => "name");
+
+            Subject_ID   : constant String
+              := DOM.Core.Elements.Get_Attribute (Elem => Subject,
+                                                  Name => "globalId");
+
+            DTS_Filename : constant String
+              := Output_Dir & "/devicetree_" & Subject_Name & ".dts";
+         begin
+            Mulog.Log (Level => Mulog.Info,
+                       Msg   => "Writing device tree for subject '" &
+                         Subject_Name & "' with id '" & Subject_ID &
+                         "' to '" & DTS_Filename & "'");
+
+            DTS.Root.Write (Policy       => Policy,
+                            Subject      => Subject,
+                            Subject_Name => Subject_Name,
+                            Filename     => DTS_Filename);
+         end;
+      end loop;
    end Write;
 
 end DTS.Generator;
