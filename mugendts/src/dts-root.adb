@@ -15,12 +15,28 @@
 --  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --
 
-with Mutools.Templates;
+with Muxml.Utils;
 
 with String_Templates;
 
+--  with Node_Utils;
+--  with Mulog;
+
 package body DTS.Root
 is
+
+   procedure Add_Aliases_Node
+     (Template : in out Mutools.Templates.Template_Type;
+      Policy   :        Muxml.XML_Data_Type;
+      Subject  :        DOM.Core.Node)
+   is
+      pragma Unreferenced (Policy, Subject);
+   begin
+      Mutools.Templates.Replace
+        (Template => Template,
+         Pattern  => "__serial_alias__",
+         Content  => "serial_0");
+   end Add_Aliases_Node;
 
    procedure Write
      (Policy       : Muxml.XML_Data_Type;
@@ -28,11 +44,15 @@ is
       Subject_Name : String;
       Filename     : String)
    is
-      pragma Unreferenced (Policy, Subject, Subject_Name);
-      Template : constant Mutools.Templates.Template_Type
+      pragma Unreferenced (Policy, Subject_Name);
+      Template : Mutools.Templates.Template_Type
         := Mutools.Templates.Create
           (Content => String_Templates.devicetree_dsl);
    begin
+      Add_Aliases_Node (Template => Template,
+                        Policy   => Policy,
+                        Subject  => Subject);
+
       Mutools.Templates.Write (Template => Template,
                                Filename => Filename);
    end Write;

@@ -17,6 +17,7 @@
 
 with DOM.Core;
 
+with Mutools.Templates;
 with Muxml;
 
 package DTS.Root
@@ -27,5 +28,12 @@ is
       Subject      : DOM.Core.Node;
       Subject_Name : String;
       Filename     : String);
+
+private
+
+   procedure Add_Aliases_Node
+     (Template : in out Mutools.Templates.Template_Type;
+      Policy   :        Muxml.XML_Data_Type;
+      Subject  :        DOM.Core.Node);
 
 end DTS.Root;
