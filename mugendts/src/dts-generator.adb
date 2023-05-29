@@ -32,37 +32,62 @@ is
      (Output_Dir : String;
       Policy     : Muxml.XML_Data_Type)
    is
-      Linux_Subjects : constant DOM.Core.Node_List
+      --  (1) extract all physical memory regions that contain a linux    --
+      --      device tree (i.e. type of 'subject_devicetree')             --
+      Physical_DTS : constant DOM.Core.Node_List
         := McKae.XML.XPath.XIA.XPath_Query
           (N     => Policy.Doc,
-           XPath => "/system/subjects/subject[starts-with(@name,'linux')]");
+           XPath => "/system/memory/memory[@type='subject_devicetree']");
    begin
-      for I in 0 .. DOM.Core.Nodes.Length (Linux_Subjects) - 1 loop
+      --  (2) for every physical device tree memory node find the cor-    --
+      --      responding subject that exclusively makes use of this dts   --
+      --      region to unambiguously identify a Linux VM subject         --
+      for I in 0 .. DOM.Core.Nodes.Length (Physical_DTS) - 1 loop
          declare
-            Subject      : constant DOM.Core.Node
-              := DOM.Core.Nodes.Item (List  => Linux_Subjects,
+            DTS_Node : constant DOM.Core.Node
+              := DOM.Core.Nodes.Item (List  => Physical_DTS,
                                       Index => I);
-
-            Subject_Name : constant String
-              := DOM.Core.Elements.Get_Attribute (Elem => Subject,
+            DTS_Name : constant String
+              := DOM.Core.Elements.Get_Attribute (Elem => DTS_Node,
                                                   Name => "name");
 
-            Subject_ID   : constant String
-              := DOM.Core.Elements.Get_Attribute (Elem => Subject,
-                                                  Name => "globalId");
-
-            DTS_Filename : constant String
-              := Output_Dir & "/devicetree_" & Subject_Name & ".dts";
+            -- (3) extract all subjects that the current dts region is    --
+            --     assigned to; the resulting node list has to contain    --
+            --     exactly one Linux VM subject                           --
+            Linux_Subjects : constant DOM.Core.Node_List
+              := McKae.XML.XPath.XIA.XPath_Query
+                (N     => Policy.Doc,
+                 XPath => "/system/subjects/subject[memory/memory/" &
+                   "@physical='" & DTS_Name & "']");
          begin
-            Mulog.Log (Level => Mulog.Info,
-                       Msg   => "Writing device tree for subject '" &
-                         Subject_Name & "' with id '" & Subject_ID &
-                         "' to '" & DTS_Filename & "'");
+            if DOM.Core.Nodes.Length (Linux_Subjects) = 1 then
+               declare
+                  Subject      : constant DOM.Core.Node
+                    := DOM.Core.Nodes.Item (List  => Linux_Subjects,
+                                            Index => 0);
 
-            DTS.Root.Write (Policy       => Policy,
-                            Subject      => Subject,
-                            Subject_Name => Subject_Name,
-                            Filename     => DTS_Filename);
+                  Subject_Name : constant String
+                    := DOM.Core.Elements.Get_Attribute (Elem => Subject,
+                                                        Name => "name");
+
+                  Subject_ID   : constant String
+                    := DOM.Core.Elements.Get_Attribute (Elem => Subject,
+                                                        Name => "globalId");
+
+                  DTS_Filename : constant String
+                    := Output_Dir & "/devicetree_" & Subject_Name & ".dts";
+               begin
+                  Mulog.Log (Level => Mulog.Info,
+                             Msg   => "Writing device tree for subject '" &
+                               Subject_Name & "' with id '" & Subject_ID &
+                               "' to '" & DTS_Filename & "'");
+
+                  DTS.Root.Write (Policy       => Policy,
+                                  Subject      => Subject,
+                                  Subject_Name => Subject_Name,
+                                  Filename     => DTS_Filename);
+               end;
+            end if;
          end;
       end loop;
    end Write;

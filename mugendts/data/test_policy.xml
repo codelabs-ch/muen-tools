@@ -133,7 +133,7 @@
  <memory alignment="16#1000#" caching="WB" name="linux|lowmem" physicalAddress="16#1000_0000#" size="16#0004_0000#" type="subject">
   <fill pattern="16#00#"/>
  </memory>
- <memory alignment="16#1000#" caching="WB" name="linux|dtb" physicalAddress="16#1004_0000#" size="16#0004_0000#" type="subject_binary">
+ <memory alignment="16#1000#" caching="WB" name="linux|dtb" physicalAddress="16#1004_0000#" size="16#0004_0000#" type="subject_devicetree">
   <file filename="devicetree_linux_one.dtb" offset="none"/>
  </memory>
  <memory alignment="16#1000#" caching="WB" name="linux|binary" physicalAddress="16#1008_0000#" size="16#006d_d000#" type="subject_binary">

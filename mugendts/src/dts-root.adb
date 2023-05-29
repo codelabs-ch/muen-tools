@@ -25,6 +25,9 @@ with String_Templates;
 package body DTS.Root
 is
 
+   ------------------------
+   --  Add_Aliases_Node  --
+   ------------------------
    procedure Add_Aliases_Node
      (Template : in out Mutools.Templates.Template_Type;
       Policy   :        Muxml.XML_Data_Type;
@@ -38,6 +41,9 @@ is
          Content  => "serial_0");
    end Add_Aliases_Node;
 
+   -----------------------
+   --  Add_Chosen_Node  --
+   -----------------------
    procedure Add_Chosen_Node
      (Template : in out Mutools.Templates.Template_Type;
       Policy   :        Muxml.XML_Data_Type;
@@ -53,13 +59,16 @@ is
             XPath => "bootparams"));
    end Add_Chosen_Node;
 
+   -------------
+   --  Write  --
+   -------------
    procedure Write
      (Policy       : Muxml.XML_Data_Type;
       Subject      : DOM.Core.Node;
       Subject_Name : String;
       Filename     : String)
    is
-      pragma Unreferenced (Policy, Subject_Name);
+      pragma Unreferenced (Subject_Name);
       Template : Mutools.Templates.Template_Type
         := Mutools.Templates.Create
           (Content => String_Templates.devicetree_dsl);
