@@ -15,14 +15,45 @@
 --  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --
 
+with Ada.Strings.Fixed;
+
+with Mutools.Utils;
+
 package body DTS
 is
 
-   function Hello
-     return String
+   -------------------
+   --  To_DTS_Cell  --
+   -------------------
+   function To_DTS_Cell
+     (Value : Unsigned_64)
+      return String
    is
+      use Ada.Strings.Fixed;
+
+      Image  : constant String
+        := Mutools.Utils.To_Hex (Number     => Value,
+                                 Normalize  => False,
+                                 Byte_Short => False);
+      Result : String := "0x00000000 0x00000000";
    begin
-      return "Hello DTS Generator!";
-   end Hello;
+      if Image'Length <= 8 then
+         Replace_Slice (Source => Result,
+                        Low    => Result'Last - Image'Length + 1,
+                        High   => Result'Last,
+                        By     => Image);
+      else
+         Replace_Slice (Source => Result,
+                        Low    => Result'Last - 8 + 1,
+                        High   => Result'Last,
+                        By     => Image (Image'Last - 8 + 1 .. Image'Last));
+         Replace_Slice (Source => Result,
+                        Low    => Result'Last - (Image'Length + 3) + 1,
+                        High   => Result'Last - (8 + 3),
+                        By     => Image (Image'First .. Image'Last - 8));
+      end if;
+
+      return Result;
+   end To_DTS_Cell;
 
 end DTS;

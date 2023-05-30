@@ -15,10 +15,13 @@
 --  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --
 
+with Interfaces; use Interfaces;
+
 package DTS
 is
 
-   function Hello
-     return String;
+   function To_DTS_Cell
+     (Value : Unsigned_64)
+      return String;
 
 end DTS;
