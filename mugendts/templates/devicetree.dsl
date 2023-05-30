@@ -23,7 +23,7 @@
 
     memory@__memory_base__ {
         device_type = "memory";
-        reg = <0x__memory_base_high__ 0x__memory_base_low__ 0x__memory_size_high__ 0x__memory_size_low__>;
+        __memory_registers__
     };
 
     cpus {

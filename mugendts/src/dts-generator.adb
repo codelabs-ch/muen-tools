@@ -28,6 +28,9 @@ with DTS.Root;
 package body DTS.Generator
 is
 
+   -------------
+   --  Write  --
+   -------------
    procedure Write
      (Output_Dir : String;
       Policy     : Muxml.XML_Data_Type)
