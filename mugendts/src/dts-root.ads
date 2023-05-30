@@ -36,6 +36,11 @@ private
       Policy   :        Muxml.XML_Data_Type;
       Subject  :        DOM.Core.Node);
 
+   procedure Add_APU_Node
+     (Template : in out Mutools.Templates.Template_Type;
+      Policy   :        Muxml.XML_Data_Type;
+      Subject  :        DOM.Core.Node);
+
    procedure Add_Chosen_Node
      (Template : in out Mutools.Templates.Template_Type;
       Policy   :        Muxml.XML_Data_Type;

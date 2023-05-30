@@ -112,7 +112,7 @@
             compatible = "muensk,irq-v0";
             #interrupt-cells = <0x3>;
             interrupt-controller;
-            reg = <0x__vgic_base_high__ 0x__vgic_base_low__ 0x2000>;
+            __vgic_registers__
             interrupts = <GIC_PPI 0x9 (GIC_CPU_MASK_SIMPLE(4) | IRQ_TYPE_LEVEL_HIGH)>;
             linux,phandle = <0x7>;
             phandle = <0x7>;
