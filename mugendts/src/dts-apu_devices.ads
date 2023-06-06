@@ -20,30 +20,25 @@ with DOM.Core;
 with Mutools.Templates;
 with Muxml;
 
-package DTS.Root
+package DTS.APU_Devices
 is
 
-   procedure Write
-     (Policy       : Muxml.XML_Data_Type;
-      Subject      : DOM.Core.Node;
-      Subject_Name : String;
-      Filename     : String);
+   procedure Add_APU_Devices
+     (Template : in out Mutools.Templates.Template_Type;
+      Policy   :        Muxml.XML_Data_Type;
+      Subject  :        DOM.Core.Node);
 
 private
 
-   procedure Add_Aliases_Node
-     (Template : in out Mutools.Templates.Template_Type;
-      Policy   :        Muxml.XML_Data_Type;
-      Subject  :        DOM.Core.Node);
+   procedure Generate_GIC_Node
+     (Policy    :     Muxml.XML_Data_Type;
+      Device    :     DOM.Core.Node;
+      DTS_Entry : out Unbounded_String;
+      DTS_Range : out DTS_Range_Type);
 
-   procedure Add_Chosen_Node
-     (Template : in out Mutools.Templates.Template_Type;
-      Policy   :        Muxml.XML_Data_Type;
-      Subject  :        DOM.Core.Node);
+   -----------------------------
+   --  Supported APU Devices  --
+   -----------------------------
+   type APU_Device_Type is (GIC);
 
-   procedure Add_Memory_Node
-     (Template : in out Mutools.Templates.Template_Type;
-      Policy   :        Muxml.XML_Data_Type;
-      Subject  :        DOM.Core.Node);
-
-end DTS.Root;
+end DTS.APU_Devices;

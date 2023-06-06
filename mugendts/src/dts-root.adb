@@ -15,8 +15,6 @@
 --  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --
 
-with Ada.Strings.Unbounded;
-
 with DOM.Core.Elements;
 with DOM.Core.Nodes;
 
@@ -26,6 +24,8 @@ with Mutools.Utils;
 with Muxml.Utils;
 
 with String_Templates;
+
+with DTS.APU_Devices;
 
 --  with Node_Utils;
 --  with Mulog;
@@ -48,72 +48,6 @@ is
          Pattern  => "__serial_alias__",
          Content  => "serial_0");
    end Add_Aliases_Node;
-
-   --------------------
-   --  Add_APU_Node  --
-   --------------------
-   procedure Add_APU_Node
-     (Template : in out Mutools.Templates.Template_Type;
-      Policy   :        Muxml.XML_Data_Type;
-      Subject  :        DOM.Core.Node)
-   is
-      --  (1) extract all physical devices with a GIC capability          --
-      Physical_GIC : constant DOM.Core.Node_List
-        := McKae.XML.XPath.XIA.XPath_Query
-          (N     => Policy.Doc,
-           XPath => "/system/hardware/devices/device" &
-             "[capabilities/capability/@name='gic']");
-   begin
-      for I in 0 .. DOM.Core.Nodes.Length (Physical_GIC) - 1 loop
-         declare
-            Physical_GIC_Name : constant String
-              := DOM.Core.Elements.Get_Attribute
-                (Elem => DOM.Core.Nodes.Item (List  => Physical_GIC,
-                                              Index => I),
-                 Name => "name");
-
-            --  (2) check if gic is used by subject and extract virtual   --
-            --      memory node (containing the vGIC base address)        --
-            Subject_vGIC  : constant DOM.Core.Node_List
-              := McKae.XML.XPath.XIA.XPath_Query
-                (N     => Subject,
-                 XPath => "devices/device[@physical='" & Physical_GIC_Name &
-                   "']/memory");
-         begin
-            if DOM.Core.Nodes.Length (Subject_vGIC) = 1 then
-               declare
-                  vGIC_Memory_Base : constant String
-                    := DOM.Core.Elements.Get_Attribute
-                      (Elem => DOM.Core.Nodes.Item (List  => Subject_vGIC,
-                                                    Index => 0),
-                       Name => "virtualAddress");
-                  vGIC_Memory_Value : constant Unsigned_64
-                    := Unsigned_64'Value (vGIC_Memory_Base);
-               begin
-                  Mutools.Templates.Replace
-                    (Template => Template,
-                     Pattern  => "__amba_apu_base__",
-                     Content  => Mutools.Utils.To_Hex
-                       (Number     => vGIC_Memory_Value,
-                        Normalize  => False,
-                        Byte_Short => False));
-                  Mutools.Templates.Replace
-                    (Template => Template,
-                     Pattern  => "__vgic_bus_base__",
-                     Content  => Mutools.Utils.To_Hex
-                       (Number     => vGIC_Memory_Value,
-                        Normalize  => False,
-                        Byte_Short => False));
-                  Mutools.Templates.Replace
-                    (Template => Template,
-                     Pattern  => "__vgic_registers__",
-                     Content  => "reg = <" & To_DTS_Cell (vGIC_Memory_Value) &
-                       " 0x00002000>;");
-               end;
-            end if;
-         end;
-      end loop;
-   end Add_APU_Node;
 
    -----------------------
    --  Add_Chosen_Node  --
@@ -141,8 +75,6 @@ is
       Policy   :        Muxml.XML_Data_Type;
       Subject  :        DOM.Core.Node)
    is
-      use Ada.Strings.Unbounded;
-
       Physical_Memory : constant DOM.Core.Node_List
         := McKae.XML.XPath.XIA.XPath_Query
           (N     => Policy.Doc,
@@ -240,9 +172,9 @@ is
                        Policy   => Policy,
                        Subject  => Subject);
 
-      Add_APU_Node (Template => Template,
-                    Policy   => Policy,
-                    Subject  => Subject);
+      DTS.APU_Devices.Add_APU_Devices (Template => Template,
+                                       Policy   => Policy,
+                                       Subject  => Subject);
 
       Mutools.Templates.Write (Template => Template,
                                Filename => Filename);
