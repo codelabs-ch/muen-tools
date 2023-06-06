@@ -106,26 +106,16 @@
         compatible = "simple-bus";
         #address-cells = <0x2>;
         #size-cells = <0x1>;
-        ranges = <0x0 0x0 0x0 0x0 0xffffffff>;
-
-        interrupt-controller@__vgic_bus_base__ {
-            compatible = "muensk,irq-v0";
-            #interrupt-cells = <0x3>;
-            interrupt-controller;
-            __vgic_registers__
-            interrupts = <GIC_PPI 0x9 (GIC_CPU_MASK_SIMPLE(4) | IRQ_TYPE_LEVEL_HIGH)>;
-            linux,phandle = <0x7>;
-            phandle = <0x7>;
-        };
+        __amba_apu_ranges__
+__amba_apu_devices__
     };
 
-    amba-soc-soc@__amba_soc_base__ {
+    amba-soc@__amba_soc_base__ {
         compatible = "simple-bus";
         #address-cells = <0x2>;
         #size-cells = <0x2>;
-        ranges;
-
+        __amba_soc_ranges__
 __amba_soc_devices__
-
     };
+
 };
