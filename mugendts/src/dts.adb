@@ -16,11 +16,49 @@
 --
 
 with Ada.Strings.Fixed;
+with Ada.Strings.Maps;
 
 with Mutools.Utils;
 
 package body DTS
 is
+
+   --------------------
+   --  Block_Indent  --
+   --------------------
+   procedure Block_Indent
+     (Block     : in out Unbounded_String;
+      N         :        Positive := 1;
+      Unit_Size :        Positive := 4)
+   is
+      New_Line : constant Ada.Strings.Maps.Character_Set
+        := Ada.Strings.Maps.To_Set (ASCII.LF);
+      Indent   : constant String
+        := Mutools.Utils.Indent (N, Unit_Size);
+
+      Iterator : Natural := 0;
+   begin
+      loop
+         while
+           Iterator < Length (Source => Block) and then
+           Element (Source => Block, Index => Iterator + 1) = ASCII.LF
+         loop
+            Iterator := Iterator + 1;
+         end loop;
+
+         exit when Iterator = Length (Source => Block);
+
+         Insert (Source   => Block,
+                 Before   => Iterator + 1,
+                 New_Item => Indent);
+
+         Iterator := Index (Source => Block,
+                            Set    => New_Line,
+                            From   => Iterator + 1);
+
+         exit when Iterator = 0;
+      end loop;
+   end Block_Indent;
 
    -------------------
    --  To_DTS_Cell  --

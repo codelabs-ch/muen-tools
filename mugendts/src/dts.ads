@@ -17,11 +17,24 @@
 
 with Interfaces; use Interfaces;
 
+with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
+
 package DTS
 is
+
+   type DTS_Range_Type
+   is record
+      Base : Unsigned_64;
+      Size : Unsigned_64;
+   end record;
 
    function To_DTS_Cell
      (Value : Unsigned_64)
       return String;
+
+   procedure Block_Indent
+     (Block     : in out Unbounded_String;
+      N         :        Positive := 1;
+      Unit_Size :        Positive := 4);
 
 end DTS;

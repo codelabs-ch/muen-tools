@@ -64,6 +64,184 @@ package body DTS.Test_Data.Tests is
    end Test_To_DTS_Cell;
 --  end read only
 
+
+--  begin read only
+   procedure Test_Block_Indent (Gnattest_T : in out Test);
+   procedure Test_Block_Indent_4021a6 (Gnattest_T : in out Test) renames Test_Block_Indent;
+--  id:2.2/4021a6d7cd8f7dd3/Block_Indent/1/0/
+   procedure Test_Block_Indent (Gnattest_T : in out Test) is
+--  end read only
+
+      pragma Unreferenced (Gnattest_T);
+
+      Multiline : constant String :=
+        "first line without indent {" & ASCII.LF &
+        "    second line has indent = ""4"";" & ASCII.LF &
+        "    third line as well <0x0 0x0 0x2000 0x0000>;" & ASCII.LF &
+        "" & ASCII.LF &
+        "      indent equals 6 for line after empty line" & ASCII.LF &
+        "};";
+
+      Block : Unbounded_String;
+   begin
+      Block := To_Unbounded_String ("");
+      Block_Indent (Block => Block);
+      Assert (Actual   => To_String (Block),
+              Expected => "",
+              Message  => "wrong block indent for empty block with default " &
+                "N and unit size indent");
+
+      Block := To_Unbounded_String ("");
+      Block_Indent (Block => Block,
+                    N     => 2);
+      Assert (Actual   => To_String (Block),
+              Expected => "",
+              Message  => "wrong block indent for empty block with N " &
+                "equals 2 and default unit size indent");
+
+      Block := To_Unbounded_String ("");
+      Block_Indent (Block     => Block,
+                    N         => 3,
+                    Unit_Size => 2);
+      Assert (Actual   => To_String (Block),
+              Expected => "",
+              Message  => "wrong block indent for empty block with N " &
+                "equals 3 and unit size equals 2 indent");
+
+      Block := To_Unbounded_String ("one line");
+      Block_Indent (Block => Block);
+      Assert (Actual   => To_String (Block),
+              Expected => "    one line",
+              Message  => "wrong block indent for one line block with " &
+                "default N and unit size indent");
+
+      Block := To_Unbounded_String ("one line");
+      Block_Indent (Block => Block,
+                    N     => 2);
+      Assert (Actual   => To_String (Block),
+              Expected => "        one line",
+              Message  => "wrong block indent for one line block with " &
+                "N equals 2 and default unit size indent");
+
+      Block := To_Unbounded_String ("one line");
+      Block_Indent (Block     => Block,
+                    N         => 3,
+                    Unit_Size => 3);
+      Assert (Actual   => To_String (Block),
+              Expected => "         one line",
+              Message  => "wrong block indent for one line block with " &
+                "N equals 3 and unit size equals 3 indent");
+
+      Block := To_Unbounded_String ("first line" & ASCII.LF & "second line");
+      Block_Indent (Block => Block);
+      Assert (Actual   => To_String (Block),
+              Expected =>
+                "    first line" & ASCII.LF &
+                "    second line",
+              Message  => "wrong block indent for two line block with " &
+                "default N and unit size indent");
+
+      Block := To_Unbounded_String ("first line" & ASCII.LF & "second line");
+      Block_Indent (Block => Block,
+                    N     => 3);
+      Assert (Actual   => To_String (Block),
+              Expected =>
+                "            first line" & ASCII.LF &
+                "            second line",
+              Message  => "wrong block indent for two line block with " &
+                "N equals 3 and default unit size indent");
+
+      Block := To_Unbounded_String ("first line" & ASCII.LF & "second line");
+      Block_Indent (Block     => Block,
+                    N         => 5,
+                    Unit_Size => 1);
+      Assert (Actual   => To_String (Block),
+              Expected =>
+                "     first line" & ASCII.LF &
+                "     second line",
+              Message  => "wrong block indent for two line block with " &
+                "N equals 5 and unit size equals 1 indent");
+
+      Block := To_Unbounded_String (Multiline);
+      Block_Indent (Block => Block);
+      Assert (Actual   => To_String (Block),
+              Expected =>
+                "    first line without indent {" &
+                ASCII.LF &
+                "        second line has indent = ""4"";" &
+                ASCII.LF &
+                "        third line as well <0x0 0x0 0x2000 0x0000>;" &
+                ASCII.LF &
+                "" &
+                ASCII.LF &
+                "          indent equals 6 for line after empty line" &
+                ASCII.LF &
+                "    };",
+              Message  => "wrong block indent for multiline block with " &
+                "default N and unit size indent");
+
+      Block := To_Unbounded_String (ASCII.LF & Multiline & ASCII.LF);
+      Block_Indent (Block => Block);
+      Assert (Actual   => To_String (Block),
+              Expected =>
+                "" &
+                ASCII.LF &
+                "    first line without indent {" &
+                ASCII.LF &
+                "        second line has indent = ""4"";" &
+                ASCII.LF &
+                "        third line as well <0x0 0x0 0x2000 0x0000>;" &
+                ASCII.LF &
+                "" &
+                ASCII.LF &
+                "          indent equals 6 for line after empty line" &
+                ASCII.LF &
+                "    };" &
+                ASCII.LF &
+                "",
+              Message  => "wrong block indent for multiline block with " &
+                "default N and unit size indent and single empty line");
+
+      Block := To_Unbounded_String
+        (ASCII.LF & ASCII.LF & Multiline & ASCII.LF & ASCII.LF);
+      Block_Indent (Block => Block);
+      Assert (Actual   => To_String (Block),
+              Expected =>
+                "" &
+                ASCII.LF &
+                "" &
+                ASCII.LF &
+                "    first line without indent {" &
+                ASCII.LF &
+                "        second line has indent = ""4"";" &
+                ASCII.LF &
+                "        third line as well <0x0 0x0 0x2000 0x0000>;" &
+                ASCII.LF &
+                "" &
+                ASCII.LF &
+                "          indent equals 6 for line after empty line" &
+                ASCII.LF &
+                "    };" &
+                ASCII.LF &
+                "" &
+                ASCII.LF &
+                "",
+              Message  => "wrong block indent for multiline block with " &
+                "default N and unit size indent and multiple empty lines");
+
+      Block := To_Unbounded_String
+        ("" & ASCII.LF & "" & ASCII.LF & "" & ASCII.LF & "" & ASCII.LF);
+      Block_Indent (Block => Block);
+      Assert (Actual   => To_String (Block),
+              Expected =>
+                "" & ASCII.LF & "" & ASCII.LF & "" & ASCII.LF & "" & ASCII.LF,
+              Message  => "wrong block indent for new line only block with " &
+                "default N and unit size indent");
+
+--  begin read only
+   end Test_Block_Indent;
+--  end read only
+
 --  begin read only
 --  id:2.2/02/
 --
