@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <system>
 <config>
+ <boolean name="armv8" value="true"/>
  <boolean name="debug_enabled" value="true"/>
  <string name="debug_level" value="Level_3"/>
 </config>
@@ -45,7 +46,14 @@
    <irq name="hypervisor_timer" number="26"/>
    <irq name="virtual_timer" number="27"/>
    <irq name="physical_timer" number="30"/>
-   <memory caching="UC" name="mem" physicalAddress="16#f900_0000#" size="16#0010_0000#"/>
+   <memory caching="UC" name="GIC" physicalAddress="16#f900_0000#" size="16#1000#"/>
+   <memory caching="UC" name="GICD" physicalAddress="16#f901_0000#" size="16#1000#"/>
+   <memory caching="UC" name="GICC" physicalAddress="16#f902_0000#" size="16#1000#"/>
+   <memory caching="UC" name="GICC_DIR" physicalAddress="16#f903_0000#" size="16#1000#"/>
+   <memory caching="UC" name="GICH" physicalAddress="16#f904_0000#" size="16#1000#"/>
+   <memory caching="UC" name="GICH_Alias" physicalAddress="16#f905_0000#" size="16#1000#"/>
+   <memory caching="UC" name="GICV" physicalAddress="16#f906_0000#" size="16#1000#"/>
+   <memory caching="UC" name="GICV_DIR" physicalAddress="16#f907_0000#" size="16#1000#"/>
    <capabilities>
     <capability name="gic"/>
     <capability name="rmap_distributor">10000</capability>
@@ -100,31 +108,37 @@
   <file filename="kernel.bin" offset="none"/>
  </memory>
  <memory alignment="16#1000#" caching="WB" name="kernel_text" physicalAddress="16#0000#" size="16#0004_a000#" type="kernel_binary">
-  <file filename="kernel.bin" offset="16#1000#"/>
+  <file filename="kernel.bin" offset="16#0000#"/>
+ </memory>
+ <memory alignment="16#1000#" caching="WB" name="kernel_ro" physicalAddress="16#0005_6000#" size="16#0001_0000#" type="kernel_binary">
+  <file filename="kernel.bin" offset="16#0005_6000#"/>
  </memory>
  <memory alignment="16#1000#" caching="WB" name="kernel_data_0" physicalAddress="16#0006_6000#" size="16#1000#" type="kernel_binary">
-  <file filename="kernel.bin" offset="16#0006_7000#"/>
+  <file filename="kernel.bin" offset="16#0006_6000#"/>
  </memory>
  <memory alignment="16#1000#" caching="WB" name="kernel_bss_0" physicalAddress="16#0006_7000#" size="16#1000#" type="kernel_binary">
   <fill pattern="16#00#"/>
  </memory>
- <memory alignment="16#1000#" caching="WB" name="kernel_global_data" physicalAddress="16#0007_8000#" size="16#2000#" type="kernel_binary">
+ <memory alignment="16#1000#" caching="WB" name="kernel_global_rodata" physicalAddress="16#0007_0000#" size="16#1000#" type="kernel_binary">
   <file filename="kernel.bin" offset="16#0007_0000#"/>
  </memory>
- <memory alignment="16#1000#" caching="WB" name="kernel_0|stack" physicalAddress="16#000d_0000#" size="16#0002_0000#" type="kernel"/>
- <memory alignment="16#1000#" caching="WB" name="kernel_interrupt_stack_0" physicalAddress="16#0000#" size="16#1000#" type="kernel"/>
- <memory alignment="16#1000#" caching="WB" name="kernel_0|stack" physicalAddress="16#000d_0000#" size="16#0002_0000#" type="kernel"/>
- <memory alignment="16#1000#" caching="WB" name="kernel_0|pt" physicalAddress="16#0009_0000#" size="16#c000#" type="system_pt">
-  <file filename="xilinxzcu104-core-0-pagetables-asm" offset="none"/>
+ <memory alignment="16#1000#" caching="WB" name="kernel_global_data" physicalAddress="16#0007_8000#" size="16#2000#" type="kernel_binary">
+  <file filename="kernel.bin" offset="16#0007_8000#"/>
  </memory>
- <memory alignment="16#1000#" caching="WB" name="linux|pt" physicalAddress="16#0009_c000#" size="16#a000#" type="system_pt">
-  <file filename="xilinxzcu104-linux-vttbr-pagetables-asm" offset="none"/>
+ <memory alignment="16#1000#" caching="WB" name="kernel_stack_0" physicalAddress="16#000d_0000#" size="16#0002_0000#" type="kernel">
+  <fill pattern="16#00#"/>
  </memory>
- <memory alignment="16#1000#" caching="WB" name="event_logger_ttbr0|pt" physicalAddress="16#000a_2000#" size="16#8000#" type="system_pt">
-  <file filename="xilinxzcu104-subjecttwo-direct-pagetables-asm" offset="none"/>
+ <memory alignment="16#1000#" caching="WB" name="kernel_interrupt_stack_0" physicalAddress="16#0002_0000#" size="16#1000#" type="kernel">
+  <fill pattern="16#00#"/>
  </memory>
- <memory alignment="16#1000#" caching="WB" name="event_logger_ttbr1|pt" physicalAddress="16#000a_b000#" size="16#1000#" type="system_pt">
-  <file filename="xilinxzcu104-subjecttwo-fault-pagetables-asm" offset="none"/>
+ <memory alignment="16#1000#" caching="WB" name="kernel_0|pt" physicalAddress="16#0011_0000#" size="16#7000#" type="system_pt">
+  <file filename="xilinxzcu104-core-0.pt" offset="none"/>
+ </memory>
+ <memory alignment="16#1000#" caching="WB" name="linux|pt" physicalAddress="16#0010_0000#" size="16#6000#" type="system_pt">
+  <file filename="xilinxzcu104-linux-stage2.pt" offset="none"/>
+ </memory>
+ <memory alignment="16#1000#" caching="WB" name="event_logger|pt" physicalAddress="16#0010_6000#" size="16#8000#" type="system_pt">
+  <file filename="xilinxzcu104-subjecttwo-stage2.pt" offset="none"/>
  </memory>
  <memory alignment="16#1000#" caching="WB" name="subject|binary" physicalAddress="16#0400_0000#" size="16#0000_a000#" type="subject_binary">
   <file filename="subject_one.bin" offset="none"/>
@@ -154,24 +168,33 @@
 <kernel>
  <memory>
   <cpu id="0">
-   <memory logical="binary" physical="kernel_0|binary" virtualAddress="16#0000_0000#" writable="true" executable="true"/>
    <memory logical="text" physical="kernel_text" virtualAddress="16#0000#" writable="false" executable="true"/>
-   <memory logical="stack" physical="kernel_0|stack" virtualAddress="16#000d_0000#" writable="true" executable="false"/>
-   <memory logical="interrupt_stack" physical="kernel_interrupt_stack_0" virtualAddress="16#003f_f000#" writable="true" executable="false"/>
+   <memory logical="ro" physical="kernel_ro" virtualAddress="16#0005_6000#" writable="false" executable="false"/>
    <memory logical="data" physical="kernel_data_0" virtualAddress="16#0006_6000#" writable="true" executable="false"/>
    <memory logical="bss" physical="kernel_bss_0" virtualAddress="16#0006_7000#" writable="true" executable="false"/>
+   <!--  This section must be writable for now  -->
+   <memory logical="globalrodata" physical="kernel_global_rodata" virtualAddress="16#0007_0000#" writable="true" executable="false"/>
    <memory logical="globaldata" physical="kernel_global_data" virtualAddress="16#0007_8000#" writable="true" executable="false"/>
+   <memory logical="stack" physical="kernel_stack_0" virtualAddress="16#000d_0000#" writable="true" executable="false"/>
+   <memory logical="interrupt_stack" physical="kernel_interrupt_stack_0" virtualAddress="16#003f_f000#" writable="true" executable="false"/>
    <memory logical="crash_audit" physical="crash_audit" virtualAddress="16#0040_0000#" writable="true"  executable="false"/>
   </cpu>
  </memory>
  <devices>
   <device logical="debugconsole" physical="UART0">
    <irq logical="serial_irq" physical="irq" vector="53"/>
-   <memory virtualAddress="16#0400_0000#" physical="mem" logical="serial_dev" writable="true" executable="false"/>
+   <memory virtualAddress="16#ff00_0000#" physical="mem" logical="serial_dev" writable="true" executable="false"/>
   </device>
   <device logical="gic" physical="APU_GIC">
    <irq logical="maintenance_irq" physical="maintenance" vector="25"/>
-   <memory virtualAddress="16#f900_0000#" physical="mem" logical="gic_dev" writable="true" executable="false"/>
+   <memory logical="GIC" physical="GIC" virtualAddress="16#f900_0000#" writable="true" executable="false"/>
+   <memory logical="GICD" physical="GICD" virtualAddress="16#f900_1000#" writable="true" executable="false"/>
+   <memory logical="GICC" physical="GICC" virtualAddress="16#f900_2000#" writable="true" executable="false"/>
+   <memory logical="GICC_DIR" physical="GICC_DIR" virtualAddress="16#f900_3000#" writable="true" executable="false"/>
+   <memory logical="GICH" physical="GICH" virtualAddress="16#f900_4000#" writable="true" executable="false"/>
+   <memory logical="GICH_Alias" physical="GICH_Alias" virtualAddress="16#f900_5000#" writable="true" executable="false"/>
+   <memory logical="GICV" physical="GICV" virtualAddress="16#f900_6000#" writable="true" executable="false"/>
+   <memory logical="GICV_DIR" physical="GICV_DIR" virtualAddress="16#f900_7000#" writable="true" executable="false"/>
   </device>
   <device logical="smmu" physical="SMMU_GPV">
    <irq logical="smmu_irq" physical="irq" vector="187"/>
@@ -418,16 +441,17 @@
   </vcpu>
   <bootparams>hostname=lnx1 console=ttyPS0,115200 root=/dev/ram0 initrd=0x1b000000,60M earlycon</bootparams>
   <memory>
-   <memory logical="lowmem" physical="linux|lowmem" virtualAddress="16#0000_0000#" writable="true" executable="false"/>
-   <memory logical="dtb" physical="linux|dtb" virtualAddress="16#0004_0000#" writable="false" executable="false"/>
+   <memory logical="lowmem" physical="linux|lowmem" virtualAddress="16#0000_0000#" writable="true" executable="true"/>
+   <memory logical="dtb" physical="linux|dtb" virtualAddress="16#0004_0000#" writable="true" executable="true"/>
    <memory logical="binary" physical="linux|binary" virtualAddress="16#0008_0000#" writable="true" executable="true"/>
    <memory logical="ram" physical="linux|ram" virtualAddress="16#0075_d000#" writable="true" executable="true"/>
-   <memory logical="rootfs" physical="linux|rootfs" virtualAddress="16#1b00_0000#" writable="false" executable="false"/>
+   <memory logical="rootfs" physical="linux|rootfs" virtualAddress="16#1b00_0000#" writable="true" executable="true"/>
   </memory>
   <devices>
    <device logical="vgic" physical="APU_GIC">
     <irq logical="linux_timer" physical="virtual_timer" vector="27"/>
-    <memory logical="vgic_dev" physical="mem" virtualAddress="16#2000_0000#" writable="true" executable="false"/>
+    <memory logical="vgic_dev1" physical="GICV" virtualAddress="16#2000_0000#" writable="true" executable="false"/>
+    <memory logical="vgic_dev2" physical="GICV_DIR" virtualAddress="16#2000_1000#" writable="true" executable="false"/>
    </device>
    <device logical="serial" physical="UART1">
     <irq logical="serial_irq" physical="irq" vector="32"/>
@@ -864,7 +888,8 @@
    </device>
    <device logical="vgic" physical="APU_GIC">
     <irq logical="event_demo_irq" physical="sgi_12" vector="12"/>
-    <memory logical="vgic_dev" physical="mem" virtualAddress="16#0401_0000#" writable="true" executable="false"/>
+    <memory logical="vgic_dev1" physical="GICV" virtualAddress="16#0401_0000#" writable="true" executable="false"/>
+    <memory logical="vgic_dev2" physical="GICV_DIR" virtualAddress="16#0401_1000#" writable="true" executable="false"/>
    </device>
   </devices>
   <events>
