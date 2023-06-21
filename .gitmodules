@@ -1,0 +1,3 @@
+[submodule "sbs"]
+	path = sbs
+	url = ../../sbs-tools.git
