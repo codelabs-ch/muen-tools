@@ -1,2 +1,10 @@
+bin
+lib
+obj
+generated
+.*.swp
+*~
+*.pyc
+.clang-format
 .prepare-*
 */tests/*[-_]tests.ads
