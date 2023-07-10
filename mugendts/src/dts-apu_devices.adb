@@ -105,13 +105,17 @@ is
          Content  => Mutools.Utils.To_Hex (Number     => APU_First,
                                            Normalize  => False,
                                            Byte_Short => False));
+      --  NOTE - the child bus address translation ranges are specified   --
+      --  as (child-bus-address, parent-bus-address, length), i.c. no     --
+      --  address translation is used for the AMBA APU child bus (c.f.    --
+      --  official Xilinx ZCU104 device tree)                             --
       Mutools.Templates.Replace
         (Template => Template,
          Pattern  => "__amba_apu_ranges__",
-         Content  => "ranges = <0x0 0x0 0x0 0x0 0x" & Mutools.Utils.
-           To_Hex (Number     => APU_Last,
-                   Normalize  => False,
-                   Byte_Short => False) & ">;");
+         Content  => "ranges = <" &
+           To_DTS_Cell (Value => 16#0000_0000#) & " " &
+           To_DTS_Cell (Value => 16#0000_0000#) & " " &
+           To_DTS_Cell (Value => APU_Last) & ">;");
       Mutools.Templates.Replace
         (Template => Template,
          Pattern  => "__amba_apu_devices__",
@@ -131,75 +135,31 @@ is
         := Mutools.Templates.Create
           (Content => String_Templates.muen_vgic_dsl);
 
-      --  (1) extract all virtual device memory regions (i.c. vGIC)       --
-      Virtual_GIC_Memory : constant DOM.Core.Node_List
-        := McKae.XML.XPath.XIA.XPath_Query
-          (N     => Device,
-           XPath => "memory");
-
-      Physical_GIC_Name : constant String
-        := DOM.Core.Elements.Get_Attribute (Elem => Device,
-                                            Name => "physical");
-
-      Base_Address : Unsigned_64 := Unsigned_64'Last;
-      Range_Size   : Unsigned_64 := 16#0#;
+      Register_Entry : Unbounded_String;
    begin
-      for I in 0 .. DOM.Core.Nodes.Length (Virtual_GIC_Memory) - 1 loop
-         declare
-            -- (2) extract corresponding physical memory node (i.c. GIC)  --
-            Physical_GIC_Memory : constant DOM.Core.Node_List
-              := McKae.XML.XPath.XIA.XPath_Query
-                (N     => Policy.Doc,
-                 XPath => "/system/hardware/devices/device[@name='" &
-                   Physical_GIC_Name & "']/memory[@name='" & DOM.Core.
-                   Elements.Get_Attribute
-                     (Elem => DOM.Core.Nodes.Item
-                        (List  => Virtual_GIC_Memory,
-                         Index => I),
-                      Name => "physical") & "']");
-         begin
-            if DOM.Core.Nodes.Length (Physical_GIC_Memory) = 1 then
-               declare
-                  Memory_Address : constant Unsigned_64
-                    := Unsigned_64'Value
-                      (DOM.Core.Elements.Get_Attribute
-                         (Elem => DOM.Core.Nodes.Item
-                            (List  => Virtual_GIC_Memory,
-                             Index => I),
-                          Name => "virtualAddress"));
-                  Memory_Size : constant Unsigned_64
-                    := Unsigned_64'Value
-                      (DOM.Core.Elements.Get_Attribute
-                         (Elem => DOM.Core.Nodes.Item
-                            (List  => Physical_GIC_Memory,
-                             Index => 0),
-                          Name => "size"));
-               begin
-                  if Memory_Address < Base_Address then
-                     Base_Address := Memory_Address;
-                  end if;
-                  Range_Size := Range_Size + Memory_Size;
-               end;
-            end if;
-         end;
-      end loop;
+      DTS_Register_Entry (Policy    => Policy,
+                          Device    => Device,
+                          DTS_Entry => Register_Entry,
+                          DTS_Range => DTS_Range);
+
       Mutools.Templates.Replace
         (Template => Template,
          Pattern  => "__vgic_bus_base__",
-         Content  => Mutools.Utils.To_Hex (Number     => Base_Address,
+         Content  => Mutools.Utils.To_Hex (Number     => DTS_Range.Base,
                                            Normalize  => False,
                                            Byte_Short => False));
+      --  NOTE - because the Xilinx GIC device layout does not met the    --
+      --  ARM GIC specification, the virtual memory for the CPU inter-    --
+      --  face has to be split up; this has to be corrected for the DTS   --
       Mutools.Templates.Replace
         (Template => Template,
          Pattern  => "__vgic_registers__",
-         Content  => "reg = <" & To_DTS_Cell (Value => Base_Address) &
-           " 0x" & Mutools.Utils.To_Hex (Number     => Range_Size,
-                                         Normalize  => False,
-                                         Byte_Short => False) & ">;");
+         Content  => "reg = <" &
+           To_DTS_Cell (Value => DTS_Range.Base) & " " &
+           To_DTS_Cell (Value => DTS_Range.Size) & ">;");
+
       Append (Source   => DTS_Entry,
               New_Item => Mutools.Templates.To_String (Template => Template));
-      DTS_Range := (Base => Base_Address,
-                    Size => Range_Size);
    end Generate_GIC_Node;
 
 end DTS.APU_Devices;
