@@ -19,6 +19,10 @@ with Interfaces; use Interfaces;
 
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
+with DOM.Core;
+
+with Muxml;
+
 package DTS
 is
 
@@ -28,13 +32,19 @@ is
       Size : Unsigned_64;
    end record;
 
-   function To_DTS_Cell
-     (Value : Unsigned_64)
-      return String;
-
    procedure Block_Indent
      (Block     : in out Unbounded_String;
       N         :        Positive := 1;
       Unit_Size :        Positive := 4);
+
+   procedure DTS_Register_Entry
+     (Policy    :     Muxml.XML_Data_Type;
+      Device    :     DOM.Core.Node;
+      DTS_Entry : out Unbounded_String;
+      DTS_Range : out DTS_Range_Type);
+
+   function To_DTS_Cell
+     (Value : Unsigned_64)
+      return String;
 
 end DTS;

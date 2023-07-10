@@ -105,7 +105,7 @@
     amba-apu@__amba_apu_base__ {
         compatible = "simple-bus";
         #address-cells = <0x2>;
-        #size-cells = <0x1>;
+        #size-cells = <0x2>;
         __amba_apu_ranges__
 __amba_apu_devices__
     };
