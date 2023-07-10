@@ -26,9 +26,7 @@ with Muxml.Utils;
 with String_Templates;
 
 with DTS.APU_Devices;
-
---  with Node_Utils;
---  with Mulog;
+with DTS.SoC_Devices;
 
 package body DTS.Root
 is
@@ -173,6 +171,10 @@ is
                        Subject  => Subject);
 
       DTS.APU_Devices.Add_APU_Devices (Template => Template,
+                                       Policy   => Policy,
+                                       Subject  => Subject);
+
+      DTS.SoC_Devices.Add_SoC_Devices (Template => Template,
                                        Policy   => Policy,
                                        Subject  => Subject);
 
