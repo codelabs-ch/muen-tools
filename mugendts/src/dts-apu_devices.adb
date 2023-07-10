@@ -118,9 +118,9 @@ is
          Content  => To_String (Source => APU_Buffer));
    end Add_APU_Devices;
 
-   -----------------------
-   --  Add_Memory_Node  --
-   -----------------------
+   -------------------------
+   --  Generate_GIC_Node  --
+   -------------------------
    procedure Generate_GIC_Node
      (Policy    :     Muxml.XML_Data_Type;
       Device    :     DOM.Core.Node;
