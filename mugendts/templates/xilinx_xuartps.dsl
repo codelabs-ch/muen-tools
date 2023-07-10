@@ -1,4 +1,4 @@
-__uart_bus_alias__ __uart_bus_name__@__uart_bus_base__ {
+__uart_bus_alias____uart_bus_name__@__uart_bus_base__ {
     compatible = "cdns,uart-r1p12", "xlnx,xuartps";
     __uart_registers__
     interrupt-parent = <0x7>;

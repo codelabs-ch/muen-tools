@@ -24,8 +24,12 @@ with McKae.XML.XPath.XIA;
 
 with Mutools.Utils;
 
+with String_Templates;
+
 package body DTS.SoC_Devices
 is
+
+   UART_Device_Counter : Natural := 0;
 
    -----------------------
    --  Add_SoC_Devices  --
@@ -83,6 +87,7 @@ is
                                                   Index => 0),
                                                DTS_Entry => Virtual_Dev_Entry,
                                                DTS_Range => Virtual_Dev_Range);
+                           UART_Device_Counter := UART_Device_Counter + 1;
                         when USB  =>
                            Generate_USB_Node (Policy    => Policy,
                                               Device    => DOM.Core.Nodes.Item
@@ -101,29 +106,41 @@ is
                           Virtual_Dev_Range.Size;
                      end if;
 
-                     Block_Indent (Block     => Virtual_Dev_Entry,
-                                   N         => 2,
-                                   Unit_Size => 4);
-                     Append (Source   => SoC_Buffer,
-                             New_Item => ASCII.LF & Virtual_Dev_Entry);
+                     if Length (Virtual_Dev_Entry) /= 0 then
+                        Block_Indent (Block     => Virtual_Dev_Entry,
+                                      N         => 2,
+                                      Unit_Size => 4);
+                        Append (Source   => SoC_Buffer,
+                                New_Item => ASCII.LF & Virtual_Dev_Entry);
+                     end if;
                   end if;
                end;
             end loop;
          end;
       end loop;
+
+      UART_Device_Counter := 0;
+
       Mutools.Templates.Replace
         (Template => Template,
          Pattern  => "__amba_soc_base__",
-         Content  => Mutools.Utils.To_Hex (Number     => SoC_First,
-                                           Normalize  => False,
-                                           Byte_Short => False));
+         Content  => Mutools.Utils.To_Hex
+           (Number     => (if Length (SoC_Buffer) /= 0
+                           then SoC_First else 0),
+            Normalize  => False,
+            Byte_Short => False));
+      --  NOTE - the child bus address translation ranges are specified   --
+      --  as (child-bus-address, parent-bus-address, length), i.c. no     --
+      --  address translation is used for the AMBA APU child bus (c.f.    --
+      --  official Xilinx ZCU104 device tree)                             --
       Mutools.Templates.Replace
         (Template => Template,
          Pattern  => "__amba_soc_ranges__",
-         Content  => "ranges = <0x0 0x0 0x0 0x0 0x" & Mutools.Utils.
-           To_Hex (Number     => SoC_Last,
-                   Normalize  => False,
-                   Byte_Short => False) & ">;");
+         Content  => "ranges = <" &
+           To_DTS_Cell (Value => 16#0000_0000#) & " " &
+           To_DTS_Cell (Value => 16#0000_0000#) & " " &
+           To_DTS_Cell (Value => (if Length (SoC_Buffer) /= 0
+                                  then SoC_Last else 0)) & ">;");
       Mutools.Templates.Replace
         (Template => Template,
          Pattern  => "__amba_soc_devices__",
@@ -152,8 +169,77 @@ is
       DTS_Entry : out Unbounded_String;
       DTS_Range : out DTS_Range_Type)
    is
+      Template : Mutools.Templates.Template_Type
+        := Mutools.Templates.Create
+          (Content => String_Templates.xilinx_xuartps_dsl);
+
+      Virtual_IRQs : constant DOM.Core.Node_List
+        := McKae.XML.XPath.XIA.XPath_Query
+          (N     => Device,
+           XPath => "irq");
+
+      Physical_Name : constant String
+        := DOM.Core.Elements.Get_Attribute (Elem => Device,
+                                            Name => "physical");
+
+      Register_Entry : Unbounded_String;
    begin
-      null;
+      DTS_Register_Entry (Policy    => Policy,
+                          Device    => Device,
+                          DTS_Entry => Register_Entry,
+                          DTS_Range => DTS_Range);
+
+      if UART_Device_Counter = 0 then
+         Mutools.Templates.Replace
+           (Template => Template,
+            Pattern  => "__uart_bus_alias__",
+            Content  => "serial_0: ");
+      else
+         Mutools.Templates.Replace
+           (Template => Template,
+            Pattern  => "__uart_bus_alias__",
+            Content  => "");
+      end if;
+
+      Mutools.Templates.Replace
+        (Template => Template,
+         Pattern  => "__uart_bus_name__",
+         Content  => Ada.Characters.Handling.To_Lower (Physical_Name));
+      Mutools.Templates.Replace
+        (Template => Template,
+         Pattern  => "__uart_bus_base__",
+         Content  => Mutools.Utils.To_Hex (Number     => DTS_Range.Base,
+                                           Normalize  => False,
+                                           Byte_Short => False));
+      Mutools.Templates.Replace
+        (Template => Template,
+         Pattern  => "__uart_registers__",
+         Content  => To_String (Register_Entry));
+
+      if DOM.Core.Nodes.Length (Virtual_IRQs) = 1 then
+         declare
+            Virtual_IRQ : constant Unsigned_64
+              := Unsigned_64'Value
+                (DOM.Core.Elements.Get_Attribute
+                   (Elem => DOM.Core.Nodes.Item
+                      (List  => Virtual_IRQs,
+                       Index => 0),
+                    Name => "vector"));
+            SPI_Offset  : constant Unsigned_64
+              := 32;
+         begin
+            Mutools.Templates.Replace
+              (Template => Template,
+               Pattern  => "__uart_irq_irq__",
+               Content  => Mutools.Utils.To_Hex
+                 (Number     => Virtual_IRQ - SPI_Offset,
+                  Normalize  => False,
+                  Byte_Short => False));
+         end;
+      end if;
+
+      Append (Source   => DTS_Entry,
+              New_Item => Mutools.Templates.To_String (Template => Template));
    end Generate_UART_Node;
 
    -------------------------
