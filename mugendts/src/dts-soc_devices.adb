@@ -251,8 +251,103 @@ is
       DTS_Entry : out Unbounded_String;
       DTS_Range : out DTS_Range_Type)
    is
+      Template : Mutools.Templates.Template_Type
+        := Mutools.Templates.Create
+          (Content => String_Templates.xilinx_usbdwc3_dsl);
+
+      Virtual_IRQs : constant DOM.Core.Node_List
+        := McKae.XML.XPath.XIA.XPath_Query
+          (N     => Device,
+           XPath => "irq");
+
+      Physical_Name : constant String
+        := DOM.Core.Elements.Get_Attribute (Elem => Device,
+                                            Name => "physical");
+
+      Register_Entry : Unbounded_String;
    begin
-      null;
+      DTS_Register_Entry (Policy    => Policy,
+                          Device    => Device,
+                          DTS_Entry => Register_Entry,
+                          DTS_Range => DTS_Range);
+
+      Mutools.Templates.Replace
+        (Template => Template,
+         Pattern  => "__usb_bus_alias__",
+         Content  => "");
+      Mutools.Templates.Replace
+        (Template => Template,
+         Pattern  => "__usb_bus_name__",
+         Content  => Ada.Characters.Handling.To_Lower (Physical_Name));
+      Mutools.Templates.Replace
+        (Template => Template,
+         Pattern  => "__usb_bus_base__",
+         Content  => Mutools.Utils.To_Hex (Number     => DTS_Range.Base,
+                                           Normalize  => False,
+                                           Byte_Short => False));
+      --  NOTE - the Linux SNPS DWC3 driver (adapted for Xilinx) does not --
+      --  match the policy memory restrictions for the device; hence, the --
+      --  base address in combination with a static size is used          --
+      Mutools.Templates.Replace
+        (Template => Template,
+         Pattern  => "__usb_registers__",
+         Content  => "reg = <" &
+           To_DTS_Cell (Value => DTS_Range.Base) & " " &
+           To_DTS_Cell (Value => 16#0004_0000#) & ">;");
+
+      DTS_Range.Size := 16#0004_0000#;
+
+      --  NOTE - the Linux SNPS DWC3 driver (adapted for Xilinx) requires --
+      --  specific interrupts; currently, the policy interrupts are just  --
+      --  enumerated (c.f. test policies)                                 --
+      for I in 0 .. DOM.Core.Nodes.Length (Virtual_IRQs) - 1 loop
+         declare
+            Virtual_IRQ_Name   : constant String
+              := DOM.Core.Elements.Get_Attribute
+                (Elem => DOM.Core.Nodes.Item
+                   (List  => Virtual_IRQs,
+                    Index => I),
+                 Name => "logical");
+            Virtual_IRQ_Number : constant Unsigned_64
+              := Unsigned_64'Value
+                (DOM.Core.Elements.Get_Attribute
+                   (Elem => DOM.Core.Nodes.Item
+                      (List  => Virtual_IRQs,
+                       Index => I),
+                    Name => "vector"));
+            SPI_Offset  : constant Unsigned_64
+              := 32;
+         begin
+            if Virtual_IRQ_Name = "irq1" then
+               Mutools.Templates.Replace
+                 (Template => Template,
+                  Pattern  => "__usb_irq_endpoint_0__",
+                  Content  => Mutools.Utils.To_Hex
+                    (Number     => Virtual_IRQ_Number - SPI_Offset,
+                     Normalize  => False,
+                     Byte_Short => False));
+            elsif Virtual_IRQ_Name = "irq5" then
+               Mutools.Templates.Replace
+                 (Template => Template,
+                  Pattern  => "__usb_irq_otg__",
+                  Content  => Mutools.Utils.To_Hex
+                    (Number     => Virtual_IRQ_Number - SPI_Offset,
+                     Normalize  => False,
+                     Byte_Short => False));
+            elsif Virtual_IRQ_Name = "irq6" then
+               Mutools.Templates.Replace
+                 (Template => Template,
+                  Pattern  => "__usb_irq_wakeup__",
+                  Content  => Mutools.Utils.To_Hex
+                    (Number     => Virtual_IRQ_Number - SPI_Offset,
+                     Normalize  => False,
+                     Byte_Short => False));
+            end if;
+         end;
+      end loop;
+
+      Append (Source   => DTS_Entry,
+              New_Item => Mutools.Templates.To_String (Template => Template));
    end Generate_USB_Node;
 
 end DTS.SoC_Devices;
