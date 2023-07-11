@@ -4,7 +4,7 @@ __nic_bus_alias____nic_bus_name__@__nic_bus_base__ {
     interrupt-parent = <0x7>;
     interrupts = <GIC_SPI 0x__nic_irq_controller__ IRQ_TYPE_LEVEL_HIGH>,
         <GIC_SPI 0x__nic_irq_controller__ IRQ_TYPE_LEVEL_HIGH>;
-    clocks = <0x4 0x4 0x4 0x4 0x4>;
+    clocks = <&clk125 &clk125 &clk125 &clk125 &clk125>;
     clock-names = "pclk", "hclk", "tx_clk", "rx_clk", "tsu_clk";
     status = "okay";
 

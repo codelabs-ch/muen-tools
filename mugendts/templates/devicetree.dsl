@@ -77,7 +77,7 @@
         phandle = <0x3>;
     };
 
-    clk125 {
+    clk125: clk125 {
         compatible = "fixed-clock";
         #clock-cells = <0>;
         clock-frequency = <125000000>;
