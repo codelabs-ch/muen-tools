@@ -69,7 +69,7 @@
         };
     };
 
-    clk100 {
+    clk100: clk100 {
         compatible = "fixed-clock";
         #clock-cells = <0x0>;
         clock-frequency = <99999999>;
