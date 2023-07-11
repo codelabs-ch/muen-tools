@@ -111,19 +111,24 @@ is
             Physical_Memory_Size : constant String
               := DOM.Core.Elements.Get_Attribute (Elem => Physical_Memory_Node,
                                                   Name => "size");
+            Physical_Memory_Type : constant String
+              := DOM.Core.Elements.Get_Attribute (Elem => Physical_Memory_Node,
+                                                  Name => "type");
          begin
             if Unsigned_64'Value (Virtual_Memory_Base) < Base_Address then
                Base_Address := Unsigned_64'Value (Virtual_Memory_Base);
             end if;
 
-            Append (Source   => Register_Ranges,
-                    New_Item => To_DTS_Cell (Unsigned_64'Value
-                      (Virtual_Memory_Base)) & " " & To_DTS_Cell
-                    (Unsigned_64'Value (Physical_Memory_Size)));
+            if Physical_Memory_Type /= "subject_channel" then
+               if I /= 0 then
+                  Append (Source   => Register_Ranges,
+                          New_Item => ASCII.LF & Register_Offset);
+               end if;
 
-            if I /= DOM.Core.Nodes.Length (Subject_Memory) - 1 then
                Append (Source   => Register_Ranges,
-                       New_Item => ASCII.LF & Register_Offset);
+                       New_Item => To_DTS_Cell (Unsigned_64'Value
+                         (Virtual_Memory_Base)) & " " & To_DTS_Cell
+                       (Unsigned_64'Value (Physical_Memory_Size)));
             end if;
          end;
       end loop;
