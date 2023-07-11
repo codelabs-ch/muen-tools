@@ -85,7 +85,7 @@
         phandle = <0x4>;
     };
 
-    clk250 {
+    clk250: clk250 {
         compatible = "fixed-clock";
         #clock-cells = <0>;
         clock-frequency = <250000000>;
