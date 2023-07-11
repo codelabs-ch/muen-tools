@@ -236,7 +236,7 @@ package body DTS.Test_Data.Tests is
       --  (1) parse test policy  --
       Muxml.Parse (Data => Policy,
                    Kind => Muxml.Format_B,
-                   File => "data/test_policy.xml");
+                   File => "data/test_policy_light.xml");
 
       --  (2) extract linux subject directly  --
       Subject := McKae.XML.XPath.XIA.XPath_Query

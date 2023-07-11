@@ -56,10 +56,6 @@
    <memory caching="UC" name="GICV_DIR" physicalAddress="16#f907_0000#" size="16#1000#"/>
    <capabilities>
     <capability name="gic"/>
-    <capability name="rmap_distributor">10000</capability>
-    <capability name="rmap_cpuiface">20000</capability>
-    <capability name="rmap_vcpuctrl">40000</capability>
-    <capability name="rmap_vcpuiface">50000</capability>
    </capabilities>
   </device>
   <device name="SMMU_GPV">
@@ -67,6 +63,9 @@
    <memory caching="UC" name="mem" physicalAddress="16#fd80_0000#" size="16#0020_0000#"/>
    <capabilities>
     <capability name="iommu"/>
+    <capability name="agaw">39</capability>
+    <capability name="fr_offset">544</capability>
+    <capability name="iotlb_invalidate_offset">248</capability>
    </capabilities>
   </device>
   <device name="UART0">
@@ -82,6 +81,31 @@
    <capabilities>
     <capability name="uart"/>
    </capabilities>
+  </device>
+  <device name="USB3_0_XHCI">
+   <irq name="irq1" number="97"/>
+   <irq name="irq2" number="98"/>
+   <irq name="irq3" number="99"/>
+   <irq name="irq4" number="100"/>
+   <irq name="irq5" number="101"/>
+   <irq name="irq6" number="107"/>
+   <memory caching="UC" name="mem1" physicalAddress="16#fe20_0000#" size="16#1000#"/>
+   <memory caching="UC" name="mem2" physicalAddress="16#fe20_c000#" size="16#1000#"/>
+  </device>
+  <device name="USB3_1_XHCI">
+   <irq name="irq1" number="102"/>
+   <irq name="irq2" number="103"/>
+   <irq name="irq3" number="104"/>
+   <irq name="irq4" number="105"/>
+   <irq name="irq5" number="106"/>
+   <irq name="irq6" number="108"/>
+   <memory caching="UC" name="mem1" physicalAddress="16#fe30_0000#" size="16#1000#"/>
+   <memory caching="UC" name="mem2" physicalAddress="16#fe30_c000#" size="16#1000#"/>
+  </device>
+  <device name="GEM3">
+   <irq name="irq1" number="95"/>
+   <irq name="irq2" number="96"/>
+   <memory caching="UC" name="mem1" physicalAddress="16#ff0e_0000#" size="16#1000#"/>
   </device>
  </devices>
 </hardware>
@@ -99,51 +123,46 @@
   </aliases>
   <classes />
  </mappings>
- <kernelDiagnostics type="uart">
-  <device physical="UART0" />
+ <kernelDiagnostics type="hsuart">
+  <device physical="UART0">
+   <memory physical="mem"/>
+  </device>
  </kernelDiagnostics>
 </platform>
 <memory>
- <memory alignment="16#1000#" caching="WB" name="kernel_0|binary" physicalAddress="16#0000_0000#" size="16#000d_0000#" type="kernel_binary">
-  <file filename="kernel.bin" offset="none"/>
- </memory>
- <memory alignment="16#1000#" caching="WB" name="kernel_text" physicalAddress="16#0000#" size="16#0004_a000#" type="kernel_binary">
+ <memory alignment="16#1000#" caching="WB" name="kernel_text" physicalAddress="16#0000#" size="16#0005_8000#" type="kernel_binary">
   <file filename="kernel.bin" offset="16#0000#"/>
  </memory>
- <memory alignment="16#1000#" caching="WB" name="kernel_ro" physicalAddress="16#0005_6000#" size="16#0001_0000#" type="kernel_binary">
-  <file filename="kernel.bin" offset="16#0005_6000#"/>
+ <memory alignment="16#1000#" caching="WB" name="kernel_ro" physicalAddress="16#0005_8000#" size="16#0001_8000#" type="kernel_binary">
+  <file filename="kernel.bin" offset="16#0005_8000#"/>
  </memory>
- <memory alignment="16#1000#" caching="WB" name="kernel_data_0" physicalAddress="16#0006_6000#" size="16#1000#" type="kernel_binary">
-  <file filename="kernel.bin" offset="16#0006_6000#"/>
- </memory>
- <memory alignment="16#1000#" caching="WB" name="kernel_bss_0" physicalAddress="16#0006_7000#" size="16#1000#" type="kernel_binary">
-  <fill pattern="16#00#"/>
- </memory>
- <memory alignment="16#1000#" caching="WB" name="kernel_global_rodata" physicalAddress="16#0007_0000#" size="16#1000#" type="kernel_binary">
+ <memory alignment="16#1000#" caching="WB" name="kernel_data_0" physicalAddress="16#0007_0000#" size="16#2000#" type="kernel_binary">
   <file filename="kernel.bin" offset="16#0007_0000#"/>
  </memory>
- <memory alignment="16#1000#" caching="WB" name="kernel_global_data" physicalAddress="16#0007_8000#" size="16#2000#" type="kernel_binary">
-  <file filename="kernel.bin" offset="16#0007_8000#"/>
- </memory>
- <memory alignment="16#1000#" caching="WB" name="kernel_stack_0" physicalAddress="16#000d_0000#" size="16#0002_0000#" type="kernel">
+ <memory alignment="16#1000#" caching="WB" name="kernel_bss_0" physicalAddress="16#0007_2000#" size="16#2000#" type="kernel_binary">
   <fill pattern="16#00#"/>
  </memory>
- <memory alignment="16#1000#" caching="WB" name="kernel_interrupt_stack_0" physicalAddress="16#0002_0000#" size="16#1000#" type="kernel">
+ <memory alignment="16#1000#" caching="WB" name="kernel_global_data" physicalAddress="16#0007_4000#" size="16#c000#" type="kernel_binary">
+  <file filename="kernel.bin" offset="16#0007_4000#"/>
+ </memory>
+ <memory alignment="16#1000#" caching="WB" name="kernel_global_rodata" physicalAddress="16#0008_0000#" size="16#0001_0000#" type="kernel_binary">
+  <file filename="kernel.bin" offset="16#0008_0000#"/>
+ </memory>
+ <memory alignment="16#1000#" caching="WB" name="kernel_stack_0" physicalAddress="16#000c_0000#" size="16#0002_0000#" type="kernel">
   <fill pattern="16#00#"/>
  </memory>
- <memory alignment="16#1000#" caching="WB" name="kernel_0|pt" physicalAddress="16#0011_0000#" size="16#7000#" type="system_pt">
+ <memory alignment="16#1000#" caching="WB" name="kernel_0|pt" physicalAddress="16#0010_0000#" size="16#7000#" type="system_pt">
   <file filename="xilinxzcu104-core-0.pt" offset="none"/>
  </memory>
- <memory alignment="16#1000#" caching="WB" name="linux|pt" physicalAddress="16#0010_0000#" size="16#6000#" type="system_pt">
-  <file filename="xilinxzcu104-linux-stage2.pt" offset="none"/>
+ <memory alignment="16#1000#" caching="WB" name="linux|pt" physicalAddress="16#0020_0000#" size="16#6000#" type="system_pt">
+  <file filename="xilinxzcu104-linux.pt" offset="none"/>
  </memory>
- <memory alignment="16#1000#" caching="WB" name="event_logger|pt" physicalAddress="16#0010_6000#" size="16#8000#" type="system_pt">
-  <file filename="xilinxzcu104-subjecttwo-stage2.pt" offset="none"/>
+ <memory alignment="16#1000#" caching="WB" name="event_logger|pt" physicalAddress="16#0020_6000#" size="16#8000#" type="system_pt">
+  <file filename="xilinxzcu104-event_logger.pt" offset="none"/>
  </memory>
- <memory alignment="16#1000#" caching="WB" name="subject|binary" physicalAddress="16#0400_0000#" size="16#0000_a000#" type="subject_binary">
+ <memory alignment="16#1000#" caching="WB" name="event_logger|binary" physicalAddress="16#0400_0000#" size="16#0000_a000#" type="subject_binary">
   <file filename="subject_one.bin" offset="none"/>
  </memory>
- <memory alignment="16#1000#" caching="WB" name="subject|ram" physicalAddress="16#0400_a000#" size="16#03ff_6000#" type="subject"/>
  <memory alignment="16#1000#" caching="WB" name="linux|lowmem" physicalAddress="16#1000_0000#" size="16#0004_0000#" type="subject">
   <fill pattern="16#00#"/>
  </memory>
@@ -157,7 +176,14 @@
  <memory alignment="16#1000#" caching="WB" name="linux|rootfs" physicalAddress="16#2b00_0000#" size="16#0500_0000#" type="subject_initrd">
   <file filename="rootfs_linux_one.cpio.gz" offset="none"/>
  </memory>
- <memory alignment="16#1000#" caching="UC" name="crash_audit" physicalAddress="16#0001_00a1_1000#" size="16#1000#" type="subject_crash_audit"/>
+ <memory alignment="16#1000#" caching="WB" name="kernel_interrupt_stack_0" physicalAddress="16#003f_e000#" size="16#1000#" type="kernel">
+  <fill pattern="16#00#"/>
+ </memory>
+ <memory alignment="16#1000#" caching="UC" name="crash_audit" physicalAddress="16#003f_f000#" size="16#1000#" type="subject_crash_audit"/>
+ <memory alignment="16#1000#" caching="WB" name="linux|iobm" physicalAddress="16#0002_0000_0000#" size="16#2000#" type="system_iobm"/>
+ <memory alignment="16#1000#" caching="WB" name="event_logger|iobm" physicalAddress="16#0002_0000_2000#" size="16#2000#" type="system_iobm"/>
+ <memory alignment="16#1000#" caching="WB" name="linux|msrbm" physicalAddress="16#0002_0000_8000#" size="16#1000#" type="system_msrbm"/>
+ <memory alignment="16#1000#" caching="WB" name="event_logger|msrbm" physicalAddress="16#0002_0000_9000#" size="16#1000#" type="system_msrbm"/>
 </memory>
 <deviceDomains/>
 <events>
@@ -169,20 +195,19 @@
  <memory>
   <cpu id="0">
    <memory logical="text" physical="kernel_text" virtualAddress="16#0000#" writable="false" executable="true"/>
-   <memory logical="ro" physical="kernel_ro" virtualAddress="16#0005_6000#" writable="false" executable="false"/>
-   <memory logical="data" physical="kernel_data_0" virtualAddress="16#0006_6000#" writable="true" executable="false"/>
-   <memory logical="bss" physical="kernel_bss_0" virtualAddress="16#0006_7000#" writable="true" executable="false"/>
+   <memory logical="ro" physical="kernel_ro" virtualAddress="16#0005_8000#" writable="false" executable="false"/>
+   <memory logical="data" physical="kernel_data_0" virtualAddress="16#0007_0000#" writable="true" executable="false"/>
+   <memory logical="bss" physical="kernel_bss_0" virtualAddress="16#0007_2000#" writable="true" executable="false"/>
+   <memory logical="globaldata" physical="kernel_global_data" virtualAddress="16#0007_4000#" writable="true" executable="false"/>
    <!--  This section must be writable for now  -->
-   <memory logical="globalrodata" physical="kernel_global_rodata" virtualAddress="16#0007_0000#" writable="true" executable="false"/>
-   <memory logical="globaldata" physical="kernel_global_data" virtualAddress="16#0007_8000#" writable="true" executable="false"/>
-   <memory logical="stack" physical="kernel_stack_0" virtualAddress="16#000d_0000#" writable="true" executable="false"/>
-   <memory logical="interrupt_stack" physical="kernel_interrupt_stack_0" virtualAddress="16#003f_f000#" writable="true" executable="false"/>
-   <memory logical="crash_audit" physical="crash_audit" virtualAddress="16#0040_0000#" writable="true"  executable="false"/>
+   <memory logical="globalrodata" physical="kernel_global_rodata" virtualAddress="16#0008_0000#" writable="true" executable="false"/>
+   <memory logical="stack" physical="kernel_stack_0" virtualAddress="16#000c_0000#" writable="true" executable="false"/>
+   <memory logical="interrupt_stack" physical="kernel_interrupt_stack_0" virtualAddress="16#003f_e000#" writable="true" executable="false"/>
+   <memory logical="crash_audit" physical="crash_audit" virtualAddress="16#003f_f000#" writable="true"  executable="false"/>
   </cpu>
  </memory>
  <devices>
   <device logical="debugconsole" physical="UART0">
-   <irq logical="serial_irq" physical="irq" vector="53"/>
    <memory virtualAddress="16#ff00_0000#" physical="mem" logical="serial_dev" writable="true" executable="false"/>
   </device>
   <device logical="gic" physical="APU_GIC">
@@ -332,11 +357,7 @@
      </cr4>
     </masks>
    </vmx>
-   <msrs>
-    <msr end="16#0176#" mode="rw" start="16#0174#"/>
-    <msr end="16#c000_0084#" mode="rw" start="16#c000_0080#"/>
-    <msr end="16#c000_0102#" mode="rw" start="16#c000_0100#"/>
-   </msrs>
+   <msrs/>
    <registers>
     <gpr>
      <rip>16#0040_0000#</rip>
@@ -465,9 +486,6 @@
      <event id="0" logical="default_event_0" physical="system_panic">
       <system_panic/>
      </event>
-     <event id="1" logical="default_event_1" physical="system_panic">
-      <system_panic/>
-     </event>
      <event id="2" logical="default_event_2" physical="system_panic">
       <system_panic/>
      </event>
@@ -478,9 +496,6 @@
       <system_panic/>
      </event>
      <event id="6" logical="default_event_6" physical="system_panic">
-      <system_panic/>
-     </event>
-     <event id="7" logical="default_event_7" physical="system_panic">
       <system_panic/>
      </event>
      <event id="8" logical="default_event_8" physical="system_panic">
@@ -564,28 +579,16 @@
      <event id="34" logical="default_event_34" physical="system_panic">
       <system_panic/>
      </event>
-     <event id="35" logical="default_event_35" physical="system_panic">
-      <system_panic/>
-     </event>
      <event id="36" logical="default_event_36" physical="system_panic">
       <system_panic/>
      </event>
      <event id="37" logical="default_event_37" physical="system_panic">
       <system_panic/>
      </event>
-     <event id="38" logical="default_event_38" physical="system_panic">
-      <system_panic/>
-     </event>
      <event id="39" logical="default_event_39" physical="system_panic">
       <system_panic/>
      </event>
      <event id="40" logical="default_event_40" physical="system_panic">
-      <system_panic/>
-     </event>
-     <event id="41" logical="default_event_41" physical="system_panic">
-      <system_panic/>
-     </event>
-     <event id="42" logical="default_event_42" physical="system_panic">
       <system_panic/>
      </event>
      <event id="43" logical="default_event_43" physical="system_panic">
@@ -615,16 +618,10 @@
      <event id="51" logical="default_event_51" physical="system_panic">
       <system_panic/>
      </event>
-     <event id="52" logical="default_event_52" physical="system_panic">
-      <system_panic/>
-     </event>
      <event id="53" logical="default_event_53" physical="system_panic">
       <system_panic/>
      </event>
      <event id="54" logical="default_event_54" physical="system_panic">
-      <system_panic/>
-     </event>
-     <event id="55" logical="default_event_55" physical="system_panic">
       <system_panic/>
      </event>
      <event id="56" logical="default_event_56" physical="system_panic">
@@ -878,8 +875,7 @@
   </vcpu>
   <bootparams/>
   <memory>
-   <memory logical="binary" physical="subject|binary" virtualAddress="16#0000_0000#" writable="true" executable="true"/>
-   <memory logical="ram" physical="subject|ram" virtualAddress="16#0000_a000#" writable="true" executable="true"/>
+   <memory logical="binary" physical="event_logger|binary" virtualAddress="16#0000_0000#" writable="true" executable="true"/>
   </memory>
   <devices>
    <device logical="serial" physical="UART0">
@@ -899,9 +895,6 @@
      <event id="0" logical="default_event_0" physical="system_panic">
       <system_panic/>
      </event>
-     <event id="1" logical="default_event_1" physical="system_panic">
-      <system_panic/>
-     </event>
      <event id="2" logical="default_event_2" physical="system_panic">
       <system_panic/>
      </event>
@@ -912,9 +905,6 @@
       <system_panic/>
      </event>
      <event id="6" logical="default_event_6" physical="system_panic">
-      <system_panic/>
-     </event>
-     <event id="7" logical="default_event_7" physical="system_panic">
       <system_panic/>
      </event>
      <event id="8" logical="default_event_8" physical="system_panic">
@@ -998,28 +988,16 @@
      <event id="34" logical="default_event_34" physical="system_panic">
       <system_panic/>
      </event>
-     <event id="35" logical="default_event_35" physical="system_panic">
-      <system_panic/>
-     </event>
      <event id="36" logical="default_event_36" physical="system_panic">
       <system_panic/>
      </event>
      <event id="37" logical="default_event_37" physical="system_panic">
       <system_panic/>
      </event>
-     <event id="38" logical="default_event_38" physical="system_panic">
-      <system_panic/>
-     </event>
      <event id="39" logical="default_event_39" physical="system_panic">
       <system_panic/>
      </event>
      <event id="40" logical="default_event_40" physical="system_panic">
-      <system_panic/>
-     </event>
-     <event id="41" logical="default_event_41" physical="system_panic">
-      <system_panic/>
-     </event>
-     <event id="42" logical="default_event_42" physical="system_panic">
       <system_panic/>
      </event>
      <event id="43" logical="default_event_43" physical="system_panic">
@@ -1049,16 +1027,10 @@
      <event id="51" logical="default_event_51" physical="system_panic">
       <system_panic/>
      </event>
-     <event id="52" logical="default_event_52" physical="system_panic">
-      <system_panic/>
-     </event>
      <event id="53" logical="default_event_53" physical="system_panic">
       <system_panic/>
      </event>
      <event id="54" logical="default_event_54" physical="system_panic">
-      <system_panic/>
-     </event>
-     <event id="55" logical="default_event_55" physical="system_panic">
       <system_panic/>
      </event>
      <event id="56" logical="default_event_56" physical="system_panic">
