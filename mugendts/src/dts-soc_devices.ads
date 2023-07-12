@@ -30,6 +30,12 @@ is
 
 private
 
+   procedure Generate_Channel_Node
+     (Policy    :     Muxml.XML_Data_Type;
+      Device    :     DOM.Core.Node;
+      DTS_Entry : out Unbounded_String;
+      DTS_Range : out DTS_Range_Type);
+
    procedure Generate_NIC_Node
      (Policy    :     Muxml.XML_Data_Type;
       Device    :     DOM.Core.Node;
