@@ -42,16 +42,16 @@ package body DTS.Generator.Test_Data.Tests is
 
       Policy : Muxml.XML_Data_Type;
    begin
-      --  (1) parse test policy  --
+      --  (1) parse test policy
       Muxml.Parse (Data => Policy,
                    Kind => Muxml.Format_B,
                    File => "data/test_policy_full.xml");
 
-      --  (2) write device tree sources to obj directory  --
+      --  (2) write device tree sources to obj directory
       Write (Output_Dir => "obj",
              Policy     => Policy);
 
-      --  (3) test reference files --
+      --  (3) test reference files
       Assert (Condition => Test_Utils.Equal_Files
               (Filename1 => "data/dts_full_lnx1.ref",
                Filename2 => "obj/devicetree_lnx1.dts"),

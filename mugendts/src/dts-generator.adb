@@ -28,23 +28,22 @@ with DTS.Root;
 package body DTS.Generator
 is
 
-   -------------
-   --  Write  --
-   -------------
+   -------------------------------------------------------------------------
+
    procedure Write
      (Output_Dir : String;
       Policy     : Muxml.XML_Data_Type)
    is
-      --  (1) extract all physical memory regions that contain a linux    --
-      --      device tree (i.e. type of 'subject_devicetree')             --
+      --  (1) extract all physical memory regions that contain a linux
+      --  device tree (i.e. type of 'subject_devicetree')
       Physical_DTS : constant DOM.Core.Node_List
         := McKae.XML.XPath.XIA.XPath_Query
           (N     => Policy.Doc,
            XPath => "/system/memory/memory[@type='subject_devicetree']");
    begin
-      --  (2) for every physical device tree memory node find the cor-    --
-      --      responding subject that exclusively makes use of this dts   --
-      --      region to unambiguously identify a Linux VM subject         --
+      --  (2) for every physical device tree memory node find the corresponding
+      --  subject that exclusively makes use of this dts region to unambiguous-
+      --  ly identify a Linux VM subject
       for I in 0 .. DOM.Core.Nodes.Length (Physical_DTS) - 1 loop
          declare
             DTS_Node : constant DOM.Core.Node
@@ -54,9 +53,9 @@ is
               := DOM.Core.Elements.Get_Attribute (Elem => DTS_Node,
                                                   Name => "name");
 
-            -- (3) extract all subjects that the current dts region is    --
-            --     assigned to; the resulting node list has to contain    --
-            --     exactly one Linux VM subject                           --
+            -- (3) extract all subjects that the current dts region is assigned
+            -- to; the resulting node list has to contain exactly one Linux VM
+            -- subject
             Linux_Subjects : constant DOM.Core.Node_List
               := McKae.XML.XPath.XIA.XPath_Query
                 (N     => Policy.Doc,
