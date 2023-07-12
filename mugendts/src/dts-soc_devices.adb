@@ -32,9 +32,8 @@ is
    UART_Device_Counter    : Natural := 0;
    Channel_Device_Counter : Natural := 0;
 
-   -----------------------
-   --  Add_SoC_Devices  --
-   -----------------------
+   -------------------------------------------------------------------------
+
    procedure Add_SoC_Devices
      (Template : in out Mutools.Templates.Template_Type;
       Policy   :        Muxml.XML_Data_Type;
@@ -46,8 +45,8 @@ is
    begin
       for I in SoC_Device_Type'Range loop
          declare
-            --  (1) extract all physical devices with the currently       --
-            --      investigated SoC capability                           --
+            --  (1) extract all physical devices with the currently
+            --  investigated SoC capability
             Physical_SoC_Dev : constant DOM.Core.Node_List
               := McKae.XML.XPath.XIA.XPath_Query
                 (N     => Policy.Doc,
@@ -57,8 +56,8 @@ is
          begin
             for K in 0 .. DOM.Core.Nodes.Length (Physical_SoC_Dev) - 1 loop
                declare
-                  --  (2) check if SoC device is used by subject and      --
-                  --      extract the virtual device node                 --
+                  --  (2) check if SoC device is used by subject and extract
+                  --  the virtual device node
                   Virtual_SoC_Dev : constant DOM.Core.Node_List
                     := McKae.XML.XPath.XIA.XPath_Query
                       (N     => Subject,
@@ -126,7 +125,7 @@ is
       UART_Device_Counter := 0;
 
       declare
-         --  (3) extract all virtual memory nodes to search for channels  --
+         --  (3) extract all virtual memory nodes to search for channels
          Virtual_Memory  : constant DOM.Core.Node_List
            := McKae.XML.XPath.XIA.XPath_Query
              (N     => Subject,
@@ -176,10 +175,10 @@ is
                            then SoC_First else 0),
             Normalize  => False,
             Byte_Short => False));
-      --  NOTE - the child bus address translation ranges are specified   --
-      --  as (child-bus-address, parent-bus-address, length), i.c. no     --
-      --  address translation is used for the AMBA APU child bus (c.f.    --
-      --  official Xilinx ZCU104 device tree)                             --
+      --  NOTE - the child bus address translation ranges are specified as
+      --  (child-bus-address, parent-bus-address, length), i.c. no address
+      --  translation is used for the AMBA APU child bus (c.f. official
+      --  Xilinx ZCU104 device tree)
       Mutools.Templates.Replace
         (Template => Template,
          Pattern  => "__amba_soc_ranges__",
@@ -194,9 +193,8 @@ is
          Content  => To_String (Source => SoC_Buffer));
    end Add_SoC_Devices;
 
-   -----------------------------
-   --  Generate_Channel_Node  --
-   -----------------------------
+   -------------------------------------------------------------------------
+
    procedure Generate_Channel_Node
      (Policy    :     Muxml.XML_Data_Type;
       Device    :     DOM.Core.Node;
@@ -207,7 +205,7 @@ is
         := Mutools.Templates.Create
           (Content => String_Templates.muen_channel_dsl);
 
-      --  (1) extract the corresponding physical memory node              --
+      --  (1) extract the corresponding physical memory node
       Physical_Memory : constant DOM.Core.Node_List
         := McKae.XML.XPath.XIA.XPath_Query
           (N     => Policy.Doc,
@@ -256,9 +254,9 @@ is
             Content  => "reg = <" &
               To_DTS_Cell (Value => DTS_Range.Base) & " " &
               To_DTS_Cell (Value => DTS_Range.Size) & ">;");
-         --  NOTE - the Linux Muen SK channel driver requires the specifi-   --
-         --  cation of an assigned interrupt; as the interrupt is currently  --
-         --  not in use, the IRQ vector is assigend statically starting at 8 --
+         --  NOTE - the Linux Muen SK channel driver requires the specification
+         --  of an assigned interrupt; as the interrupt is currently not in
+         --  use, the IRQ vector is assigend statically starting at SGI 8
          Mutools.Templates.Replace
            (Template => Template,
             Pattern  => "__cchannel_irq_irq__",
@@ -285,9 +283,8 @@ is
       end if;
    end Generate_Channel_Node;
 
-   -------------------------
-   --  Generate_NIC_Node  --
-   -------------------------
+   -------------------------------------------------------------------------
+
    procedure Generate_NIC_Node
      (Policy    :     Muxml.XML_Data_Type;
       Device    :     DOM.Core.Node;
@@ -333,9 +330,9 @@ is
          Pattern  => "__nic_registers__",
          Content  => To_String (Register_Entry));
 
-      --  NOTE - the Linux CDNS GEM driver (adapted for Xilinx) requires  --
-      --  a specific interrupt to be entered twice; currently, the policy --
-      --  interrupts are just enumerated (c.f. test policies)             --
+      --  NOTE - the Linux CDNS GEM driver (adapted for Xilinx) requires
+      --  a specific interrupt to be entered twice; currently, the policy
+      --  interrupts are just enumerated (c.f. test policies)
       for I in 0 .. DOM.Core.Nodes.Length (Virtual_IRQs) - 1 loop
          declare
             Virtual_IRQ_Name   : constant String
@@ -370,9 +367,8 @@ is
               New_Item => Mutools.Templates.To_String (Template => Template));
    end Generate_NIC_Node;
 
-   --------------------------
-   --  Generate_UART_Node  --
-   --------------------------
+   -------------------------------------------------------------------------
+
    procedure Generate_UART_Node
      (Policy    :     Muxml.XML_Data_Type;
       Device    :     DOM.Core.Node;
@@ -452,9 +448,8 @@ is
               New_Item => Mutools.Templates.To_String (Template => Template));
    end Generate_UART_Node;
 
-   -------------------------
-   --  Generate_USB_Node  --
-   -------------------------
+   -------------------------------------------------------------------------
+
    procedure Generate_USB_Node
      (Policy    :     Muxml.XML_Data_Type;
       Device    :     DOM.Core.Node;
@@ -495,9 +490,9 @@ is
          Content  => Mutools.Utils.To_Hex (Number     => DTS_Range.Base,
                                            Normalize  => False,
                                            Byte_Short => False));
-      --  NOTE - the Linux SNPS DWC3 driver (adapted for Xilinx) does not --
-      --  match the policy memory restrictions for the device; hence, the --
-      --  base address in combination with a static size is used          --
+      --  NOTE - the Linux SNPS DWC3 driver (adapted for Xilinx) does not
+      --  match the policy memory restrictions for the device; hence, the
+      --  base address in combination with a static size is used
       Mutools.Templates.Replace
         (Template => Template,
          Pattern  => "__usb_registers__",
@@ -507,9 +502,9 @@ is
 
       DTS_Range.Size := 16#0004_0000#;
 
-      --  NOTE - the Linux SNPS DWC3 driver (adapted for Xilinx) requires --
-      --  specific interrupts; currently, the policy interrupts are just  --
-      --  enumerated (c.f. test policies)                                 --
+      --  NOTE - the Linux SNPS DWC3 driver (adapted for Xilinx) requires
+      --  specific interrupts; currently, the policy interrupts are just
+      --  enumerated (c.f. test policies)
       for I in 0 .. DOM.Core.Nodes.Length (Virtual_IRQs) - 1 loop
          declare
             Virtual_IRQ_Name   : constant String

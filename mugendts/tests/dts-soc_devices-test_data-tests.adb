@@ -79,17 +79,17 @@ package body DTS.SoC_Devices.Test_Data.Tests is
 
       Subject : DOM.Core.Node_List;
    begin
-      --  (1) parse test policy  --
+      --  (1) parse test policy
       Muxml.Parse (Data => Policy,
                    Kind => Muxml.Format_B,
                    File => "data/test_policy_light.xml");
 
-      --  (2) extract linux subject directly  --
+      --  (2) extract linux subject directly
       Subject := McKae.XML.XPath.XIA.XPath_Query
         (N     => Policy.Doc,
          XPath => "/system/subjects/subject[@globalId='0']");
 
-      --  (3) test the device entry according to template --
+      --  (3) test the devices entry according to template
       Add_SoC_Devices (Template  => Template,
                        Policy    => Policy,
                        Subject   => DOM.Core.Nodes.Item
@@ -131,18 +131,18 @@ package body DTS.SoC_Devices.Test_Data.Tests is
       Actual_Entry : Unbounded_String;
       Actual_Range : DTS_Range_Type;
    begin
-      --  (1) parse test policy  --
+      --  (1) parse test policy
       Muxml.Parse (Data => Policy,
                    Kind => Muxml.Format_B,
                    File => "data/test_policy_full.xml");
 
-      --  (2) extract channel ring logger memory node directly  --
+      --  (2) extract channel ring logger memory node directly
       Channel_Dev := McKae.XML.XPath.XIA.XPath_Query
         (N     => Policy.Doc,
          XPath => "/system/subjects/subject[@globalId='0']/" &
            "memory/memory[@physical='ringlogger_string_reverser']");
 
-      --  (3) test the channel entry  --
+      --  (3) test the channel entry
       Generate_Channel_Node (Policy    => Policy,
                              Device    => DOM.Core.Nodes.Item
                                (List  => Channel_Dev,
@@ -209,18 +209,18 @@ package body DTS.SoC_Devices.Test_Data.Tests is
       Actual_Entry : Unbounded_String;
       Actual_Range : DTS_Range_Type;
    begin
-      --  (1) parse test policy  --
+      --  (1) parse test policy
       Muxml.Parse (Data => Policy,
                    Kind => Muxml.Format_B,
                    File => "data/test_policy_full.xml");
 
-      --  (2) extract the GEM ethernet device node directly  --
+      --  (2) extract the GEM ethernet device node directly
       NIC_Dev := McKae.XML.XPath.XIA.XPath_Query
         (N     => Policy.Doc,
          XPath => "/system/subjects/subject[@globalId='2']/" &
            "devices/device[@physical='GEM3']");
 
-      --  (3) test the GEM ethernet device entry  --
+      --  (3) test the GEM ethernet device entry
       Generate_NIC_Node (Policy    => Policy,
                          Device    => DOM.Core.Nodes.Item
                            (List  => NIC_Dev,
@@ -271,18 +271,18 @@ package body DTS.SoC_Devices.Test_Data.Tests is
       Actual_Entry : Unbounded_String;
       Actual_Range : DTS_Range_Type;
    begin
-      --  (1) parse test policy  --
+      --  (1) parse test policy
       Muxml.Parse (Data => Policy,
                    Kind => Muxml.Format_B,
                    File => "data/test_policy_full.xml");
 
-      --  (2) extract UART device node directly  --
+      --  (2) extract UART device node directly
       UART_Dev := McKae.XML.XPath.XIA.XPath_Query
         (N     => Policy.Doc,
          XPath => "/system/subjects/subject[@globalId='2']/" &
            "devices/device[@physical='UART1']");
 
-      --  (3) test the UART device entry  --
+      --  (3) test the UART device entry
       Generate_UART_Node (Policy    => Policy,
                           Device    => DOM.Core.Nodes.Item
                             (List  => UART_Dev,
@@ -338,18 +338,18 @@ package body DTS.SoC_Devices.Test_Data.Tests is
       Actual_Entry : Unbounded_String;
       Actual_Range : DTS_Range_Type;
    begin
-      --  (1) parse test policy  --
+      --  (1) parse test policy
       Muxml.Parse (Data => Policy,
                    Kind => Muxml.Format_B,
                    File => "data/test_policy_full.xml");
 
-      --  (2) extract channel ring logger memory node directly  --
+      --  (2) extract USB device node directly
       USB_Dev := McKae.XML.XPath.XIA.XPath_Query
         (N     => Policy.Doc,
          XPath => "/system/subjects/subject[@globalId='0']/" &
            "devices/device[@physical='USB3_0_XHCI']");
 
-      --  (3) test the USB device entry  --
+      --  (3) test the USB device entry
       Generate_USB_Node (Policy    => Policy,
                           Device    => DOM.Core.Nodes.Item
                             (List  => USB_Dev,

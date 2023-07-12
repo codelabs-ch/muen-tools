@@ -54,9 +54,6 @@ private
       DTS_Entry : out Unbounded_String;
       DTS_Range : out DTS_Range_Type);
 
-   -----------------------------
-   --  Supported APU Devices  --
-   -----------------------------
    type SoC_Device_Type is (NIC, UART, USB);
 
 end DTS.SoC_Devices;
