@@ -31,9 +31,8 @@ with DTS.SoC_Devices;
 package body DTS.Root
 is
 
-   ------------------------
-   --  Add_Aliases_Node  --
-   ------------------------
+   -------------------------------------------------------------------------
+
    procedure Add_Aliases_Node
      (Template : in out Mutools.Templates.Template_Type;
       Policy   :        Muxml.XML_Data_Type;
@@ -47,9 +46,8 @@ is
          Content  => "serial_0");
    end Add_Aliases_Node;
 
-   -----------------------
-   --  Add_Chosen_Node  --
-   -----------------------
+   -------------------------------------------------------------------------
+
    procedure Add_Chosen_Node
      (Template : in out Mutools.Templates.Template_Type;
       Policy   :        Muxml.XML_Data_Type;
@@ -65,9 +63,8 @@ is
             XPath => "bootparams"));
    end Add_Chosen_Node;
 
-   -----------------------
-   --  Add_Memory_Node  --
-   -----------------------
+   -------------------------------------------------------------------------
+
    procedure Add_Memory_Node
      (Template : in out Mutools.Templates.Template_Type;
       Policy   :        Muxml.XML_Data_Type;
@@ -149,9 +146,8 @@ is
          Content  => To_String (Source => Register_Ranges));
    end Add_Memory_Node;
 
-   -------------
-   --  Write  --
-   -------------
+   -------------------------------------------------------------------------
+
    procedure Write
      (Policy       : Muxml.XML_Data_Type;
       Subject      : DOM.Core.Node;

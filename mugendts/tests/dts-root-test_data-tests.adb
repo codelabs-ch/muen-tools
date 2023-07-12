@@ -50,17 +50,17 @@ package body DTS.Root.Test_Data.Tests is
 
       Subject : DOM.Core.Node_List;
    begin
-      --  (1) parse test policy  --
+      --  (1) parse test policy
       Muxml.Parse (Data => Policy,
                    Kind => Muxml.Format_B,
                    File => "data/test_policy_light.xml");
 
-      --  (2) extract linux subject directly  --
+      --  (2) extract linux subject directly
       Subject := McKae.XML.XPath.XIA.XPath_Query
         (N     => Policy.Doc,
          XPath => "/system/subjects/subject[@globalId='0']");
 
-      --  (3) write device tree sources  --
+      --  (3) write device tree sources
       Write (Policy       => Policy,
              Subject      => DOM.Core.Nodes.Item
                (List  => Subject,
@@ -68,7 +68,7 @@ package body DTS.Root.Test_Data.Tests is
              Subject_Name => "linux",
              Filename     => "obj/devicetree_linux.dts");
 
-      --  (4) test reference file  --
+      --  (4) test reference file
       Assert (Condition => Test_Utils.Equal_Files
               (Filename1 => "data/dts_light_linux.ref",
                Filename2 => "obj/devicetree_linux.dts"),
@@ -103,17 +103,17 @@ package body DTS.Root.Test_Data.Tests is
 
       Subject : DOM.Core.Node_List;
    begin
-      --  (1) parse test policy  --
+      --  (1) parse test policy
       Muxml.Parse (Data => Policy,
                    Kind => Muxml.Format_B,
                    File => "data/test_policy_light.xml");
 
-      --  (2) extract linux subject directly  --
+      --  (2) extract linux subject directly
       Subject := McKae.XML.XPath.XIA.XPath_Query
         (N     => Policy.Doc,
          XPath => "/system/subjects/subject[@globalId='0']");
 
-      --  (3) test the aliases node entry according to template --
+      --  (3) test the aliases node entry according to template
       Add_Aliases_Node (Template  => Template,
                         Policy    => Policy,
                         Subject   => DOM.Core.Nodes.Item
@@ -157,17 +157,17 @@ package body DTS.Root.Test_Data.Tests is
 
       Subject : DOM.Core.Node_List;
    begin
-      --  (1) parse test policy  --
+      --  (1) parse test policy
       Muxml.Parse (Data => Policy,
                    Kind => Muxml.Format_B,
                    File => "data/test_policy_light.xml");
 
-      --  (2) extract linux subject directly  --
+      --  (2) extract linux subject directly
       Subject := McKae.XML.XPath.XIA.XPath_Query
         (N     => Policy.Doc,
          XPath => "/system/subjects/subject[@globalId='0']");
 
-      --  (3) test the chosen node entry according to template --
+      --  (3) test the chosen node entry according to template
       Add_Chosen_Node (Template  => Template,
                        Policy    => Policy,
                        Subject   => DOM.Core.Nodes.Item
@@ -217,17 +217,17 @@ package body DTS.Root.Test_Data.Tests is
 
       Subject : DOM.Core.Node_List;
    begin
-      --  (1) parse test policy  --
+      --  (1) parse test policy
       Muxml.Parse (Data => Policy,
                    Kind => Muxml.Format_B,
                    File => "data/test_policy_light.xml");
 
-      --  (2) extract linux subject directly  --
+      --  (2) extract linux subject directly
       Subject := McKae.XML.XPath.XIA.XPath_Query
         (N     => Policy.Doc,
          XPath => "/system/subjects/subject[@globalId='0']");
 
-      --  (3) test the chosen node entry according to template --
+      --  (3) test the memory node entry according to template
       Add_Memory_Node (Template  => Template,
                        Policy    => Policy,
                        Subject   => DOM.Core.Nodes.Item
