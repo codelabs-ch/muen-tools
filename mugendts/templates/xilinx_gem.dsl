@@ -15,7 +15,7 @@ __nic_bus_alias____nic_bus_name__@__nic_bus_base__ {
 
     #address-cells = <0x1>;
     #size-cells = <0x0>;
-    
+
     phy@c {
         reg = <0xc>;
         ti,rx-internal-delay = <0x8>;
