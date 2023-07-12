@@ -78,17 +78,17 @@ package body DTS.APU_Devices.Test_Data.Tests is
 
       Subject : DOM.Core.Node_List;
    begin
-      --  (1) parse test policy  --
+      --  (1) parse test policy
       Muxml.Parse (Data => Policy,
                    Kind => Muxml.Format_B,
                    File => "data/test_policy_light.xml");
 
-      --  (2) extract linux subject directly  --
+      --  (2) extract linux subject directly
       Subject := McKae.XML.XPath.XIA.XPath_Query
         (N     => Policy.Doc,
          XPath => "/system/subjects/subject[@globalId='0']");
 
-      --  (3) test the device entry according to template --
+      --  (3) test the device entry according to template
       Add_APU_Devices (Template  => Template,
                        Policy    => Policy,
                        Subject   => DOM.Core.Nodes.Item
@@ -132,18 +132,18 @@ package body DTS.APU_Devices.Test_Data.Tests is
       Actual_Entry : Unbounded_String;
       Actual_Range : DTS_Range_Type;
    begin
-      --  (1) parse test policy  --
+      --  (1) parse test policy
       Muxml.Parse (Data => Policy,
                    Kind => Muxml.Format_B,
                    File => "data/test_policy_light.xml");
 
-      --  (2) extract generic interrupt controller device directly  --
+      --  (2) extract the GIC device directly
       GIC_Dev := McKae.XML.XPath.XIA.XPath_Query
         (N     => Policy.Doc,
          XPath => "/system/subjects/subject[@globalId='0']/" &
            "devices/device[@physical='APU_GIC']");
 
-      --  (3) test the device entry according to template --
+      --  (3) test the GIC device entry
       Generate_GIC_Node (Policy    => Policy,
                          Device    => DOM.Core.Nodes.Item
                            (List  => GIC_Dev,

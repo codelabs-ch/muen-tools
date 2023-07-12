@@ -36,9 +36,6 @@ private
       DTS_Entry : out Unbounded_String;
       DTS_Range : out DTS_Range_Type);
 
-   -----------------------------
-   --  Supported APU Devices  --
-   -----------------------------
    type APU_Device_Type is (GIC);
 
 end DTS.APU_Devices;

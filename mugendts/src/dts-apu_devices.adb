@@ -29,9 +29,8 @@ with String_Templates;
 package body DTS.APU_Devices
 is
 
-   -----------------------
-   --  Add_APU_Devices  --
-   -----------------------
+   -------------------------------------------------------------------------
+
    procedure Add_APU_Devices
      (Template : in out Mutools.Templates.Template_Type;
       Policy   :        Muxml.XML_Data_Type;
@@ -43,8 +42,8 @@ is
    begin
       for I in APU_Device_Type'Range loop
          declare
-            --  (1) extract all physical devices with the currently       --
-            --      investigated APU capability                           --
+            --  (1) extract all physical devices with the currently
+            --  investigated APU capability
             Physical_APU_Dev : constant DOM.Core.Node_List
               := McKae.XML.XPath.XIA.XPath_Query
                 (N     => Policy.Doc,
@@ -54,8 +53,8 @@ is
          begin
             for K in 0 .. DOM.Core.Nodes.Length (Physical_APU_Dev) - 1 loop
                declare
-                  --  (2) check if APU device is used by subject and      --
-                  --      extract the virtual device node                 --
+                  --  (2) check if APU device is used by subject and extract
+                  --  the virtual device node
                   Virtual_APU_Dev : constant DOM.Core.Node_List
                     := McKae.XML.XPath.XIA.XPath_Query
                       (N     => Subject,
@@ -105,10 +104,10 @@ is
          Content  => Mutools.Utils.To_Hex (Number     => APU_First,
                                            Normalize  => False,
                                            Byte_Short => False));
-      --  NOTE - the child bus address translation ranges are specified   --
-      --  as (child-bus-address, parent-bus-address, length), i.c. no     --
-      --  address translation is used for the AMBA APU child bus (c.f.    --
-      --  official Xilinx ZCU104 device tree)                             --
+      --  NOTE - the child bus address translation ranges are specified
+      --  as (child-bus-address, parent-bus-address, length), i.c. no
+      --  address translation is used for the AMBA APU child bus (c.f.
+      --  official Xilinx ZCU104 device tree)
       Mutools.Templates.Replace
         (Template => Template,
          Pattern  => "__amba_apu_ranges__",
@@ -122,9 +121,8 @@ is
          Content  => To_String (Source => APU_Buffer));
    end Add_APU_Devices;
 
-   -------------------------
-   --  Generate_GIC_Node  --
-   -------------------------
+   -------------------------------------------------------------------------
+
    procedure Generate_GIC_Node
      (Policy    :     Muxml.XML_Data_Type;
       Device    :     DOM.Core.Node;
@@ -148,9 +146,9 @@ is
          Content  => Mutools.Utils.To_Hex (Number     => DTS_Range.Base,
                                            Normalize  => False,
                                            Byte_Short => False));
-      --  NOTE - because the Xilinx GIC device layout does not met the    --
-      --  ARM GIC specification, the virtual memory for the CPU inter-    --
-      --  face has to be split up; this has to be corrected for the DTS   --
+      --  NOTE - because the Xilinx GIC device layout does not met the ARM
+      --  GIC specification, the virtual memory for the CPU interface has
+      --  to be split up; this has to be corrected for the DTS
       Mutools.Templates.Replace
         (Template => Template,
          Pattern  => "__vgic_registers__",
