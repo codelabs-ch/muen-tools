@@ -28,9 +28,8 @@ with Mutools.Utils;
 package body DTS
 is
 
-   --------------------
-   --  Block_Indent  --
-   --------------------
+   -------------------------------------------------------------------------
+
    procedure Block_Indent
      (Block     : in out Unbounded_String;
       N         :        Positive := 1;
@@ -65,16 +64,15 @@ is
       end loop;
    end Block_Indent;
 
-   --------------------------
-   --  DTS_Register_Entry  --
-   --------------------------
+   -------------------------------------------------------------------------
+
    procedure DTS_Register_Entry
      (Policy    :     Muxml.XML_Data_Type;
       Device    :     DOM.Core.Node;
       DTS_Entry : out Unbounded_String;
       DTS_Range : out DTS_Range_Type)
    is
-      --  (1) extract all virtual device memory regions and its name      --
+      --  (1) extract all virtual device memory regions and its name
       Virtual_Memory : constant DOM.Core.Node_List
         := McKae.XML.XPath.XIA.XPath_Query
           (N     => Device,
@@ -89,7 +87,7 @@ is
    begin
       for I in 0 .. DOM.Core.Nodes.Length (Virtual_Memory) - 1 loop
          declare
-            -- (2) extract corresponding physical device memory node      --
+            -- (2) extract corresponding physical device memory node
             Physical_Memory : constant DOM.Core.Node_List
               := McKae.XML.XPath.XIA.XPath_Query
                 (N     => Policy.Doc,
@@ -144,9 +142,8 @@ is
                     Size => Range_Size);
    end DTS_Register_Entry;
 
-   ----------------------------------------------------------------
-   --  To_DTS_Cell (for #address-cells and #size-cells = <0x2>)  --
-   ----------------------------------------------------------------
+   -------------------------------------------------------------------------
+
    function To_DTS_Cell
      (Value : Unsigned_64)
       return String

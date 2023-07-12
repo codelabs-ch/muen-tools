@@ -230,17 +230,17 @@ package body DTS.Test_Data.Tests is
       Actual_Entry : Unbounded_String;
       Actual_Range : DTS_Range_Type;
    begin
-      --  (1) parse test policy  --
+      --  (1) parse test policy
       Muxml.Parse (Data => Policy,
                    Kind => Muxml.Format_B,
                    File => "data/test_policy_light.xml");
 
-      --  (2) extract linux subject directly  --
+      --  (2) extract linux subject directly
       Subject := McKae.XML.XPath.XIA.XPath_Query
         (N     => Policy.Doc,
          XPath => "/system/subjects/subject[@globalId='0']");
 
-      --  (3.a) test for a single virtual memory node with UART  --
+      --  (3.a) test for a single virtual memory node with UART
       Virtual_UART_Dev := McKae.XML.XPath.XIA.XPath_Query
         (N     => DOM.Core.Nodes.Item (List  => Subject,
                                        Index => 0),
@@ -262,12 +262,12 @@ package body DTS.Test_Data.Tests is
       Assert (Condition => Actual_Range.Size = 16#0000_0000_0000_1000#,
               Message   => "wrong register range base for UART test data");
 
-      --  (3.b) reset actual values  --
+      --  (3.b) reset actual values
       Actual_Entry := To_Unbounded_String ("");
       Actual_Range := (Base =>  16#0000_0000_0000_0000#,
                        Size =>  16#0000_0000_0000_0000#);
 
-      --  (3.c) test for a multi virtual memory node with GIC  --
+      --  (3.c) test for a multi virtual memory node with GIC
       Virtual_GIC_Dev := McKae.XML.XPath.XIA.XPath_Query
         (N     => DOM.Core.Nodes.Item (List  => Subject,
                                        Index => 0),
