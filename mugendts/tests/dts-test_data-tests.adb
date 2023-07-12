@@ -19,9 +19,6 @@ with McKae.XML.XPath.XIA;
 
 with DOM.Core.Nodes;
 
-with Node_Utils;
-with Mulog;
-
 --  begin read only
 --  end read only
 package body DTS.Test_Data.Tests is
