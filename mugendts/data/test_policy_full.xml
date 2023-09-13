@@ -221,10 +221,10 @@
   <file filename="rootfs_linux_two.cpio.gz" offset="none"/>
  </memory>
  <!--  These regions are only here to satisfy the validator -->
- <memory alignment="16#1000#" caching="WB" name="kernel_interrupt_stack_0" physicalAddress="16#003f_e000#" size="16#1000#" type="kernel">
+ <memory alignment="16#1000#" caching="WB" name="kernel_interrupt_stack_0" physicalAddress="16#003f_f000#" size="16#1000#" type="kernel">
   <fill pattern="16#00#"/>
  </memory>
- <memory alignment="16#1000#" caching="UC" name="crash_audit" physicalAddress="16#003f_f000#" size="16#1000#" type="subject_crash_audit"/>
+ <memory alignment="16#1000#" caching="UC" name="crash_audit" physicalAddress="16#0040_0000#" size="16#1000#" type="subject_crash_audit"/>
  <memory alignment="16#1000#" caching="WB" name="lnx1|iobm" physicalAddress="16#0002_0000_0000#" size="16#2000#" type="system_iobm"/>
  <memory alignment="16#1000#" caching="WB" name="string_reverser|iobm" physicalAddress="16#0002_0000_2000#" size="16#2000#" type="system_iobm"/>
  <memory alignment="16#1000#" caching="WB" name="lnx2|iobm" physicalAddress="16#0002_0000_4000#" size="16#2000#" type="system_iobm"/>
@@ -247,10 +247,10 @@
    <memory logical="bss" physical="kernel_bss_0" virtualAddress="16#0007_2000#" writable="true" executable="false"/>
    <memory logical="globaldata" physical="kernel_global_data" virtualAddress="16#0007_4000#" writable="true" executable="false"/>
    <!--  This section must be writable for now  -->
-   <memory logical="globalrodata" physical="kernel_global_rodata" virtualAddress="16#0008_0000#" writable="true" executable="false"/>
-   <memory logical="stack" physical="kernel_stack_0" virtualAddress="16#000c_0000#" writable="true" executable="false"/>
-   <memory logical="interrupt_stack" physical="kernel_interrupt_stack_0" virtualAddress="16#003f_e000#" writable="true" executable="false"/>
-   <memory logical="crash_audit" physical="crash_audit" virtualAddress="16#003f_f000#" writable="true" executable="false"/>
+   <memory logical="globalrodata" physical="kernel_global_rodata" virtualAddress="16#0008_0000#" writable="false" executable="false"/>
+   <memory logical="stack" physical="kernel_stack_0" virtualAddress="16#0009_0000#" writable="true" executable="false"/>
+   <memory logical="interrupt_stack" physical="kernel_interrupt_stack_0" virtualAddress="16#003f_f000#" writable="true" executable="false"/>
+   <memory logical="crash_audit" physical="crash_audit" virtualAddress="16#0040_0000#" writable="true" executable="false"/>
   </cpu>
   <cpu id="1">
    <memory logical="text" physical="kernel_text" virtualAddress="16#0000#" writable="false" executable="true"/>
@@ -259,10 +259,10 @@
    <memory logical="bss" physical="kernel_bss_0" virtualAddress="16#0007_2000#" writable="true" executable="false"/>
    <memory logical="globaldata" physical="kernel_global_data" virtualAddress="16#0007_4000#" writable="true" executable="false"/>
    <!--  This section must be writable for now  -->
-   <memory logical="globalrodata" physical="kernel_global_rodata" virtualAddress="16#0008_0000#" writable="true" executable="false"/>
-   <memory logical="stack" physical="kernel_stack_1" virtualAddress="16#000c_0000#" writable="true" executable="false"/>
-   <memory logical="interrupt_stack" physical="kernel_interrupt_stack_0" virtualAddress="16#003f_e000#" writable="true" executable="false"/>
-   <memory logical="crash_audit" physical="crash_audit" virtualAddress="16#003f_f000#" writable="true" executable="false"/>
+   <memory logical="globalrodata" physical="kernel_global_rodata" virtualAddress="16#0008_0000#" writable="false" executable="false"/>
+   <memory logical="stack" physical="kernel_stack_1" virtualAddress="16#0009_0000#" writable="true" executable="false"/>
+   <memory logical="interrupt_stack" physical="kernel_interrupt_stack_0" virtualAddress="16#003f_f000#" writable="true" executable="false"/>
+   <memory logical="crash_audit" physical="crash_audit" virtualAddress="16#0040_0000#" writable="true" executable="false"/>
   </cpu>
  </memory>
  <devices>

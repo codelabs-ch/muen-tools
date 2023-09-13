@@ -151,16 +151,16 @@
  <memory alignment="16#1000#" caching="WB" name="kernel_stack_0" physicalAddress="16#000c_0000#" size="16#0002_0000#" type="kernel">
   <fill pattern="16#00#"/>
  </memory>
- <memory alignment="16#1000#" caching="WB" name="kernel_0|pt" physicalAddress="16#0010_0000#" size="16#7000#" type="system_pt">
+ <memory alignment="16#1000#" caching="WB" name="kernel_0|pt" physicalAddress="16#0010_0000#" size="16#8000#" type="system_pt">
   <file filename="xilinxzcu104-core-0.pt" offset="none"/>
  </memory>
  <memory alignment="16#1000#" caching="WB" name="linux|pt" physicalAddress="16#0020_0000#" size="16#6000#" type="system_pt">
   <file filename="xilinxzcu104-linux.pt" offset="none"/>
  </memory>
- <memory alignment="16#1000#" caching="WB" name="event_logger|pt" physicalAddress="16#0020_6000#" size="16#8000#" type="system_pt">
+ <memory alignment="16#1000#" caching="WB" name="event_logger|pt" physicalAddress="16#0021_0000#" size="16#4000#" type="system_pt">
   <file filename="xilinxzcu104-event_logger.pt" offset="none"/>
  </memory>
- <memory alignment="16#1000#" caching="WB" name="event_logger|binary" physicalAddress="16#0400_0000#" size="16#0000_a000#" type="subject_binary">
+ <memory alignment="16#1000#" caching="WB" name="event_logger|binary" physicalAddress="16#0400_0000#" size="16#0002_0000#" type="subject_binary">
   <file filename="subject_one.bin" offset="none"/>
  </memory>
  <memory alignment="16#1000#" caching="WB" name="linux|lowmem" physicalAddress="16#1000_0000#" size="16#0004_0000#" type="subject">
@@ -176,10 +176,10 @@
  <memory alignment="16#1000#" caching="WB" name="linux|rootfs" physicalAddress="16#2b00_0000#" size="16#0500_0000#" type="subject_initrd">
   <file filename="rootfs_linux_one.cpio.gz" offset="none"/>
  </memory>
- <memory alignment="16#1000#" caching="WB" name="kernel_interrupt_stack_0" physicalAddress="16#003f_e000#" size="16#1000#" type="kernel">
+ <memory alignment="16#1000#" caching="WB" name="kernel_interrupt_stack_0" physicalAddress="16#003f_f000#" size="16#1000#" type="kernel">
   <fill pattern="16#00#"/>
  </memory>
- <memory alignment="16#1000#" caching="UC" name="crash_audit" physicalAddress="16#003f_f000#" size="16#1000#" type="subject_crash_audit"/>
+ <memory alignment="16#1000#" caching="UC" name="crash_audit" physicalAddress="16#0040_0000#" size="16#1000#" type="subject_crash_audit"/>
  <memory alignment="16#1000#" caching="WB" name="linux|iobm" physicalAddress="16#0002_0000_0000#" size="16#2000#" type="system_iobm"/>
  <memory alignment="16#1000#" caching="WB" name="event_logger|iobm" physicalAddress="16#0002_0000_2000#" size="16#2000#" type="system_iobm"/>
  <memory alignment="16#1000#" caching="WB" name="linux|msrbm" physicalAddress="16#0002_0000_8000#" size="16#1000#" type="system_msrbm"/>
@@ -200,10 +200,10 @@
    <memory logical="bss" physical="kernel_bss_0" virtualAddress="16#0007_2000#" writable="true" executable="false"/>
    <memory logical="globaldata" physical="kernel_global_data" virtualAddress="16#0007_4000#" writable="true" executable="false"/>
    <!--  This section must be writable for now  -->
-   <memory logical="globalrodata" physical="kernel_global_rodata" virtualAddress="16#0008_0000#" writable="true" executable="false"/>
-   <memory logical="stack" physical="kernel_stack_0" virtualAddress="16#000c_0000#" writable="true" executable="false"/>
-   <memory logical="interrupt_stack" physical="kernel_interrupt_stack_0" virtualAddress="16#003f_e000#" writable="true" executable="false"/>
-   <memory logical="crash_audit" physical="crash_audit" virtualAddress="16#003f_f000#" writable="true"  executable="false"/>
+   <memory logical="globalrodata" physical="kernel_global_rodata" virtualAddress="16#0008_0000#" writable="false" executable="false"/>
+   <memory logical="stack" physical="kernel_stack_0" virtualAddress="16#0009_0000#" writable="true" executable="false"/>
+   <memory logical="interrupt_stack" physical="kernel_interrupt_stack_0" virtualAddress="16#003f_f000#" writable="true" executable="false"/>
+   <memory logical="crash_audit" physical="crash_audit" virtualAddress="16#0040_0000#" writable="true"  executable="false"/>
   </cpu>
  </memory>
  <devices>
