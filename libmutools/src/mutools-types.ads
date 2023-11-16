@@ -75,7 +75,7 @@ is
    subtype Kernel_Memory is Memory_Kind range Kernel .. Kernel_Vmcs;
 
    --  Memory mappable by subjects.
-   subtype Subject_Memory is Memory_Kind range Subject .. Subject_Crash_Audit;
+   subtype Subject_Memory is Memory_Kind range Subject .. Subject_Devicetree;
 
    --  Memory usable for device domains/DMA.
    subtype DMA_Memory is
