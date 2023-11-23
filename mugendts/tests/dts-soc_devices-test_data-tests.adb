@@ -316,19 +316,32 @@ package body DTS.SoC_Devices.Test_Data.Tests is
       pragma Unreferenced (Gnattest_T);
 
       Expected_Entry : constant String
-        := "usb3_0_xhci@31010000 {" & ASCII.LF &
-        "    compatible = ""snps,dwc3"";" & ASCII.LF &
-        "    reg = <0x00000000 0x31010000 0x00000000 0x00040000>;" & ASCII.LF &
-        "    interrupt-parent = <0x7>;" & ASCII.LF &
-        "    interrupts = <GIC_SPI 0x2 IRQ_TYPE_LEVEL_HIGH>," & ASCII.LF &
-        "        <GIC_SPI 0x3 IRQ_TYPE_LEVEL_HIGH>," & ASCII.LF &
-        "        <GIC_SPI 0x4 IRQ_TYPE_LEVEL_HIGH>;" & ASCII.LF &
-        "    clocks = <&clk250>, <&clk250>, <&clk250>, <&clk250>, <&clk250>;" &
-        ASCII.LF &
-        "    clock-names = ""ref"", ""bus_early"", ""suspend"", " &
-        """clk_xin"", ""clk_ahb"";" & ASCII.LF &
-        "    dr_mode = ""host"";" & ASCII.LF &
+        := "usb3_0_xhci@31001000 {" & ASCII.LF &
+        "    #address-cells = <0x2>;" & ASCII.LF &
+        "    #size-cells = <0x2>;" & ASCII.LF &
+        "    compatible = ""xlnx,zynqmp-dwc3"";" & ASCII.LF &
+        "    reg = <0x00000000 0x31001000 0x00000000 0x00001000>;" & ASCII.LF &
         "    status = ""okay"";" & ASCII.LF &
+        "    ranges;" & ASCII.LF &
+        ASCII.LF &
+        "    usb3_0_xhci_dwc3@31010000 {" & ASCII.LF &
+        "        compatible = ""snps,dwc3"";" & ASCII.LF &
+        "        reg = <0x00000000 0x31010000 0x00000000 0x00040000>;" & ASCII.LF &
+        "        interrupt-parent = <0x7>;" & ASCII.LF &
+        "        interrupts = <GIC_SPI 0x2 IRQ_TYPE_LEVEL_HIGH>," & ASCII.LF &
+        "            <GIC_SPI 0x3 IRQ_TYPE_LEVEL_HIGH>," & ASCII.LF &
+        "            <GIC_SPI 0x4 IRQ_TYPE_LEVEL_HIGH>;" & ASCII.LF &
+        "        clocks = <&clk250>, <&clk250>;" & ASCII.LF &
+        "        clock-names = ""ref"", ""bus_early"";" & ASCII.LF &
+        "        snps,quirk-frame-length-adjustment = <0x20>;" & ASCII.LF &
+        "        snps,resume-hs-terminations;" & ASCII.LF &
+        "        snps,usb2-lpm-disable;" & ASCII.LF &
+        "        snps,dis_u3_susphy_quirk;" & ASCII.LF &
+        "        snps,dis_u2_susphy_quirk;" & ASCII.LF &
+        "        maximum-speed = ""super-speed"";" & ASCII.LF &
+        "        dr_mode = ""host"";" & ASCII.LF &
+        "        status = ""okay"";" & ASCII.LF &
+        "    };" & ASCII.LF &
         "};" & ASCII.LF;
 
       Policy : Muxml.XML_Data_Type;
@@ -361,10 +374,10 @@ package body DTS.SoC_Devices.Test_Data.Tests is
               Expected => Expected_Entry,
               Message  =>
                 "wrong node entry for USB test data");
-      Assert (Condition => Actual_Range.Base = 16#0000_0000_3101_0000#,
+      Assert (Condition => Actual_Range.Base = 16#0000_0000_3100_1000#,
               Message   =>
                 "wrong register range base for USB test data");
-      Assert (Condition => Actual_Range.Size = 16#0000_0000_0004_0000#,
+      Assert (Condition => Actual_Range.Size = 16#0000_0000_0004_f000#,
               Message   =>
                 "wrong register range size for USB test data");
 
