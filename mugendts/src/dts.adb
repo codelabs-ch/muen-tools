@@ -66,7 +66,64 @@ is
 
    -------------------------------------------------------------------------
 
-   procedure DTS_Register_Entry
+   procedure DTS_Node_Register_Entry
+     (Policy      :     Muxml.XML_Data_Type;
+      Device      :     DOM.Core.Node;
+      Memory_Name :     String;
+      DTS_Entry   : out Unbounded_String;
+      DTS_Range   : out DTS_Range_Type)
+   is
+      --  (1) extract a specific virtual memory entry according to the
+      --  given physical name
+      Virtual_Memory : constant DOM.Core.Node_List
+        := McKae.XML.XPath.XIA.XPath_Query
+          (N     => Device,
+           XPath => "memory[@physical='" & Memory_Name & "']");
+
+      --  (2) extract the corresponding physical device memory region
+      Physical_Name : constant String
+        := DOM.Core.Elements.Get_Attribute (Elem => Device,
+                                            Name => "physical");
+
+      Physical_Memory : constant DOM.Core.Node_List
+        := McKae.XML.XPath.XIA.XPath_Query
+          (N     => Policy.Doc,
+           XPath => "/system/hardware/devices/device[@name='" &
+             Physical_Name & "']/memory[@name='" & Memory_Name & "']");
+   begin
+      if
+        DOM.Core.Nodes.Length (Virtual_Memory) = 1 and
+        DOM.Core.Nodes.Length (Physical_Memory) = 1
+      then
+         declare
+            Memory_Address : constant Unsigned_64
+              := Unsigned_64'Value
+                (DOM.Core.Elements.Get_Attribute
+                   (Elem => DOM.Core.Nodes.Item
+                      (List  => Virtual_Memory,
+                       Index => 0),
+                    Name => "virtualAddress"));
+            Memory_Size : constant Unsigned_64
+              := Unsigned_64'Value
+                (DOM.Core.Elements.Get_Attribute
+                   (Elem => DOM.Core.Nodes.Item
+                      (List  => Physical_Memory,
+                       Index => 0),
+                    Name => "size"));
+         begin
+            Append (Source   => DTS_Entry,
+                    New_Item => "reg = <" &
+                      To_DTS_Cell (Value => Memory_Address) & " " &
+                      To_DTS_Cell (Value => Memory_Size) & ">;");
+            DTS_Range := (Base => Memory_Address,
+                          Size => Memory_Size);
+         end;
+      end if;
+   end DTS_Node_Register_Entry;
+
+   -------------------------------------------------------------------------
+
+   procedure DTS_Range_Register_Entry
      (Policy    :     Muxml.XML_Data_Type;
       Device    :     DOM.Core.Node;
       DTS_Entry : out Unbounded_String;
@@ -78,69 +135,61 @@ is
           (N     => Device,
            XPath => "memory");
 
-      Physical_Name : constant String
-        := DOM.Core.Elements.Get_Attribute (Elem => Device,
-                                            Name => "physical");
-
       Base_Address : Unsigned_64 := Unsigned_64'Last;
       Range_Size   : Unsigned_64 := 16#0#;
    begin
       for I in 0 .. DOM.Core.Nodes.Length (Virtual_Memory) - 1 loop
          declare
-            -- (2) extract corresponding physical device memory node
-            Physical_Memory : constant DOM.Core.Node_List
-              := McKae.XML.XPath.XIA.XPath_Query
-                (N     => Policy.Doc,
-                 XPath => "/system/hardware/devices/device[@name='" &
-                   Physical_Name & "']/memory[@name='" & DOM.Core.
-                   Elements.Get_Attribute
-                     (Elem => DOM.Core.Nodes.Item
-                        (List  => Virtual_Memory,
-                         Index => I),
-                      Name => "physical") & "']");
-         begin
-            if DOM.Core.Nodes.Length (Physical_Memory) = 1 then
-               declare
-                  Memory_Address : constant Unsigned_64
-                    := Unsigned_64'Value
-                      (DOM.Core.Elements.Get_Attribute
-                         (Elem => DOM.Core.Nodes.Item
-                            (List  => Virtual_Memory,
-                             Index => I),
-                          Name => "virtualAddress"));
-                  Memory_Size : constant Unsigned_64
-                    := Unsigned_64'Value
-                      (DOM.Core.Elements.Get_Attribute
-                         (Elem => DOM.Core.Nodes.Item
-                            (List  => Physical_Memory,
-                             Index => 0),
-                          Name => "size"));
-               begin
-                  if I = 0 then
-                     Append (Source   => DTS_Entry,
-                             New_Item => "reg = <" &
-                               To_DTS_Cell (Value => Memory_Address) & " " &
-                               To_DTS_Cell (Value => Memory_Size) & ">");
-                  else
-                     Append (Source   => DTS_Entry,
-                             New_Item => "," & ASCII.LF & "        <" &
-                               To_DTS_Cell (Value => Memory_Address) & " " &
-                               To_DTS_Cell (Value => Memory_Size) & ">");
-                  end if;
+            -- (2) get physical name of memory region
+            Memory_Name : constant String
+              := DOM.Core.Elements.Get_Attribute
+                (Elem => DOM.Core.Nodes.Item
+                   (List  => Virtual_Memory,
+                    Index => I),
+                 Name => "physical");
 
-                  if Memory_Address < Base_Address then
-                     Base_Address := Memory_Address;
-                  end if;
-                  Range_Size := Range_Size + Memory_Size;
-               end;
+            Node_Entry : Unbounded_String;
+            Node_Range : DTS_Range_Type
+              := DTS_Range_Type'(Base => Unsigned_64'Last,
+                                 Size => 16#0#);
+         begin
+            DTS_Node_Register_Entry
+              (Policy      => Policy,
+               Device      => Device,
+               Memory_Name => Memory_Name,
+               DTS_Entry   => Node_Entry,
+               DTS_Range   => Node_Range);
+
+            if
+              Node_Range.Base /= Unsigned_64'Last and
+              Node_Range.Size /= 16#0#
+            then
+               if I = 0 then
+                  Append (Source   => DTS_Entry,
+                          New_Item => "reg = <" &
+                            To_DTS_Cell (Value => Node_Range.Base) & " " &
+                            To_DTS_Cell (Value => Node_Range.Size) & ">");
+               else
+                  Append (Source   => DTS_Entry,
+                          New_Item => "," & ASCII.LF & "        <" &
+                            To_DTS_Cell (Value => Node_Range.Base) & " " &
+                            To_DTS_Cell (Value => Node_Range.Size) & ">");
+               end if;
+
+               if Node_Range.Base < Base_Address then
+                  Base_Address := Node_Range.Base;
+               end if;
+               Range_Size := Range_Size + Node_Range.Size;
             end if;
          end;
       end loop;
+
       Append (Source   => DTS_Entry,
               New_Item => ";");
+
       DTS_Range := (Base => Base_Address,
                     Size => Range_Size);
-   end DTS_Register_Entry;
+   end DTS_Range_Register_Entry;
 
    -------------------------------------------------------------------------
 
