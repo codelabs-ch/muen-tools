@@ -17,7 +17,7 @@
     };
 
     chosen {
-        bootargs = "hostname=lnx1 console=ttyPS0,115200 root=/dev/ram0 initrd=0x2b000000,60M earlycon";
+        bootargs = "hostname=lnx1 console=ttyPS0,115200 root=/dev/ram0 initrd=0x2b000000,60M earlycon muen_sinfo=0xe00000000 muennet.name=net0 muennet.reader_protocol=2 muennet.writer_protocol=2 muennet.in=net_in muennet.out=net_out muennet.flags=net_hdr";
         stdout-path = "serial:115200n8";
     };
 

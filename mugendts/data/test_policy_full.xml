@@ -6,7 +6,7 @@
  <string name="debug_level" value="Level_3"/>
 </config>
 <hardware>
- <processor cpuCores="4" speed="1199999988" vmxTimerRate="1">
+ <processor cpuCores="4" speed="1200000" vmxTimerRate="1">
   <cpu apicId="0" cpuId="0"/>
   <cpu apicId="2" cpuId="1"/>
   <cpu apicId="4" cpuId="2"/>
@@ -208,6 +208,9 @@
  <memory alignment="16#1000#" caching="WB" name="lnx1|rootfs" physicalAddress="16#4b00_0000#" size="16#0500_0000#" type="subject_initrd">
   <file filename="rootfs_lnx1.cpio.gz" offset="none"/>
  </memory>
+ <memory alignment="16#1000#" caching="WB" name="lnx1|sinfo" physicalAddress="16#0050_0000#" size="16#9000#" type="subject_info">
+    <file filename="sinfo_linux_one.bin" offset="none"/>
+ </memory>
  <memory alignment="16#1000#" caching="WB" name="caesar_cipher|binary" physicalAddress="16#0500_0000#" size="16#0004_0000#" type="subject_binary">
   <file filename="subject_two.bin" offset="none"/>
  </memory>
@@ -227,6 +230,9 @@
  <memory alignment="16#1000#" caching="WB" name="lnx2|ram" physicalAddress="16#5075_d000#" size="16#2a8a_3000#" type="subject"/>
  <memory alignment="16#1000#" caching="WB" name="lnx2|rootfs" physicalAddress="16#7b00_0000#" size="16#0500_0000#" type="subject_initrd">
   <file filename="rootfs_lnx2.cpio.gz" offset="none"/>
+ </memory>
+ <memory alignment="16#1000#" caching="WB" name="lnx2|sinfo" physicalAddress="16#0051_0000#" size="16#9000#" type="subject_info">
+    <file filename="sinfo_linux_two.bin" offset="none"/>
  </memory>
  <!--  These regions are only here to satisfy the validator -->
  <memory alignment="16#1000#" caching="WB" name="kernel_interrupt_stack_0" physicalAddress="16#003f_f000#" size="16#1000#" type="kernel">
@@ -258,6 +264,7 @@
    <memory logical="stack" physical="kernel_stack_0" virtualAddress="16#0009_0000#" writable="true" executable="false"/>
    <memory logical="interrupt_stack" physical="kernel_interrupt_stack_0" virtualAddress="16#003f_f000#" writable="true" executable="false"/>
    <memory logical="crash_audit" physical="crash_audit" virtualAddress="16#0040_0000#" writable="true" executable="false"/>
+   <memory logical="lnx1|sinfo" physical="lnx1|sinfo" virtualAddress="16#0050_0000#" writable="true" executable="false"/>
   </cpu>
   <cpu id="1">
    <memory logical="text" physical="kernel_text" virtualAddress="16#0000#" writable="false" executable="true"/>
@@ -269,6 +276,7 @@
    <memory logical="stack" physical="kernel_stack_1" virtualAddress="16#0009_0000#" writable="true" executable="false"/>
    <memory logical="interrupt_stack" physical="kernel_interrupt_stack_0" virtualAddress="16#003f_f000#" writable="true" executable="false"/>
    <memory logical="crash_audit" physical="crash_audit" virtualAddress="16#0040_0000#" writable="true" executable="false"/>
+   <memory logical="lnx2|sinfo" physical="lnx2|sinfo" virtualAddress="16#0051_0000#" writable="true" executable="false"/>
   </cpu>
  </memory>
  <devices>
@@ -525,7 +533,7 @@
     </segments>
    </registers>
   </vcpu>
-  <bootparams>hostname=lnx1 console=ttyPS0,115200 root=/dev/ram0 initrd=0x2b000000,60M earlycon</bootparams>
+  <bootparams>hostname=lnx1 console=ttyPS0,115200 root=/dev/ram0 initrd=0x2b000000,60M earlycon muen_sinfo=0xe00000000 muennet.name=net0 muennet.reader_protocol=2 muennet.writer_protocol=2 muennet.in=net_in muennet.out=net_out muennet.flags=net_hdr</bootparams>
   <memory>
    <memory logical="lowmem" physical="lnx1|lowmem" virtualAddress="16#0000_0000#" writable="true" executable="true"/>
    <memory logical="dtb" physical="lnx1|dtb" virtualAddress="16#0004_0000#" writable="true" executable="true"/>
@@ -536,6 +544,7 @@
    <memory logical="string_reverser_reader" physical="string_reverser_channel_out" virtualAddress="16#3105_1000#" writable="false" executable="false"/>
    <memory logical="log_channel_reader" physical="ringlogger_string_reverser" virtualAddress="16#3105_2000#" writable="false" executable="false"/>
    <memory logical="lnx_channel_writer" physical="lnx_channel_out" virtualAddress="16#3105_3000#" writable="true" executable="false"/>
+   <memory logical="sinfo" physical="lnx1|sinfo" virtualAddress="16#000e_0000_0000#" writable="false" executable="false"/>
   </memory>
   <devices>
    <device logical="vgic" physical="APU_GIC">
@@ -1358,7 +1367,7 @@
     </segments>
    </registers>
   </vcpu>
-  <bootparams>hostname=lnx2 console=ttyPS0,115200 root=/dev/ram0 initrd=0x2b000000,60M earlycon</bootparams>
+  <bootparams>hostname=lnx2 console=ttyPS0,115200 root=/dev/ram0 initrd=0x2b000000,60M earlycon muen_sinfo=0xe00000000 muennet.name=net0 muennet.reader_protocol=2 muennet.writer_protocol=2 muennet.in=net_in muennet.out=net_out muennet.flags=net_hdr</bootparams>
   <memory>
    <memory logical="lowmem" physical="lnx2|lowmem" virtualAddress="16#0000_0000#" writable="true" executable="true"/>
    <memory logical="dtb" physical="lnx2|dtb" virtualAddress="16#0004_0000#" writable="true" executable="true"/>
@@ -1369,6 +1378,7 @@
    <memory logical="caesar_cipher_reader" physical="caesar_cipher_channel_out" virtualAddress="16#3105_1000#" writable="false" executable="false"/>
    <memory logical="log_channel_reader" physical="ringlogger_caesar_cipher" virtualAddress="16#3105_2000#" writable="false" executable="false"/>
    <memory logical="lnx_channel_reader" physical="lnx_channel_out" virtualAddress="16#3105_3000#" writable="false" executable="false"/>
+   <memory logical="sinfo" physical="lnx2|sinfo" virtualAddress="16#000e_0000_0000#" writable="false" executable="false"/>
   </memory>
   <devices>
    <device logical="vgic" physical="APU_GIC">

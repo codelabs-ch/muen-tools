@@ -116,7 +116,10 @@ is
                Base_Address := Unsigned_64'Value (Virtual_Memory_Base);
             end if;
 
-            if Physical_Memory_Type /= "subject_channel" then
+            if
+              Physical_Memory_Type /= "subject_channel" and
+              Physical_Memory_Type /= "subject_info"
+            then
                if I /= 0 then
                   Append (Source   => Register_Ranges,
                           New_Item => ASCII.LF & Register_Offset);
