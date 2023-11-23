@@ -135,7 +135,7 @@ is
 
       Register_Entry : Unbounded_String;
    begin
-      DTS_Register_Entry (Policy    => Policy,
+      DTS_Range_Register_Entry (Policy    => Policy,
                           Device    => Device,
                           DTS_Entry => Register_Entry,
                           DTS_Range => DTS_Range);

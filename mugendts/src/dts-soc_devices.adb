@@ -306,7 +306,7 @@ is
 
       Register_Entry : Unbounded_String;
    begin
-      DTS_Register_Entry (Policy    => Policy,
+      DTS_Range_Register_Entry (Policy    => Policy,
                           Device    => Device,
                           DTS_Entry => Register_Entry,
                           DTS_Range => DTS_Range);
@@ -390,7 +390,7 @@ is
 
       Register_Entry : Unbounded_String;
    begin
-      DTS_Register_Entry (Policy    => Policy,
+      DTS_Range_Register_Entry (Policy    => Policy,
                           Device    => Device,
                           DTS_Entry => Register_Entry,
                           DTS_Range => DTS_Range);
@@ -469,38 +469,72 @@ is
         := DOM.Core.Elements.Get_Attribute (Elem => Device,
                                             Name => "physical");
 
-      Register_Entry : Unbounded_String;
+      CTLR_Entry : Unbounded_String;
+      CTLR_Range : DTS_Range_Type
+        := DTS_Range_Type'(Base => Unsigned_64'Last,
+                           Size => 16#0#);
+
+      Iface_Entry : Unbounded_String;
+      Iface_Range : DTS_Range_Type
+        := DTS_Range_Type'(Base => Unsigned_64'Last,
+                           Size => 16#0#);
    begin
-      DTS_Register_Entry (Policy    => Policy,
-                          Device    => Device,
-                          DTS_Entry => Register_Entry,
-                          DTS_Range => DTS_Range);
+      --  NOTE - the Linux Xilinx DWC3 / SNPS DWC3 driver combination
+      --  requires two separated memory registers, one for the controller
+      --  registers and one for the XHCI interface registers with an DTS
+      --  specific size entry; currently these two regions have to be
+      --  explicitly named with "mem1" for the controller and "mem2" for
+      --  interface registers
+      DTS_Node_Register_Entry (Policy      => Policy,
+                               Device      => Device,
+                               Memory_Name => "mem1",
+                               DTS_Entry   => CTLR_Entry,
+                               DTS_Range   => CTLR_Range);
 
       Mutools.Templates.Replace
         (Template => Template,
-         Pattern  => "__usb_bus_alias__",
+         Pattern  => "__usb_ctlr_alias__",
          Content  => "");
       Mutools.Templates.Replace
         (Template => Template,
-         Pattern  => "__usb_bus_name__",
+         Pattern  => "__usb_ctlr_name__",
          Content  => Ada.Characters.Handling.To_Lower (Physical_Name));
       Mutools.Templates.Replace
         (Template => Template,
-         Pattern  => "__usb_bus_base__",
-         Content  => Mutools.Utils.To_Hex (Number     => DTS_Range.Base,
+         Pattern  => "__usb_ctlr_base__",
+         Content  => Mutools.Utils.To_Hex (Number     => CTLR_Range.Base,
                                            Normalize  => False,
                                            Byte_Short => False));
-      --  NOTE - the Linux SNPS DWC3 driver (adapted for Xilinx) does not
-      --  match the policy memory restrictions for the device; hence, the
-      --  base address in combination with a static size is used
       Mutools.Templates.Replace
         (Template => Template,
-         Pattern  => "__usb_registers__",
-         Content  => "reg = <" &
-           To_DTS_Cell (Value => DTS_Range.Base) & " " &
-           To_DTS_Cell (Value => 16#0004_0000#) & ">;");
+         Pattern  => "__usb_ctlr_registers__",
+         Content  => To_String (CTLR_Entry));
 
-      DTS_Range.Size := 16#0004_0000#;
+      DTS_Node_Register_Entry (Policy      => Policy,
+                               Device      => Device,
+                               Memory_Name => "mem2",
+                               DTS_Entry   => Iface_Entry,
+                               DTS_Range   => Iface_Range);
+
+      Mutools.Templates.Replace
+        (Template => Template,
+         Pattern  => "__usb_iface_alias__",
+         Content  => "");
+      Mutools.Templates.Replace
+        (Template => Template,
+         Pattern  => "__usb_iface_name__",
+         Content  => Ada.Characters.Handling.To_Lower
+           (Physical_Name) & "_dwc3");
+      Mutools.Templates.Replace
+        (Template => Template,
+         Pattern  => "__usb_iface_base__",
+         Content  => Mutools.Utils.To_Hex (Number     => Iface_Range.Base,
+                                           Normalize  => False,
+                                           Byte_Short => False));
+      Mutools.Templates.Replace
+        (Template => Template,
+         Pattern  => "__usb_iface_registers__",
+         Content  => To_String (Iface_Entry));
 
       --  NOTE - the Linux SNPS DWC3 driver (adapted for Xilinx) requires
       --  specific interrupts; currently, the policy interrupts are just
@@ -550,6 +584,18 @@ is
             end if;
          end;
       end loop;
+
+      if CTLR_Range.Base < Iface_Range.Base then
+         DTS_Range.Base
+           := CTLR_Range.Base;
+         DTS_Range.Size
+           := Iface_Range.Base + Iface_Range.Size - CTLR_Range.Base;
+      else
+         DTS_Range.Base
+           := Iface_Range.Base;
+         DTS_Range.Size
+           := CTLR_Range.Base + CTLR_Range.Size - Iface_Range.Base;
+      end if;
 
       Append (Source   => DTS_Entry,
               New_Item => Mutools.Templates.To_String (Template => Template));
