@@ -140,17 +140,32 @@
             status = "okay";
         };
 
-        usb3_0_xhci@31010000 {
-            compatible = "snps,dwc3";
-            reg = <0x00000000 0x31010000 0x00000000 0x00040000>;
-            interrupt-parent = <0x7>;
-            interrupts = <GIC_SPI 0x2 IRQ_TYPE_LEVEL_HIGH>,
-                <GIC_SPI 0x3 IRQ_TYPE_LEVEL_HIGH>,
-                <GIC_SPI 0x4 IRQ_TYPE_LEVEL_HIGH>;
-            clocks = <&clk250>, <&clk250>, <&clk250>, <&clk250>, <&clk250>;
-            clock-names = "ref", "bus_early", "suspend", "clk_xin", "clk_ahb";
-            dr_mode = "host";
+        usb3_0_xhci@31001000 {
+            #address-cells = <0x2>;
+            #size-cells = <0x2>;
+            compatible = "xlnx,zynqmp-dwc3";
+            reg = <0x00000000 0x31001000 0x00000000 0x00001000>;
             status = "okay";
+            ranges;
+
+            usb3_0_xhci_dwc3@31010000 {
+                compatible = "snps,dwc3";
+                reg = <0x00000000 0x31010000 0x00000000 0x00040000>;
+                interrupt-parent = <0x7>;
+                interrupts = <GIC_SPI 0x2 IRQ_TYPE_LEVEL_HIGH>,
+                    <GIC_SPI 0x3 IRQ_TYPE_LEVEL_HIGH>,
+                    <GIC_SPI 0x4 IRQ_TYPE_LEVEL_HIGH>;
+                clocks = <&clk250>, <&clk250>;
+                clock-names = "ref", "bus_early";
+                snps,quirk-frame-length-adjustment = <0x20>;
+                snps,resume-hs-terminations;
+                snps,usb2-lpm-disable;
+                snps,dis_u3_susphy_quirk;
+                snps,dis_u2_susphy_quirk;
+                maximum-speed = "super-speed";
+                dr_mode = "host";
+                status = "okay";
+            };
         };
 
         string_reverser_writer@31050000 {
