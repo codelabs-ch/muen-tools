@@ -212,10 +212,119 @@ package body DTS.Test_Data.Tests is
 
 
 --  begin read only
-   procedure Test_DTS_Register_Entry (Gnattest_T : in out Test);
-   procedure Test_DTS_Register_Entry_1a3843 (Gnattest_T : in out Test) renames Test_DTS_Register_Entry;
---  id:2.2/1a38430ae77256c5/DTS_Register_Entry/1/0/
-   procedure Test_DTS_Register_Entry (Gnattest_T : in out Test) is
+   procedure Test_DTS_Node_Register_Entry (Gnattest_T : in out Test);
+   procedure Test_DTS_Node_Register_Entry_40db61 (Gnattest_T : in out Test) renames Test_DTS_Node_Register_Entry;
+--  id:2.2/40db612dcd503209/DTS_Node_Register_Entry/1/0/
+   procedure Test_DTS_Node_Register_Entry (Gnattest_T : in out Test) is
+--  end read only
+
+      pragma Unreferenced (Gnattest_T);
+
+      Policy : Muxml.XML_Data_Type;
+
+      Subject : DOM.Core.Node_List;
+
+      Virtual_UART_Dev : DOM.Core.Node_List;
+      Virtual_USB_Dev  : DOM.Core.Node_List;
+
+      Actual_Entry : Unbounded_String;
+      Actual_Range : DTS_Range_Type;
+   begin
+      --  (1) parse test policy
+      Muxml.Parse (Data => Policy,
+                   Kind => Muxml.Format_B,
+                   File => "data/test_policy_full.xml");
+
+      --  (2) extract linux core 0 subject directly
+      Subject := McKae.XML.XPath.XIA.XPath_Query
+        (N     => Policy.Doc,
+         XPath => "/system/subjects/subject[@globalId='0']");
+
+      --  (3.a) test for a single virtual memory node with UART
+      Virtual_UART_Dev := McKae.XML.XPath.XIA.XPath_Query
+        (N     => DOM.Core.Nodes.Item (List  => Subject,
+                                       Index => 0),
+         XPath => "devices/device[@physical='UART0']");
+
+      DTS_Node_Register_Entry (Policy      => Policy,
+                               Device      => DOM.Core.Nodes.Item
+                                 (List  => Virtual_UART_Dev,
+                                  Index => 0),
+                               Memory_Name => "mem",
+                               DTS_Entry   => Actual_Entry,
+                               DTS_Range   => Actual_Range);
+
+      Assert (Actual   => To_String (Actual_Entry),
+              Expected =>
+                "reg = <0x00000000 0x31000000 0x00000000 0x00001000>;",
+              Message  => "wrong register entry for UART test data");
+      Assert (Condition => Actual_Range.Base = 16#0000_0000_3100_0000#,
+              Message   => "wrong register range base for UART test data");
+      Assert (Condition => Actual_Range.Size = 16#0000_0000_0000_1000#,
+              Message   => "wrong register range base for UART test data");
+
+      --  (3.b) reset actual values
+      Actual_Entry := To_Unbounded_String ("");
+      Actual_Range := (Base =>  16#0000_0000_0000_0000#,
+                       Size =>  16#0000_0000_0000_0000#);
+
+      --  (3.c) test for a multi virtual memory node with USB
+      Virtual_USB_Dev := McKae.XML.XPath.XIA.XPath_Query
+        (N     => DOM.Core.Nodes.Item (List  => Subject,
+                                       Index => 0),
+         XPath => "devices/device[@physical='USB3_0_XHCI']");
+
+      --  (3.d) test first memory node for USB controller
+      DTS_Node_Register_Entry (Policy      => Policy,
+                               Device      => DOM.Core.Nodes.Item
+                                 (List  => Virtual_USB_Dev,
+                                  Index => 0),
+                               Memory_Name => "mem1",
+                               DTS_Entry   => Actual_Entry,
+                               DTS_Range   => Actual_Range);
+
+      Assert (Actual   => To_String (Actual_Entry),
+              Expected =>
+                "reg = <0x00000000 0x31001000 0x00000000 0x00001000>;",
+              Message  => "wrong register entry for USB ctlr test data");
+      Assert (Condition => Actual_Range.Base = 16#0000_0000_3100_1000#,
+              Message   => "wrong register range base for USB ctlr test data");
+      Assert (Condition => Actual_Range.Size = 16#0000_0000_0000_1000#,
+              Message   => "wrong register range base for USB ctlr test data");
+
+      --  (3.e) reset actual values
+      Actual_Entry := To_Unbounded_String ("");
+      Actual_Range := (Base =>  16#0000_0000_0000_0000#,
+                       Size =>  16#0000_0000_0000_0000#);
+
+      --  (3.f) test first memory node for USB XHCI interface
+      DTS_Node_Register_Entry (Policy      => Policy,
+                               Device      => DOM.Core.Nodes.Item
+                                 (List  => Virtual_USB_Dev,
+                                  Index => 0),
+                               Memory_Name => "mem2",
+                               DTS_Entry   => Actual_Entry,
+                               DTS_Range   => Actual_Range);
+
+      Assert (Actual   => To_String (Actual_Entry),
+              Expected =>
+                "reg = <0x00000000 0x31010000 0x00000000 0x00040000>;",
+              Message  => "wrong register entry for USB iface test data");
+      Assert (Condition => Actual_Range.Base = 16#0000_0000_3101_0000#,
+              Message   => "wrong register range base for USB iface test data");
+      Assert (Condition => Actual_Range.Size = 16#0000_0000_0004_0000#,
+              Message   => "wrong register range base for USB iface test data");
+
+--  begin read only
+   end Test_DTS_Node_Register_Entry;
+--  end read only
+
+
+--  begin read only
+   procedure Test_DTS_Range_Register_Entry (Gnattest_T : in out Test);
+   procedure Test_DTS_Range_Register_Entry_3981bd (Gnattest_T : in out Test) renames Test_DTS_Range_Register_Entry;
+--  id:2.2/3981bd6b734c6acb/DTS_Range_Register_Entry/1/0/
+   procedure Test_DTS_Range_Register_Entry (Gnattest_T : in out Test) is
 --  end read only
 
       pragma Unreferenced (Gnattest_T);
@@ -246,12 +355,12 @@ package body DTS.Test_Data.Tests is
                                        Index => 0),
          XPath => "devices/device[@physical='UART1']");
 
-      DTS_Register_Entry (Policy    => Policy,
-                          Device    => DOM.Core.Nodes.Item
-                            (List  => Virtual_UART_Dev,
-                             Index => 0),
-                          DTS_Entry => Actual_Entry,
-                          DTS_Range => Actual_Range);
+      DTS_Range_Register_Entry (Policy    => Policy,
+                                Device    => DOM.Core.Nodes.Item
+                                  (List  => Virtual_UART_Dev,
+                                   Index => 0),
+                                DTS_Entry => Actual_Entry,
+                                DTS_Range => Actual_Range);
 
       Assert (Actual   => To_String (Actual_Entry),
               Expected =>
@@ -273,12 +382,12 @@ package body DTS.Test_Data.Tests is
                                        Index => 0),
          XPath => "devices/device[@physical='APU_GIC']");
 
-      DTS_Register_Entry (Policy    => Policy,
-                          Device    => DOM.Core.Nodes.Item
-                            (List  => Virtual_GIC_Dev,
-                             Index => 0),
-                          DTS_Entry => Actual_Entry,
-                          DTS_Range => Actual_Range);
+      DTS_Range_Register_Entry (Policy    => Policy,
+                                Device    => DOM.Core.Nodes.Item
+                                  (List  => Virtual_GIC_Dev,
+                                   Index => 0),
+                                DTS_Entry => Actual_Entry,
+                                DTS_Range => Actual_Range);
 
       Assert (Actual   => To_String (Actual_Entry),
               Expected =>
@@ -292,7 +401,7 @@ package body DTS.Test_Data.Tests is
               Message   => "wrong register range base for GIC test data");
 
 --  begin read only
-   end Test_DTS_Register_Entry;
+   end Test_DTS_Range_Register_Entry;
 --  end read only
 
 
