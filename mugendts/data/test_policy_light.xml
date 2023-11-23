@@ -89,8 +89,16 @@
    <irq name="irq4" number="100"/>
    <irq name="irq5" number="101"/>
    <irq name="irq6" number="107"/>
-   <memory caching="UC" name="mem1" physicalAddress="16#fe20_0000#" size="16#1000#"/>
-   <memory caching="UC" name="mem2" physicalAddress="16#fe20_c000#" size="16#1000#"/>
+   <!--  The USB device mapping currently does not use the minimal memory as defined by
+         the Xilinx UltraScale+ register reference but maps the entire region as expeced
+         by the Linux 6.1.35 mainline xlnx,zynqmp-dwc3/snps,dwc3 drivers with, e.g.,
+         [ ] dwc3 31020000.usb3_0_dwc3: can't request region for resource [mem 0x3102c100-0x3105ffff]
+         [ ] dwc3: probe of 31020000.usb3_0_dwc3 failed with error -16 -->
+   <memory caching="UC" name="mem1" physicalAddress="16#ff9d_0000#" size="16#0000_1000#"/>
+   <memory caching="UC" name="mem2" physicalAddress="16#fe20_0000#" size="16#0004_0000#"/>
+   <capabilities>
+    <capability name="usb"/>
+   </capabilities>
   </device>
   <device name="USB3_1_XHCI">
    <irq name="irq1" number="102"/>
@@ -99,13 +107,22 @@
    <irq name="irq4" number="105"/>
    <irq name="irq5" number="106"/>
    <irq name="irq6" number="108"/>
-   <memory caching="UC" name="mem1" physicalAddress="16#fe30_0000#" size="16#1000#"/>
-   <memory caching="UC" name="mem2" physicalAddress="16#fe30_c000#" size="16#1000#"/>
+   <!--  The USB device mapping currently does not use the minimal memory as defined by
+         the Xilinx UltraScale+ register reference but maps the entire region as expeced
+         by the Linux 6.1.35 mainline xlnx,zynqmp-dwc3/snps,dwc3 drivers -->
+   <memory caching="UC" name="mem1" physicalAddress="16#ff9e_0000#" size="16#0000_1000#"/>
+   <memory caching="UC" name="mem2" physicalAddress="16#fe30_0000#" size="16#0004_0000#"/>
+   <capabilities>
+    <capability name="usb"/>
+   </capabilities>
   </device>
   <device name="GEM3">
    <irq name="irq1" number="95"/>
    <irq name="irq2" number="96"/>
    <memory caching="UC" name="mem1" physicalAddress="16#ff0e_0000#" size="16#1000#"/>
+   <capabilities>
+    <capability name="nic"/>
+   </capabilities>
   </device>
  </devices>
 </hardware>
@@ -130,20 +147,20 @@
  </kernelDiagnostics>
 </platform>
 <memory>
- <memory alignment="16#1000#" caching="WB" name="kernel_text" physicalAddress="16#0000#" size="16#0005_8000#" type="kernel_binary">
+ <memory alignment="16#1000#" caching="WB" name="kernel_text" physicalAddress="16#0000#" size="16#0006_0000#" type="kernel_binary">
   <file filename="kernel.bin" offset="16#0000#"/>
  </memory>
- <memory alignment="16#1000#" caching="WB" name="kernel_ro" physicalAddress="16#0005_8000#" size="16#0001_8000#" type="kernel_binary">
-  <file filename="kernel.bin" offset="16#0005_8000#"/>
+ <memory alignment="16#1000#" caching="WB" name="kernel_ro" physicalAddress="16#0006_0000#" size="16#0001_2000#" type="kernel_binary">
+  <file filename="kernel.bin" offset="16#0006_0000#"/>
  </memory>
- <memory alignment="16#1000#" caching="WB" name="kernel_data_0" physicalAddress="16#0007_0000#" size="16#2000#" type="kernel_binary">
-  <file filename="kernel.bin" offset="16#0007_0000#"/>
+ <memory alignment="16#1000#" caching="WB" name="kernel_data_0" physicalAddress="16#0007_2000#" size="16#2000#" type="kernel_binary">
+  <file filename="kernel.bin" offset="16#0007_2000#"/>
  </memory>
- <memory alignment="16#1000#" caching="WB" name="kernel_bss_0" physicalAddress="16#0007_2000#" size="16#2000#" type="kernel_binary">
+ <memory alignment="16#1000#" caching="WB" name="kernel_bss_0" physicalAddress="16#0007_4000#" size="16#2000#" type="kernel_binary">
   <fill pattern="16#00#"/>
  </memory>
- <memory alignment="16#1000#" caching="WB" name="kernel_global_data" physicalAddress="16#0007_4000#" size="16#c000#" type="kernel_binary">
-  <file filename="kernel.bin" offset="16#0007_4000#"/>
+ <memory alignment="16#1000#" caching="WB" name="kernel_global_data" physicalAddress="16#0007_6000#" size="16#a000#" type="kernel_binary">
+  <file filename="kernel.bin" offset="16#0007_6000#"/>
  </memory>
  <memory alignment="16#1000#" caching="WB" name="kernel_global_rodata" physicalAddress="16#0008_0000#" size="16#0001_0000#" type="kernel_binary">
   <file filename="kernel.bin" offset="16#0008_0000#"/>
@@ -167,14 +184,14 @@
   <fill pattern="16#00#"/>
  </memory>
  <memory alignment="16#1000#" caching="WB" name="linux|dtb" physicalAddress="16#1004_0000#" size="16#0004_0000#" type="subject_devicetree">
-  <file filename="devicetree_linux_one.dtb" offset="none"/>
+  <file filename="devicetree_linux.dtb" offset="none"/>
  </memory>
  <memory alignment="16#1000#" caching="WB" name="linux|binary" physicalAddress="16#1008_0000#" size="16#006d_d000#" type="subject_binary">
-  <file filename="Image_linux_one.bin" offset="none"/>
+  <file filename="Image_linux.bin" offset="none"/>
  </memory>
  <memory alignment="16#1000#" caching="WB" name="linux|ram" physicalAddress="16#1075_d000#" size="16#1a8a_3000#" type="subject"/>
  <memory alignment="16#1000#" caching="WB" name="linux|rootfs" physicalAddress="16#2b00_0000#" size="16#0500_0000#" type="subject_initrd">
-  <file filename="rootfs_linux_one.cpio.gz" offset="none"/>
+  <file filename="rootfs_linux.cpio.gz" offset="none"/>
  </memory>
  <memory alignment="16#1000#" caching="WB" name="kernel_interrupt_stack_0" physicalAddress="16#003f_f000#" size="16#1000#" type="kernel">
   <fill pattern="16#00#"/>
@@ -195,11 +212,10 @@
  <memory>
   <cpu id="0">
    <memory logical="text" physical="kernel_text" virtualAddress="16#0000#" writable="false" executable="true"/>
-   <memory logical="ro" physical="kernel_ro" virtualAddress="16#0005_8000#" writable="false" executable="false"/>
-   <memory logical="data" physical="kernel_data_0" virtualAddress="16#0007_0000#" writable="true" executable="false"/>
-   <memory logical="bss" physical="kernel_bss_0" virtualAddress="16#0007_2000#" writable="true" executable="false"/>
-   <memory logical="globaldata" physical="kernel_global_data" virtualAddress="16#0007_4000#" writable="true" executable="false"/>
-   <!--  This section must be writable for now  -->
+   <memory logical="ro" physical="kernel_ro" virtualAddress="16#0006_0000#" writable="false" executable="false"/>
+   <memory logical="data" physical="kernel_data_0" virtualAddress="16#0007_2000#" writable="true" executable="false"/>
+   <memory logical="bss" physical="kernel_bss_0" virtualAddress="16#0007_4000#" writable="true" executable="false"/>
+   <memory logical="globaldata" physical="kernel_global_data" virtualAddress="16#0007_6000#" writable="true" executable="false"/>
    <memory logical="globalrodata" physical="kernel_global_rodata" virtualAddress="16#0008_0000#" writable="false" executable="false"/>
    <memory logical="stack" physical="kernel_stack_0" virtualAddress="16#0009_0000#" writable="true" executable="false"/>
    <memory logical="interrupt_stack" physical="kernel_interrupt_stack_0" virtualAddress="16#003f_f000#" writable="true" executable="false"/>
