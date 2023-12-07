@@ -28,6 +28,7 @@ with Mutools.Constants;
 with Mutools.Match;
 with Mutools.XML_Utils;
 with Mutools.Templates;
+with Mutools.System_Config;
 
 with Spec.Utils;
 
@@ -39,6 +40,85 @@ is
    -------------------------------------------------------------------------
 
    procedure Write
+     (Output_Dir : String;
+      Policy     : Muxml.XML_Data_Type)
+   is
+      Is_ARM_System : constant Boolean
+        := Mutools.System_Config.Has_Boolean
+          (Data => Policy,
+           Name => "armv8") and then
+        Mutools.System_Config.Get_Value
+          (Data => Policy,
+           Name => "armv8");
+   begin
+      if Is_ARM_System then
+         Write_ARMv8a (Output_Dir => Output_Dir,
+                       Policy     => Policy);
+      else
+         Write_X86_64 (Output_Dir => Output_Dir,
+                       Policy     => Policy);
+      end if;
+   end Write;
+
+   -------------------------------------------------------------------------
+
+   procedure Write_ARMv8a
+     (Output_Dir : String;
+      Policy     : Muxml.XML_Data_Type)
+   is
+      pragma Unreferenced (Policy);
+
+      --  static (test) values  --
+      Physical_IRQ_Max     : constant String :=           "192";
+      Virtual_IRQ_Max      : constant String :=           "511";
+      SMMU_IRQ_ID          : constant String :=           "187";
+      GIC_Base_Address     : constant String := "16#f900_0000#";
+      IRQ_Routing_Table    : constant String
+        := "0 => (0 .. 191 => False)";
+      Vector_Routing_Table : constant String
+        := "0 => (0 .. 191 => KIN.Null_Vector_Routing_Assignment)";
+
+      Tmpl : Mutools.Templates.Template_Type;
+   begin
+      Mulog.Log (Msg => "Writing interrupt routing spec to '"
+                 & Output_Dir & "/skp-interrupts.ads'");
+
+      Tmpl := Mutools.Templates.Create
+        (Content => String_Templates.skp_interrupts_armv8a_ads);
+
+      Mutools.Templates.Replace
+        (Template => Tmpl,
+         Pattern  => "__pirq_id_max__",
+         Content  => Physical_IRQ_Max);
+      Mutools.Templates.Replace
+        (Template => Tmpl,
+         Pattern  => "__virq_id_max__",
+         Content  => Virtual_IRQ_Max);
+      Mutools.Templates.Replace
+        (Template => Tmpl,
+         Pattern  => "__pirq_id_smmu__",
+         Content  => SMMU_IRQ_ID);
+      Mutools.Templates.Replace
+        (Template => Tmpl,
+         Pattern  => "__gic_base_address__",
+         Content  => GIC_Base_Address);
+      Mutools.Templates.Replace
+        (Template => Tmpl,
+         Pattern  => "__irq_routing_table__",
+         Content  => IRQ_Routing_Table);
+      Mutools.Templates.Replace
+        (Template => Tmpl,
+         Pattern  => "__vector_routing_table__",
+         Content  => Vector_Routing_Table);
+
+      Mutools.Templates.Write
+        (Template => Tmpl,
+         Filename => Output_Dir & "/skp-interrupts.ads");
+   end Write_ARMv8a;
+
+   -------------------------------------------------------------------------
+
+   procedure Write_X86_64
      (Output_Dir : String;
       Policy     : Muxml.XML_Data_Type)
    is
@@ -230,7 +310,7 @@ is
       end if;
 
       Tmpl := Mutools.Templates.Create
-        (Content => String_Templates.skp_interrupts_ads);
+        (Content => String_Templates.skp_interrupts_x86_64_ads);
       Mutools.Templates.Replace
         (Template => Tmpl,
          Pattern  => "__remap_offset__",
@@ -259,6 +339,6 @@ is
       Mutools.Templates.Write
         (Template => Tmpl,
          Filename => Output_Dir & "/skp-interrupts.ads");
-   end Write;
+   end Write_X86_64;
 
 end Spec.Skp_Interrupts;
