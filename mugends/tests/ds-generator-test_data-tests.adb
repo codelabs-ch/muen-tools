@@ -57,6 +57,10 @@ package body DS.Generator.Test_Data.Tests is
                Filename2 => "obj/bootgen.config"),
               Message   => "bootgen.config mismatch (full test policy)");
       Assert (Condition => Test_Utils.Equal_Files
+              (Filename1 => "data/bootscript_cmd_full.ref",
+               Filename2 => "obj/bootscript.cmd"),
+              Message   => "bootscript.cmd mismatch (full test policy)");
+      Assert (Condition => Test_Utils.Equal_Files
               (Filename1 => "data/gdbinit_config_full.ref",
                Filename2 => "obj/gdbinit.config"),
               Message   => "gdbinit.config mismatch (full test policy)");

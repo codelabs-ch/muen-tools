@@ -1,0 +1,23 @@
+echo "Loading files from TFTP"
+tftpboot 0x0 kernel.bin
+tftpboot 0x100000 xilinxzcu104-core-0.pt
+tftpboot 0x110000 xilinxzcu104-core-1.pt
+tftpboot 0x200000 xilinxzcu104-lnx1.pt
+tftpboot 0x210000 xilinxzcu104-string_reverser.pt
+tftpboot 0x220000 xilinxzcu104-lnx2.pt
+tftpboot 0x230000 xilinxzcu104-caesar_cipher.pt
+tftpboot 0x4000000 subject_one.bin
+tftpboot 0x5000000 subject_two.bin
+tftpboot 0x20040000 devicetree_linux_one.dtb
+tftpboot 0x20080000 Image_linux_one.bin
+tftpboot 0x4b000000 rootfs_linux_one.cpio.gz
+tftpboot 0x50040000 devicetree_linux_two.dtb
+tftpboot 0x50080000 Image_linux_two.bin
+tftpboot 0x7b000000 rootfs_linux_two.cpio.gz
+
+dcache flush
+cpu 1 release 0x0
+go 0x0
+echo "Failed to boot"
+sleep 1000
+

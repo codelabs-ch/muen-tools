@@ -34,6 +34,7 @@ with Mutools.Utils;
 
 with DS.BIF;
 with DS.GDB;
+with DS.UBOOT;
 with DS.XSCT;
 
 package body DS.Generator
@@ -285,6 +286,8 @@ is
       DS.BIF.Write (Kernels, Files, Output_Dir);
 
       DS.GDB.Write (Kernels, Files, Output_Dir);
+
+      DS.UBOOT.Write (Kernels, Files, Output_Dir);
 
       DS.XSCT.Write (Kernels, Files, Output_Dir);
 
