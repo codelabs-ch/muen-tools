@@ -31,6 +31,7 @@ with Muxml.Utils;
 with Mutools.Match;
 with Mutools.XML_Utils;
 with Mutools.Templates;
+with Mutools.System_Config;
 
 with String_Templates;
 
@@ -358,6 +359,86 @@ is
      (Output_Dir : String;
       Policy     : Muxml.XML_Data_Type)
    is
+      Is_ARM_System : constant Boolean
+        := Mutools.System_Config.Has_Boolean
+          (Data => Policy,
+           Name => "armv8") and then
+        Mutools.System_Config.Get_Value
+          (Data => Policy,
+           Name => "armv8");
+   begin
+      if Is_ARM_System then
+         Write_ARMv8a (Output_Dir => Output_Dir,
+                       Policy     => Policy);
+      else
+         Write_X86_64 (Output_Dir => Output_Dir,
+                       Policy     => Policy);
+      end if;
+   end Write;
+
+   -------------------------------------------------------------------------
+
+   procedure Write_ARMv8a
+     (Output_Dir : String;
+      Policy     : Muxml.XML_Data_Type)
+   is
+      pragma Unreferenced (Policy);
+
+      --  static (test) values  --
+      Controller_Base_Address : constant String := "16#fd80_0000#";
+      Context_Base_Address    : constant String := "16#fd81_0000#";
+      Stream_Mapping_ID_Max   : constant String :=           " 47";
+      Context_Bank_ID_Max     : constant String :=           " 15";
+
+      Controller_Configuration : constant String
+        := "others => Null_SMMU500_Controller_Configuration";
+      Context_Configuration    : constant String
+        := "others => Null_SMMU500_Context_Configuration";
+
+      Tmpl : Mutools.Templates.Template_Type;
+   begin
+      Mulog.Log (Msg => "Writing IOMMU spec to '"
+                 & Output_Dir & "/skp-iommu.ads'");
+
+      Tmpl := Mutools.Templates.Create
+        (Content => String_Templates.skp_iommu_armv8a_ads);
+
+      Mutools.Templates.Replace
+        (Template => Tmpl,
+         Pattern  => "__smmu_controller_base_address__",
+         Content  => Controller_Base_Address);
+      Mutools.Templates.Replace
+        (Template => Tmpl,
+         Pattern  => "__smmu_context_base_address__",
+         Content  => Context_Base_Address);
+      Mutools.Templates.Replace
+        (Template => Tmpl,
+         Pattern  => "__stream_mapping_id_max__",
+         Content  => Stream_Mapping_ID_Max);
+      Mutools.Templates.Replace
+        (Template => Tmpl,
+         Pattern  => "__context_bank_id_max__",
+         Content  => Context_Bank_ID_Max);
+      Mutools.Templates.Replace
+        (Template => Tmpl,
+         Pattern  => "__smmu_controller_config__",
+         Content  => Controller_Configuration);
+      Mutools.Templates.Replace
+        (Template => Tmpl,
+         Pattern  => "__smmu_context_config__",
+         Content  => Context_Configuration);
+
+      Mutools.Templates.Write
+        (Template => Tmpl,
+         Filename => Output_Dir & "/skp-iommu.ads");
+   end Write_ARMv8a;
+
+   -------------------------------------------------------------------------
+
+   procedure Write_X86_64
+     (Output_Dir : String;
+      Policy     : Muxml.XML_Data_Type)
+   is
       use type Interfaces.Unsigned_64;
 
       --  Return the lowest virtualAddress value string of the memory regions
@@ -397,7 +478,6 @@ is
          return Mutools.Utils.To_Hex (Number => Result);
       end Get_Base_Addr;
 
-      Filename  : constant String := Output_Dir & "/skp-iommu.ads";
       Phys_Mem  : constant DOM.Core.Node_List
         := McKae.XML.XPath.XIA.XPath_Query
           (N     => Policy.Doc,
@@ -428,10 +508,11 @@ is
         := Mutools.XML_Utils.Get_IOMMU_Paging_Levels (Data => Policy);
       Tmpl : Mutools.Templates.Template_Type;
    begin
-      Mulog.Log (Msg => "Writing IOMMU spec to '" & Filename & "'");
+      Mulog.Log (Msg => "Writing IOMMU spec to '"
+                 & Output_Dir & "/skp-iommu.ads'");
 
       Tmpl := Mutools.Templates.Create
-        (Content => String_Templates.skp_iommu_ads);
+        (Content => String_Templates.skp_iommu_x86_64_ads);
 
       Mutools.Templates.Replace
         (Template => Tmpl,
@@ -470,10 +551,10 @@ is
 
       Mutools.Templates.Write
         (Template => Tmpl,
-         Filename => Filename);
+         Filename => Output_Dir & "/skp-iommu.ads");
 
       Tmpl := Mutools.Templates.Create
-        (Content => String_Templates.skp_iommu_adb);
+        (Content => String_Templates.skp_iommu_x86_64_adb);
       Mutools.Templates.Replace
         (Template => Tmpl,
          Pattern  => "__base_addr__",
@@ -486,6 +567,6 @@ is
       Mutools.Templates.Write
         (Template => Tmpl,
          Filename => Output_Dir & "/skp-iommu.adb");
-   end Write;
+   end Write_X86_64;
 
 end Spec.Skp_IOMMU;
