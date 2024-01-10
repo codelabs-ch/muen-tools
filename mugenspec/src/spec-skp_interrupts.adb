@@ -176,9 +176,24 @@ is
          declare
             use Interfaces;
 
-            Physical_GIC_Dev : constant DOM.Core.Node
+            --  (3.a) get the physical GIC device and its physical name
+            Physical_GIC_Dev  : constant DOM.Core.Node
               := DOM.Core.Nodes.Item (List  => Physical_GIC_Devs,
                                       Index => 0);
+            Physical_GIC_Name : constant String
+              := DOM.Core.Elements.Get_Attribute (Elem => Physical_GIC_Dev,
+                                                  Name => "name");
+
+            --  (3.b) extract virtual GIC device assigned to kernel
+            Virtual_GIC_Devs : constant DOM.Core.Node_List
+              := McKae.XML.XPath.XIA.XPath_Query
+                (N     => Policy.Doc,
+                 XPath => "/system/kernel/devices/device[@physical='" &
+                   Physical_GIC_Name & "']");
+            Virtual_GIC_Dev  : constant DOM.Core.Node
+              := DOM.Core.Nodes.Item (List  => Virtual_GIC_Devs,
+                                      Index => 0);
+
             Physical_IRQ_Max : constant Natural
               := Natural'Value (Muxml.Utils.Get_Element_Value
                                 (Doc   => Physical_GIC_Dev,
@@ -191,9 +206,9 @@ is
                                    "[@name='virq_id_max']"));
             GIC_Base_Address : constant Unsigned_64
               := Unsigned_64'Value (Muxml.Utils.Get_Attribute
-                                    (Doc   => Physical_GIC_Dev,
-                                     XPath => "memory[@name='GIC']",
-                                     Name  => "physicalAddress"));
+                                    (Doc   => Virtual_GIC_Dev,
+                                     XPath => "memory[@physical='GIC']",
+                                     Name  => "virtualAddress"));
 
             Physical_SMMU_Dev : constant DOM.Core.Node
               := DOM.Core.Nodes.Item (List  => Physical_SMMU_Devs,
