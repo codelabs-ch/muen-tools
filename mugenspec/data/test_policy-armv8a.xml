@@ -63,9 +63,12 @@
   <device name="SMMU_GPV">
    <irq name="irq" number="187"/>
    <!-- TODO: Remove or replace mmio name for SMMU device (x86 related, compatibility mugenspec) -->
-   <memory caching="UC" name="mmio" physicalAddress="16#fd80_0000#" size="16#0020_0000#"/>
+   <memory caching="UC" name="mmio" physicalAddress="16#fd80_0000#" size="16#0001_0000#"/>
+   <memory caching="UC" name="context" physicalAddress="16#fd81_0000#" size="16#0001_0000#"/>
    <capabilities>
     <capability name="iommu"/>
+    <capability name="stream_mapping_id_max">47</capability>
+    <capability name="context_bank_id_max">15</capability>
     <capability name="agaw">39</capability>
     <capability name="fr_offset">544</capability>
     <capability name="iotlb_invalidate_offset">248</capability>
@@ -101,6 +104,7 @@
    <memory caching="UC" name="mem2" physicalAddress="16#fe20_0000#" size="16#0004_0000#"/>
    <capabilities>
     <capability name="usb"/>
+    <capability name="stream_id">16#0860#</capability>
    </capabilities>
   </device>
   <device name="USB3_1_XHCI">
@@ -117,6 +121,7 @@
    <memory caching="UC" name="mem2" physicalAddress="16#fe30_0000#" size="16#0004_0000#"/>
    <capabilities>
     <capability name="usb"/>
+    <capability name="stream_id">16#0861#</capability>
    </capabilities>
   </device>
   <device name="GEM3">
@@ -125,6 +130,7 @@
    <memory caching="UC" name="mem1" physicalAddress="16#ff0e_0000#" size="16#1000#"/>
    <capabilities>
     <capability name="nic"/>
+    <capability name="stream_id">16#0877#</capability>
    </capabilities>
   </device>
  </devices>
@@ -341,10 +347,11 @@
    <memory logical="GICV" physical="GICV" virtualAddress="16#f900_6000#" writable="true" executable="false"/>
    <memory logical="GICV_DIR" physical="GICV_DIR" virtualAddress="16#f900_7000#" writable="true" executable="false"/>
   </device>
-  <device logical="smmu" physical="SMMU_GPV">
+  <device logical="iommu" physical="SMMU_GPV">
    <irq logical="smmu_irq" physical="irq" vector="187"/>
    <!-- TODO: Remove or replace mmio name for SMMU device (x86 related, compatibility mugenspec) -->
-   <memory virtualAddress="16#fd80_0000#" physical="mmio" logical="mmio" writable="true" executable="false"/>
+   <memory virtualAddress="16#fd80_0000#" physical="mmio" logical="controller" writable="true" executable="false"/>
+   <memory virtualAddress="16#fd81_0000#" physical="context" logical="context" writable="true" executable="false"/>
   </device>
  </devices>
 </kernel>
@@ -1437,6 +1444,13 @@
     <irq logical="irq1" physical="irq1" vector="34"/>
     <irq logical="irq2" physical="irq2" vector="35"/>
     <memory logical="mem1" physical="mem1" virtualAddress="16#3101_0000#" writable="true" executable="false"/>
+   </device>
+   <device logical="usb0" physical="USB3_1_XHCI">
+    <irq logical="irq1" physical="irq1" vector="36"/>
+    <irq logical="irq5" physical="irq5" vector="37"/>
+    <irq logical="irq6" physical="irq6" vector="38"/>
+    <memory logical="mem1" physical="mem1" virtualAddress="16#3101_1000#" writable="true" executable="false"/>
+    <memory logical="mem2" physical="mem2" virtualAddress="16#3102_0000#" writable="true" executable="false"/>
    </device>
   </devices>
   <events>

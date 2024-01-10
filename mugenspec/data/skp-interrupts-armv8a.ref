@@ -62,6 +62,9 @@ is
             54 => True,
             95 => True,
             96 => True,
+            102 => True,
+            106 => True,
+            108 => True,
             others => False))
      with
        Linker_Section => ".globalrodata";
@@ -103,6 +106,15 @@ is
             96 =>
               (Subject => 2,
                Vector  => 35),
+            102 =>
+              (Subject => 2,
+               Vector  => 36),
+            106 =>
+              (Subject => 2,
+               Vector  => 37),
+            108 =>
+              (Subject => 2,
+               Vector  => 38),
             others =>
               (Subject => Invalid_Subject,
                Vector  => 0)))
