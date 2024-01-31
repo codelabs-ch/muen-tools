@@ -1,8 +1,8 @@
 {
 	"conduit_uri" : "https://dev.codelabs.ch/",
-	"git.default-relative-commit" : "devel",
-	"arc.land.onto" : [ "devel" ],
-	"arc.land.onto.default": "devel",
+	"git.default-relative-commit" : "devel-armv8a",
+	"arc.land.onto" : [ "devel-armv8a" ],
+	"arc.land.onto.default": "devel-armv8a",
 	"arc.land.strategy" : "merge",
 	"unit.engine" : "GNATtestEngine",
 	"repository.callsign" : "MTO",
