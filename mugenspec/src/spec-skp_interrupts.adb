@@ -16,11 +16,15 @@
 --  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --
 
+with Interfaces;
+
 with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded;
 
 with DOM.Core.Nodes;
 with DOM.Core.Elements;
+
+with McKae.XML.XPath.XIA;
 
 with Mulog;
 with Muxml.Utils;
@@ -28,6 +32,7 @@ with Mutools.Constants;
 with Mutools.Match;
 with Mutools.XML_Utils;
 with Mutools.Templates;
+with Mutools.System_Config;
 
 with Spec.Utils;
 
@@ -39,6 +44,291 @@ is
    -------------------------------------------------------------------------
 
    procedure Write
+     (Output_Dir : String;
+      Policy     : Muxml.XML_Data_Type)
+   is
+      Is_ARM_System : constant Boolean
+        := Mutools.System_Config.Has_Boolean
+          (Data => Policy,
+           Name => "armv8") and then
+        Mutools.System_Config.Get_Value
+          (Data => Policy,
+           Name => "armv8");
+   begin
+      if Is_ARM_System then
+         Write_ARMv8a (Output_Dir => Output_Dir,
+                       Policy     => Policy);
+      else
+         Write_X86_64 (Output_Dir => Output_Dir,
+                       Policy     => Policy);
+      end if;
+   end Write;
+
+   -------------------------------------------------------------------------
+
+   procedure Write_ARMv8a
+     (Output_Dir : String;
+      Policy     : Muxml.XML_Data_Type)
+   is
+      use Ada.Strings.Unbounded;
+
+      --  (1) extract all physical devices with GIC capability
+      Physical_GIC_Devs : constant DOM.Core.Node_List
+        := McKae.XML.XPath.XIA.XPath_Query
+          (N     => Policy.Doc,
+           XPath => "/system/hardware/devices/device" &
+             "[capabilities/capability/@name='gic']");
+
+      --  (2) extract all physical devices with SMMU (i.c. iommu) capability
+      Physical_SMMU_Devs : constant DOM.Core.Node_List
+        := McKae.XML.XPath.XIA.XPath_Query
+          (N     => Policy.Doc,
+           XPath => "/system/hardware/devices/device" &
+             "[capabilities/capability/@name='iommu']");
+
+      CPU_Count : constant Natural
+        := Mutools.XML_Utils.Get_Active_CPU_Count (Data => Policy);
+
+      IRQ_Routing_Table    : Unbounded_String;
+      Vector_Routing_Table : Unbounded_String;
+
+      Tmpl : Mutools.Templates.Template_Type;
+
+      --  Write IRQ information to interrupts spec.
+      procedure Write_Interrupt
+        (IRQ   : DOM.Core.Node;
+         Index : Natural);
+
+      ----------------------------------------------------------------------
+
+      procedure Write_Interrupt
+        (IRQ   : DOM.Core.Node;
+         Index : Natural)
+      is
+         Phys_IRQ_Name : constant String
+           := DOM.Core.Elements.Get_Attribute
+             (Elem => IRQ,
+              Name => "physical");
+         Dev_Name : constant String
+           := DOM.Core.Elements.Get_Attribute
+             (Elem => DOM.Core.Nodes.Parent_Node (N => IRQ),
+              Name => "physical");
+         Dev_Node : constant DOM.Core.Node
+           := Muxml.Utils.Get_Element
+             (Doc   => Policy.Doc,
+              XPath => "/system/hardware/devices/device[@name='"
+              & Dev_Name & "']");
+         Physical_IRQ : constant DOM.Core.Node
+           := Muxml.Utils.Get_Element
+             (Doc   => Dev_Node,
+              XPath => "irq[@name='" & Phys_IRQ_Name & "']");
+         IRQ_Number : constant Natural := Natural'Value
+           (DOM.Core.Elements.Get_Attribute
+              (Elem => Physical_IRQ,
+               Name => "number"));
+         Subject : constant DOM.Core.Node
+           := Muxml.Utils.Ancestor_Node (Node  => IRQ,
+                                         Level => 3);
+         Subject_ID : constant String
+           := DOM.Core.Elements.Get_Attribute
+             (Elem => Subject,
+              Name => "globalId");
+         Subject_Vector : constant String
+           := DOM.Core.Elements.Get_Attribute
+             (Elem => IRQ,
+              Name => "vector");
+      begin
+         --  (a) Routing Table - append configured interrupt
+         if IRQ_Number > 26 then
+            IRQ_Routing_Table := IRQ_Routing_Table & ASCII.LF &
+              Indent (N => 4) & Ada.Strings.Fixed.Trim
+              (IRQ_Number'Img, Ada.Strings.Left) & " => True,";
+         end if;
+
+         --  (b) Vector Table - append configured interrupt (incl.
+         --  style fix for first interrupt entry)
+         if Index /= 0 then
+            Vector_Routing_Table := Vector_Routing_Table & ASCII.LF &
+              Indent (N => 4);
+         end if;
+
+         Vector_Routing_Table := Vector_Routing_Table & Ada.Strings.Fixed.Trim
+           (IRQ_Number'Img, Ada.Strings.Left) & " =>" & ASCII.LF &
+           Indent (N => 4) & "  (Subject => " & Subject_ID & "," & ASCII.LF &
+           Indent (N => 5) & "Vector  => " & Subject_Vector & "),";
+      end Write_Interrupt;
+
+      ----------------------------------------------------------------------
+
+   begin
+      Mulog.Log (Msg => "Writing interrupt routing spec to '"
+                 & Output_Dir & "/skp-interrupts.ads'");
+
+      Tmpl := Mutools.Templates.Create
+        (Content => String_Templates.skp_interrupts_armv8a_ads);
+
+      --  Note: currently only one interrupt controller GIC-400 and one
+      --  system memory management unit SMMU-500 supported
+      if
+        DOM.Core.Nodes.Length (Physical_GIC_Devs) = 1 and
+        DOM.Core.Nodes.Length (Physical_SMMU_Devs) = 1
+      then
+         declare
+            use Interfaces;
+
+            --  (3.a) get the physical GIC device and its physical name
+            Physical_GIC_Dev  : constant DOM.Core.Node
+              := DOM.Core.Nodes.Item (List  => Physical_GIC_Devs,
+                                      Index => 0);
+            Physical_GIC_Name : constant String
+              := DOM.Core.Elements.Get_Attribute (Elem => Physical_GIC_Dev,
+                                                  Name => "name");
+
+            --  (3.b) extract virtual GIC device assigned to kernel
+            Virtual_GIC_Devs : constant DOM.Core.Node_List
+              := McKae.XML.XPath.XIA.XPath_Query
+                (N     => Policy.Doc,
+                 XPath => "/system/kernel/devices/device[@physical='" &
+                   Physical_GIC_Name & "']");
+            Virtual_GIC_Dev  : constant DOM.Core.Node
+              := DOM.Core.Nodes.Item (List  => Virtual_GIC_Devs,
+                                      Index => 0);
+
+            Physical_IRQ_Max : constant Natural
+              := Natural'Value (Muxml.Utils.Get_Element_Value
+                                (Doc   => Physical_GIC_Dev,
+                                 XPath => "capabilities/capability" &
+                                   "[@name='pirq_id_max']"));
+            Virtual_IRQ_Max  : constant Natural
+              := Natural'Value (Muxml.Utils.Get_Element_Value
+                                (Doc   => Physical_GIC_Dev,
+                                 XPath => "capabilities/capability" &
+                                   "[@name='virq_id_max']"));
+            GIC_Base_Address : constant Unsigned_64
+              := Unsigned_64'Value (Muxml.Utils.Get_Attribute
+                                    (Doc   => Virtual_GIC_Dev,
+                                     XPath => "memory[@physical='GIC']",
+                                     Name  => "virtualAddress"));
+
+            Physical_SMMU_Dev : constant DOM.Core.Node
+              := DOM.Core.Nodes.Item (List  => Physical_SMMU_Devs,
+                                      Index => 0);
+            SMMU_IRQ_ID       : constant Natural
+              := Natural'Value (Muxml.Utils.Get_Attribute
+                                (Doc   => Physical_SMMU_Dev,
+                                 XPath => "irq[@name='irq']",
+                                 Name  => "number"));
+         begin
+            Mutools.Templates.Replace
+              (Template => Tmpl,
+               Pattern  => "__pirq_id_max__",
+               Content  => Physical_IRQ_Max'Img);
+            Mutools.Templates.Replace
+              (Template => Tmpl,
+               Pattern  => "__virq_id_max__",
+               Content  => Virtual_IRQ_Max'Img);
+            Mutools.Templates.Replace
+              (Template => Tmpl,
+               Pattern  => "__pirq_id_smmu__",
+               Content  => SMMU_IRQ_ID'Img);
+            Mutools.Templates.Replace
+              (Template => Tmpl,
+               Pattern  => "__gic_base_address__",
+               Content  => Mutools.Utils.To_Hex (Number => GIC_Base_Address));
+
+            for I in 0 .. CPU_Count - 1 loop
+               declare
+                  IRQs : constant Muxml.Utils.Matching_Pairs_Type
+                    := Muxml.Utils.Get_Matching
+                      (XML_Data       => Policy,
+                       Left_XPath     => "/system/subjects/subject[@cpu='" &
+                         Ada.Strings.Fixed.Trim (I'Img, Ada.Strings.Left) &
+                           "']/devices/device/irq",
+                       Right_XPath    => "/system/hardware/devices/device/irq",
+                       Match_Multiple => False,
+                       Match          => Mutools.Match.
+                         Is_Valid_Resource_Ref'Access);
+               begin
+                  --  (i) add base entry for current CPU (incl. style fix
+                  --  for first CPU entry and indent for following CPUs)
+                  if I > 0 then
+                     IRQ_Routing_Table := IRQ_Routing_Table &
+                       Indent (N => 3);
+                     Vector_Routing_Table := Vector_Routing_Table &
+                       Indent (N => 3);
+                  end if;
+
+                  IRQ_Routing_Table := IRQ_Routing_Table & Ada.Strings.
+                    Fixed.Trim (I'Img, Ada.Strings.Left) & " =>" & ASCII.LF;
+                  Vector_Routing_Table := Vector_Routing_Table & Ada. Strings.
+                    Fixed.Trim (I'Img, Ada.Strings.Left) & " =>" & ASCII.LF;
+
+                  --  (ii) statically enable banked SGI, maintenance and
+                  --  hypervisor timer interrupts for GIC-400
+                  IRQ_Routing_Table := IRQ_Routing_Table &
+                    Indent (N => 3) & "  (0  .. 15 => True," & ASCII.LF &
+                    Indent (N => 4) & "25 .. 26 => True,";
+                  Vector_Routing_Table := Vector_Routing_Table &
+                    Indent (N => 3) & "  (";
+
+                  --  (iii) append configured interrupts
+                  for K in 0 .. DOM.Core.Nodes.Length (IRQs.Left) - 1 loop
+                     Write_Interrupt (IRQ   => DOM.Core.Nodes.Item
+                                      (List  => IRQs.Left,
+                                       Index => K),
+                                      Index => K);
+                  end loop;
+
+                  --  (iv) statically enable SMMU interrupt on first core
+                  --  and add indent for vector table with interrupts
+                  if I = 0 then
+                     IRQ_Routing_Table := IRQ_Routing_Table & ASCII.LF &
+                       Indent (N => 4) & Ada.Strings.Fixed.Trim
+                       (SMMU_IRQ_ID'Img, Ada.Strings.Left) & " => True,";
+                  end if;
+
+                  if DOM.Core.Nodes.Length (IRQs.Left) > 0 then
+                     Vector_Routing_Table := Vector_Routing_Table & ASCII.LF &
+                       Indent (N => 4);
+                  end if;
+
+                  --  (v) set others to false / null
+                  IRQ_Routing_Table := IRQ_Routing_Table & ASCII.LF &
+                    Indent (N => 4) & "others => False)";
+                  Vector_Routing_Table := Vector_Routing_Table &
+                    "others =>" & ASCII.LF & Indent (N => 4) &
+                    "  (Subject => Invalid_Subject," & ASCII.LF &
+                    Indent (N => 5) & "Vector  => 0))";
+
+                  --  (vi) append separator except for last configured CPU
+                  if I /= CPU_Count - 1 then
+                     IRQ_Routing_Table := IRQ_Routing_Table &
+                       "," & ASCII.LF;
+                     Vector_Routing_Table := Vector_Routing_Table &
+                       "," & ASCII.LF;
+                  end if;
+               end;
+            end loop;
+         end;
+
+         Mutools.Templates.Replace
+           (Template => Tmpl,
+            Pattern  => "__irq_routing_table__",
+            Content  => To_String (IRQ_Routing_Table));
+         Mutools.Templates.Replace
+           (Template => Tmpl,
+            Pattern  => "__vector_routing_table__",
+            Content  => To_String (Vector_Routing_Table));
+      end if;
+
+      Mutools.Templates.Write
+        (Template => Tmpl,
+         Filename => Output_Dir & "/skp-interrupts.ads");
+   end Write_ARMv8a;
+
+   -------------------------------------------------------------------------
+
+   procedure Write_X86_64
      (Output_Dir : String;
       Policy     : Muxml.XML_Data_Type)
    is
@@ -230,7 +520,7 @@ is
       end if;
 
       Tmpl := Mutools.Templates.Create
-        (Content => String_Templates.skp_interrupts_ads);
+        (Content => String_Templates.skp_interrupts_x86_64_ads);
       Mutools.Templates.Replace
         (Template => Tmpl,
          Pattern  => "__remap_offset__",
@@ -259,6 +549,6 @@ is
       Mutools.Templates.Write
         (Template => Tmpl,
          Filename => Output_Dir & "/skp-interrupts.ads");
-   end Write;
+   end Write_X86_64;
 
 end Spec.Skp_Interrupts;
