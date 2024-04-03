@@ -20,6 +20,7 @@ with DOM.Core.Nodes;
 
 with McKae.XML.XPath.XIA;
 
+with Mutools.Types;
 with Mutools.Utils;
 with Muxml.Utils;
 
@@ -105,20 +106,20 @@ is
               := Muxml.Utils.Get_Element (Nodes     => Physical_Memory,
                                           Ref_Attr  => "name",
                                           Ref_Value => Virtual_Memory_Phys);
+            Physical_Memory_Type : constant Mutools.Types.Memory_Kind
+              := Mutools.Types.Memory_Kind'Value
+                (DOM.Core.Elements.Get_Attribute (Elem => Physical_Memory_Node,
+                                                  Name => "type"));
             Physical_Memory_Size : constant String
               := DOM.Core.Elements.Get_Attribute (Elem => Physical_Memory_Node,
                                                   Name => "size");
-            Physical_Memory_Type : constant String
-              := DOM.Core.Elements.Get_Attribute (Elem => Physical_Memory_Node,
-                                                  Name => "type");
          begin
             if Unsigned_64'Value (Virtual_Memory_Base) < Base_Address then
                Base_Address := Unsigned_64'Value (Virtual_Memory_Base);
             end if;
 
             if
-              Physical_Memory_Type /= "subject_channel" and
-              Physical_Memory_Type /= "subject_info"
+              Physical_Memory_Type in Mutools.Types.Subject_RAM_Memory
             then
                if I /= 0 then
                   Append (Source   => Register_Ranges,

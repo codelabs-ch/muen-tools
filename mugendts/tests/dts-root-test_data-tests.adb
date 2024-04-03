@@ -197,10 +197,6 @@ package body DTS.Root.Test_Data.Tests is
         "        device_type = ""memory"";" & ASCII.LF &
         "        reg = <0x00000000 0x00000000 0x00000000 0x00040000" &
         ASCII.LF &
-        "               0x00000000 0x00040000 0x00000000 0x00040000" &
-        ASCII.LF &
-        "               0x00000000 0x00080000 0x00000000 0x006dd000" &
-        ASCII.LF &
         "               0x00000000 0x0075d000 0x00000000 0x1a8a3000" &
         ASCII.LF &
         "               0x00000000 0x1b000000 0x00000000 0x05000000>;" &

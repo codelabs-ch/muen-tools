@@ -24,7 +24,10 @@ is
 
 private
 
-   --  Register policy validators.
-   procedure Register_All;
+   --  Register policy validators for x86/64.
+   procedure Register_X86_64;
+
+   --  Register policy validators for ARMv8-A.
+   procedure Register_ARMv8a;
 
 end Validate;
