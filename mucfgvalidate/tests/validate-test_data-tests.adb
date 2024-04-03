@@ -39,9 +39,13 @@ package body Validate.Test_Data.Tests is
       pragma Unreferenced (Gnattest_T);
 
    begin
+      --  Positive test, no exceptions must occur.
       Run (Policy => "data/test_policy.xml");
 
+      XML_Processors.Clear;
+
       --  Positive test, no exceptions must occur.
+      Run (Policy => "data/test_policy-armv8a.xml");
 
       XML_Processors.Clear;
 
@@ -55,10 +59,10 @@ package body Validate.Test_Data.Tests is
 
 
 --  begin read only
-   procedure Test_Register_All (Gnattest_T : in out Test);
-   procedure Test_Register_All_3f90ea (Gnattest_T : in out Test) renames Test_Register_All;
---  id:2.2/3f90ea30314141bf/Register_All/1/0/
-   procedure Test_Register_All (Gnattest_T : in out Test) is
+   procedure Test_Register_X86_64 (Gnattest_T : in out Test);
+   procedure Test_Register_X86_64_d9d62b (Gnattest_T : in out Test) renames Test_Register_X86_64;
+--  id:2.2/d9d62bf31bdb6fd8/Register_X86_64/1/0/
+   procedure Test_Register_X86_64 (Gnattest_T : in out Test) is
 --  end read only
 
       pragma Unreferenced (Gnattest_T);
@@ -69,8 +73,37 @@ package body Validate.Test_Data.Tests is
                    Kind => Muxml.Format_B,
                    File => "data/test_policy.xml");
 
-      Register_All;
+      Register_X86_64;
       Assert (Condition => XML_Processors.Get_Count = 153,
+              Message   => "Count mismatch:"
+              & XML_Processors.Get_Count'Img);
+      XML_Processors.Clear;
+
+   exception
+      when others =>
+         XML_Processors.Clear;
+--  begin read only
+   end Test_Register_X86_64;
+--  end read only
+
+
+--  begin read only
+   procedure Test_Register_ARMv8a (Gnattest_T : in out Test);
+   procedure Test_Register_ARMv8a_8eb625 (Gnattest_T : in out Test) renames Test_Register_ARMv8a;
+--  id:2.2/8eb625dfea8298f9/Register_ARMv8a/1/0/
+   procedure Test_Register_ARMv8a (Gnattest_T : in out Test) is
+--  end read only
+
+      pragma Unreferenced (Gnattest_T);
+
+      Data : Muxml.XML_Data_Type;
+   begin
+      Muxml.Parse (Data => Data,
+                   Kind => Muxml.Format_B,
+                   File => "data/test_policy-armv8a.xml");
+
+      Register_ARMv8a;
+      Assert (Condition => XML_Processors.Get_Count = 94,
               Message   => "Count mismatch:"
               & XML_Processors.Get_Count'Img);
       XML_Processors.Clear;
@@ -80,7 +113,7 @@ package body Validate.Test_Data.Tests is
          XML_Processors.Clear;
          raise;
 --  begin read only
-   end Test_Register_All;
+   end Test_Register_ARMv8a;
 --  end read only
 
 --  begin read only
