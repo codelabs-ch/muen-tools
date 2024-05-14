@@ -118,8 +118,14 @@ is
                Base_Address := Unsigned_64'Value (Virtual_Memory_Base);
             end if;
 
+            --  The kernel image is added to the usable memory as according to
+            --  Documentation/arch/arm64/booting.rst the image must be placed
+            --  "anywhere in usable system RAM" and the kernel does access some
+            --  of it via virtual addresses (e.g. the alternatives framework),
+            --  which won't work if it doesn't create page tables for it.
             if
-              Physical_Memory_Type in Mutools.Types.Subject_RAM_Memory
+              Physical_Memory_Type in Mutools.Types.Subject_RAM_Memory or
+              Physical_Memory_Type in Mutools.Types.Subject_Binary
             then
                if I /= 0 then
                   Append (Source   => Register_Ranges,
