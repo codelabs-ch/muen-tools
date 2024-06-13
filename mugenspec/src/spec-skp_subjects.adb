@@ -30,6 +30,7 @@ with Mulog;
 with Muxml.Utils;
 with Mutools.XML_Utils;
 with Mutools.Templates;
+with Mutools.System_Config;
 
 with Spec.VMX_Types;
 
@@ -141,6 +142,223 @@ is
    -------------------------------------------------------------------------
 
    procedure Write
+     (Output_Dir : String;
+      Policy     : Muxml.XML_Data_Type)
+   is
+      Is_ARM_System : constant Boolean
+        := Mutools.System_Config.Has_Boolean
+          (Data => Policy,
+           Name => "armv8") and then
+        Mutools.System_Config.Get_Value
+          (Data => Policy,
+           Name => "armv8");
+   begin
+      if Is_ARM_System then
+         Write_ARMv8a (Output_Dir => Output_Dir,
+                       Policy     => Policy);
+      else
+         Write_X86_64 (Output_Dir => Output_Dir,
+                       Policy     => Policy);
+      end if;
+   end Write;
+
+   -------------------------------------------------------------------------
+
+   procedure Write_ARMv8a
+     (Output_Dir : String;
+      Policy     : Muxml.XML_Data_Type)
+   is
+      use Interfaces;
+
+      --  (1) extract all subjects and physical memory nodes
+      Subjects        : constant DOM.Core.Node_List
+        := McKae.XML.XPath.XIA.XPath_Query
+          (N     => Policy.Doc,
+           XPath => "/system/subjects/subject");
+      Physical_Memory : constant DOM.Core.Node_List
+        := McKae.XML.XPath.XIA.XPath_Query
+          (N     => Policy.Doc,
+           XPath => "/system/memory/memory");
+
+      --  (2) extract all physical devices with GIC capability
+      Physical_GIC_Dev : constant DOM.Core.Node_List
+        := McKae.XML.XPath.XIA.XPath_Query
+          (N     => Policy.Doc,
+           XPath => "/system/hardware/devices/device" &
+             "[capabilities/capability/@name='gic']");
+
+      --  (3) extract all physical memory regions that contain a linux
+      --  device tree (i.e. type of 'subject_devicetree')
+      Physical_DTS : constant DOM.Core.Node_List
+        := McKae.XML.XPath.XIA.XPath_Query
+          (N     => Policy.Doc,
+           XPath => "/system/memory/memory[@type='subject_devicetree']");
+
+      --  (4) calculate number of subjects
+      Subj_Count  : constant Natural
+        := DOM.Core.Nodes.Length (List => Subjects);
+
+      Buffer : Unbounded_String;
+      Tmpl   : Mutools.Templates.Template_Type;
+
+      --  Check if given subject is Linux VM.
+      function Is_Linux_VM (Subject : DOM.Core.Node) return Boolean;
+
+      ----------------------------------------------------------------------
+
+      function Is_Linux_VM (Subject : DOM.Core.Node) return Boolean
+      is
+      begin
+         --  (a) for every physical device tree memory node check if the
+         --  given subject exclusively makes use of this dts region to un-
+         --  ambiguously identify a Linux VM subject
+         for I in 0 .. DOM.Core.Nodes.Length (Physical_DTS) - 1 loop
+            declare
+               DTS_Node : constant DOM.Core.Node
+                 := DOM.Core.Nodes.Item (List  => Physical_DTS,
+                                         Index => I);
+               DTS_Name : constant String
+                 := DOM.Core.Elements.Get_Attribute (Elem => DTS_Node,
+                                                     Name => "name");
+
+               -- (b) extract all dts memory regions with given physical name
+               Linux_Subjects : constant DOM.Core.Node_List
+                 := McKae.XML.XPath.XIA.XPath_Query
+                   (N     => Subject,
+                    XPath => "memory/memory[@physical='" & DTS_Name & "']");
+            begin
+               --  (c) list has to be either length 1 or 0, with 1 indicating
+               --  a subject of type Linux VM
+               if DOM.Core.Nodes.Length (Linux_Subjects) = 1 then
+                  return True;
+               end if;
+            end;
+         end loop;
+
+         return False;
+      end Is_Linux_VM;
+
+      ----------------------------------------------------------------------
+
+      --  Append SPARK specification of given subject to template buffer.
+      procedure Write_Subject_Spec (Subject : DOM.Core.Node);
+
+      ----------------------------------------------------------------------
+
+      procedure Write_Subject_Spec (Subject : DOM.Core.Node)
+      is
+
+         function U
+           (Source : String)
+            return Unbounded_String
+            renames To_Unbounded_String;
+
+         --  (a) extract basic configuration values
+         Name    : constant String
+           := DOM.Core.Elements.Get_Attribute (Elem => Subject,
+                                               Name => "name");
+         Subj_ID : constant String
+           := DOM.Core.Elements.Get_Attribute (Elem => Subject,
+                                               Name => "globalId");
+         CPU_ID  : constant String
+           := DOM.Core.Elements.Get_Attribute (Elem => Subject,
+                                               Name => "cpu");
+
+         --  (b) get category for given subject (either "Linux" or "Native")
+         --  and set default cacheability and trapped instructions accordingly
+         Linux_VM             : constant Boolean
+           := Is_Linux_VM (Subject => Subject);
+         Subject_Category     : constant String
+           := (if Linux_VM then "Linux" else "Native");
+         Default_Cacheability : constant String
+           := (if Linux_VM then "False" else "True");
+         Trap_WFI_Instruction : constant String
+           := (if Linux_VM then "False" else "True");
+         Trap_WFE_Instruction : constant String
+           := (if Linux_VM then "False" else "True");
+
+         --  (c) extract virtual translation table base address
+         VTTBR_Address : constant Unsigned_64
+           := Unsigned_64'Value (Muxml.Utils.Get_Attribute
+                                 (Nodes     => Physical_Memory,
+                                  Refs      => ((Name  => U ("type"),
+                                                 Value => U ("system_pt")),
+                                                (Name  => U ("name"),
+                                                 Value => U (Name & "|pt"))),
+                                  Attr_Name => "physicalAddress"));
+
+         --  (d) check if GIC device is used by subject (NOTE - currently
+         --  only one GIC device supported)
+         Virtual_GIC_Dev   : constant DOM.Core.Node_List
+           := McKae.XML.XPath.XIA.XPath_Query
+             (N     => Subject,
+              XPath => "devices/device[@physical='" & DOM.Core.Elements.
+                Get_Attribute (Elem => DOM.Core.Nodes.
+                                     Item (List  => Physical_GIC_Dev,
+                                           Index => 0),
+                               Name => "name") & "']");
+         Interrupt_Support : constant String
+           := (if DOM.Core.Nodes.Length (Virtual_GIC_Dev) = 1
+               then "True" else "False");
+      begin
+         Buffer := Buffer & Subj_ID & " =>" &
+           ASCII.LF & Indent (N => 3) &
+           "  (CPU_ID               => " & CPU_ID & "," &
+           ASCII.LF & Indent (N => 3) &
+           "   Subject_Category     => " & Subject_Category & "," &
+           ASCII.LF & Indent (N => 3) &
+           "   VTTBR_Address        => " &
+           Mutools.Utils.To_Hex (Number => VTTBR_Address) & "," &
+           ASCII.LF & Indent (N => 3) &
+           "   Default_Cacheability => " & Default_Cacheability & "," &
+           ASCII.LF & Indent (N => 3) &
+           "   Trap_WFI_Instruction => " & Trap_WFI_Instruction & "," &
+           ASCII.LF & Indent (N => 3) &
+           "   Trap_WFE_Instruction => " & Trap_WFE_Instruction & "," &
+           ASCII.LF & Indent (N => 3) &
+           "   Interrupt_Support    => " & Interrupt_Support & ")";
+      end Write_Subject_Spec;
+   begin
+      Mulog.Log (Msg => "Writing subject spec to '"
+                 & Output_Dir & "/skp-subjects.adb'");
+
+      Tmpl := Mutools.Templates.Create
+        (Content => String_Templates.skp_subjects_armv8a_ads);
+      Mutools.Templates.Write
+        (Template => Tmpl,
+         Filename => Output_Dir & "/skp-subjects.ads");
+
+      Tmpl := Mutools.Templates.Create
+        (Content => String_Templates.skp_subjects_armv8a_adb);
+
+      for I in 0 .. Subj_Count - 1 loop
+         if I /= 0 then
+            Buffer := Buffer & Indent (N => 3);
+         end if;
+
+         Write_Subject_Spec
+           (Subject => DOM.Core.Nodes.Item
+              (List  => Subjects,
+               Index => I));
+
+         if I < Subj_Count - 1 then
+            Buffer := Buffer & "," & ASCII.LF;
+         end if;
+      end loop;
+
+      Mutools.Templates.Replace
+        (Template => Tmpl,
+         Pattern  => "__subjects__",
+         Content  => To_String (Buffer));
+
+      Mutools.Templates.Write
+        (Template => Tmpl,
+         Filename => Output_Dir & "/skp-subjects.adb");
+   end Write_ARMv8a;
+
+   -------------------------------------------------------------------------
+
+   procedure Write_X86_64
      (Output_Dir : String;
       Policy     : Muxml.XML_Data_Type)
    is
@@ -468,6 +686,6 @@ is
       Mutools.Templates.Write
         (Template => Tmpl,
          Filename => Output_Dir & "/skp-subjects.adb");
-   end Write;
+   end Write_X86_64;
 
 end Spec.Skp_Subjects;
