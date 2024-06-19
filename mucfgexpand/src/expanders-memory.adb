@@ -250,12 +250,14 @@ is
 
    procedure Add_Kernel_Stack (Data : in out Muxml.XML_Data_Type)
    is
-      CPU_Count       : constant Positive
+      use type Interfaces.Unsigned_64;
+
+      CPU_Count  : constant Positive
         := Mutools.XML_Utils.Get_Active_CPU_Count (Data => Data);
-      Stack_Size      : constant String
-        := Mutools.Utils.To_Hex (Number => Config.Kernel_Stack_Size);
-      Intr_Stack_Size : constant String
-        := Mutools.Utils.To_Hex (Number => Config.Kernel_Interrupt_Stack_Size);
+      Stack_Addr : Interfaces.Unsigned_64          := Config.Kernel_Stack_Addr;
+      Stack_Size : constant Interfaces.Unsigned_64 := Config.Kernel_Stack_Size;
+      -- Intr_Stack_Size : constant String
+      --   := Mutools.Utils.To_Hex (Number => Config.Kernel_Interrupt_Stack_Size);
    begin
       Mulog.Log (Msg => "Adding kernel stack memory regions for"
                  & CPU_Count'Img & " CPU(s)");
@@ -266,22 +268,25 @@ is
               (Source => I'Img,
                Side   => Ada.Strings.Left);
          begin
+            --  TODO: MOA: Fixed physical address.
             Mutools.XML_Utils.Add_Memory_Region
               (Policy      => Data,
                Name        => "kernel_stack_" & CPU_Str,
-               Address     => "",
-               Size        => Stack_Size,
+               Address     => Mutools.Utils.To_Hex (Number => Stack_Addr),
+               Size        => Mutools.Utils.To_Hex (Number => Stack_Size),
                Caching     => "WB",
                Alignment   => "16#1000#",
                Memory_Type => "kernel");
-            Mutools.XML_Utils.Add_Memory_Region
-              (Policy      => Data,
-               Name        => "kernel_interrupt_stack_" & CPU_Str,
-               Address     => "",
-               Size        => Intr_Stack_Size,
-               Caching     => "WB",
-               Alignment   => "16#1000#",
-               Memory_Type => "kernel");
+            Stack_Addr := Stack_Addr + Stack_Size;
+            -- TODO: MOA: No interrupt stack.
+            -- Mutools.XML_Utils.Add_Memory_Region
+            --   (Policy      => Data,
+            --    Name        => "kernel_interrupt_stack_" & CPU_Str,
+            --    Address     => "",
+            --    Size        => Intr_Stack_Size,
+            --    Caching     => "WB",
+            --    Alignment   => "16#1000#",
+            --    Memory_Type => "kernel");
          end;
       end loop;
    end Add_Kernel_Stack;
