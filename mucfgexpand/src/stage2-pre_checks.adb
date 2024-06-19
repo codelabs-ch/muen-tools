@@ -69,8 +69,9 @@ is
         (Process => MC.Hardware.PCI_Config_Space'Access);
       Check_Procs.Register
         (Process => MC.Hardware.CPU_Sub_Elements'Access);
-      Check_Procs.Register
-        (Process => MC.Hardware.System_Board_Presence'Access);
+      -- TODO: MOA: No system board.
+      -- Check_Procs.Register
+      --   (Process => MC.Hardware.System_Board_Presence'Access);
       Check_Procs.Register
         (Process => MC.Events.Physical_Event_Name_Uniqueness'Access);
       Check_Procs.Register
