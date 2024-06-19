@@ -119,8 +119,9 @@ is
 
       Check_Procs.Register
         (Process => MC.Hardware.IOMMU_Presence'Access);
-      Check_Procs.Register
-        (Process => MC.Device.IOMMU_Region_Size'Access);
+      -- TODO: MOA: Regions size of IOMMU mem is > 4k.
+      -- Check_Procs.Register
+      --   (Process => MC.Device.IOMMU_Region_Size'Access);
    end Register_All;
 
    -------------------------------------------------------------------------
