@@ -28,16 +28,12 @@ TOOLS =             \
 	mucgenspec      \
 	mucheckelf      \
 	mucheckstack    \
-	mugenacpi       \
 	mugends         \
 	mugendts        \
-	mugenmsrstore   \
 	mugenpt         \
 	mugensinfo      \
 	mugensolo5      \
 	mugenspec       \
-	mugentau0cmds   \
-	mugenzp         \
 	mupcspkrdbg     \
 	muwalkpt        \
 	sbs
