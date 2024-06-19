@@ -100,6 +100,7 @@ is
             Mulog.Log (Msg => "Adding kernel local memory regions for CPU "
                        & CPU_Str);
 
+            --  TODO: MOA: bootgen wants extension in filename.
             Mutools.XML_Utils.Add_Memory_Region
               (Policy      => Data,
                Name        => "kernel_data_" & CPU_Str,
@@ -107,7 +108,7 @@ is
                Size        => Data_Size,
                Caching     => "WB",
                Alignment   => "16#1000#",
-               File_Name   => "kernel",
+               File_Name   => "kernel.bin",
                File_Offset => Data_Offset,
                Memory_Type => "kernel_binary");
             Mutools.XML_Utils.Add_Memory_Region
@@ -187,6 +188,7 @@ is
    begin
       Mulog.Log (Msg => "Adding kernel shared memory regions");
 
+      --  TODO: MOA: bootgen wants extension in filename.
       Mutools.XML_Utils.Add_Memory_Region
         (Policy      => Data,
          Name        => "kernel_text",
@@ -196,7 +198,7 @@ is
            (Number => Config.Kernel_Text_Section_Size),
          Caching     => "WB",
          Alignment   => "16#1000#",
-         File_Name   => "kernel",
+         File_Name   => "kernel.bin",
          File_Offset => "16#0000#",
          Memory_Type => "kernel_binary");
       Mutools.XML_Utils.Add_Memory_Region
@@ -208,7 +210,7 @@ is
            (Number => Config.Kernel_Global_Data_Section_Size),
          Caching     => "WB",
          Alignment   => "16#1000#",
-         File_Name   => "kernel",
+         File_Name   => "kernel.bin",
          File_Offset => Mutools.Utils.To_Hex
            (Number => Config.Kernel_Global_Data_Section_Addr
             - Config.Kernel_Text_Section_Addr),
@@ -222,7 +224,7 @@ is
            (Number => Config.Kernel_RO_Section_Size),
          Caching     => "WB",
          Alignment   => "16#1000#",
-         File_Name   => "kernel",
+         File_Name   => "kernel.bin",
          File_Offset => Mutools.Utils.To_Hex
            (Number => Config.Kernel_RO_Section_Addr
             - Config.Kernel_Text_Section_Addr),
