@@ -19,7 +19,7 @@ is
      GIC.Interrupt_ID_Type range 0 ..__virq_id_max__;
 
    type IRQ_Routing_Array is array
-     (CPU_ID_Config, Physical_Interrupt_ID_Config)
+     (CPU_Range, Physical_Interrupt_ID_Config)
      of Boolean;
 
    -----------------------------
@@ -53,7 +53,7 @@ is
    -- Interrupt Assignment --
    --------------------------
    Vector_Routing_Config : constant SK.Interrupts.Vector_Routing_Array
-     (CPU_ID_Config, Physical_Interrupt_ID_Config)
+     (CPU_Range, Physical_Interrupt_ID_Config)
      := (__vector_routing_table__)
      with
        Linker_Section => ".globalrodata";
