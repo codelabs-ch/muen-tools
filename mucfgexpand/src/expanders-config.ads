@@ -19,20 +19,23 @@
 package Expanders.Config
 is
 
-   Kernel_Text_Section_Addr         : constant := 16#0010_0000#;
-   Kernel_Text_Section_Size         : constant := 16#0001_1000#;
-   Kernel_Data_Section_Addr         : constant := 16#0012_0000#;
+   --  TODO: MOA: Different settings.
+   Kernel_Text_Section_Addr         : constant := 16#0000_0000#;
+   Kernel_Text_Section_Size         : constant := 16#0007_0000#;
+   Kernel_Data_Section_Addr         : constant := 16#0008_2000#;
    Kernel_Data_Section_Size         : constant := 16#0000_2000#;
-   Kernel_BSS_Section_Addr          : constant := 16#0012_2000#;
-   Kernel_BSS_Section_Size          : constant := 16#0000_4000#;
-   Kernel_Stack_Addr                : constant := 16#0012_7000#;
-   Kernel_Stack_Size                : constant := 16#0000_1000#;
+   Kernel_BSS_Section_Addr          : constant := 16#0008_4000#;
+   Kernel_BSS_Section_Size          : constant := 16#0000_2000#;
+   Kernel_Stack_Addr                : constant := 16#000a_0000#;
+   Kernel_Stack_Size                : constant := 16#0002_0000#;
    Kernel_Interrupt_Stack_Addr      : constant := 16#0012_9000#;
    Kernel_Interrupt_Stack_Size      : constant := 16#0000_1000#;
-   Kernel_Global_Data_Section_Addr  : constant := 16#0012_b000#;
-   Kernel_Global_Data_Section_Size  : constant := 16#0000_1000#;
-   Kernel_RO_Section_Addr           : constant := 16#0012_f000#;
-   Kernel_RO_Section_Size           : constant := 16#002c_0000#;
+   Kernel_Global_Data_Section_Addr  : constant := 16#0008_6000#;
+   Kernel_Global_Data_Section_Size  : constant := 16#0000_a000#;
+   Kernel_Global_Rodata_Section_Addr : constant := 16#0009_0000#;
+   Kernel_Global_Rodata_Section_Size : constant := 16#0001_0000#;
+   Kernel_RO_Section_Addr           : constant := 16#0007_0000#;
+   Kernel_RO_Section_Size           : constant := 16#0001_2000#;
    Tau0_Interface_Virtual_Addr      : constant := 16#003f_f000#;
    Crash_Audit_Virtual_Addr         : constant := 16#0040_0000#;
    Kernel_Devices_Virtual_Addr      : constant := 16#0050_0000#;

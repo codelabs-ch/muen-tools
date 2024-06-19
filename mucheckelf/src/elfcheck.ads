@@ -35,34 +35,46 @@ private
       Section_Name : Unbounded_String;
       Mapped       : Boolean;
       Present      : Boolean;
+      Identity     : Boolean;
    end record;
 
    --  Mapping of memory region names to binary section names.
    --  These sections must be present in any given binary.
-   Section_Map : array (1 .. 6) of aliased Section_Mapping_Type
+   Section_Map : array (1 .. 7) of aliased Section_Mapping_Type
      := (1 => (Region_Name  => To_Unbounded_String ("kernel_text"),
                Section_Name => To_Unbounded_String (".text"),
                Mapped       => True,
-               Present      => False),
+               Present      => False,
+               Identity     => True),
          2 => (Region_Name  => To_Unbounded_String ("kernel_data_0"),
                Section_Name => To_Unbounded_String (".data"),
                Mapped       => True,
-               Present      => False),
+               Present      => False,
+               Identity     => True),
          3 => (Region_Name  => To_Unbounded_String ("kernel_bss_0"),
                Section_Name => To_Unbounded_String (".bss"),
                Mapped       => True,
-               Present      => False),
+               Present      => False,
+               Identity     => True),
          4 => (Region_Name  => To_Unbounded_String ("kernel_ro"),
                Section_Name => To_Unbounded_String (".rodata"),
                Mapped       => True,
-               Present      => False),
+               Present      => False,
+               Identity     => True),
          5 => (Region_Name  => To_Unbounded_String ("kernel_global_data"),
                Section_Name => To_Unbounded_String (".globaldata"),
                Mapped       => True,
-               Present      => False),
-         6 => (Region_Name  => To_Unbounded_String ("kernel_text"),
-               Section_Name => To_Unbounded_String (".trampoline"),
-               Mapped       => False,
-               Present      => False));
+               Present      => False,
+               Identity     => True),
+         6 => (Region_Name  => To_Unbounded_String ("kernel_global_rodata"),
+               Section_Name => To_Unbounded_String (".globalrodata"),
+               Mapped       => True,
+               Present      => False,
+               Identity     => True),
+         7 => (Region_Name  => To_Unbounded_String ("kernel_stack_0"),
+               Section_Name => To_Unbounded_String (".stack"),
+               Mapped       => True,
+               Present      => False,
+               Identity     => False));
 
 end Elfcheck;

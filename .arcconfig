@@ -1,6 +1,6 @@
 {
 	"conduit_uri" : "https://dev.codelabs.ch/",
-	"git.default-relative-commit" : "devel-armv8a",
+	"git.default-relative-commit" : "origin/devel-armv8a",
 	"arc.land.onto" : [ "devel-armv8a" ],
 	"arc.land.onto.default": "devel-armv8a",
 	"arc.land.strategy" : "merge",

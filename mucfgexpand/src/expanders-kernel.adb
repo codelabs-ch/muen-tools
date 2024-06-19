@@ -88,22 +88,24 @@ is
                     (Number => Config.Kernel_Text_Section_Addr),
                   Writable      => False,
                   Executable    => True));
+            --  TODO: MOA: Only one kernel_data section.
             Muxml.Utils.Append_Child
               (Node      => CPU_Node,
                New_Child => MX.Create_Virtual_Memory_Node
                  (Policy        => Data,
                   Logical_Name  => "data",
-                  Physical_Name => "kernel_data_" & CPU_Str,
+                  Physical_Name => "kernel_data_0",
                   Address       => Mutools.Utils.To_Hex
                     (Number => Config.Kernel_Data_Section_Addr),
                   Writable      => True,
                   Executable    => False));
+            --  TODO: MOA: Only one kernel_bss section.
             Muxml.Utils.Append_Child
               (Node      => CPU_Node,
                New_Child => MX.Create_Virtual_Memory_Node
                  (Policy        => Data,
                   Logical_Name  => "bss",
-                  Physical_Name => "kernel_bss_" & CPU_Str,
+                  Physical_Name => "kernel_bss_0",
                   Address       => Mutools.Utils.To_Hex
                     (Number => Config.Kernel_BSS_Section_Addr),
                   Writable      => True,
@@ -117,6 +119,17 @@ is
                   Address       => Mutools.Utils.To_Hex
                     (Number => Config.Kernel_Global_Data_Section_Addr),
                   Writable      => True,
+                  Executable    => False));
+            --  TODO: MOA: Additional global_rodata section.
+            Muxml.Utils.Append_Child
+              (Node      => CPU_Node,
+               New_Child => MX.Create_Virtual_Memory_Node
+                 (Policy        => Data,
+                  Logical_Name  => "global_rodata",
+                  Physical_Name => "kernel_global_rodata",
+                  Address       => Mutools.Utils.To_Hex
+                    (Number => Config.Kernel_Global_Rodata_Section_Addr),
+                  Writable      => False,
                   Executable    => False));
             Muxml.Utils.Append_Child
               (Node      => CPU_Node,
@@ -138,16 +151,17 @@ is
                     (Number => Config.Kernel_Stack_Addr),
                   Writable      => True,
                   Executable    => False));
-            Muxml.Utils.Append_Child
-              (Node      => CPU_Node,
-               New_Child => MX.Create_Virtual_Memory_Node
-                 (Policy        => Data,
-                  Logical_Name  => "interrupt_stack",
-                  Physical_Name => "kernel_interrupt_stack_" & CPU_Str,
-                  Address       => Mutools.Utils.To_Hex
-                    (Number => Config.Kernel_Interrupt_Stack_Addr),
-                  Writable      => True,
-                  Executable    => False));
+            -- TODO: MOA: No interrupt stack.
+            -- Muxml.Utils.Append_Child
+            --   (Node      => CPU_Node,
+            --    New_Child => MX.Create_Virtual_Memory_Node
+            --      (Policy        => Data,
+            --       Logical_Name  => "interrupt_stack",
+            --       Physical_Name => "kernel_interrupt_stack_" & CPU_Str,
+            --       Address       => Mutools.Utils.To_Hex
+            --         (Number => Config.Kernel_Interrupt_Stack_Addr),
+            --       Writable      => True,
+            --       Executable    => False));
          end;
       end loop;
    end Add_Binary_Mappings;
@@ -206,16 +220,16 @@ is
           (Debug_Console_Type_Str);
 
       --  Base address of kernel device mappings.
-      Base_Address : Interfaces.Unsigned_64
-        := Config.Kernel_Devices_Virtual_Addr;
+      -- TODO: MOA: Device addrs are identity mapped.
+      -- Base_Address : Interfaces.Unsigned_64
+      --   := Config.Kernel_Devices_Virtual_Addr;
 
-      --  Create device reference with given device, MMIO region name and MMIO
-      --  address.
+      --  Create device reference with given device, MMIO region nodes.
       function Create_Device_Reference
         (Device_Logical  : String;
          Device_Physical : String;
-         MMIO_Name       : String;
-         MMIO_Addr       : String)
+         Cap_Name        : String;
+         MMIO_Nodes      : DOM.Core.Node_List)
          return DOM.Core.Node;
 
       --  Add mapping for devices of given type identified by specified
@@ -236,7 +250,7 @@ is
       procedure Add_IOMMUs (Devices : DOM.Core.Node);
 
       --  Add system board.
-      procedure Add_System_Board (Devices : DOM.Core.Node);
+      -- procedure Add_System_Board (Devices : DOM.Core.Node);
 
       ----------------------------------------------------------------------
 
@@ -308,25 +322,14 @@ is
                              Side   => Ada.Strings.Left)
                         else ""),
                      Physical_Name => Phys_Res_Name,
-                     Address       => Mutools.Utils.To_Hex
-                       (Number => Base_Address),
+                     Address       => Muxml.Utils.Get_Attribute
+                       (Doc   => Data.Doc,
+                        XPath => "/system/hardware/devices/device[@name='"
+                        & Phys_Dev_Name & "']/memory[@name='"
+                        & Phys_Res_Name & "']",
+                        Name  => "physicalAddress"),
                      Writable      => True,
                      Executable    => False);
-
-                  declare
-                     use type Interfaces.Unsigned_64;
-
-                     Mem_Size : constant Interfaces.Unsigned_64
-                       := Interfaces.Unsigned_64'Value
-                         (Muxml.Utils.Get_Attribute
-                            (Doc   => Data.Doc,
-                             XPath => "/system/hardware/devices/device[@name='"
-                             & Phys_Dev_Name & "']/memory[@name='"
-                             & Phys_Res_Name & "']",
-                             Name  => "size"));
-                  begin
-                     Base_Address := Base_Address + Mem_Size;
-                  end;
                   Mem_Count := Mem_Count + 1;
                end if;
 
@@ -357,10 +360,6 @@ is
       begin
          for I in 0 .. DOM.Core.Nodes.Length (List => Physical_Devs) - 1 loop
             declare
-               use type Interfaces.Unsigned_64;
-
-               Addr_Str : constant String
-                 := Mutools.Utils.To_Hex (Number => Base_Address);
                Dev_Node : constant DOM.Core.Node
                  := DOM.Core.Nodes.Item
                    (List  => Physical_Devs,
@@ -373,43 +372,35 @@ is
                  := Cap_Name & "_" & Ada.Strings.Fixed.Trim
                    (Source => Counter'Img,
                     Side   => Ada.Strings.Left);
-               Mem_Node : constant DOM.Core.Node
-                 := Muxml.Utils.Get_Element (Doc   => Dev_Node,
-                                             XPath => "memory");
-               Mem_Name : constant String
-                 := DOM.Core.Elements.Get_Attribute
-                   (Elem => Mem_Node,
-                    Name => "name");
-               Mem_Size : constant Interfaces.Unsigned_64
-                 := Interfaces.Unsigned_64'Value
-                   (DOM.Core.Elements.Get_Attribute
-                      (Elem => Mem_Node,
-                       Name => "size"));
+               Mem_Nodes : constant DOM.Core.Node_List
+                 := McKae.XML.XPath.XIA.XPath_Query
+                   (N     => Dev_Node,
+                    XPath => "memory");
             begin
                Mulog.Log (Msg => "Adding " & Device_Type & " '" & Dev_Physical
-                          & "' to kernel devices, MMIO: " & Addr_Str);
+                          & "' to kernel devices");
                Muxml.Utils.Append_Child
                  (Node      => Devices_Node,
                   New_Child => Create_Device_Reference
                     (Device_Logical  => Dev_Logical,
                      Device_Physical => Dev_Physical,
-                     MMIO_Name       => Mem_Name,
-                     MMIO_Addr       => Addr_Str));
+                     Cap_Name        => Cap_Name,
+                     MMIO_Nodes      => Mem_Nodes));
 
-               Base_Address := Base_Address + Mem_Size;
-               Counter      := Counter + 1;
+               Counter := Counter + 1;
             end;
          end loop;
       end Add_Device_Mappings;
 
       ----------------------------------------------------------------------
 
+      --  TODO: MOA: Add_IO_APIC adds the GIC device.
       procedure Add_IO_APIC (Devices : DOM.Core.Node)
       is
       begin
          Add_Device_Mappings (Devices_Node => Devices,
-                              Device_Type  => "I/O APIC",
-                              Cap_Name     => "ioapic");
+                              Device_Type  => "GIC",
+                              Cap_Name     => "gic");
       end Add_IO_APIC;
 
       ----------------------------------------------------------------------
@@ -424,71 +415,189 @@ is
 
       ----------------------------------------------------------------------
 
-      procedure Add_System_Board (Devices : DOM.Core.Node)
-      is
-         Phys_Dev : constant DOM.Core.Node
-           := Muxml.Utils.Get_Element
-             (Doc   => Data.Doc,
-              XPath => "/system/hardware/devices/device[capabilities/"
-              & "capability/@name='systemboard']");
-         Phys_Dev_Name : constant String
-           := DOM.Core.Elements.Get_Attribute
-             (Elem => Phys_Dev,
-              Name => "name");
-         Reset_Port : constant DOM.Core.Node
-           := Muxml.Utils.Get_Element
-             (Doc   => Phys_Dev,
-              XPath => "ioPort[@start='16#0cf9#' and @end='16#0cf9#']");
-         Poweroff_Port : constant DOM.Core.Node
-           := Muxml.Utils.Get_Element
-             (Doc   => Phys_Dev,
-              XPath => "ioPort[@name='pm1a_cnt']");
-         Log_Device : constant DOM.Core.Node
-           := XML_Utils.Create_Logical_Device_Node
-             (Policy        => Data,
-              Logical_Name  => "system_board",
-              Physical_Name => Phys_Dev_Name);
-      begin
-         Mulog.Log (Msg => "Adding system board to kernel devices, physical "
-                    & "device '" & Phys_Dev_Name & "'");
+      -- procedure Add_System_Board (Devices : DOM.Core.Node)
+      -- is
+      --    Phys_Dev : constant DOM.Core.Node
+      --      := Muxml.Utils.Get_Element
+      --        (Doc   => Data.Doc,
+      --         XPath => "/system/hardware/devices/device[capabilities/"
+      --         & "capability/@name='systemboard']");
+      --    Phys_Dev_Name : constant String
+      --      := DOM.Core.Elements.Get_Attribute
+      --        (Elem => Phys_Dev,
+      --         Name => "name");
+      --    Reset_Port : constant DOM.Core.Node
+      --      := Muxml.Utils.Get_Element
+      --        (Doc   => Phys_Dev,
+      --         XPath => "ioPort[@start='16#0cf9#' and @end='16#0cf9#']");
+      --    Poweroff_Port : constant DOM.Core.Node
+      --      := Muxml.Utils.Get_Element
+      --        (Doc   => Phys_Dev,
+      --         XPath => "ioPort[@name='pm1a_cnt']");
+      --    Log_Device : constant DOM.Core.Node
+      --      := XML_Utils.Create_Logical_Device_Node
+      --        (Policy        => Data,
+      --         Logical_Name  => "system_board",
+      --         Physical_Name => Phys_Dev_Name);
+      -- begin
+      --    Mulog.Log (Msg => "Adding system board to kernel devices, physical "
+      --               & "device '" & Phys_Dev_Name & "'");
 
-         Mutools.XML_Utils.Add_Resource
-           (Logical_Device        => Log_Device,
-            Physical_Resource     => Reset_Port,
-            Logical_Resource_Name => "reset_port");
-         Mutools.XML_Utils.Add_Resource
-           (Logical_Device        => Log_Device,
-            Physical_Resource     => Poweroff_Port,
-            Logical_Resource_Name => "poweroff_port");
-         Muxml.Utils.Append_Child
-           (Node      => Devices,
-            New_Child => Log_Device);
-      end Add_System_Board;
+      --    Mutools.XML_Utils.Add_Resource
+      --      (Logical_Device        => Log_Device,
+      --       Physical_Resource     => Reset_Port,
+      --       Logical_Resource_Name => "reset_port");
+      --    Mutools.XML_Utils.Add_Resource
+      --      (Logical_Device        => Log_Device,
+      --       Physical_Resource     => Poweroff_Port,
+      --       Logical_Resource_Name => "poweroff_port");
+      --    Muxml.Utils.Append_Child
+      --      (Node      => Devices,
+      --       New_Child => Log_Device);
+      -- end Add_System_Board;
 
       ----------------------------------------------------------------------
 
       function Create_Device_Reference
         (Device_Logical  : String;
          Device_Physical : String;
-         MMIO_Name       : String;
-         MMIO_Addr       : String)
+         Cap_Name        : String;
+         MMIO_Nodes      : DOM.Core.Node_List)
          return DOM.Core.Node
       is
+         IRQ : DOM.Core.Node;
          Ref : constant DOM.Core.Node
            := XML_Utils.Create_Logical_Device_Node
              (Policy        => Data,
               Logical_Name  => Device_Logical,
               Physical_Name => Device_Physical);
       begin
+         IRQ := DOM.Core.Documents.Create_Element
+             (Doc      => Data.Doc,
+              Tag_Name => "irq");
+         DOM.Core.Elements.Set_Attribute (Elem  => IRQ,
+                                          Name  => "physical",
+                                          Value => (if Cap_Name = "gic"
+                                          then "maintenance" else "irq"));
+         DOM.Core.Elements.Set_Attribute (Elem  => IRQ,
+                                          Name  => "logical",
+                                          Value => (if Cap_Name = "gic"
+                                          then "maintenance_irq" else "smmu_irq"));
+         DOM.Core.Elements.Set_Attribute (Elem  => IRQ,
+                                          Name  => "vector",
+                                          Value => (if Cap_Name = "gic"
+                                          then "25" else "187"));
+
          Muxml.Utils.Append_Child
            (Node      => Ref,
-            New_Child => MX.Create_Virtual_Memory_Node
-              (Policy        => Data,
-               Logical_Name  => MMIO_Name,
-               Physical_Name => MMIO_Name,
-               Address       => MMIO_Addr,
-               Writable      => True,
-               Executable    => False));
+            New_Child => IRQ);
+
+         --  TODO: MOA: Direct mapping of GIC IOMEM regions not possible
+         --             (spec vs xilinx impl. problem). Map manually.
+         if Cap_Name = "gic" then
+            Muxml.Utils.Append_Child
+              (Node      => Ref,
+               New_Child => MX.Create_Virtual_Memory_Node
+                 (Policy        => Data,
+                  Logical_Name  => "GIC",
+                  Physical_Name => "GIC",
+                  Address       => "16#f900_0000#",
+                  Writable      => True,
+                  Executable    => False));
+            Muxml.Utils.Append_Child
+              (Node      => Ref,
+               New_Child => MX.Create_Virtual_Memory_Node
+                 (Policy        => Data,
+                  Logical_Name  => "GICD",
+                  Physical_Name => "GICD",
+                  Address       => "16#f900_1000#",
+                  Writable      => True,
+                  Executable    => False));
+            Muxml.Utils.Append_Child
+              (Node      => Ref,
+               New_Child => MX.Create_Virtual_Memory_Node
+                 (Policy        => Data,
+                  Logical_Name  => "GICC",
+                  Physical_Name => "GICC",
+                  Address       => "16#f900_2000#",
+                  Writable      => True,
+                  Executable    => False));
+            Muxml.Utils.Append_Child
+              (Node      => Ref,
+               New_Child => MX.Create_Virtual_Memory_Node
+                 (Policy        => Data,
+                  Logical_Name  => "GICC_DIR",
+                  Physical_Name => "GICC_DIR",
+                  Address       => "16#f900_3000#",
+                  Writable      => True,
+                  Executable    => False));
+            Muxml.Utils.Append_Child
+              (Node      => Ref,
+               New_Child => MX.Create_Virtual_Memory_Node
+                 (Policy        => Data,
+                  Logical_Name  => "GICH",
+                  Physical_Name => "GICH",
+                  Address       => "16#f900_4000#",
+                  Writable      => True,
+                  Executable    => False));
+            Muxml.Utils.Append_Child
+              (Node      => Ref,
+               New_Child => MX.Create_Virtual_Memory_Node
+                 (Policy        => Data,
+                  Logical_Name  => "GICH_Alias",
+                  Physical_Name => "GICH_Alias",
+                  Address       => "16#f900_5000#",
+                  Writable      => True,
+                  Executable    => False));
+            Muxml.Utils.Append_Child
+              (Node      => Ref,
+               New_Child => MX.Create_Virtual_Memory_Node
+                 (Policy        => Data,
+                  Logical_Name  => "GICV",
+                  Physical_Name => "GICV",
+                  Address       => "16#f900_6000#",
+                  Writable      => True,
+                  Executable    => False));
+            Muxml.Utils.Append_Child
+              (Node      => Ref,
+               New_Child => MX.Create_Virtual_Memory_Node
+                 (Policy        => Data,
+                  Logical_Name  => "GICV_DIR",
+                  Physical_Name => "GICV_DIR",
+                  Address       => "16#f900_7000#",
+                  Writable      => True,
+                  Executable    => False));
+            return Ref;
+         end if;
+
+         --  Direct mapping for all others.
+
+         for I in 0 .. DOM.Core.Nodes.Length (List => MMIO_Nodes) - 1 loop
+            declare
+               Mem_Node : constant DOM.Core.Node
+                 := DOM.Core.Nodes.Item
+                     (List  => MMIO_Nodes,
+                      Index => I);
+               Addr_Str : constant String
+                 := DOM.Core.Elements.Get_Attribute
+                   (Elem => Mem_Node,
+                    Name => "physicalAddress");
+               Mem_Name : constant String
+                 := DOM.Core.Elements.Get_Attribute
+                   (Elem => Mem_Node,
+                    Name => "name");
+            begin
+               Muxml.Utils.Append_Child
+                 (Node      => Ref,
+                  New_Child => MX.Create_Virtual_Memory_Node
+                    (Policy        => Data,
+                     Logical_Name  => Mem_Name,
+                     Physical_Name => Mem_Name,
+                     Address       => Addr_Str,
+                     Writable      => True,
+                     Executable    => False));
+            end;
+         end loop;
 
          return Ref;
       end Create_Device_Reference;
@@ -503,7 +612,8 @@ is
       end if;
       Add_IO_APIC       (Devices => Devices_Node);
       Add_IOMMUs        (Devices => Devices_Node);
-      Add_System_Board  (Devices => Devices_Node);
+      -- TODO: MOA: No system board.
+      -- Add_System_Board  (Devices => Devices_Node);
    end Add_Devices;
 
    -------------------------------------------------------------------------
@@ -780,26 +890,30 @@ is
 
    procedure Map_Tau0_Interface (Data : in out Muxml.XML_Data_Type)
    is
-      BSP_ID : constant String := Muxml.Utils.Get_Attribute
-        (Doc   => Data.Doc,
-         XPath => "/system/hardware/processor/cpu[@apicId='0']",
-         Name  => "cpuId");
-      BSP : constant DOM.Core.Node := Muxml.Utils.Get_Element
-        (Doc   => Data.Doc,
-         XPath => "/system/kernel/memory/cpu[@id='" & BSP_ID & "']");
+      Cores : constant DOM.Core.Node_List
+        := McKae.XML.XPath.XIA.XPath_Query
+             (N     => Data.Doc,
+              XPath => "/system/kernel/memory/cpu");
    begin
-      Mulog.Log (Msg => "Mapping 'tau0' system interface on CPU " & BSP_ID);
+      --  TODO: MOA: Tau0 interface is mapped on all cores, writable.
+      Mulog.Log (Msg => "Mapping 'tau0' system interface on all cores");
 
-      Muxml.Utils.Append_Child
-        (Node      => BSP,
-         New_Child => MX.Create_Virtual_Memory_Node
-           (Policy        => Data,
-            Logical_Name  => "tau0_interface",
-            Physical_Name => "sys_interface",
-            Address       => Mutools.Utils.To_Hex
-              (Number => Config.Tau0_Interface_Virtual_Addr),
-            Writable      => False,
-            Executable    => False));
+      for I in 0 .. DOM.Core.Nodes.Length (List => Cores) - 1 loop
+         Muxml.Utils.Append_Child
+           (Node      => DOM.Core.Nodes.Item
+              (List  => Cores,
+               Index => I),
+            New_Child =>
+              MX.Create_Virtual_Memory_Node
+                (Policy        => Data,
+                 Logical_Name  => "tau0_interface",
+                 Physical_Name => "sys_interface",
+                 Address       =>
+                   Mutools.Utils.To_Hex
+                     (Number => Config.Tau0_Interface_Virtual_Addr),
+                   Writable    => True,
+                   Executable  => False));
+      end loop;
    end Map_Tau0_Interface;
 
 end Expanders.Kernel;
