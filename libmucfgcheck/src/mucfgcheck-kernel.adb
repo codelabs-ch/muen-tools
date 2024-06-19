@@ -412,29 +412,30 @@ is
                           Error_Msg => "differs");
       end Stack;
 
-      Interrupt_Stack :
-      declare
-         Nodes : constant DOM.Core.Node_List
-           := Muxml.Utils.Get_Elements
-             (Nodes     => Mem_Nodes,
-              Ref_Attr  => "logical",
-              Ref_Value => "interrupt_stack");
-         Addr  : constant Interfaces.Unsigned_64
-           := Interfaces.Unsigned_64'Value
-             (DOM.Core.Elements.Get_Attribute
-                (Elem => DOM.Core.Nodes.Item
-                   (List  => Nodes,
-                    Index => 0),
-                 Name => "virtualAddress"));
-      begin
-         Check_Attribute (Nodes     => Nodes,
-                          Node_Type => "kernel interrupt stack memory",
-                          Attr      => "virtualAddress",
-                          Name_Attr => "physical",
-                          Test      => Equals'Access,
-                          B         => Addr,
-                          Error_Msg => "differs");
-      end Interrupt_Stack;
+      -- TODO: MOA: No interrupt stack.
+      -- Interrupt_Stack :
+      -- declare
+      --    Nodes : constant DOM.Core.Node_List
+      --      := Muxml.Utils.Get_Elements
+      --        (Nodes     => Mem_Nodes,
+      --         Ref_Attr  => "logical",
+      --         Ref_Value => "interrupt_stack");
+      --    Addr  : constant Interfaces.Unsigned_64
+      --      := Interfaces.Unsigned_64'Value
+      --        (DOM.Core.Elements.Get_Attribute
+      --           (Elem => DOM.Core.Nodes.Item
+      --              (List  => Nodes,
+      --               Index => 0),
+      --            Name => "virtualAddress"));
+      -- begin
+      --    Check_Attribute (Nodes     => Nodes,
+      --                     Node_Type => "kernel interrupt stack memory",
+      --                     Attr      => "virtualAddress",
+      --                     Name_Attr => "physical",
+      --                     Test      => Equals'Access,
+      --                     B         => Addr,
+      --                     Error_Msg => "differs");
+      -- end Interrupt_Stack;
    end Stack_Address_Equality;
 
    -------------------------------------------------------------------------
