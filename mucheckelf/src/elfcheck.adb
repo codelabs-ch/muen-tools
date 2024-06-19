@@ -127,7 +127,8 @@ is
                   Virtual_Mem  => Virt_Mem,
                   Region_Name  => S (Mapping.Region_Name),
                   Section      => Section,
-                  Mapped       => Mapping.Mapped);
+                  Mapped       => Mapping.Mapped,
+                  Identity     => Mapping.Identity);
                Mapping.Present := True;
             end if;
          end;
