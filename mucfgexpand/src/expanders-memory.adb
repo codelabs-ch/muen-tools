@@ -77,8 +77,8 @@ is
    is
       use type Interfaces.Unsigned_64;
 
-      CPU_Count   : constant Positive
-        := Mutools.XML_Utils.Get_Active_CPU_Count (Data => Data);
+      -- CPU_Count   : constant Positive
+      --   := Mutools.XML_Utils.Get_Active_CPU_Count (Data => Data);
       Data_Addr   : constant String := Mutools.Utils.To_Hex
         (Number => Config.Kernel_Data_Section_Addr);
       Data_Size   : constant String := Mutools.Utils.To_Hex
@@ -91,20 +91,20 @@ is
       BSS_Size    : constant String := Mutools.Utils.To_Hex
         (Number => Config.Kernel_BSS_Section_Size);
    begin
-      for I in Natural range 0 .. CPU_Count - 1 loop
+      --  TODO: MOA: BSS and data is shared memory for now.
+      for I in Natural range 0 .. 0 loop
          declare
             CPU_Str : constant String := Ada.Strings.Fixed.Trim
               (Source => I'Img,
                Side   => Ada.Strings.Left);
          begin
-            Mulog.Log (Msg => "Adding kernel local memory regions for CPU "
-                       & CPU_Str);
+            Mulog.Log (Msg => "Adding kernel shared data, bss regions");
 
             --  TODO: MOA: bootgen wants extension in filename.
             Mutools.XML_Utils.Add_Memory_Region
               (Policy      => Data,
                Name        => "kernel_data_" & CPU_Str,
-               Address     => (if I = 0 then Data_Addr else ""),
+               Address     => Data_Addr,
                Size        => Data_Size,
                Caching     => "WB",
                Alignment   => "16#1000#",
@@ -114,7 +114,7 @@ is
             Mutools.XML_Utils.Add_Memory_Region
               (Policy       => Data,
                Name         => "kernel_bss_" & CPU_Str,
-               Address      => (if I = 0 then BSS_Addr else ""),
+               Address      => BSS_Addr,
                Size         => BSS_Size,
                Caching      => "WB",
                Alignment    => "16#1000#",
