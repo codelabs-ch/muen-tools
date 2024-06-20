@@ -1,0 +1,26 @@
+.global kernel_cluster_count
+.global kernel_cpu_count
+.global kernel_translation_tables
+.global gic_physical_addresses
+.global smmu_physical_address
+
+.section   .globalrodata
+
+.align 8
+
+kernel_cluster_count:
+    .quad    0x1
+
+kernel_cpu_count:
+    .quad    0x2
+
+kernel_translation_tables:
+    .quad    0x100000
+    .quad    0x110000
+
+gic_physical_addresses:
+    .quad    0xf9010000
+    .quad    0xf9020000
+
+smmu_physical_address:
+    .quad    0xfd800000
