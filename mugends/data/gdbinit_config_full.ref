@@ -5,17 +5,23 @@ target extended-remote 127.0.0.1:1234
 restore rootfs_linux_two.cpio.gz binary 0x7b000000
 restore Image_linux_two.bin binary 0x50080000
 restore devicetree_linux_two.dtb binary 0x50040000
+restore lnx2_lowmem.fill binary 0x50000000
 restore rootfs_linux_one.cpio.gz binary 0x4b000000
 restore Image_linux_one.bin binary 0x20080000
 restore devicetree_linux_one.dtb binary 0x20040000
+restore lnx1_lowmem.fill binary 0x20000000
 restore subject_two.bin binary 0x5000000
 restore subject_one.bin binary 0x4000000
+restore kernel_interrupt_stack_0.fill binary 0x3ff000
 restore xilinxzcu104-caesar_cipher.pt binary 0x230000
 restore xilinxzcu104-lnx2.pt binary 0x220000
 restore xilinxzcu104-string_reverser.pt binary 0x210000
 restore xilinxzcu104-lnx1.pt binary 0x200000
 restore xilinxzcu104-core-1.pt binary 0x110000
 restore xilinxzcu104-core-0.pt binary 0x100000
+restore kernel_stack_1.fill binary 0xe0000
+restore kernel_stack_0.fill binary 0xc0000
+restore kernel_bss_0.fill binary 0x72000
 restore kernel.bin binary 0x0
 
 thread 2

@@ -17,6 +17,8 @@
 
 with Ada.Containers.Indefinite_Hashed_Maps;
 with Ada.Containers.Ordered_Sets;
+with Ada.Sequential_IO;
+with Ada.Strings.Maps.Constants;
 with Ada.Strings.Unbounded;
 with Ada.Strings.Unbounded.Hash;
 
@@ -66,11 +68,39 @@ is
    --  Map from CPU to kernel image file
    Kernels            : CPU_Kernel_Map_Package.Map;
 
+   --  Generate a file that contains the pattern repeated size times.
+   procedure Create_Fill_File
+      (Filename : String;
+       Size     : Interfaces.Unsigned_64;
+       Pattern  : Interfaces.Unsigned_8);
+
    --  Register the files referenced by the given memory and page table nodes.
    procedure Register_Files
       (CPU      : Natural;
        PT       : Unbounded_String;
        Nodes    : DOM.Core.Node_List);
+
+   ------------------------------------------------------------------------
+
+   procedure Create_Fill_File
+      (Filename : String;
+       Size     : Interfaces.Unsigned_64;
+       Pattern  : Interfaces.Unsigned_8)
+   is
+      type Fill_Type is array (1 .. Size) of Interfaces.Unsigned_8;
+      package SIO is new Ada.Sequential_IO
+         (Element_Type => Fill_Type);
+
+      Fill : constant Fill_Type
+         := (others => Pattern);
+      FD   : SIO.File_Type;
+   begin
+      SIO.Create (File => FD,
+                  Name => Filename);
+      SIO.Write (File => FD,
+                 Item => Fill);
+      SIO.Close (File => FD);
+   end Create_Fill_File;
 
    -------------------------------------------------------------------------
 
@@ -145,6 +175,10 @@ is
         := McKae.XML.XPath.XIA.XPath_Query
           (N     => Policy.Doc,
            XPath => "/system/memory/memory[file]");
+      Fill_Mem : constant DOM.Core.Node_List
+        := McKae.XML.XPath.XIA.XPath_Query
+          (N     => Policy.Doc,
+           XPath => "/system/memory/memory[fill]");
       CPUs     : constant DOM.Core.Node_List
         := McKae.XML.XPath.XIA.XPath_Query
         (N     => Policy.Doc,
@@ -209,6 +243,68 @@ is
                                   & " with file '" & To_String (Filename) & "'");
                File_Map.Include (Filename, File);
             end if;
+         end;
+      end loop;
+
+      for I in 0 .. DOM.Core.Nodes.Length (List => Fill_Mem) - 1 loop
+         declare
+            Fill_Node : constant DOM.Core.Node
+              := DOM.Core.Nodes.Item
+                (List  => Fill_Mem,
+                 Index => I);
+            Name      : constant Unbounded_String
+              := To_Unbounded_String (DOM.Core.Elements.Get_Attribute
+                (Elem => Fill_Node,
+                 Name => "name"));
+            Filename  : constant Unbounded_String
+              := Translate (To_Unbounded_String (Mutools.Utils.To_Ada_Identifier
+                (Str => To_String (Name))),
+                  Ada.Strings.Maps.Constants.Lower_Case_Map) & ".fill";
+            Path      : constant String
+              := Output_Dir & "/" & To_String (Filename);
+            Address   : constant Interfaces.Unsigned_64
+              := Interfaces.Unsigned_64'Value
+                (DOM.Core.Elements.Get_Attribute
+                   (Elem => Fill_Node,
+                    Name => "physicalAddress"));
+            Size      : constant Interfaces.Unsigned_64
+              := Interfaces.Unsigned_64'Value
+                (DOM.Core.Elements.Get_Attribute
+                   (Elem => Fill_Node,
+                    Name => "size"));
+            Pattern   : constant Interfaces.Unsigned_8
+              := Interfaces.Unsigned_8'Value
+                (Muxml.Utils.Get_Attribute
+                   (Doc   => Fill_Node,
+                    XPath => "fill",
+                    Name  => "pattern"));
+            Kind      : constant Mutools.Types.Memory_Kind
+              := Mutools.Types.Memory_Kind'Value
+                (DOM.Core.Elements.Get_Attribute
+                   (Elem => Fill_Node,
+                    Name => "type"));
+            File      : constant Loadable_File
+              := (Filename => Filename,
+                  Address  => Address,
+                  Kernel   => Kind in Mutools.Types.Kernel_Binary);
+         begin
+            -- Generate a file with the given size and pattern and ..
+            Create_Fill_File (Path, Size, Pattern);
+
+            Mulog.Log (Msg => "Found filled memory '"
+                      & To_String (Name) & "' at "
+                      & Mutools.Utils.To_Hex (Number => Address)
+                      & " of size "
+                      & Mutools.Utils.To_Hex (Number => Size)
+                      & " with pattern "
+                      & Mutools.Utils.To_Hex
+                        (Number => Interfaces.Unsigned_64 (Pattern))
+                      & " written to "
+                      & Path);
+
+            -- ... treat this node like a file-backed memory region.
+            File_Backed_Memory.Include (Name, Filename);
+            File_Map.Include (Filename, File);
          end;
       end loop;
 
