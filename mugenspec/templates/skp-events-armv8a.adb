@@ -10,13 +10,17 @@ is
 
    type Source_Event_Table_Type is array (Event_Range) of Source_Event_Type;
 
+   pragma Warnings (Off, Reason => "All subjects might have source events");
    Null_Source_Event_Table : constant Source_Event_Table_Type
      := Source_Event_Table_Type'(others => Null_Source_Event);
+   pragma Warnings (On);
 
    type Target_Event_Table_Type is array (Event_Range) of Target_Event_Type;
 
+   pragma Warnings (Off, Reason => "All subjects might have target events");
    Null_Target_Event_Table : constant Target_Event_Table_Type
      := Target_Event_Table_Type'(others => Null_Target_Event);
+   pragma Warnings (On);
 
    type Subject_Events_Type
    is record
