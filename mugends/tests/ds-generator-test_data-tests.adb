@@ -55,19 +55,45 @@ package body DS.Generator.Test_Data.Tests is
       Assert (Condition => Test_Utils.Equal_Files
               (Filename1 => "data/bootgen_config_full.ref",
                Filename2 => "obj/bootgen.config"),
-              Message   => "bootgen.config mismatch (full test policy)");
+              Message   => "bootgen.config mismatch");
       Assert (Condition => Test_Utils.Equal_Files
               (Filename1 => "data/bootscript_cmd_full.ref",
                Filename2 => "obj/bootscript.cmd"),
-              Message   => "bootscript.cmd mismatch (full test policy)");
+              Message   => "bootscript.cmd mismatch");
       Assert (Condition => Test_Utils.Equal_Files
               (Filename1 => "data/gdbinit_config_full.ref",
                Filename2 => "obj/gdbinit.config"),
-              Message   => "gdbinit.config mismatch (full test policy)");
+              Message   => "gdbinit.config mismatch");
       Assert (Condition => Test_Utils.Equal_Files
               (Filename1 => "data/xsct_cmd_full.ref",
                Filename2 => "obj/xsct.cmd"),
-              Message   => "xsct.cmd mismatch (full test policy)");
+              Message   => "xsct.cmd mismatch");
+
+      --  (4) test fill reference files
+      Assert (Condition => Test_Utils.Equal_Files
+              (Filename1 => "data/kernel_bss_0_fill.ref",
+               Filename2 => "obj/kernel_bss_0.fill"),
+              Message   => "kernel_bss_0.fill mismatch");
+      Assert (Condition => Test_Utils.Equal_Files
+              (Filename1 => "data/kernel_interrupt_stack_0_fill.ref",
+               Filename2 => "obj/kernel_interrupt_stack_0.fill"),
+              Message   => "kernel_interrupt_stack_0.fill mismatch");
+      Assert (Condition => Test_Utils.Equal_Files
+              (Filename1 => "data/kernel_stack_0_fill.ref",
+               Filename2 => "obj/kernel_stack_0.fill"),
+              Message   => "kernel_stack_0.fill mismatch");
+      Assert (Condition => Test_Utils.Equal_Files
+              (Filename1 => "data/kernel_stack_1_fill.ref",
+               Filename2 => "obj/kernel_stack_1.fill"),
+              Message   => "kernel_stack_1.fill mismatch");
+      Assert (Condition => Test_Utils.Equal_Files
+              (Filename1 => "data/lnx1_lowmem_fill.ref",
+               Filename2 => "obj/lnx1_lowmem.fill"),
+              Message   => "lnx1_lowmem.fill mismatch");
+      Assert (Condition => Test_Utils.Equal_Files
+              (Filename1 => "data/lnx2_lowmem_fill.ref",
+               Filename2 => "obj/lnx2_lowmem.fill"),
+              Message   => "lnx2_lowmem.fill mismatch");
 
 --  begin read only
    end Test_Write;

@@ -1,16 +1,21 @@
 [destination_cpu = a53-0, exception_level = el-3, startup = 0x0, load = 0x0]kernel.bin
 [destination_cpu = a53-1, exception_level = el-3, startup = 0x0, load = 0x0]kernel.bin
+[load = 0xc0000]kernel_stack_0.fill
+[load = 0xe0000]kernel_stack_1.fill
 [load = 0x100000]xilinxzcu104-core-0.pt
 [load = 0x110000]xilinxzcu104-core-1.pt
 [load = 0x200000]xilinxzcu104-lnx1.pt
 [load = 0x210000]xilinxzcu104-string_reverser.pt
 [load = 0x220000]xilinxzcu104-lnx2.pt
 [load = 0x230000]xilinxzcu104-caesar_cipher.pt
+[load = 0x3ff000]kernel_interrupt_stack_0.fill
 [load = 0x4000000]subject_one.bin
 [load = 0x5000000]subject_two.bin
+[load = 0x20000000]lnx1_lowmem.fill
 [load = 0x20040000]devicetree_linux_one.dtb
 [load = 0x20080000]Image_linux_one.bin
 [load = 0x4b000000]rootfs_linux_one.cpio.gz
+[load = 0x50000000]lnx2_lowmem.fill
 [load = 0x50040000]devicetree_linux_two.dtb
 [load = 0x50080000]Image_linux_two.bin
 [load = 0x7b000000]rootfs_linux_two.cpio.gz
