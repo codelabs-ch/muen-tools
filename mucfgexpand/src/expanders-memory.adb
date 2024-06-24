@@ -650,14 +650,15 @@ is
             Mulog.Log (Msg => "Adding pagetable region with size " & Size_Str
                        & " for subject '" & Subj_Name & "'");
             Mutools.XML_Utils.Add_Memory_Region
-              (Policy       => Data,
-               Name         => Subj_Name & "|pt",
-               Address      => "",
-               Size         => Size_Str,
-               Caching      => "WB",
-               Alignment    => "16#1000#",
-               Memory_Type  => "system_pt",
-               Fill_Pattern => "16#00#"); --  Force placement in lower memory.
+              (Policy      => Data,
+               Name        => Subj_Name & "|pt",
+               Address     => "",
+               Size        => Size_Str,
+               Caching     => "WB",
+               Alignment   => "16#1000#",
+               Memory_Type => "system_pt",
+               File_Name   => Subj_Name & ".pt",
+               File_Offset => "none");
          end;
       end loop;
    end Add_Subject_PTs;
