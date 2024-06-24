@@ -168,14 +168,15 @@ is
             Mulog.Log (Msg => "Adding pagetable region with size " & Size_Str
                        & " for CPU " & CPU_Str);
             Mutools.XML_Utils.Add_Memory_Region
-              (Policy       => Data,
-               Name         => "kernel_" & CPU_Str & "|pt",
-               Address      => "",
-               Size         => Size_Str,
-               Caching      => "WB",
-               Alignment    => "16#1000#",
-               Memory_Type  => "system_pt",
-               Fill_Pattern => "16#00#"); --  Force placement in lower memory.
+              (Policy      => Data,
+               Name        => "kernel_" & CPU_Str & "|pt",
+               Address     => "",
+               Size        => Size_Str,
+               Caching     => "WB",
+               Alignment   => "16#1000#",
+               Memory_Type => "system_pt",
+               File_Name   => "kernel_" & CPU_Str & ".pt",
+               File_Offset => "none");
          end;
       end loop;
    end Add_Kernel_PTs;
