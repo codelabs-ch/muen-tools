@@ -63,7 +63,7 @@
   <device name="SMMU_GPV">
    <irq name="irq" number="187"/>
    <!-- TODO: Remove or replace mmio name for SMMU device (x86 related, compatibility mugenspec) -->
-   <memory caching="UC" name="mmio" physicalAddress="16#fd80_0000#" size="16#0001_0000#"/>
+   <memory caching="UC" name="controller" physicalAddress="16#fd80_0000#" size="16#0001_0000#"/>
    <memory caching="UC" name="context" physicalAddress="16#fd81_0000#" size="16#0001_0000#"/>
    <capabilities>
     <capability name="iommu"/>

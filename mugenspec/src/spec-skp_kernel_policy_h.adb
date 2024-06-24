@@ -334,12 +334,12 @@ is
                    (N     => Physical_SMMU_Dev,
                     XPath => "memory");
 
-               --  (b) get SMMU base address marked as "mmio"
+               --  (b) get SMMU base address
                SMMU_Address : constant Unsigned_64 := Unsigned_64'Value
                  (Muxml.Utils.Get_Attribute
                     (Nodes     => SMMU_Memory_Nodes,
                      Ref_Attr  => "name",
-                     Ref_Value => "mmio",
+                     Ref_Value => "controller",
                      Attr_Name => "physicalAddress"));
             begin
                Mutools.Templates.Replace
