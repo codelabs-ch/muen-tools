@@ -139,100 +139,11 @@
  </kernelDiagnostics>
 </platform>
 <memory>
- <memory alignment="16#1000#" caching="WB" name="kernel_text" physicalAddress="16#0000#" size="16#0005_8000#" type="kernel_binary">
-  <file filename="kernel.bin" offset="16#0000#"/>
- </memory>
- <memory alignment="16#1000#" caching="WB" name="kernel_ro" physicalAddress="16#0005_8000#" size="16#0001_8000#" type="kernel_binary">
-  <file filename="kernel.bin" offset="16#0005_8000#"/>
- </memory>
- <memory alignment="16#1000#" caching="WB" name="kernel_data_0" physicalAddress="16#0007_0000#" size="16#2000#" type="kernel_binary">
-  <file filename="kernel.bin" offset="16#0007_0000#"/>
- </memory>
- <memory alignment="16#1000#" caching="WB" name="kernel_bss_0" physicalAddress="16#0007_2000#" size="16#2000#" type="kernel_binary">
-  <fill pattern="16#00#"/>
- </memory>
- <memory alignment="16#1000#" caching="WB" name="kernel_global_data" physicalAddress="16#0007_4000#" size="16#c000#" type="kernel_binary">
-  <file filename="kernel.bin" offset="16#0007_4000#"/>
- </memory>
- <memory alignment="16#1000#" caching="WB" name="kernel_global_rodata" physicalAddress="16#0008_0000#" size="16#0001_0000#" type="kernel_binary">
-  <file filename="kernel.bin" offset="16#0008_0000#"/>
- </memory>
- <memory alignment="16#1000#" caching="WB" name="kernel_stack_0" physicalAddress="16#000c_0000#" size="16#0002_0000#" type="kernel">
-  <fill pattern="16#00#"/>
- </memory>
- <memory alignment="16#1000#" caching="WB" name="kernel_stack_1" physicalAddress="16#000e_0000#" size="16#0002_0000#" type="kernel">
-  <fill pattern="16#00#"/>
- </memory>
- <memory alignment="16#1000#" caching="WB" name="kernel_0|pt" physicalAddress="16#0010_0000#" size="16#8000#" type="system_pt">
-  <file filename="xilinxzcu104-core-0.pt" offset="none"/>
- </memory>
- <memory alignment="16#1000#" caching="WB" name="kernel_1|pt" physicalAddress="16#0011_0000#" size="16#8000#" type="system_pt">
-  <file filename="xilinxzcu104-core-1.pt" offset="none"/>
- </memory>
- <memory alignment="16#1000#" caching="WB" name="lnx1|pt" physicalAddress="16#0020_0000#" size="16#6000#" type="system_pt">
-  <file filename="xilinxzcu104-lnx1.pt" offset="none"/>
- </memory>
- <memory alignment="16#1000#" caching="WB" name="string_reverser|pt" physicalAddress="16#0021_0000#" size="16#3000#" type="system_pt">
-  <file filename="xilinxzcu104-string_reverser.pt" offset="none"/>
- </memory>
- <memory alignment="16#1000#" caching="WB" name="lnx2|pt" physicalAddress="16#0022_0000#" size="16#6000#" type="system_pt">
-  <file filename="xilinxzcu104-lnx2.pt" offset="none"/>
- </memory>
- <memory alignment="16#1000#" caching="WB" name="caesar_cipher|pt" physicalAddress="16#0023_0000#" size="16#3000#" type="system_pt">
-  <file filename="xilinxzcu104-caesar_cipher.pt" offset="none"/>
- </memory>
- <memory alignment="16#1000#" caching="WB" name="string_reverser|binary" physicalAddress="16#0400_0000#" size="16#0004_0000#" type="subject_binary">
-  <file filename="subject_one.bin" offset="none"/>
- </memory>
- <memory alignment="16#1000#" caching="WB" name="string_reverser_channel_in" physicalAddress="16#040f_0000#" size="16#1000#" type="subject_channel"/>
- <memory alignment="16#1000#" caching="WB" name="string_reverser_channel_out" physicalAddress="16#040f_1000#" size="16#1000#" type="subject_channel"/>
- <memory alignment="16#1000#" caching="WB" name="ringlogger_string_reverser" physicalAddress="16#040f_2000#" size="16#1000#" type="subject_channel"/>
- <memory alignment="16#1000#" caching="WB" name="lnx1|lowmem" physicalAddress="16#2000_0000#" size="16#0004_0000#" type="subject">
-  <fill pattern="16#00#"/>
- </memory>
- <memory alignment="16#1000#" caching="WB" name="lnx1|dtb" physicalAddress="16#2004_0000#" size="16#0004_0000#" type="subject_devicetree">
-  <file filename="devicetree_linux_one.dtb" offset="none"/>
- </memory>
- <memory alignment="16#1000#" caching="WB" name="lnx1|binary" physicalAddress="16#2008_0000#" size="16#006d_d000#" type="subject_binary">
-  <file filename="Image_linux_one.bin" offset="none"/>
- </memory>
- <memory alignment="16#1000#" caching="WB" name="lnx1|ram" physicalAddress="16#2075_d000#" size="16#2a8a_3000#" type="subject"/>
- <memory alignment="16#1000#" caching="WB" name="lnx1|rootfs" physicalAddress="16#4b00_0000#" size="16#0200_0000#" type="subject_initrd">
+ <!-- This region is too small for the file -->
+ <memory alignment="16#1000#" caching="WB" name="lnx1|rootfs" physicalAddress="16#4b00_0000#" size="16#0100_0000#" type="subject_initrd">
   <file filename="rootfs_linux_one.cpio.gz" offset="none"/>
  </memory>
- <memory alignment="16#1000#" caching="WB" name="caesar_cipher|binary" physicalAddress="16#0500_0000#" size="16#0004_0000#" type="subject_binary">
-  <file filename="subject_two.bin" offset="none"/>
- </memory>
- <memory alignment="16#1000#" caching="WB" name="caesar_cipher_channel_in" physicalAddress="16#050f_0000#" size="16#1000#" type="subject_channel"/>
- <memory alignment="16#1000#" caching="WB" name="caesar_cipher_channel_out" physicalAddress="16#050f_1000#" size="16#1000#" type="subject_channel"/>
- <memory alignment="16#1000#" caching="WB" name="ringlogger_caesar_cipher" physicalAddress="16#050f_2000#" size="16#1000#" type="subject_channel"/>
- <memory alignment="16#1000#" caching="WB" name="lnx_channel_out" physicalAddress="16#0600_0000#" size="16#1000#" type="subject_channel"/>
- <memory alignment="16#1000#" caching="WB" name="lnx2|lowmem" physicalAddress="16#5000_0000#" size="16#0004_0000#" type="subject">
-  <fill pattern="16#00#"/>
- </memory>
- <memory alignment="16#1000#" caching="WB" name="lnx2|dtb" physicalAddress="16#5004_0000#" size="16#0004_0000#" type="subject_devicetree">
-  <file filename="devicetree_linux_two.dtb" offset="none"/>
- </memory>
- <memory alignment="16#1000#" caching="WB" name="lnx2|binary" physicalAddress="16#5008_0000#" size="16#006d_d000#" type="subject_binary">
-  <file filename="Image_linux_two.bin" offset="none"/>
- </memory>
- <memory alignment="16#1000#" caching="WB" name="lnx2|ram" physicalAddress="16#5075_d000#" size="16#2a8a_3000#" type="subject"/>
- <memory alignment="16#1000#" caching="WB" name="lnx2|rootfs" physicalAddress="16#7b00_0000#" size="16#0200_0000#" type="subject_initrd">
-  <file filename="rootfs_linux_two.cpio.gz" offset="none"/>
- </memory>
- <!--  These regions are only here to satisfy the validator -->
- <memory alignment="16#1000#" caching="WB" name="kernel_interrupt_stack_0" physicalAddress="16#003f_f000#" size="16#1000#" type="kernel">
-  <fill pattern="16#00#"/>
- </memory>
- <memory alignment="16#1000#" caching="UC" name="crash_audit" physicalAddress="16#0040_0000#" size="16#1000#" type="subject_crash_audit"/>
- <memory alignment="16#1000#" caching="WB" name="lnx1|iobm" physicalAddress="16#0002_0000_0000#" size="16#2000#" type="system_iobm"/>
- <memory alignment="16#1000#" caching="WB" name="string_reverser|iobm" physicalAddress="16#0002_0000_2000#" size="16#2000#" type="system_iobm"/>
- <memory alignment="16#1000#" caching="WB" name="lnx2|iobm" physicalAddress="16#0002_0000_4000#" size="16#2000#" type="system_iobm"/>
- <memory alignment="16#1000#" caching="WB" name="caesar_cipher|iobm" physicalAddress="16#0002_0000_6000#" size="16#2000#" type="system_iobm"/>
- <memory alignment="16#1000#" caching="WB" name="lnx1|msrbm" physicalAddress="16#0002_0000_8000#" size="16#1000#" type="system_msrbm"/>
- <memory alignment="16#1000#" caching="WB" name="string_reverser|msrbm" physicalAddress="16#0002_0000_9000#" size="16#1000#" type="system_msrbm"/>
- <memory alignment="16#1000#" caching="WB" name="lnx2|msrbm" physicalAddress="16#0002_0000_a000#" size="16#1000#" type="system_msrbm"/>
- <memory alignment="16#1000#" caching="WB" name="caesar_cipher|msrbm" physicalAddress="16#0002_0000_b000#" size="16#1000#" type="system_msrbm"/>
+ <!-- Removed all the other memory regions to simplify this test -->
 </memory>
 <deviceDomains/>
 <events>

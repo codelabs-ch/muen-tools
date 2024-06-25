@@ -15,8 +15,6 @@
 --  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --
 
-with Ada.Directories;
-
 with Mulog;
 with Mutools.Templates;
 with Mutools.Utils;
@@ -89,10 +87,6 @@ package body DS.GDB is
               (Template => Template,
                Pattern  => "__thread_id__",
                Content  => Thread_ID'Img (Thread_ID'Img'First + 1 .. Thread_ID'Img'Last));
-            Mutools.Templates.Replace
-              (Template => Template,
-               Pattern  => "__basename__",
-               Content  => Ada.Directories.Base_Name (To_String (File.Filename)));
             Mutools.Templates.Replace
               (Template => Template,
                Pattern  => "__addr__",
