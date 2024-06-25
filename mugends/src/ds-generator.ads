@@ -21,6 +21,9 @@ with Muxml;
 package DS.Generator
 is
 
+   --  Exception raised if files and policies are mismatched.
+   Generator_Error : exception;
+
    --  Write deployment script for file-backed memory regions to given output
    --  directory as specified by policy.
    procedure Write

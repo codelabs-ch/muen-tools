@@ -1,5 +1,5 @@
 --
---  Copyright (C) 2023  Tobias Brunner <tobias@codelabs.ch>
+--  Copyright (C) 2023-2024  Tobias Brunner <tobias@codelabs.ch>
 --
 --  This program is free software: you can redistribute it and/or modify
 --  it under the terms of the GNU General Public License as published by
@@ -17,7 +17,9 @@
 
 with Ada.Containers.Indefinite_Hashed_Maps;
 with Ada.Containers.Ordered_Sets;
+with Ada.Directories;
 with Ada.Sequential_IO;
+with Ada.Streams.Stream_IO;
 with Ada.Strings.Maps.Constants;
 with Ada.Strings.Unbounded;
 with Ada.Strings.Unbounded.Hash;
@@ -50,23 +52,8 @@ is
       Hash            => Ada.Strings.Unbounded.Hash,
       Equivalent_Keys => "=");
 
-   package String_Map_Package is new Ada.Containers.Indefinite_Hashed_Maps
-     (Key_Type        => Unbounded_String,
-      Element_Type    => Unbounded_String,
-      Hash            => Ada.Strings.Unbounded.Hash,
-      Equivalent_Keys => "=");
-
    package String_Sets_Package is new Ada.Containers.Ordered_Sets
      (Element_Type => Unbounded_String);
-
-   --  Map of all files referenced by physical memory nodes
-   File_Map           : File_Map_Package.Map;
-   --  Map from physical memory name to filename
-   File_Backed_Memory : String_Map_Package.Map;
-   --  Set of filenames that are actually referenced by kernels/subjects
-   Used_Files         : String_Sets_Package.Set;
-   --  Map from CPU to kernel image file
-   Kernels            : CPU_Kernel_Map_Package.Map;
 
    --  Generate a file that contains the pattern repeated size times.
    procedure Create_Fill_File
@@ -74,11 +61,21 @@ is
        Size     : Interfaces.Unsigned_64;
        Pattern  : Interfaces.Unsigned_8);
 
+   --  Extract a part of a given file and/or pad it to a specific size.
+   procedure Extract_And_Pad
+      (Source : String;
+       Target : String;
+       Offset : Interfaces.Unsigned_64;
+       Size   : Interfaces.Unsigned_64);
+
    --  Register the files referenced by the given memory and page table nodes.
    procedure Register_Files
-      (CPU      : Natural;
-       PT       : Unbounded_String;
-       Nodes    : DOM.Core.Node_List);
+      (CPU                :        Natural;
+       PT                 :        Unbounded_String;
+       Nodes              :        DOM.Core.Node_List;
+       File_Backed_Memory : in out File_Map_Package.Map;
+       Used_Memory        : in out String_Sets_Package.Set;
+       Kernels            : in out CPU_Kernel_Map_Package.Map);
 
    ------------------------------------------------------------------------
 
@@ -104,10 +101,99 @@ is
 
    -------------------------------------------------------------------------
 
+   procedure Extract_And_Pad
+      (Source : String;
+       Target : String;
+       Offset : Interfaces.Unsigned_64;
+       Size   : Interfaces.Unsigned_64)
+   is
+      use Ada.Streams;
+      use Ada.Streams.Stream_IO;
+
+      use type Interfaces.Unsigned_64;
+
+      subtype Buffer_Range_Type is Stream_Element_Offset range 1 .. 2048;
+
+      In_FD       : File_Type;
+      Out_FD      : File_Type;
+      Source_Size : Stream_IO.Count;
+      Written     : Stream_Element_Offset := 0;
+      Buffer      : Stream_Element_Array (Buffer_Range_Type);
+      Last        : Stream_Element_Offset;
+
+      --  Write the data in the given buffer to the target file, adjusting
+      --  the total bytes written and returning true if all necessary data
+      --  has been written.
+      function Write_Buffer
+         (Buf : Stream_Element_Array)
+         return Boolean;
+
+      ----------------------------------------------------------------------
+
+      function Write_Buffer
+         (Buf : Stream_Element_Array)
+         return Boolean
+      is
+      begin
+         Last := Stream_Element_Offset'Min
+            (Last, Stream_Element_Offset (Size) - Written);
+         Write (File => Out_FD, Item => Buf (1 .. Last));
+         Written := Written + Last;
+         return Written = Stream_Element_Offset (Size) or Last < Buf'Last;
+      end Write_Buffer;
+   begin
+      Open (File => In_FD, Mode => In_File, Name => Source);
+      Source_Size := Stream_IO.Size (File => In_FD);
+
+      if Offset = 0 and Source_Size < Stream_IO.Count (Size) then
+         Mulog.Log (Msg => "Pad '" & Source & "' from "
+                            & Mutools.Utils.To_Hex (Number =>
+                               Interfaces.Unsigned_64 (Source_Size))
+                            & " to "
+                            & Mutools.Utils.To_Hex (Number => Size)
+                            & " to '" & Target & "'");
+      else
+         Mulog.Log (Msg => "Extracting part of '" & Source & "' at offset "
+                            & Mutools.Utils.To_Hex (Number => Offset)
+                            & " with size "
+                            & Mutools.Utils.To_Hex (Number => Size)
+                            & " to '" & Target & "'");
+      end if;
+
+      Set_Index (File => In_FD,
+                 To   => Stream_IO.Count (Offset) + 1);
+      Create (File => Out_FD, Mode => Out_File, Name => Target);
+      loop
+         Read (File => In_FD,
+               Item => Buffer,
+               Last => Last);
+         exit when Write_Buffer (Buffer);
+      end loop;
+      Close (File => In_FD);
+
+      if Written < Stream_Element_Offset (Size) then
+         declare
+            Padding : constant Stream_Element_Array (Buffer_Range_Type)
+              := (others => 0);
+         begin
+            Last := Padding'Last;
+            loop
+               exit when Write_Buffer (Padding);
+            end loop;
+         end;
+      end if;
+      Close (File => Out_FD);
+   end Extract_And_Pad;
+
+   -------------------------------------------------------------------------
+
    procedure Register_Files
-      (CPU      : Natural;
-       PT       : Unbounded_String;
-       Nodes    : DOM.Core.Node_List)
+      (CPU                :        Natural;
+       PT                 :        Unbounded_String;
+       Nodes              :        DOM.Core.Node_List;
+       File_Backed_Memory : in out File_Map_Package.Map;
+       Used_Memory        : in out String_Sets_Package.Set;
+       Kernels            : in out CPU_Kernel_Map_Package.Map)
    is
       --  Mark a single filename as being referenced. If it's a kernel image,
       --  keep track of that for the given CPU.
@@ -115,6 +201,8 @@ is
          (CPU      : Natural;
           Virtual  : Unbounded_String;
           Physical : Unbounded_String);
+
+      ----------------------------------------------------------------------
 
       procedure Register_File
          (CPU      : Natural;
@@ -124,16 +212,16 @@ is
       begin
          if File_Backed_Memory.Contains (Physical) then
             declare
-               Filename : constant Unbounded_String
-                 := File_Backed_Memory (Physical);
                File     : constant Loadable_File
-                 := File_Map (Filename);
+                 := File_Backed_Memory (Physical);
+               Filename : constant Unbounded_String
+                 := File.Filename;
             begin
                Mulog.Log (Msg => "  memory '" & To_String (Virtual)
                                   & "' is backed by '" & To_String (Physical)
                                   & "' and the file '" & To_String (Filename)
                                   & "'");
-               Used_Files.Include (Filename);
+               Used_Memory.Include (Physical);
                if File.Kernel then
                   Kernels.Include (CPU, File);
                end if;
@@ -171,10 +259,17 @@ is
    is
       use type Interfaces.Unsigned_64;
 
+      --  Map from physical memory name to loadable file.
+      File_Backed_Memory : File_Map_Package.Map;
+      --  Set of physical regions that are actually referenced.
+      Used_Memory        : String_Sets_Package.Set;
+      --  Map from CPU to kernel text files.
+      Kernels            : CPU_Kernel_Map_Package.Map;
+
       File_Mem : constant DOM.Core.Node_List
         := McKae.XML.XPath.XIA.XPath_Query
           (N     => Policy.Doc,
-           XPath => "/system/memory/memory[file]");
+           XPath => "/system/memory/memory/file");
       Fill_Mem : constant DOM.Core.Node_List
         := McKae.XML.XPath.XIA.XPath_Query
           (N     => Policy.Doc,
@@ -191,58 +286,105 @@ is
    begin
       for I in 0 .. DOM.Core.Nodes.Length (List => File_Mem) - 1 loop
          declare
-            Mem_Node : constant DOM.Core.Node
+            File_Node  : constant DOM.Core.Node
               := DOM.Core.Nodes.Item
                 (List  => File_Mem,
                  Index => I);
-            Name     : constant Unbounded_String
+            Mem_Node   : constant DOM.Core.Node
+              := DOM.Core.Nodes.Parent_Node (N => File_Node);
+            Name       : constant Unbounded_String
               := To_Unbounded_String (DOM.Core.Elements.Get_Attribute
                 (Elem => Mem_Node,
                  Name => "name"));
-            Filename : constant Unbounded_String
-              := To_Unbounded_String (Muxml.Utils.Get_Attribute
-                (Doc   => Mem_Node,
-                 XPath => "file",
-                 Name  => "filename"));
-            Address  : constant Interfaces.Unsigned_64
+            Filename   : constant Unbounded_String
+              := To_Unbounded_String (DOM.Core.Elements.Get_Attribute
+                (Elem => File_Node,
+                 Name => "filename"));
+            Path       : constant String
+              := Output_Dir & "/" & To_String (Filename);
+            File_Size  : constant Interfaces.Unsigned_64
+              := Interfaces.Unsigned_64 (Ada.Directories.Size (Path));
+            Pad_Name   : constant Unbounded_String
+              := Filename & "-" &
+                Translate (To_Unbounded_String (Mutools.Utils.To_Ada_Identifier
+                (Str => To_String (Name))),
+                  Ada.Strings.Maps.Constants.Lower_Case_Map) & ".pad";
+            Pad_Path   : constant String
+              := Output_Dir & "/" & To_String (Pad_Name);
+            Split_Name : constant Unbounded_String
+              := Filename & "-" &
+                Translate (To_Unbounded_String (Mutools.Utils.To_Ada_Identifier
+                (Str => To_String (Name))),
+                  Ada.Strings.Maps.Constants.Lower_Case_Map) & ".part";
+            Split_Path : constant String
+              := Output_Dir & "/" & To_String (Split_Name);
+            Address    : constant Interfaces.Unsigned_64
               := Interfaces.Unsigned_64'Value
                 (DOM.Core.Elements.Get_Attribute
                    (Elem => Mem_Node,
                     Name => "physicalAddress"));
-            Kind     : constant Mutools.Types.Memory_Kind
+            Size       : constant Interfaces.Unsigned_64
+              := Interfaces.Unsigned_64'Value
+                (DOM.Core.Elements.Get_Attribute
+                   (Elem => Mem_Node,
+                    Name => "size"));
+            Offset_Str : constant String
+              := DOM.Core.Elements.Get_Attribute
+                (Elem => File_Node,
+                 Name => "offset");
+            Offset     : Interfaces.Unsigned_64 := 0;
+            Kind       : constant Mutools.Types.Memory_Kind
               := Mutools.Types.Memory_Kind'Value
                 (DOM.Core.Elements.Get_Attribute
                    (Elem => Mem_Node,
                     Name => "type"));
-            File     : constant Loadable_File
-              := (Filename => Filename,
+            File       : Loadable_File
+              := (Physical => Name,
+                  Filename => Filename,
                   Address  => Address,
-                  Kernel   => Kind in Mutools.Types.Kernel_Binary);
+                  Kernel   => Kind in Mutools.Types.Kernel_Binary and then
+                              Name = "kernel_text");
          begin
-            File_Backed_Memory.Include (Name, Filename);
+            Mulog.Log (Msg => "Found file-backed memory '"
+                               & To_String (Name) & "' at "
+                               & Mutools.Utils.To_Hex (Number => Address)
+                               & " with file '"
+                               & To_String (Filename) & "'");
 
-            if File_Map.Contains (Filename) then
-               Mulog.Log (Msg => "Merge file-backed memory '"
-                                  & To_String (Name) & "' at "
-                                  & Mutools.Utils.To_Hex (Number => Address)
-                                  & " with file '" & To_String (Filename) & "'");
-               declare
-                  Existing : Loadable_File := File_Map (Filename);
-               begin
-                  if Existing.Address > File.Address then
-                     Existing.Address := File.Address;
-                  end if;
-                  if not Existing.Kernel and File.Kernel then
-                     Existing.Kernel := True;
-                  end if;
-               end;
+            if Offset_Str = "none" then
+               if File_Size > Size then
+                  raise Generator_Error with "File '" & Path & "' is too large "
+                     & "for physical memory region '" & To_String (Name) & "': "
+                     & Mutools.Utils.To_Hex (Number => File_Size) & " > "
+                     & Mutools.Utils.To_Hex (Number => Size);
+               elsif File_Size < Size then
+                  Extract_And_Pad
+                     (Source => Path,
+                      Target => Pad_Path,
+                      Offset => 0,
+                      Size   => Size);
+                  File.Filename := Pad_Name;
+               end if;
             else
-               Mulog.Log (Msg => "Found file-backed memory '"
-                                  & To_String (Name) & "' at "
-                                  & Mutools.Utils.To_Hex (Number => Address)
-                                  & " with file '" & To_String (Filename) & "'");
-               File_Map.Include (Filename, File);
+               Offset := Interfaces.Unsigned_64'Value (Offset_Str);
+               if Offset > File_Size then
+                  raise Generator_Error with "Offset into file '" & Path
+                     & "' referenced by physical memory region '"
+                     & To_String (Name)
+                     & "' is larger than file size: "
+                     & Mutools.Utils.To_Hex (Number => Offset) & " > "
+                     & Mutools.Utils.To_Hex (Number => File_Size);
+               end if;
+               Extract_And_Pad
+                  (Source => Path,
+                   Target => Split_Path,
+                   Offset => Offset,
+                   Size   => Size);
+               File.Filename := Split_Name;
             end if;
+
+            File_Backed_Memory.Include (Name, File);
+            Files.Append (File);
          end;
       end loop;
 
@@ -278,15 +420,11 @@ is
                    (Doc   => Fill_Node,
                     XPath => "fill",
                     Name  => "pattern"));
-            Kind      : constant Mutools.Types.Memory_Kind
-              := Mutools.Types.Memory_Kind'Value
-                (DOM.Core.Elements.Get_Attribute
-                   (Elem => Fill_Node,
-                    Name => "type"));
             File      : constant Loadable_File
-              := (Filename => Filename,
+              := (Physical => Name,
+                  Filename => Filename,
                   Address  => Address,
-                  Kernel   => Kind in Mutools.Types.Kernel_Binary);
+                  Kernel   => False);
          begin
             -- Generate a file with the given size and pattern and ..
             Create_Fill_File (Path, Size, Pattern);
@@ -303,13 +441,9 @@ is
                       & Path);
 
             -- ... treat this node like a file-backed memory region.
-            File_Backed_Memory.Include (Name, Filename);
-            File_Map.Include (Filename, File);
+            File_Backed_Memory.Include (Name, File);
+            Files.Append (File);
          end;
-      end loop;
-
-      for F in File_Map.Iterate loop
-         Files.Append (File_Map (F));
       end loop;
 
       File_Vector_Sorting_Package.Sort (Files);
@@ -337,7 +471,8 @@ is
             Mulog.Log (Msg => "Collect file-backed kernel memory for CPU "
                                & CPU);
 
-            Register_Files (CPU_Id, Kernel_PT, Kernel_Mem);
+            Register_Files (CPU_Id, Kernel_PT, Kernel_Mem,
+                            File_Backed_Memory, Used_Memory, Kernels);
          end;
       end loop;
 
@@ -367,12 +502,13 @@ is
             Mulog.Log (Msg => "Collect file-backed subject memory for '"
                                & Name & "'");
 
-            Register_Files (CPU, Subject_PT, Subject_Mem);
+            Register_Files (CPU, Subject_PT, Subject_Mem,
+                            File_Backed_Memory, Used_Memory, Kernels);
          end;
       end loop;
 
       for I in reverse Files.First_Index .. Files.Last_Index loop
-         if not Used_Files.Contains (Files (I).Filename) then
+         if not Used_Memory.Contains (Files (I).Physical) then
             Mulog.Log (Msg => "Ignoring unused file '"
                                & To_String (Files (I).Filename) & "'");
             Files.Delete (I);

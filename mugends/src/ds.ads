@@ -25,6 +25,7 @@ package DS
 is
 
    type Loadable_File is record
+      Physical : Ada.Strings.Unbounded.Unbounded_String;
       Filename : Ada.Strings.Unbounded.Unbounded_String;
       Address  : Interfaces.Unsigned_64;
       Kernel   : Boolean;

@@ -76,7 +76,7 @@ package body DS.BIF is
       end loop;
 
       for F of Files loop
-         -- Kernel image is already loaded above
+         -- Kernel text image is already loaded above.
          if not F.Kernel then
             declare
                Template : Mutools.Templates.Template_Type

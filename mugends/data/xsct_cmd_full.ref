@@ -4,8 +4,12 @@ HDF:APU*:Xilinx HW-Z1-ZCU104 FT4232H*:default_system.hdf:list {0x80000000 0xbfff
 PMU:MicroBlaze PMU*:Xilinx HW-Z1-ZCU104 FT4232H*:debug_pmufw.elf
 FSBL:*A53*0:Xilinx HW-Z1-ZCU104 FT4232H*:debug_fsbl.elf
 RST:*A53*1:Xilinx HW-Z1-ZCU104 FT4232H*:processor:0x00000000
-EXE:*A53*0:Xilinx HW-Z1-ZCU104 FT4232H*:kernel.bin:0x0
+EXE:*A53*0:Xilinx HW-Z1-ZCU104 FT4232H*:kernel.bin-kernel_text.part:0x0
+EXE:*A53*0:Xilinx HW-Z1-ZCU104 FT4232H*:kernel.bin-kernel_ro.part:0x58000
+EXE:*A53*0:Xilinx HW-Z1-ZCU104 FT4232H*:kernel.bin-kernel_data_0.part:0x70000
 EXE:*A53*0:Xilinx HW-Z1-ZCU104 FT4232H*:kernel_bss_0.fill:0x72000
+EXE:*A53*0:Xilinx HW-Z1-ZCU104 FT4232H*:kernel.bin-kernel_global_data.part:0x74000
+EXE:*A53*0:Xilinx HW-Z1-ZCU104 FT4232H*:kernel.bin-kernel_global_rodata.part:0x80000
 EXE:*A53*0:Xilinx HW-Z1-ZCU104 FT4232H*:kernel_stack_0.fill:0xc0000
 EXE:*A53*0:Xilinx HW-Z1-ZCU104 FT4232H*:kernel_stack_1.fill:0xe0000
 EXE:*A53*0:Xilinx HW-Z1-ZCU104 FT4232H*:xilinxzcu104-core-0.pt:0x100000
@@ -15,14 +19,14 @@ EXE:*A53*0:Xilinx HW-Z1-ZCU104 FT4232H*:xilinxzcu104-string_reverser.pt:0x210000
 EXE:*A53*0:Xilinx HW-Z1-ZCU104 FT4232H*:xilinxzcu104-lnx2.pt:0x220000
 EXE:*A53*0:Xilinx HW-Z1-ZCU104 FT4232H*:xilinxzcu104-caesar_cipher.pt:0x230000
 EXE:*A53*0:Xilinx HW-Z1-ZCU104 FT4232H*:kernel_interrupt_stack_0.fill:0x3ff000
-EXE:*A53*0:Xilinx HW-Z1-ZCU104 FT4232H*:subject_one.bin:0x4000000
-EXE:*A53*0:Xilinx HW-Z1-ZCU104 FT4232H*:subject_two.bin:0x5000000
+EXE:*A53*0:Xilinx HW-Z1-ZCU104 FT4232H*:subject_one.bin-string_reverser_binary.pad:0x4000000
+EXE:*A53*0:Xilinx HW-Z1-ZCU104 FT4232H*:subject_two.bin-caesar_cipher_binary.pad:0x5000000
 EXE:*A53*0:Xilinx HW-Z1-ZCU104 FT4232H*:lnx1_lowmem.fill:0x20000000
-EXE:*A53*0:Xilinx HW-Z1-ZCU104 FT4232H*:devicetree_linux_one.dtb:0x20040000
-EXE:*A53*0:Xilinx HW-Z1-ZCU104 FT4232H*:Image_linux_one.bin:0x20080000
-EXE:*A53*0:Xilinx HW-Z1-ZCU104 FT4232H*:rootfs_linux_one.cpio.gz:0x4b000000
+EXE:*A53*0:Xilinx HW-Z1-ZCU104 FT4232H*:devicetree_linux_one.dtb-lnx1_dtb.pad:0x20040000
+EXE:*A53*0:Xilinx HW-Z1-ZCU104 FT4232H*:Image_linux_one.bin-lnx1_binary.pad:0x20080000
+EXE:*A53*0:Xilinx HW-Z1-ZCU104 FT4232H*:rootfs_linux_one.cpio.gz-lnx1_rootfs.pad:0x4b000000
 EXE:*A53*0:Xilinx HW-Z1-ZCU104 FT4232H*:lnx2_lowmem.fill:0x50000000
-EXE:*A53*0:Xilinx HW-Z1-ZCU104 FT4232H*:devicetree_linux_two.dtb:0x50040000
-EXE:*A53*0:Xilinx HW-Z1-ZCU104 FT4232H*:Image_linux_two.bin:0x50080000
-EXE:*A53*0:Xilinx HW-Z1-ZCU104 FT4232H*:rootfs_linux_two.cpio.gz:0x7b000000
+EXE:*A53*0:Xilinx HW-Z1-ZCU104 FT4232H*:devicetree_linux_two.dtb-lnx2_dtb.pad:0x50040000
+EXE:*A53*0:Xilinx HW-Z1-ZCU104 FT4232H*:Image_linux_two.bin-lnx2_binary.pad:0x50080000
+EXE:*A53*0:Xilinx HW-Z1-ZCU104 FT4232H*:rootfs_linux_two.cpio.gz-lnx2_rootfs.pad:0x7b000000
 
