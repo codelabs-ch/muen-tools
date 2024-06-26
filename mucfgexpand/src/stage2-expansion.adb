@@ -177,7 +177,8 @@ is
 
       --  RMRR mappings must be added before the VT-d tables.
 
-      Procs.Register (Process => Device_Domains.Add_Tables'Access);
+      -- TODO: MOA: No x86 VT-d tables.
+      -- Procs.Register (Process => Device_Domains.Add_Tables'Access);
 
       --  Device domains are allowed in a configuration where the IOMMU is
       --  disabled. This can be useful to quickly perform tests without
