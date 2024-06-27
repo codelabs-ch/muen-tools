@@ -533,7 +533,7 @@
     </segments>
    </registers>
   </vcpu>
-  <bootparams>hostname=lnx1 console=ttyPS0,115200 root=/dev/ram0 initrd=0x2b000000,60M earlycon muen_sinfo=0xe00000000 muennet.name=net0 muennet.reader_protocol=2 muennet.writer_protocol=2 muennet.in=net_in muennet.out=net_out muennet.flags=net_hdr</bootparams>
+  <bootparams>hostname=lnx1 console=ttyPS0,115200 root=/dev/ram0 earlycon muen_sinfo=0xe00000000 muennet.name=net0 muennet.reader_protocol=2 muennet.writer_protocol=2 muennet.in=net_in muennet.out=net_out muennet.flags=net_hdr</bootparams>
   <memory>
    <memory logical="lowmem" physical="lnx1|lowmem" virtualAddress="16#0000_0000#" writable="true" executable="true"/>
    <memory logical="dtb" physical="lnx1|dtb" virtualAddress="16#0004_0000#" writable="true" executable="true"/>
@@ -1367,7 +1367,7 @@
     </segments>
    </registers>
   </vcpu>
-  <bootparams>hostname=lnx2 console=ttyPS0,115200 root=/dev/ram0 initrd=0x2b000000,60M earlycon muen_sinfo=0xe00000000 muennet.name=net0 muennet.reader_protocol=2 muennet.writer_protocol=2 muennet.in=net_in muennet.out=net_out muennet.flags=net_hdr</bootparams>
+  <bootparams>hostname=lnx2 console=ttyPS0,115200 root=/dev/ram0 earlycon muen_sinfo=0xe00000000 muennet.name=net0 muennet.reader_protocol=2 muennet.writer_protocol=2 muennet.in=net_in muennet.out=net_out muennet.flags=net_hdr</bootparams>
   <memory>
    <memory logical="lowmem" physical="lnx2|lowmem" virtualAddress="16#0000_0000#" writable="true" executable="true"/>
    <memory logical="dtb" physical="lnx2|dtb" virtualAddress="16#0004_0000#" writable="true" executable="true"/>

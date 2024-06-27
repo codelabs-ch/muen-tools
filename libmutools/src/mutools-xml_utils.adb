@@ -29,6 +29,7 @@ with McKae.XML.XPath.XIA;
 
 with Muxml.Utils;
 
+with Mutools.Match;
 with Mutools.Utils;
 
 package body Mutools.XML_Utils
@@ -526,6 +527,52 @@ is
    begin
       return DOM.Core.Nodes.Length (List => CPUs);
    end Get_Active_CPU_Count;
+
+   -------------------------------------------------------------------------
+
+   procedure Get_Addr_And_Size
+     (Virtual_Mappings :     DOM.Core.Node_List;
+      Physical_Memory  :     DOM.Core.Node_List;
+      Virtual_Address  : out Interfaces.Unsigned_64;
+      Size             : out Interfaces.Unsigned_64)
+   is
+      --  Get size value of given node.
+      function Get_Size (Node : DOM.Core.Node) return String;
+
+      ----------------------------------------------------------------------
+
+      function Get_Size (Node : DOM.Core.Node) return String
+      is
+      begin
+         return DOM.Core.Elements.Get_Attribute
+           (Elem => Node,
+            Name => "size");
+      end Get_Size;
+
+      Pairs       : Muxml.Utils.Matching_Pairs_Type;
+      Unused_Addr : Interfaces.Unsigned_64;
+   begin
+      Virtual_Address := 0;
+      Size            := 0;
+
+      Pairs := Muxml.Utils.Get_Matching
+        (Left_Nodes     => Virtual_Mappings,
+         Right_Nodes    => Physical_Memory,
+         Match_Multiple => True,
+         Match          => Mutools.Match.Is_Valid_Reference'Access);
+
+      if DOM.Core.Nodes.Length (List => Pairs.Left) > 0 then
+         Muxml.Utils.Get_Bounds (Nodes     => Pairs.Left,
+                                 Attr_Name => "virtualAddress",
+                                 Lower     => Virtual_Address,
+                                 Upper     => Unused_Addr);
+         Mutools.XML_Utils.Set_Memory_Size
+           (Virtual_Mem_Nodes => Pairs.Left,
+            Ref_Nodes         => Pairs.Right);
+         Size := Muxml.Utils.Sum (Nodes  => Pairs.Left,
+                                  Getter => Get_Size'Access);
+      end if;
+   end Get_Addr_And_Size;
 
    -------------------------------------------------------------------------
 
