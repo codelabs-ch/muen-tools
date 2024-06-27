@@ -476,7 +476,7 @@
     </segments>
    </registers>
   </vcpu>
-  <bootparams>hostname=lnx1 console=ttyPS0,115200 root=/dev/ram0 initrd=0x1b000000,60M earlycon</bootparams>
+  <bootparams>hostname=lnx1 console=ttyPS0,115200 root=/dev/ram0 earlycon</bootparams>
   <memory>
    <memory logical="lowmem" physical="linux|lowmem" virtualAddress="16#0000_0000#" writable="true" executable="true"/>
    <memory logical="dtb" physical="linux|dtb" virtualAddress="16#0004_0000#" writable="true" executable="true"/>

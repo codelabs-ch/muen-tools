@@ -141,7 +141,7 @@ package body DTS.Root.Test_Data.Tests is
       Expected_Entry : constant String
         := "    chosen {" & ASCII.LF &
         "        bootargs = ""hostname=lnx1 console=ttyPS0,115200 " &
-        "root=/dev/ram0 initrd=0x1b000000,60M earlycon"";" & ASCII.LF &
+        "root=/dev/ram0 earlycon initrd=0x1b000000,0x5000000"";" & ASCII.LF &
         "        stdout-path = ""serial:115200n8"";" & ASCII.LF &
         "    };";
 

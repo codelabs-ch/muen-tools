@@ -1,5 +1,6 @@
 --
 --  Copyright (C) 2023, 2023  David Loosli <david@codelabs.ch>
+--  Copyright (C) 2024, 2024  Tobias Brunner <tobias@codelabs.ch>
 --
 --  This program is free software: you can redistribute it and/or modify
 --  it under the terms of the GNU General Public License as published by
@@ -22,6 +23,7 @@ with McKae.XML.XPath.XIA;
 
 with Mutools.Types;
 with Mutools.Utils;
+with Mutools.XML_Utils;
 with Muxml.Utils;
 
 with String_Templates;
@@ -54,14 +56,36 @@ is
       Policy   :        Muxml.XML_Data_Type;
       Subject  :        DOM.Core.Node)
    is
-      pragma Unreferenced (Policy);
+      Phys_Initrd_Mem : constant DOM.Core.Node_List
+        := McKae.XML.XPath.XIA.XPath_Query
+          (N     => Policy.Doc,
+           XPath => "/system/memory/memory[@type='subject_initrd']");
+
+      Subject_Memory  : constant DOM.Core.Node_List
+        := McKae.XML.XPath.XIA.XPath_Query
+          (N     => Subject,
+           XPath => "memory/memory");
+
+      Initrd_Address, Initrd_Size : Interfaces.Unsigned_64 := 0;
    begin
+      Mutools.XML_Utils.Get_Addr_And_Size
+        (Virtual_Mappings => Subject_Memory,
+         Physical_Memory  => Phys_Initrd_Mem,
+         Virtual_Address  => Initrd_Address,
+         Size             => Initrd_Size);
+
       Mutools.Templates.Replace
         (Template => Template,
          Pattern  => "__chosen_bootparams__",
          Content  => Muxml.Utils.Get_Element_Value
            (Doc   => Subject,
-            XPath => "bootparams"));
+            XPath => "bootparams")
+            & " initrd=0x" & Mutools.Utils.To_Hex
+              (Number => Initrd_Address,
+               Normalize  => False)
+            & ",0x" & Mutools.Utils.To_Hex
+              (Number => Initrd_Size,
+               Normalize  => False));
    end Add_Chosen_Node;
 
    -------------------------------------------------------------------------
