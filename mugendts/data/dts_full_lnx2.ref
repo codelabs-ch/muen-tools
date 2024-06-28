@@ -127,7 +127,7 @@
         compatible = "simple-bus";
         #address-cells = <0x2>;
         #size-cells = <0x2>;
-        ranges = <0x00000000 0x00000000 0x00000000 0x00000000 0x00000000 0x31054000>;
+        ranges = <0x00000000 0x00000000 0x00000000 0x00000000 0x00000000 0x31011000>;
 
         gem3@31010000 {
             compatible = "cdns,zynqmp-gem", "cdns,gem";
@@ -164,42 +164,6 @@
             interrupts = <GIC_SPI 0x0 IRQ_TYPE_LEVEL_HIGH>;
             clocks = <&clk100>, <&clk100>;
             clock-names = "uart_clk", "pclk";
-            status = "okay";
-        };
-
-        caesar_cipher_writer@31050000 {
-            compatible = "muen,communication-channel";
-            reg = <0x00000000 0x31050000 0x00000000 0x00001000>;
-            interrupt-parent = <0x7>;
-            interrupts = <GIC_SPI 0x8 IRQ_TYPE_LEVEL_HIGH>;
-            type = <WRITEONLY_CHANNEL>;
-            status = "okay";
-        };
-
-        caesar_cipher_reader@31051000 {
-            compatible = "muen,communication-channel";
-            reg = <0x00000000 0x31051000 0x00000000 0x00001000>;
-            interrupt-parent = <0x7>;
-            interrupts = <GIC_SPI 0x9 IRQ_TYPE_LEVEL_HIGH>;
-            type = <READONLY_CHANNEL>;
-            status = "okay";
-        };
-
-        log_channel_reader@31052000 {
-            compatible = "muen,communication-channel";
-            reg = <0x00000000 0x31052000 0x00000000 0x00001000>;
-            interrupt-parent = <0x7>;
-            interrupts = <GIC_SPI 0xa IRQ_TYPE_LEVEL_HIGH>;
-            type = <READONLY_CHANNEL>;
-            status = "okay";
-        };
-
-        lnx_channel_reader@31053000 {
-            compatible = "muen,communication-channel";
-            reg = <0x00000000 0x31053000 0x00000000 0x00001000>;
-            interrupt-parent = <0x7>;
-            interrupts = <GIC_SPI 0xb IRQ_TYPE_LEVEL_HIGH>;
-            type = <READONLY_CHANNEL>;
             status = "okay";
         };
 
