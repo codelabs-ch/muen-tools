@@ -127,7 +127,7 @@
         compatible = "simple-bus";
         #address-cells = <0x2>;
         #size-cells = <0x2>;
-        ranges = <0x00000000 0x00000000 0x00000000 0x00000000 0x00000000 0x31054000>;
+        ranges = <0x00000000 0x00000000 0x00000000 0x00000000 0x00000000 0x31050000>;
 
         serial_0: uart0@31000000 {
             compatible = "cdns,uart-r1p12", "xlnx,xuartps";
@@ -165,42 +165,6 @@
                 dr_mode = "host";
                 status = "okay";
             };
-        };
-
-        string_reverser_writer@31050000 {
-            compatible = "muen,communication-channel";
-            reg = <0x00000000 0x31050000 0x00000000 0x00001000>;
-            interrupt-parent = <0x7>;
-            interrupts = <GIC_SPI 0x8 IRQ_TYPE_LEVEL_HIGH>;
-            type = <WRITEONLY_CHANNEL>;
-            status = "okay";
-        };
-
-        string_reverser_reader@31051000 {
-            compatible = "muen,communication-channel";
-            reg = <0x00000000 0x31051000 0x00000000 0x00001000>;
-            interrupt-parent = <0x7>;
-            interrupts = <GIC_SPI 0x9 IRQ_TYPE_LEVEL_HIGH>;
-            type = <READONLY_CHANNEL>;
-            status = "okay";
-        };
-
-        log_channel_reader@31052000 {
-            compatible = "muen,communication-channel";
-            reg = <0x00000000 0x31052000 0x00000000 0x00001000>;
-            interrupt-parent = <0x7>;
-            interrupts = <GIC_SPI 0xa IRQ_TYPE_LEVEL_HIGH>;
-            type = <READONLY_CHANNEL>;
-            status = "okay";
-        };
-
-        lnx_channel_writer@31053000 {
-            compatible = "muen,communication-channel";
-            reg = <0x00000000 0x31053000 0x00000000 0x00001000>;
-            interrupt-parent = <0x7>;
-            interrupts = <GIC_SPI 0xb IRQ_TYPE_LEVEL_HIGH>;
-            type = <WRITEONLY_CHANNEL>;
-            status = "okay";
         };
 
     };

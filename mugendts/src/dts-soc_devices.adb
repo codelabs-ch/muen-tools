@@ -29,8 +29,7 @@ with String_Templates;
 package body DTS.SoC_Devices
 is
 
-   UART_Device_Counter    : Natural := 0;
-   Channel_Device_Counter : Natural := 0;
+   UART_Device_Counter : Natural := 0;
 
    -------------------------------------------------------------------------
 
@@ -124,49 +123,6 @@ is
 
       UART_Device_Counter := 0;
 
-      declare
-         --  (3) extract all virtual memory nodes to search for channels
-         Virtual_Memory  : constant DOM.Core.Node_List
-           := McKae.XML.XPath.XIA.XPath_Query
-             (N     => Subject,
-              XPath => "memory/memory");
-      begin
-         for I in 0 .. DOM.Core.Nodes.Length (Virtual_Memory) - 1 loop
-            declare
-               Virtual_Dev_Entry : Unbounded_String;
-               Virtual_Dev_Range : DTS_Range_Type;
-            begin
-               Generate_Channel_Node (Policy    => Policy,
-                                      Device    => DOM.Core.Nodes.Item
-                                        (List  => Virtual_Memory,
-                                         Index => I),
-                                      DTS_Entry => Virtual_Dev_Entry,
-                                      DTS_Range => Virtual_Dev_Range);
-
-               if Length (Virtual_Dev_Entry) /= 0 then
-                  if Virtual_Dev_Range.Base < SoC_First then
-                     SoC_First := Virtual_Dev_Range.Base;
-                  end if;
-
-                  if
-                    SoC_Last < Virtual_Dev_Range.Base + Virtual_Dev_Range.Size
-                  then
-                     SoC_Last
-                       := Virtual_Dev_Range.Base + Virtual_Dev_Range.Size;
-                  end if;
-
-                  Block_Indent (Block     => Virtual_Dev_Entry,
-                                N         => 2,
-                                Unit_Size => 4);
-                  Append (Source   => SoC_Buffer,
-                          New_Item => ASCII.LF & Virtual_Dev_Entry);
-               end if;
-            end;
-         end loop;
-      end;
-
-      Channel_Device_Counter := 0;
-
       Mutools.Templates.Replace
         (Template => Template,
          Pattern  => "__amba_soc_base__",
@@ -192,96 +148,6 @@ is
          Pattern  => "__amba_soc_devices__",
          Content  => To_String (Source => SoC_Buffer));
    end Add_SoC_Devices;
-
-   -------------------------------------------------------------------------
-
-   procedure Generate_Channel_Node
-     (Policy    :     Muxml.XML_Data_Type;
-      Device    :     DOM.Core.Node;
-      DTS_Entry : out Unbounded_String;
-      DTS_Range : out DTS_Range_Type)
-   is
-      Template : Mutools.Templates.Template_Type
-        := Mutools.Templates.Create
-          (Content => String_Templates.muen_channel_dsl);
-
-      --  (1) extract the corresponding physical memory node
-      Physical_Memory : constant DOM.Core.Node_List
-        := McKae.XML.XPath.XIA.XPath_Query
-          (N     => Policy.Doc,
-           XPath => "/system/memory/memory[@name='" &
-             DOM.Core.Elements.Get_Attribute (Elem => Device,
-                                              Name => "physical") &
-             "' and @type='subject_channel']");
-
-      Device_Name : constant String
-        := DOM.Core.Elements.Get_Attribute (Elem => Device,
-                                            Name => "logical");
-      Device_Type : constant String
-        := DOM.Core.Elements.Get_Attribute (Elem => Device,
-                                            Name => "writable");
-
-      SGI_Offset   : constant Unsigned_64 := 8;
-   begin
-      if
-        DOM.Core.Nodes.Length (Physical_Memory) = 1
-      then
-         DTS_Range.Base := Unsigned_64'Value
-           (DOM.Core.Elements.Get_Attribute (Elem => Device,
-                                             Name => "virtualAddress"));
-         DTS_Range.Size := Unsigned_64'Value
-           (DOM.Core.Elements.Get_Attribute (Elem => DOM.Core.Nodes.Item
-                                             (List  => Physical_Memory,
-                                              Index => 0),
-                                             Name => "size"));
-         Mutools.Templates.Replace
-           (Template => Template,
-            Pattern  => "__cchannel_bus_alias__",
-            Content  => "");
-         Mutools.Templates.Replace
-           (Template => Template,
-            Pattern  => "__cchannel_bus_name__",
-            Content  => Ada.Characters.Handling.To_Lower (Device_Name));
-         Mutools.Templates.Replace
-           (Template => Template,
-            Pattern  => "__cchannel_bus_base__",
-            Content  => Mutools.Utils.To_Hex (Number     => DTS_Range.Base,
-                                              Normalize  => False,
-                                              Byte_Short => False));
-         Mutools.Templates.Replace
-           (Template => Template,
-            Pattern  => "__cchannel_registers__",
-            Content  => "reg = <" &
-              To_DTS_Cell (Value => DTS_Range.Base) & " " &
-              To_DTS_Cell (Value => DTS_Range.Size) & ">;");
-         --  NOTE - the Linux Muen SK channel driver requires the specification
-         --  of an assigned interrupt; as the interrupt is currently not in
-         --  use, the IRQ vector is assigend statically starting at SGI 8
-         Mutools.Templates.Replace
-           (Template => Template,
-            Pattern  => "__cchannel_irq_irq__",
-            Content  => Mutools.Utils.To_Hex
-              (Number     =>
-                   Unsigned_64 (Channel_Device_Counter) + SGI_Offset,
-               Normalize  => False,
-               Byte_Short => False));
-         Mutools.Templates.Replace
-           (Template => Template,
-            Pattern  => "__cchannel_type__",
-            Content  => (if Device_Type = "true"
-                         then "WRITEONLY_CHANNEL"
-                         else "READONLY_CHANNEL"));
-
-         Channel_Device_Counter := Channel_Device_Counter + 1;
-
-         Append (Source   => DTS_Entry,
-                 New_Item => Mutools.Templates.To_String (Template => Template));
-      else
-         DTS_Entry := To_Unbounded_String ("");
-         DTS_Range := (Base => 16#0000_0000#,
-                       Size => 16#0000_0000#);
-      end if;
-   end Generate_Channel_Node;
 
    -------------------------------------------------------------------------
 
