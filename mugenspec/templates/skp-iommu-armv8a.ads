@@ -73,15 +73,6 @@ is
            TTBR_Physical_Address_Size =>             2#000#,
            VM_Identifier              =>             16#00#);
 
-   ------------------------------
-   -- Controller Specification --
-   ------------------------------
-   SMMU_Controller_Base_Address : constant System.Address
-     := System'To_Address (__smmu_controller_base_address__);
-
-   SMMU_Context_Base_Address : constant System.Address
-     := System'To_Address (__smmu_context_base_address__);
-
    ----------------------------
    -- SMMU500 Configurations --
    ----------------------------

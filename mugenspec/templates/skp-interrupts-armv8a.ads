@@ -1,5 +1,3 @@
-with System;
-
 with GIC;
 
 with SK.Interrupts;
@@ -34,12 +32,6 @@ is
      :=  26;
    SMMU_Controller_Interrupt     : constant Physical_Interrupt_ID_Config
      :=__pirq_id_smmu__;
-
-   ------------------------------
-   -- Controller Specification --
-   ------------------------------
-   GIC_Instance_Base_Address : constant System.Address
-     := System'To_Address (__gic_base_address__);
 
    -----------------------------
    -- Interrupt Configuration --
