@@ -541,34 +541,12 @@ is
         DOM.Core.Nodes.Length (Physical_SMMU_Devs) = 1
       then
          declare
-            --  (3.a) get the physical SMMU device and its physical name
+            --  (3.a) get the physical SMMU device
             Physical_SMMU_Dev  : constant DOM.Core.Node
               := DOM.Core.Nodes.Item (List  => Physical_SMMU_Devs,
                                       Index => 0);
-            Physical_SMMU_Name : constant String
-              := DOM.Core.Elements.Get_Attribute (Elem => Physical_SMMU_Dev,
-                                                  Name => "name");
 
-            --  (3.b) extract virtual SMMU device assigned to kernel
-            Virtual_SMMU_Devs : constant DOM.Core.Node_List
-              := McKae.XML.XPath.XIA.XPath_Query
-                (N     => Policy.Doc,
-                 XPath => "/system/kernel/devices/device[@physical='" &
-                   Physical_SMMU_Name & "']");
-            Virtual_SMMU_Dev  : constant DOM.Core.Node
-              := DOM.Core.Nodes.Item (List  => Virtual_SMMU_Devs,
-                                      Index => 0);
-
-            Controller_Base_Address : constant Unsigned_64
-              := Unsigned_64'Value (Muxml.Utils.Get_Attribute
-                                    (Doc   => Virtual_SMMU_Dev,
-                                     XPath => "memory[@logical='controller']",
-                                     Name  => "virtualAddress"));
-            Context_Base_Address    : constant Unsigned_64
-              := Unsigned_64'Value (Muxml.Utils.Get_Attribute
-                                    (Doc   => Virtual_SMMU_Dev,
-                                     XPath => "memory[@logical='context']",
-                                     Name  => "virtualAddress"));
+            --  (3.b) extract stream mapping and context bank max values
             Stream_Mapping_ID_Max : constant Natural
               := Natural'Value (Muxml.Utils.Get_Element_Value
                                 (Doc   => Physical_SMMU_Dev,
@@ -580,14 +558,6 @@ is
                                  XPath => "capabilities/capability" &
                                    "[@name='context_bank_id_max']"));
          begin
-            Mutools.Templates.Replace
-              (Template => Tmpl,
-               Pattern  => "__smmu_controller_base_address__",
-               Content  => Mutools.Utils.To_Hex (Controller_Base_Address));
-            Mutools.Templates.Replace
-              (Template => Tmpl,
-               Pattern  => "__smmu_context_base_address__",
-               Content  => Mutools.Utils.To_Hex (Context_Base_Address));
             Mutools.Templates.Replace
               (Template => Tmpl,
                Pattern  => "__stream_mapping_id_max__",

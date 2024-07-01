@@ -16,8 +16,6 @@
 --  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --
 
-with Interfaces;
-
 with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded;
 
@@ -174,26 +172,12 @@ is
         DOM.Core.Nodes.Length (Physical_SMMU_Devs) = 1
       then
          declare
-            use Interfaces;
-
-            --  (3.a) get the physical GIC device and its physical name
+            --  (3.a) get the physical GIC device
             Physical_GIC_Dev  : constant DOM.Core.Node
               := DOM.Core.Nodes.Item (List  => Physical_GIC_Devs,
                                       Index => 0);
-            Physical_GIC_Name : constant String
-              := DOM.Core.Elements.Get_Attribute (Elem => Physical_GIC_Dev,
-                                                  Name => "name");
 
-            --  (3.b) extract virtual GIC device assigned to kernel
-            Virtual_GIC_Devs : constant DOM.Core.Node_List
-              := McKae.XML.XPath.XIA.XPath_Query
-                (N     => Policy.Doc,
-                 XPath => "/system/kernel/devices/device[@physical='" &
-                   Physical_GIC_Name & "']");
-            Virtual_GIC_Dev  : constant DOM.Core.Node
-              := DOM.Core.Nodes.Item (List  => Virtual_GIC_Devs,
-                                      Index => 0);
-
+            --  (3.b) extract GIC device max values
             Physical_IRQ_Max : constant Natural
               := Natural'Value (Muxml.Utils.Get_Element_Value
                                 (Doc   => Physical_GIC_Dev,
@@ -204,11 +188,6 @@ is
                                 (Doc   => Physical_GIC_Dev,
                                  XPath => "capabilities/capability" &
                                    "[@name='virq_id_max']"));
-            GIC_Base_Address : constant Unsigned_64
-              := Unsigned_64'Value (Muxml.Utils.Get_Attribute
-                                    (Doc   => Virtual_GIC_Dev,
-                                     XPath => "memory[@physical='GIC']",
-                                     Name  => "virtualAddress"));
 
             Physical_SMMU_Dev : constant DOM.Core.Node
               := DOM.Core.Nodes.Item (List  => Physical_SMMU_Devs,
@@ -231,10 +210,6 @@ is
               (Template => Tmpl,
                Pattern  => "__pirq_id_smmu__",
                Content  => SMMU_IRQ_ID'Img);
-            Mutools.Templates.Replace
-              (Template => Tmpl,
-               Pattern  => "__gic_base_address__",
-               Content  => Mutools.Utils.To_Hex (Number => GIC_Base_Address));
 
             for I in 0 .. CPU_Count - 1 loop
                declare
