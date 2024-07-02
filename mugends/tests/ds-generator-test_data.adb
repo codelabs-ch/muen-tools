@@ -125,7 +125,7 @@ package body DS.Generator.Test_Data is
 
       --  Generate a reference file for the last part with padding.
       Pad_File ("obj/kernel.bin-kernel_stack", 16#0003_0000#,
-                "obj/kernel.bin-kernel_stack.part.ref");
+                "obj/kernel.bin-kernel_stack.part.pad.ref");
 
       --  These are correctly sized, so no padding.
       Generate_File ("obj/xilinxzcu104-core-0.pt", 16#8000#);
@@ -142,9 +142,6 @@ package body DS.Generator.Test_Data is
       Generate_Padded ("obj/devicetree_linux_one.dtb",
                        16#1048#, 16#0004_0000#,
                        "obj/devicetree_linux_one.dtb-lnx1_dtb.pad.ref");
-      Generate_Padded ("obj/Image_linux_one.bin",
-                       16#006d_c808#, 16#006d_d000#,
-                       "obj/Image_linux_one.bin-lnx1_binary.pad.ref");
       Generate_Padded ("obj/rootfs_linux_one.cpio.gz",
                        16#01e1_043e#, 16#0200_0000#,
                        "obj/rootfs_linux_one.cpio.gz-lnx1_rootfs.pad.ref");
@@ -155,12 +152,17 @@ package body DS.Generator.Test_Data is
       Generate_Padded ("obj/devicetree_linux_two.dtb",
                        16#1049#, 16#0004_0000#,
                        "obj/devicetree_linux_two.dtb-lnx2_dtb.pad.ref");
-      Generate_Padded ("obj/Image_linux_two.bin",
-                       16#006d_c801#, 16#006d_d000#,
-                       "obj/Image_linux_two.bin-lnx2_binary.pad.ref");
       Generate_Padded ("obj/rootfs_linux_two.cpio.gz",
                        16#01e1_0431#, 16#0200_0000#,
                        "obj/rootfs_linux_two.cpio.gz-lnx2_rootfs.pad.ref");
+
+      --  This file is used in two regions of different size, i.e. different
+      --  padding necessary.
+      Generate_File ("obj/Image_linux.bin", 16#006d_c808#);
+      Pad_File ("obj/Image_linux.bin", 16#006d_d000#,
+                "obj/Image_linux.bin-lnx1_binary.pad.ref");
+      Pad_File ("obj/Image_linux.bin", 16#006d_e000#,
+                "obj/Image_linux.bin-lnx2_binary.pad.ref");
 
       --  Fill patterns.
       Generate_File ("obj/kernel_stack_0.fill.ref", 16#0002_0000#, True);
