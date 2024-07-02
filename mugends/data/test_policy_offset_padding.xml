@@ -157,7 +157,7 @@
  <memory alignment="16#1000#" caching="WB" name="kernel_global_rodata" physicalAddress="16#0008_0000#" size="16#0001_0000#" type="kernel_binary">
   <file filename="kernel.bin" offset="16#0008_0000#"/>
  </memory>
- <!-- This is not actually mapped, but a part file is extracted from it, and due to the size with padding -->
+ <!-- This is usually not mapped but part of the file. Due to the size padding is required -->
  <memory alignment="16#1000#" caching="WB" name="kernel_stack" physicalAddress="16#0009_0000#" size="16#0003_0000#" type="kernel_binary">
   <file filename="kernel.bin" offset="16#0009_0000#"/>
  </memory>
@@ -177,7 +177,7 @@
    <memory logical="globaldata" physical="kernel_global_data" virtualAddress="16#0007_4000#" writable="true" executable="false"/>
    <!--  This section must be writable for now  -->
    <memory logical="globalrodata" physical="kernel_global_rodata" virtualAddress="16#0008_0000#" writable="false" executable="false"/>
-   <memory logical="stack" physical="kernel_stack_0" virtualAddress="16#0009_0000#" writable="true" executable="false"/>
+   <memory logical="stack" physical="kernel_stack" virtualAddress="16#0009_0000#" writable="true" executable="false"/>
    <memory logical="interrupt_stack" physical="kernel_interrupt_stack_0" virtualAddress="16#003f_f000#" writable="true" executable="false"/>
    <memory logical="crash_audit" physical="crash_audit" virtualAddress="16#0040_0000#" writable="true" executable="false"/>
   </cpu>

@@ -2,28 +2,36 @@ echo "Loading files from TFTP"
 tftpboot 0x0 kernel.bin-kernel_text.part
 tftpboot 0x58000 kernel.bin-kernel_ro.part
 tftpboot 0x70000 kernel.bin-kernel_data_0.part
-tftpboot 0x72000 kernel_bss_0.fill
+mw 0x72000 0x0 0x2000
 tftpboot 0x74000 kernel.bin-kernel_global_data.part
 tftpboot 0x80000 kernel.bin-kernel_global_rodata.part
-tftpboot 0xc0000 kernel_stack_0.fill
-tftpboot 0xe0000 kernel_stack_1.fill
+mw 0xc0000 0x0 0x20000
+mw 0xe0000 0x0 0x20000
 tftpboot 0x100000 xilinxzcu104-core-0.pt
 tftpboot 0x110000 xilinxzcu104-core-1.pt
 tftpboot 0x200000 xilinxzcu104-lnx1.pt
 tftpboot 0x210000 xilinxzcu104-string_reverser.pt
 tftpboot 0x220000 xilinxzcu104-lnx2.pt
 tftpboot 0x230000 xilinxzcu104-caesar_cipher.pt
-tftpboot 0x3ff000 kernel_interrupt_stack_0.fill
-tftpboot 0x4000000 subject_one.bin-string_reverser_binary.pad
-tftpboot 0x5000000 subject_two.bin-caesar_cipher_binary.pad
-tftpboot 0x20000000 lnx1_lowmem.fill
-tftpboot 0x20040000 devicetree_linux_one.dtb-lnx1_dtb.pad
-tftpboot 0x20080000 Image_linux_one.bin-lnx1_binary.pad
-tftpboot 0x4b000000 rootfs_linux_one.cpio.gz-lnx1_rootfs.pad
-tftpboot 0x50000000 lnx2_lowmem.fill
-tftpboot 0x50040000 devicetree_linux_two.dtb-lnx2_dtb.pad
-tftpboot 0x50080000 Image_linux_two.bin-lnx2_binary.pad
-tftpboot 0x7b000000 rootfs_linux_two.cpio.gz-lnx2_rootfs.pad
+mw 0x3ff000 0x0 0x1000
+tftpboot 0x4000000 subject_one.bin
+mw 0x4020000 0x0 0x20000
+tftpboot 0x5000000 subject_two.bin
+mw 0x5020001 0x0 0x1ffff
+mw 0x20000000 0x0 0x40000
+tftpboot 0x20040000 devicetree_linux_one.dtb
+mw 0x20041048 0x0 0x3efb8
+tftpboot 0x20080000 Image_linux.bin
+mw 0x2075c808 0x0 0x7f8
+tftpboot 0x4b000000 rootfs_linux_one.cpio.gz
+mw 0x4ce1043e 0x0 0x1efbc2
+mw 0x50000000 0x0 0x40000
+tftpboot 0x50040000 devicetree_linux_two.dtb
+mw 0x50041049 0x0 0x3efb7
+tftpboot 0x50080000 Image_linux.bin
+mw 0x5075c808 0x0 0x17f8
+tftpboot 0x7b000000 rootfs_linux_two.cpio.gz
+mw 0x7ce10431 0x0 0x1efbcf
 
 dcache flush
 cpu 1 release 0x0

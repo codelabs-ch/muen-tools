@@ -122,9 +122,9 @@ package body DS.Generator.Test_Data.Tests is
                Filename2 => "obj/devicetree_linux_one.dtb-lnx1_dtb.pad"),
               Message   => "obj/devicetree_linux_one.dtb-lnx1_dtb.pad mismatch");
       Assert (Condition => Test_Utils.Equal_Files
-              (Filename1 => "obj/Image_linux_one.bin-lnx1_binary.pad.ref",
-               Filename2 => "obj/Image_linux_one.bin-lnx1_binary.pad"),
-              Message   => "obj/Image_linux_one.bin-lnx1_binary.pad mismatch");
+              (Filename1 => "obj/Image_linux.bin-lnx1_binary.pad.ref",
+               Filename2 => "obj/Image_linux.bin-lnx1_binary.pad"),
+              Message   => "obj/Image_linux.bin-lnx1_binary.pad mismatch");
       Assert (Condition => Test_Utils.Equal_Files
               (Filename1 => "obj/rootfs_linux_one.cpio.gz-lnx1_rootfs.pad.ref",
                Filename2 => "obj/rootfs_linux_one.cpio.gz-lnx1_rootfs.pad"),
@@ -139,9 +139,9 @@ package body DS.Generator.Test_Data.Tests is
                Filename2 => "obj/devicetree_linux_two.dtb-lnx2_dtb.pad"),
               Message   => "obj/devicetree_linux_two.dtb-lnx2_dtb.pad mismatch");
       Assert (Condition => Test_Utils.Equal_Files
-              (Filename1 => "obj/Image_linux_two.bin-lnx2_binary.pad.ref",
-               Filename2 => "obj/Image_linux_two.bin-lnx2_binary.pad"),
-              Message   => "obj/Image_linux_two.bin-lnx2_binary.pad mismatch");
+              (Filename1 => "obj/Image_linux.bin-lnx2_binary.pad.ref",
+               Filename2 => "obj/Image_linux.bin-lnx2_binary.pad"),
+              Message   => "obj/Image_linux.bin-lnx2_binary.pad mismatch");
       Assert (Condition => Test_Utils.Equal_Files
               (Filename1 => "obj/rootfs_linux_two.cpio.gz-lnx2_rootfs.pad.ref",
                Filename2 => "obj/rootfs_linux_two.cpio.gz-lnx2_rootfs.pad"),
@@ -182,9 +182,26 @@ package body DS.Generator.Test_Data.Tests is
              Policy     => Policy);
 
       Assert (Condition => Test_Utils.Equal_Files
-              (Filename1 => "obj/kernel.bin-kernel_stack.part.ref",
-               Filename2 => "obj/kernel.bin-kernel_stack.part"),
-              Message   => "obj/kernel.bin-kernel_stack.part mismatch");
+              (Filename1 => "data/bootgen_config_offset_padding.ref",
+               Filename2 => "obj/bootgen.config"),
+              Message   => "bootgen.config mismatch");
+      Assert (Condition => Test_Utils.Equal_Files
+              (Filename1 => "data/bootscript_cmd_offset_padding.ref",
+               Filename2 => "obj/bootscript.cmd"),
+              Message   => "bootscript.cmd mismatch");
+      Assert (Condition => Test_Utils.Equal_Files
+              (Filename1 => "data/gdbinit_config_offset_padding.ref",
+               Filename2 => "obj/gdbinit.config"),
+              Message   => "gdbinit.config mismatch");
+      Assert (Condition => Test_Utils.Equal_Files
+              (Filename1 => "data/xsct_cmd_offset_padding.ref",
+               Filename2 => "obj/xsct.cmd"),
+              Message   => "xsct.cmd mismatch");
+
+      Assert (Condition => Test_Utils.Equal_Files
+              (Filename1 => "obj/kernel.bin-kernel_stack.part.pad.ref",
+               Filename2 => "obj/kernel.bin-kernel_stack.part.pad"),
+              Message   => "obj/kernel.bin-kernel_stack.part.pad mismatch");
 
       --  Test error case: Offset larger than file
       Muxml.Parse (Data => Policy,

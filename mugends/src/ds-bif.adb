@@ -1,5 +1,5 @@
 --
---  Copyright (C) 2023  Tobias Brunner <tobias@codelabs.ch>
+--  Copyright (C) 2023-2024  Tobias Brunner <tobias@codelabs.ch>
 --
 --  This program is free software: you can redistribute it and/or modify
 --  it under the terms of the GNU General Public License as published by
@@ -79,12 +79,16 @@ package body DS.BIF is
          -- Kernel text image is already loaded above.
          if not F.Kernel then
             declare
+               Filename : constant Unbounded_String
+                 := (if F.Filename_Padded /= Null_Unbounded_String then
+                       F.Filename_Padded else F.Filename);
+
                Template : Mutools.Templates.Template_Type
                  := Mutools.Templates.Create
                    (Content => String_Templates.bootgen_entry_dsl);
             begin
                Mulog.Log (Msg => "Write load instruction for '"
-                                  & To_String (F.Filename) & "' at "
+                                  & To_String (Filename) & "' at "
                                   & Mutools.Utils.To_Hex (Number => F.Address)
                                   & " to '" & Output_File & "'");
 
@@ -97,7 +101,7 @@ package body DS.BIF is
                Mutools.Templates.Replace
                  (Template => Template,
                   Pattern  => "__file__",
-                  Content  => To_String (F.Filename));
+                  Content  => To_String (Filename));
 
                Append
                  (Source   => Entries,

@@ -1,5 +1,5 @@
 --
---  Copyright (C) 2023  Tobias Brunner <tobias@codelabs.ch>
+--  Copyright (C) 2023-2024  Tobias Brunner <tobias@codelabs.ch>
 --
 --  This program is free software: you can redistribute it and/or modify
 --  it under the terms of the GNU General Public License as published by
@@ -24,11 +24,18 @@ with Interfaces;
 package DS
 is
 
+   --  Backends can use either the already padded file in Filename_Padded or
+   --  the padding information to implement their own padding.
+   --  For fill patterns, Filename is set to Null_Unbounded_String.
    type Loadable_File is record
-      Physical : Ada.Strings.Unbounded.Unbounded_String;
-      Filename : Ada.Strings.Unbounded.Unbounded_String;
-      Address  : Interfaces.Unsigned_64;
-      Kernel   : Boolean;
+      Physical        : Ada.Strings.Unbounded.Unbounded_String;
+      Filename        : Ada.Strings.Unbounded.Unbounded_String;
+      Address         : Interfaces.Unsigned_64;
+      Kernel          : Boolean;
+      Filename_Padded : Ada.Strings.Unbounded.Unbounded_String;
+      Padding_Address : Interfaces.Unsigned_64;
+      Padding_Length  : Interfaces.Unsigned_64;
+      Padding_Pattern : Interfaces.Unsigned_8;
    end record;
 
    function "<"

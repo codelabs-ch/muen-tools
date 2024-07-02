@@ -1,5 +1,5 @@
 --
---  Copyright (C) 2023  Tobias Brunner <tobias@codelabs.ch>
+--  Copyright (C) 2023-2024  Tobias Brunner <tobias@codelabs.ch>
 --
 --  This program is free software: you can redistribute it and/or modify
 --  it under the terms of the GNU General Public License as published by
@@ -32,6 +32,8 @@ package body DS.UBOOT is
       Files      : File_Vector_Package.Vector;
       Output_Dir : String)
    is
+      use type Interfaces.Unsigned_64;
+
       Output_File : constant String
         := Output_Dir & "/bootscript.cmd";
 
@@ -42,29 +44,84 @@ package body DS.UBOOT is
    begin
       for F of Files loop
          declare
-            Template : Mutools.Templates.Template_Type
+            Template_Load  : Mutools.Templates.Template_Type
               := Mutools.Templates.Create
                 (Content => String_Templates.bootscript_entry_dsl);
+            Template_Write : Mutools.Templates.Template_Type
+              := Mutools.Templates.Create
+                (Content => String_Templates.bootscript_entry_mw_dsl);
          begin
-            Mulog.Log (Msg => "Write TFTP load instruction for '"
-                               & To_String (F.Filename) & "' at "
-                               & Mutools.Utils.To_Hex (Number => F.Address)
-                               & " to '" & Output_File & "'");
+            if F.Filename /= Null_Unbounded_String then
+               Mulog.Log (Msg => "Write TFTP load instruction for '"
+                                  & To_String (F.Filename) & "' at "
+                                  & Mutools.Utils.To_Hex (Number => F.Address)
+                                  & " to '" & Output_File & "'");
 
-            Mutools.Templates.Replace
-              (Template => Template,
-               Pattern  => "__addr__",
-               Content  => Mutools.Utils.To_Hex
-                  (Number => F.Address,
-                   Normalize  => False));
-            Mutools.Templates.Replace
-              (Template => Template,
-               Pattern  => "__file__",
-               Content  => To_String (F.Filename));
+               Mutools.Templates.Replace
+                 (Template => Template_Load,
+                  Pattern  => "__addr__",
+                  Content  => Mutools.Utils.To_Hex
+                     (Number => F.Address,
+                      Normalize  => False));
+               Mutools.Templates.Replace
+                 (Template => Template_Load,
+                  Pattern  => "__file__",
+                  Content  => To_String (F.Filename));
 
-            Append
-              (Source   => Entries,
-               New_Item => Mutools.Templates.To_String (Template => Template));
+               Append
+                 (Source   => Entries,
+                  New_Item => Mutools.Templates.To_String
+                    (Template => Template_Load));
+            end if;
+
+            if F.Padding_Length > 0 then
+               if F.Filename /= Null_Unbounded_String then
+                  Mulog.Log (Msg => "Write mw instruction to pad '"
+                                     & To_String (F.Filename) & "' with "
+                                     & Mutools.Utils.To_Hex
+                                       (Number => F.Padding_Length)
+                                     & " bytes at "
+                                     & Mutools.Utils.To_Hex
+                                       (Number => F.Padding_Address)
+                                     & " to '" & Output_File & "'");
+               else
+                  Mulog.Log (Msg => "Write mw instruction to fill "
+                                     & Mutools.Utils.To_Hex
+                                       (Number => F.Padding_Length)
+                                     & " bytes at "
+                                     & Mutools.Utils.To_Hex
+                                       (Number => F.Padding_Address)
+                                     & " with "
+                                     & Mutools.Utils.To_Hex
+                                       (Number => Interfaces.Unsigned_64
+                                         (F.Padding_Pattern))
+                                     & " to '" & Output_File & "'");
+               end if;
+
+               Mutools.Templates.Replace
+                 (Template => Template_Write,
+                  Pattern  => "__addr__",
+                  Content  => Mutools.Utils.To_Hex
+                     (Number => F.Padding_Address,
+                      Normalize  => False));
+               Mutools.Templates.Replace
+                 (Template => Template_Write,
+                  Pattern  => "__pattern__",
+                  Content  => Mutools.Utils.To_Hex
+                     (Number => Interfaces.Unsigned_64 (F.Padding_Pattern),
+                      Normalize  => False));
+               Mutools.Templates.Replace
+                 (Template => Template_Write,
+                  Pattern  => "__size__",
+                  Content  => Mutools.Utils.To_Hex
+                     (Number => F.Padding_Length,
+                      Normalize  => False));
+
+               Append
+                 (Source   => Entries,
+                  New_Item => Mutools.Templates.To_String
+                    (Template => Template_Write));
+            end if;
          end;
       end loop;
 

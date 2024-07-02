@@ -194,7 +194,7 @@
   <file filename="devicetree_linux_one.dtb" offset="none"/>
  </memory>
  <memory alignment="16#1000#" caching="WB" name="lnx1|binary" physicalAddress="16#2008_0000#" size="16#006d_d000#" type="subject_binary">
-  <file filename="Image_linux_one.bin" offset="none"/>
+  <file filename="Image_linux.bin" offset="none"/>
  </memory>
  <memory alignment="16#1000#" caching="WB" name="lnx1|ram" physicalAddress="16#2075_d000#" size="16#2a8a_3000#" type="subject"/>
  <memory alignment="16#1000#" caching="WB" name="lnx1|rootfs" physicalAddress="16#4b00_0000#" size="16#0200_0000#" type="subject_initrd">
@@ -213,8 +213,8 @@
  <memory alignment="16#1000#" caching="WB" name="lnx2|dtb" physicalAddress="16#5004_0000#" size="16#0004_0000#" type="subject_devicetree">
   <file filename="devicetree_linux_two.dtb" offset="none"/>
  </memory>
- <memory alignment="16#1000#" caching="WB" name="lnx2|binary" physicalAddress="16#5008_0000#" size="16#006d_d000#" type="subject_binary">
-  <file filename="Image_linux_two.bin" offset="none"/>
+ <memory alignment="16#1000#" caching="WB" name="lnx2|binary" physicalAddress="16#5008_0000#" size="16#006d_e000#" type="subject_binary">
+  <file filename="Image_linux.bin" offset="none"/>
  </memory>
  <memory alignment="16#1000#" caching="WB" name="lnx2|ram" physicalAddress="16#5075_d000#" size="16#2a8a_3000#" type="subject"/>
  <memory alignment="16#1000#" caching="WB" name="lnx2|rootfs" physicalAddress="16#7b00_0000#" size="16#0200_0000#" type="subject_initrd">

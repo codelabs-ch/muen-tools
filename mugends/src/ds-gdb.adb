@@ -1,5 +1,5 @@
 --
---  Copyright (C) 2023  Tobias Brunner <tobias@codelabs.ch>
+--  Copyright (C) 2023-2024  Tobias Brunner <tobias@codelabs.ch>
 --
 --  This program is free software: you can redistribute it and/or modify
 --  it under the terms of the GNU General Public License as published by
@@ -40,15 +40,19 @@ package body DS.GDB is
           (Content => String_Templates.gdbinit_config_dsl);
       Entries     : Unbounded_String;
    begin
-      -- Restore the files in decreasing address order
+      --  Restore the files in decreasing address order.
       for F of reverse Files loop
          declare
+            Filename : constant Unbounded_String
+              := (if F.Filename_Padded /= Null_Unbounded_String then
+                    F.Filename_Padded else F.Filename);
+
             Template : Mutools.Templates.Template_Type
               := Mutools.Templates.Create
                 (Content => String_Templates.gdbinit_entry_dsl);
          begin
             Mulog.Log (Msg => "Write restore instruction for '"
-                               & To_String (F.Filename) & "' at "
+                               & To_String (Filename) & "' at "
                                & Mutools.Utils.To_Hex (Number => F.Address)
                                & " to '" & Output_File & "'");
 
@@ -61,7 +65,7 @@ package body DS.GDB is
             Mutools.Templates.Replace
               (Template => Template,
                Pattern  => "__file__",
-               Content  => To_String (F.Filename));
+               Content  => To_String (Filename));
 
             Append
               (Source   => Entries,
@@ -69,7 +73,7 @@ package body DS.GDB is
          end;
       end loop;
 
-      -- Configure threads in GDB in decreasing order
+      --  Configure threads in GDB in decreasing order.
       for CPU in reverse CPUs.Iterate loop
          declare
             ID        : constant Natural := CPU_Kernel_Map_Package.Key (CPU);

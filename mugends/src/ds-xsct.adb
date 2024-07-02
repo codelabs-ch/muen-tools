@@ -1,5 +1,5 @@
 --
---  Copyright (C) 2023  Tobias Brunner <tobias@codelabs.ch>
+--  Copyright (C) 2023-2024  Tobias Brunner <tobias@codelabs.ch>
 --
 --  This program is free software: you can redistribute it and/or modify
 --  it under the terms of the GNU General Public License as published by
@@ -48,7 +48,7 @@ package body DS.XSCT is
               := Mutools.Templates.Create
                 (Content => String_Templates.xsct_entry_kernel_dsl);
          begin
-            -- CPU 0 runs FSBL and is reset implicitly
+            --  CPU 0 runs FSBL and is reset implicitly.
             if ID > 0 then
                Mulog.Log (Msg => "Write reset instruction for CPU" & ID'Img
                                   & " to '" & Output_File & "'");
@@ -67,12 +67,16 @@ package body DS.XSCT is
 
       for F of Files loop
          declare
+            Filename : constant Unbounded_String
+                 := (if F.Filename_Padded /= Null_Unbounded_String then
+                       F.Filename_Padded else F.Filename);
+
             Template : Mutools.Templates.Template_Type
               := Mutools.Templates.Create
                 (Content => String_Templates.xsct_entry_dsl);
          begin
             Mulog.Log (Msg => "Write load instruction for '"
-                               & To_String (F.Filename) & "' at "
+                               & To_String (Filename) & "' at "
                                & Mutools.Utils.To_Hex (Number => F.Address)
                                & " to '" & Output_File & "'");
 
@@ -85,11 +89,12 @@ package body DS.XSCT is
             Mutools.Templates.Replace
               (Template => Template,
                Pattern  => "__file__",
-               Content  => To_String (F.Filename));
+               Content  => To_String (Filename));
 
             Append
               (Source   => Entries,
-               New_Item => Mutools.Templates.To_String (Template => Template));
+               New_Item => Mutools.Templates.To_String
+                 (Template => Template));
          end;
       end loop;
 

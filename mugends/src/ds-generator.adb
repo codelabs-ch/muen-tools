@@ -18,7 +18,6 @@
 with Ada.Containers.Indefinite_Hashed_Maps;
 with Ada.Containers.Ordered_Sets;
 with Ada.Directories;
-with Ada.Sequential_IO;
 with Ada.Streams.Stream_IO;
 with Ada.Strings.Maps.Constants;
 with Ada.Strings.Unbounded;
@@ -46,6 +45,10 @@ is
 
    use Ada.Strings.Unbounded;
 
+   --  Type used for internal buffers when copying files.
+   subtype Buffer_Range_Type is Ada.Streams.Stream_Element_Offset
+     range 1 .. 2048;
+
    package File_Map_Package is new Ada.Containers.Indefinite_Hashed_Maps
      (Key_Type        => Unbounded_String,
       Element_Type    => Loadable_File,
@@ -55,18 +58,19 @@ is
    package String_Sets_Package is new Ada.Containers.Ordered_Sets
      (Element_Type => Unbounded_String);
 
-   --  Generate a file that contains the pattern repeated size times.
-   procedure Create_Fill_File
-      (Filename : String;
-       Size     : Interfaces.Unsigned_64;
-       Pattern  : Interfaces.Unsigned_8);
-
-   --  Extract a part of a given file and/or pad it to a specific size.
-   procedure Extract_And_Pad
-      (Source : String;
-       Target : String;
+   --  Extract a part of a given file.
+   procedure Extract_File
+      (Source : Unbounded_String;
+       Target : Unbounded_String;
        Offset : Interfaces.Unsigned_64;
        Size   : Interfaces.Unsigned_64);
+
+   --  Pad an (optional) file with the given number of bytes of padding pattern.
+   procedure Pad_File
+      (Source  : Unbounded_String;
+       Target  : Unbounded_String;
+       Length  : Interfaces.Unsigned_64;
+       Pattern : Interfaces.Unsigned_8);
 
    --  Register the files referenced by the given memory and page table nodes.
    procedure Register_Files
@@ -77,33 +81,11 @@ is
        Used_Memory        : in out String_Sets_Package.Set;
        Kernels            : in out CPU_Kernel_Map_Package.Map);
 
-   ------------------------------------------------------------------------
-
-   procedure Create_Fill_File
-      (Filename : String;
-       Size     : Interfaces.Unsigned_64;
-       Pattern  : Interfaces.Unsigned_8)
-   is
-      type Fill_Type is array (1 .. Size) of Interfaces.Unsigned_8;
-      package SIO is new Ada.Sequential_IO
-         (Element_Type => Fill_Type);
-
-      Fill : constant Fill_Type
-         := (others => Pattern);
-      FD   : SIO.File_Type;
-   begin
-      SIO.Create (File => FD,
-                  Name => Filename);
-      SIO.Write (File => FD,
-                 Item => Fill);
-      SIO.Close (File => FD);
-   end Create_Fill_File;
-
    -------------------------------------------------------------------------
 
-   procedure Extract_And_Pad
-      (Source : String;
-       Target : String;
+   procedure Extract_File
+      (Source : Unbounded_String;
+       Target : Unbounded_String;
        Offset : Interfaces.Unsigned_64;
        Size   : Interfaces.Unsigned_64)
    is
@@ -116,74 +98,71 @@ is
 
       In_FD       : File_Type;
       Out_FD      : File_Type;
-      Source_Size : Stream_IO.Count;
       Written     : Stream_Element_Offset := 0;
       Buffer      : Stream_Element_Array (Buffer_Range_Type);
       Last        : Stream_Element_Offset;
-
-      --  Write the data in the given buffer to the target file, adjusting
-      --  the total bytes written and returning true if all necessary data
-      --  has been written.
-      function Write_Buffer
-         (Buf : Stream_Element_Array)
-         return Boolean;
-
-      ----------------------------------------------------------------------
-
-      function Write_Buffer
-         (Buf : Stream_Element_Array)
-         return Boolean
-      is
-      begin
-         Last := Stream_Element_Offset'Min
-            (Last, Stream_Element_Offset (Size) - Written);
-         Write (File => Out_FD, Item => Buf (1 .. Last));
-         Written := Written + Last;
-         return Written = Stream_Element_Offset (Size) or Last < Buf'Last;
-      end Write_Buffer;
    begin
-      Open (File => In_FD, Mode => In_File, Name => Source);
-      Source_Size := Stream_IO.Size (File => In_FD);
-
-      if Offset = 0 and Source_Size < Stream_IO.Count (Size) then
-         Mulog.Log (Msg => "Pad '" & Source & "' from "
-                            & Mutools.Utils.To_Hex (Number =>
-                               Interfaces.Unsigned_64 (Source_Size))
-                            & " to "
-                            & Mutools.Utils.To_Hex (Number => Size)
-                            & " to '" & Target & "'");
-      else
-         Mulog.Log (Msg => "Extracting part of '" & Source & "' at offset "
-                            & Mutools.Utils.To_Hex (Number => Offset)
-                            & " with size "
-                            & Mutools.Utils.To_Hex (Number => Size)
-                            & " to '" & Target & "'");
-      end if;
-
+      Open (File => In_FD, Mode => In_File, Name => To_String (Source));
       Set_Index (File => In_FD,
                  To   => Stream_IO.Count (Offset) + 1);
-      Create (File => Out_FD, Mode => Out_File, Name => Target);
+      Create (File => Out_FD, Mode => Out_File, Name => To_String (Target));
       loop
-         Read (File => In_FD,
-               Item => Buffer,
-               Last => Last);
-         exit when Write_Buffer (Buffer);
+         Read (File => In_FD, Item => Buffer, Last => Last);
+         Last := Stream_Element_Offset'Min
+           (Last, Stream_Element_Offset (Size) - Written);
+         Write (File => Out_FD, Item => Buffer (1 .. Last));
+         Written := Written + Last;
+         exit when Written = Stream_Element_Offset (Size) or Last < Buffer'Last;
       end loop;
+      Close (File => Out_FD);
       Close (File => In_FD);
+   end Extract_File;
 
-      if Written < Stream_Element_Offset (Size) then
+   -------------------------------------------------------------------------
+
+   procedure Pad_File
+      (Source  : Unbounded_String;
+       Target  : Unbounded_String;
+       Length  : Interfaces.Unsigned_64;
+       Pattern : Interfaces.Unsigned_8)
+   is
+      use Ada.Streams;
+      use Ada.Streams.Stream_IO;
+
+      use type Interfaces.Unsigned_64;
+
+      Out_FD      : File_Type;
+      Written     : Stream_Element_Offset := 0;
+      Last        : Stream_Element_Offset;
+      Padding     : constant Stream_Element_Array (Buffer_Range_Type)
+        := (others => Stream_Element (Pattern));
+   begin
+      Create (File => Out_FD, Mode => Out_File, Name => To_String (Target));
+
+      if Source /= "" then
          declare
-            Padding : constant Stream_Element_Array (Buffer_Range_Type)
-              := (others => 0);
+            In_FD  : File_Type;
+            Buffer : Stream_Element_Array (Buffer_Range_Type);
          begin
-            Last := Padding'Last;
+            Open (File => In_FD, Mode => In_File, Name => To_String (Source));
             loop
-               exit when Write_Buffer (Padding);
+               Read (File => In_FD, Item => Buffer, Last => Last);
+               Write (File => Out_FD, Item => Buffer (1 .. Last));
+               exit when Last < Buffer'Last;
             end loop;
+            Close (File => In_FD);
          end;
       end if;
+
+      loop
+         Last := Stream_Element_Offset'Min
+            (Padding'Last, Stream_Element_Offset (Length) - Written);
+         Write (File => Out_FD, Item => Padding (1 .. Last));
+         Written := Written + Last;
+         exit when Written = Stream_Element_Offset (Length);
+      end loop;
       Close (File => Out_FD);
-   end Extract_And_Pad;
+   end Pad_File;
 
    -------------------------------------------------------------------------
 
@@ -215,7 +194,8 @@ is
                File     : constant Loadable_File
                  := File_Backed_Memory (Physical);
                Filename : constant Unbounded_String
-                 := File.Filename;
+                 := (if File.Filename /= Null_Unbounded_String then
+                       File.Filename else File.Filename_Padded);
             begin
                Mulog.Log (Msg => "  memory '" & To_String (Virtual)
                                   & "' is backed by '" & To_String (Physical)
@@ -300,24 +280,18 @@ is
               := To_Unbounded_String (DOM.Core.Elements.Get_Attribute
                 (Elem => File_Node,
                  Name => "filename"));
-            Path       : constant String
-              := Output_Dir & "/" & To_String (Filename);
-            File_Size  : constant Interfaces.Unsigned_64
-              := Interfaces.Unsigned_64 (Ada.Directories.Size (Path));
-            Pad_Name   : constant Unbounded_String
-              := Filename & "-" &
-                Translate (To_Unbounded_String (Mutools.Utils.To_Ada_Identifier
-                (Str => To_String (Name))),
-                  Ada.Strings.Maps.Constants.Lower_Case_Map) & ".pad";
-            Pad_Path   : constant String
-              := Output_Dir & "/" & To_String (Pad_Name);
+            Path       : Unbounded_String
+              := Output_Dir & "/" & Filename;
+            File_Size  : Interfaces.Unsigned_64
+              := Interfaces.Unsigned_64
+                (Ada.Directories.Size (To_String (Path)));
             Split_Name : constant Unbounded_String
               := Filename & "-" &
                 Translate (To_Unbounded_String (Mutools.Utils.To_Ada_Identifier
                 (Str => To_String (Name))),
                   Ada.Strings.Maps.Constants.Lower_Case_Map) & ".part";
-            Split_Path : constant String
-              := Output_Dir & "/" & To_String (Split_Name);
+            Split_Path : constant Unbounded_String
+              := Output_Dir & "/" & Split_Name;
             Address    : constant Interfaces.Unsigned_64
               := Interfaces.Unsigned_64'Value
                 (DOM.Core.Elements.Get_Attribute
@@ -343,44 +317,83 @@ is
                   Filename => Filename,
                   Address  => Address,
                   Kernel   => Kind in Mutools.Types.Kernel_Binary and then
-                              Name = "kernel_text");
+                              Name = "kernel_text",
+                  Filename_Padded => Null_Unbounded_String,
+                  Padding_Address => 0,
+                  Padding_Length  => 0,
+                  Padding_Pattern => 0);
          begin
-            Mulog.Log (Msg => "Found file-backed memory '"
+            Mulog.Log (Msg => "Found memory '"
                                & To_String (Name) & "' at "
                                & Mutools.Utils.To_Hex (Number => Address)
-                               & " with file '"
+                               & " of size "
+                               & Mutools.Utils.To_Hex (Number => Size)
+                               & " backed by '"
                                & To_String (Filename) & "'");
 
-            if Offset_Str = "none" then
-               if File_Size > Size then
-                  raise Generator_Error with "File '" & Path & "' is too large "
-                     & "for physical memory region '" & To_String (Name) & "': "
-                     & Mutools.Utils.To_Hex (Number => File_Size) & " > "
-                     & Mutools.Utils.To_Hex (Number => Size);
-               elsif File_Size < Size then
-                  Extract_And_Pad
-                     (Source => Path,
-                      Target => Pad_Path,
-                      Offset => 0,
-                      Size   => Size);
-                  File.Filename := Pad_Name;
-               end if;
-            else
+            if Offset_Str /= "none" then
                Offset := Interfaces.Unsigned_64'Value (Offset_Str);
                if Offset > File_Size then
-                  raise Generator_Error with "Offset into file '" & Path
+                  raise Generator_Error with "Offset into file '"
+                     & To_String (Path)
                      & "' referenced by physical memory region '"
                      & To_String (Name)
                      & "' is larger than file size: "
                      & Mutools.Utils.To_Hex (Number => Offset) & " > "
                      & Mutools.Utils.To_Hex (Number => File_Size);
                end if;
-               Extract_And_Pad
-                  (Source => Path,
-                   Target => Split_Path,
-                   Offset => Offset,
-                   Size   => Size);
+               Mulog.Log (Msg => "  extract at most "
+                                  & Mutools.Utils.To_Hex (Number => Size)
+                                  & " bytes of '"
+                                  & To_String (Path)
+                                  & "' from offset "
+                                  & Mutools.Utils.To_Hex (Number => Offset)
+                                  & " to '" & To_String (Split_Path) & "'");
+               Extract_File (Source => Path,
+                             Target => Split_Path,
+                             Offset => Offset,
+                             Size   => Size);
                File.Filename := Split_Name;
+               Path          := Split_Path;
+               File_Size     := Interfaces.Unsigned_64
+                 (Ada.Directories.Size (To_String (Path)));
+            elsif File_Size > Size then
+               raise Generator_Error with "File '" & To_String (Path)
+                  & "' is too large for physical memory region '"
+                  & To_String (Name) & "': "
+                  & Mutools.Utils.To_Hex (Number => File_Size) & " > "
+                  & Mutools.Utils.To_Hex (Number => Size);
+            end if;
+
+            if File_Size < Size then
+               declare
+                  Pad_Name : constant Unbounded_String
+                    := Filename & "-" &
+                      Translate
+                      (To_Unbounded_String (Mutools.Utils.To_Ada_Identifier
+                        (Str => To_String (Name))),
+                          Ada.Strings.Maps.Constants.Lower_Case_Map)
+                       & (if Offset_Str /= "none" then ".part" else "")
+                       & ".pad";
+                  Pad_Path : constant Unbounded_String
+                    := Output_Dir & "/" & Pad_Name;
+               begin
+                  File.Filename_Padded := Pad_Name;
+                  File.Padding_Address := Address + File_Size;
+                  File.Padding_Length  := Size - File_Size;
+                  File.Padding_Pattern := 0;
+                  Mulog.Log (Msg => "  pad '"
+                                     & To_String (Path)
+                                     & "' with "
+                                     & Mutools.Utils.To_Hex (Number =>
+                                        File.Padding_Length)
+                                     & " bytes to '"
+                                     & To_String (Pad_Path) & "'");
+                  Pad_File (Source  => Path,
+                            Target  => Pad_Path,
+                            Length  => File.Padding_Length,
+                            Pattern => File.Padding_Pattern);
+               end;
             end if;
 
             File_Backed_Memory.Include (Name, File);
@@ -402,8 +415,8 @@ is
               := Translate (To_Unbounded_String (Mutools.Utils.To_Ada_Identifier
                 (Str => To_String (Name))),
                   Ada.Strings.Maps.Constants.Lower_Case_Map) & ".fill";
-            Path      : constant String
-              := Output_Dir & "/" & To_String (Filename);
+            Path      : constant Unbounded_String
+              := Output_Dir & "/" & Filename;
             Address   : constant Interfaces.Unsigned_64
               := Interfaces.Unsigned_64'Value
                 (DOM.Core.Elements.Get_Attribute
@@ -421,14 +434,15 @@ is
                     XPath => "fill",
                     Name  => "pattern"));
             File      : constant Loadable_File
-              := (Physical => Name,
-                  Filename => Filename,
-                  Address  => Address,
-                  Kernel   => False);
+              := (Physical        => Name,
+                  Filename        => Ada.Strings.Unbounded.Null_Unbounded_String,
+                  Address         => Address,
+                  Kernel          => False,
+                  Filename_Padded => Filename,
+                  Padding_Address => Address,
+                  Padding_Length  => Size,
+                  Padding_Pattern => Pattern);
          begin
-            -- Generate a file with the given size and pattern and ..
-            Create_Fill_File (Path, Size, Pattern);
-
             Mulog.Log (Msg => "Found filled memory '"
                       & To_String (Name) & "' at "
                       & Mutools.Utils.To_Hex (Number => Address)
@@ -437,8 +451,14 @@ is
                       & " with pattern "
                       & Mutools.Utils.To_Hex
                         (Number => Interfaces.Unsigned_64 (Pattern))
-                      & " written to "
-                      & Path);
+                      & " written to '"
+                      & To_String (Path) & "'");
+
+            -- Generate a file with the given size and pattern and ..
+            Pad_File (Source  => Null_Unbounded_String,
+                      Target  => Path,
+                      Length  => File.Padding_Length,
+                      Pattern => File.Padding_Pattern);
 
             -- ... treat this node like a file-backed memory region.
             File_Backed_Memory.Include (Name, File);
