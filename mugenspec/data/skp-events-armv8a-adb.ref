@@ -34,7 +34,50 @@ is
 
    Subject_Events : constant Subjects_Events_Array
      := Subjects_Events_Array'(
-__events__);
+      0 => Subject_Events_Type'(
+       Source_Traps  => Trap_Table_Type'(
+         others => (
+            Source_Action  => System_Panic,
+            Target_Subject => Invalid_Subject,
+            Target_Event   => Invalid_Target_Event,
+            Handover       => False,
+            Send_IPI       => False,
+            IRQ_Number     => 0)),
+       Source_Events => Null_Source_Event_Table,
+       Target_Events => Null_Target_Event_Table),
+      1 => Subject_Events_Type'(
+       Source_Traps  => Trap_Table_Type'(
+         others => (
+            Source_Action  => System_Panic,
+            Target_Subject => Invalid_Subject,
+            Target_Event   => Invalid_Target_Event,
+            Handover       => False,
+            Send_IPI       => False,
+            IRQ_Number     => 0)),
+       Source_Events => Null_Source_Event_Table,
+       Target_Events => Null_Target_Event_Table),
+      2 => Subject_Events_Type'(
+       Source_Traps  => Trap_Table_Type'(
+         others => (
+            Source_Action  => System_Panic,
+            Target_Subject => Invalid_Subject,
+            Target_Event   => Invalid_Target_Event,
+            Handover       => False,
+            Send_IPI       => False,
+            IRQ_Number     => 0)),
+       Source_Events => Null_Source_Event_Table,
+       Target_Events => Null_Target_Event_Table),
+      3 => Subject_Events_Type'(
+       Source_Traps  => Trap_Table_Type'(
+         others => (
+            Source_Action  => System_Panic,
+            Target_Subject => Invalid_Subject,
+            Target_Event   => Invalid_Target_Event,
+            Handover       => False,
+            Send_IPI       => False,
+            IRQ_Number     => 0)),
+       Source_Events => Null_Source_Event_Table,
+       Target_Events => Null_Target_Event_Table));
 
    -------------------------------------------------------------------------
 
