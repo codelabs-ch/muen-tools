@@ -29,6 +29,7 @@ with Mulog;
 with Muxml.Utils;
 with Mutools.Utils;
 with Mutools.Constants;
+with Mutools.System_Config;
 with Mutools.XML_Utils;
 with Mucfgcheck.Kernel;
 with Mucfgcheck.Subject;
@@ -615,6 +616,15 @@ is
         := McKae.XML.XPath.XIA.XPath_Query
           (N     => Data.Doc,
            XPath => "/system/hardware/devices/device");
+      Is_ARM_System : constant Boolean := Mutools.System_Config.Has_Boolean
+        (Data => Data,
+         Name => "armv8") and then
+        Mutools.System_Config.Get_Value
+          (Data => Data,
+           Name => "armv8");
+      PT_Levels : constant Natural
+        := (if Is_ARM_System then 3
+            else 4);
    begin
 
       --  Validate that there are no overlapping subject memory mappings and
@@ -636,7 +646,7 @@ is
             Size      : constant Interfaces.Unsigned_64
               := XML_Utils.Calculate_PT_Size
                 (Policy             => Data,
-                 Paging_Levels      => 4,
+                 Paging_Levels      => PT_Levels,
                  Large_Pages        => False,
                  Physical_Memory    => Physical_Mem,
                  Physical_Devices   => Physical_Devs,
