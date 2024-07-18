@@ -1,4 +1,5 @@
 --
+--  Copyright (C) 2024  Tobias Brunner <tobias@codelabs.ch>
 --  Copyright (C) 2014  Reto Buerki <reet@codelabs.ch>
 --  Copyright (C) 2014  Adrian-Ken Rueegsegger <ken@codelabs.ch>
 --
@@ -43,6 +44,11 @@ is
 
    use Ada.Strings.Unbounded;
 
+   --  Write pagetable files for each device domain as specified by the policy.
+   procedure Write_Device_Domain_Pagetable
+     (Output_Dir : String;
+      Policy     : Muxml.XML_Data_Type);
+
    --  Write pagetable files for each kernel/CPU as specified by the policy.
    procedure Write_Kernel_Pagetable
      (Output_Dir : String;
@@ -83,7 +89,81 @@ is
                               Policy     => Policy);
       Write_Subject_Pagetable (Output_Dir => Output_Dir,
                                Policy     => Policy);
+      Write_Device_Domain_Pagetable (Output_Dir => Output_Dir,
+                                     Policy     => Policy);
    end Write;
+
+   -------------------------------------------------------------------------
+
+   procedure Write_Device_Domain_Pagetable
+     (Output_Dir : String;
+      Policy     : Muxml.XML_Data_Type)
+   is
+      Phys_Mem      : constant DOM.Core.Node_List
+         := McKae.XML.XPath.XIA.XPath_Query
+        (N     => Policy.Doc,
+         XPath => "/system/memory/memory");
+      Domains       : constant DOM.Core.Node_List
+         := McKae.XML.XPath.XIA.XPath_Query
+        (N     => Policy.Doc,
+         XPath => "/system/deviceDomains/domain");
+      Is_ARM_System : constant Boolean := Mutools.System_Config.Has_Boolean
+        (Data => Policy,
+         Name => "armv8") and then
+        Mutools.System_Config.Get_Value
+          (Data => Policy,
+           Name => "armv8");
+   begin
+      --  Only necessary to generate these for ARM.
+      if not Is_ARM_System then
+         return;
+      end if;
+
+      for I in 0 .. DOM.Core.Nodes.Length (List => Domains) - 1 loop
+         declare
+            Dom_Node   : constant DOM.Core.Node
+              := DOM.Core.Nodes.Item
+                (List  => Domains,
+                 Index => I);
+            Name       : constant String := DOM.Core.Elements.Get_Attribute
+              (Elem => Dom_Node,
+               Name => "name");
+            PT_Node    : constant DOM.Core.Node
+              := Muxml.Utils.Get_Element
+                (Nodes => Phys_Mem,
+                 Refs  => ((Name  => To_Unbounded_String ("type"),
+                            Value => To_Unbounded_String ("system_pt")),
+                           (Name  => To_Unbounded_String ("name"),
+                            Value => To_Unbounded_String
+                              ("smmu_" & Name & "_pt"))));
+            Filename   : constant String := Muxml.Utils.Get_Attribute
+              (Doc   => PT_Node,
+               XPath => "file",
+               Name  => "filename");
+            PML4_Addr  : constant Interfaces.Unsigned_64
+              := Interfaces.Unsigned_64'Value
+                (DOM.Core.Elements.Get_Attribute
+                   (Elem => PT_Node,
+                    Name => "physicalAddress"));
+            Nodes      : constant DOM.Core.Node_List
+              := McKae.XML.XPath.XIA.XPath_Query
+                (N     => Dom_Node,
+                 XPath => "memory/memory");
+            No_Devices : DOM.Core.Node_List;
+         begin
+            Mulog.Log (Msg => "Writing " & Paging.ARMv8a_Stage2_Mode'Img
+                       & " pagetable of device domain '" & Name & "' to '"
+                       & Output_Dir & "/" & Filename & "'");
+            Write_Pagetable
+              (Policy       => Policy,
+               Memory       => Nodes,
+               Devices      => No_Devices,
+               Pml4_Address => PML4_Addr,
+               Filename     => Output_Dir & "/" & Filename,
+               PT_Type      => Paging.ARMv8a_Stage2_Mode);
+         end;
+      end loop;
+   end Write_Device_Domain_Pagetable;
 
    -------------------------------------------------------------------------
 
