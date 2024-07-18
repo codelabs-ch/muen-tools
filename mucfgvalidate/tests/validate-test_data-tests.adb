@@ -103,7 +103,7 @@ package body Validate.Test_Data.Tests is
                    File => "data/test_policy-armv8a.xml");
 
       Register_ARMv8a;
-      Assert (Condition => XML_Processors.Get_Count = 94,
+      Assert (Condition => XML_Processors.Get_Count = 98,
               Message   => "Count mismatch:"
               & XML_Processors.Get_Count'Img);
       XML_Processors.Clear;
