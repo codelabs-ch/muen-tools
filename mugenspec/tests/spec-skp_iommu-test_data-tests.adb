@@ -99,7 +99,7 @@ package body Spec.Skp_IOMMU.Test_Data.Tests is
 
       pragma Unreferenced (Gnattest_T);
 
-      Output_Dir : constant String := "obj/test-iommu-write";
+      Output_Dir : constant String := "obj/test-iommu-write-armv8a";
       Spec       : constant String := Output_Dir & "/skp-iommu.ads";
 
       Policy : Muxml.XML_Data_Type;
@@ -115,10 +115,10 @@ package body Spec.Skp_IOMMU.Test_Data.Tests is
       declare
          Devices : constant DOM.Core.Node := Muxml.Utils.Get_Element
            (Doc   => Policy.Doc,
-            XPath => "/system/subjects/subject[@name='lnx2']/devices");
+            XPath => "/system/deviceDomains/domain[@name='lnx2_domain']/devices");
          USB_Device : constant DOM.Core.Node := Muxml.Utils.Get_Element
            (Doc   => Policy.Doc,
-            XPath => "/system/subjects/subject[@name='lnx2']/devices" &
+            XPath => "/system/deviceDomains/domain[@name='lnx2_domain']/devices" &
               "/device[@physical='USB3_1_XHCI']");
 
          Tmp : DOM.Core.Node;
@@ -154,7 +154,7 @@ package body Spec.Skp_IOMMU.Test_Data.Tests is
 
       Policy     : Muxml.XML_Data_Type;
       Dummy      : DOM.Core.Node;
-      Output_Dir : constant String := "obj/test-iommu-write";
+      Output_Dir : constant String := "obj/test-iommu-write-x86";
       Path       : constant String := Output_Dir & "/skp-iommu.ad";
    begin
       if not Ada.Directories.Exists (Name => Output_Dir) then

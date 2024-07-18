@@ -18,11 +18,9 @@ is
       Valid_Entry        : Bit;
       Context_Bank_Index : Bits_8;
       Reserved_24_31     : Bits_8;
-      Subject_ID         : Bits_16;
-      Reserved_48_63     : Bits_16;
    end record
      with
-       Size      => 64,
+       Size      => 32,
        Bit_Order => System.Low_Order_First;
 
    for SMMU500_Controller_Configuration_Type
@@ -31,8 +29,6 @@ is
       Valid_Entry        at 0 range 15 .. 15;
       Context_Bank_Index at 0 range 16 .. 23;
       Reserved_24_31     at 0 range 24 .. 31;
-      Subject_ID         at 0 range 32 .. 47;
-      Reserved_48_63     at 0 range 48 .. 63;
    end record;
 
    Null_SMMU500_Controller_Configuration : constant
@@ -40,9 +36,7 @@ is
        := (Stream_Identifier  => 16#0000#,
            Valid_Entry        =>     2#0#,
            Context_Bank_Index =>   16#00#,
-           Reserved_24_31     =>   16#00#,
-           Subject_ID         => 16#ffff#,
-           Reserved_48_63     => 16#0000#);
+           Reserved_24_31     =>   16#00#);
 
    type SMMU500_Context_Configuration_Type
    is record

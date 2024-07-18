@@ -1,4 +1,6 @@
 --
+--  Copyright (C) 2024, 2024  Tobias Brunner <tobias@codelabs.ch>
+--  Copyright (C) 2024, 2024  David Loosli <david@codelabs.ch>
 --  Copyright (C) 2014, 2015  Reto Buerki <reet@codelabs.ch>
 --  Copyright (C) 2014, 2015  Adrian-Ken Rueegsegger <ken@codelabs.ch>
 --
@@ -391,11 +393,11 @@ is
            XPath => "/system/hardware/devices/device" &
              "[capabilities/capability/@name='iommu']");
 
-      --  (2) extract all subjects as a list
-      Subjects : constant DOM.Core.Node_List
+      --  (2) extract all device domains as a list
+      Domains : constant DOM.Core.Node_List
         := McKae.XML.XPath.XIA.XPath_Query
           (N     => Policy.Doc,
-           XPath => "/system/subjects/subject");
+           XPath => "/system/deviceDomains/domain");
 
       Controller_Configuration    : Unbounded_String;
       Context_Configuration       : Unbounded_String;
@@ -403,44 +405,38 @@ is
       Controller_Configuration_ID : Natural := 0;
       Context_Configuration_ID    : Natural := 0;
 
-      --  NOTE: the following procedure writes the device controller and
-      --  context entries for a give subject with static assignment of the
-      --  subject page tables; this means that a device assigned to a
-      --  subject automatically has the memory view of this subject and
-      --  that separate page tables for devices are currently not supported
       procedure Write_Entries
-        (Subject_ID            : Natural;
-         Subject_Name          : String;
+        (Domain_ID             : Natural;
+         Domain_Name           : String;
          Stream_Mapping_ID_Max : Natural;
          Context_Bank_ID_Max   : Natural);
 
       ----------------------------------------------------------------------
 
       procedure Write_Entries
-        (Subject_ID            : Natural;
-         Subject_Name          : String;
+        (Domain_ID             : Natural;
+         Domain_Name           : String;
          Stream_Mapping_ID_Max : Natural;
          Context_Bank_ID_Max   : Natural)
       is
-         --  (4.a) match all devices assigned to the current subject with a
-         --  stream id capability (SMMU support)
+         --  (4.a) match all devices assigned to the current device domain with
+         --  a stream id capability (SMMU support)
          Stream_ID_Devices : constant Muxml.Utils.Matching_Pairs_Type
            := Muxml.Utils.Get_Matching
              (XML_Data       => Policy,
-              Left_XPath     => "/system/subjects/subject[@globalId='" &
-                Ada.Strings.Fixed.Trim (Subject_ID'Img, Ada.Strings.Left) &
-                  "']/devices/device",
+              Left_XPath     => "/system/deviceDomains/domain[@name='"
+                & Domain_Name & "']/devices/device",
               Right_XPath    => "/system/hardware/devices/device" &
                 "[capabilities/capability/@name='stream_id']",
               Match_Multiple => False,
               Match          => Mutools.Match.Is_Valid_Reference'Access);
 
-         --  (4.b) extract subject page tables
+         --  (4.b) get device domain page tables
          Memory_Entries : constant DOM.Core.Node_List
            := McKae.XML.XPath.XIA.XPath_Query
              (N     => Policy.Doc,
-              XPath => "/system/memory/memory[@name='" &
-                Subject_Name & "|pt']");
+              XPath => "/system/memory/memory[@name='smmu_" & Domain_Name
+                & "_pt']");
       begin
          if
            DOM.Core.Nodes.Length (Stream_ID_Devices.Right) > 0 and
@@ -453,7 +449,7 @@ is
                   Stream_ID_Device : constant DOM.Core.Node
                     := DOM.Core.Nodes.Item (List  => Stream_ID_Devices.Right,
                                             Index => I);
-                  Stream_ID : constant Unsigned_64
+                  Stream_ID        : constant Unsigned_64
                     := Unsigned_64'Value (Muxml.Utils.Get_Element_Value
                                           (Doc   => Stream_ID_Device,
                                            XPath => "capabilities/capability" &
@@ -472,12 +468,7 @@ is
                        "   Context_Bank_Index =>" &
                        Context_Configuration_ID'Img & "," &
                        ASCII.LF & Indent (N => 3) &
-                       "   Reserved_24_31     => 16#00#," &
-                       ASCII.LF & Indent (N => 3) &
-                       "   Subject_ID         =>" &
-                       Subject_ID'Img & "," &
-                       ASCII.LF & Indent (N => 3) &
-                       "   Reserved_48_63     => 16#0000#)," &
+                       "   Reserved_24_31     => 16#00#)," &
                        ASCII.LF & Indent (N => 3);
 
                      Controller_Configuration_ID :=
@@ -492,7 +483,7 @@ is
 
             if Context_Configuration_ID <= Context_Bank_ID_Max then
                declare
-                  Subject_PT_Address : constant Unsigned_64
+                  Domain_PT_Address : constant Unsigned_64
                     := Unsigned_64'Value (DOM.Core.Elements.Get_Attribute
                                           (Elem => DOM.Core.Nodes.Item
                                            (List  => Memory_Entries,
@@ -504,7 +495,7 @@ is
                                             Ada.Strings.Left) & " =>" &
                     ASCII.LF & Indent (N => 3) &
                     "  (TTBR_Base_Address          => " &
-                    Mutools.Utils.To_Hex (Subject_PT_Address) & "," &
+                    Mutools.Utils.To_Hex (Domain_PT_Address) & "," &
                     ASCII.LF & Indent (N => 3) &
                     "   TTBR_Memory_Size_Offset    => 2#011001#," &
                     ASCII.LF & Indent (N => 3) &
@@ -513,7 +504,7 @@ is
                     "   TTBR_Physical_Address_Size => 2#010#," &
                     ASCII.LF & Indent (N => 3) &
                     "   VM_Identifier              =>" &
-                    Subject_ID'Img & ")," & ASCII.LF & Indent (N => 3);
+                    Domain_ID'Img & ")," & ASCII.LF & Indent (N => 3);
 
                   Context_Configuration_ID :=
                     Context_Configuration_ID + 1;
@@ -567,22 +558,22 @@ is
                Pattern  => "__context_bank_id_max__",
                Content  => Context_Bank_ID_Max'Img);
 
-            for I in 0 .. DOM.Core.Nodes.Length (Subjects) - 1 loop
+            for I in 0 .. DOM.Core.Nodes.Length (Domains) - 1 loop
                declare
-                  Subject : constant DOM.Core.Node
-                    := DOM.Core.Nodes.Item (List  => Subjects,
+                  Domain      : constant DOM.Core.Node
+                    := DOM.Core.Nodes.Item (List  => Domains,
                                             Index => I);
-                  Subject_ID : constant Natural
+                  Domain_ID   : constant Natural
                     := Natural'Value (DOM.Core.Elements.Get_Attribute
-                                      (Elem => Subject,
-                                       Name => "globalId"));
-                  Subject_Name : constant String
-                    := DOM.Core.Elements.Get_Attribute (Elem => Subject,
+                                      (Elem => Domain,
+                                       Name => "id"));
+                  Domain_Name : constant String
+                    := DOM.Core.Elements.Get_Attribute (Elem => Domain,
                                                         Name => "name");
                begin
                   Write_Entries
-                    (Subject_ID            => Subject_ID,
-                     Subject_Name          => Subject_Name,
+                    (Domain_ID             => Domain_ID,
+                     Domain_Name           => Domain_Name,
                      Stream_Mapping_ID_Max => Stream_Mapping_ID_Max,
                      Context_Bank_ID_Max   => Context_Bank_ID_Max);
                end;
