@@ -262,6 +262,10 @@ is
         := McKae.XML.XPath.XIA.XPath_Query
           (N     => Policy.Doc,
            XPath => "/system/subjects/subject");
+      Domains  : constant DOM.Core.Node_List
+        := McKae.XML.XPath.XIA.XPath_Query
+          (N     => Policy.Doc,
+           XPath => "/system/deviceDomains/domain");
       Files    : File_Vector_Package.Vector;
    begin
       for I in 0 .. DOM.Core.Nodes.Length (List => File_Mem) - 1 loop
@@ -523,6 +527,32 @@ is
                                & Name & "'");
 
             Register_Files (CPU, Subject_PT, Subject_Mem,
+                            File_Backed_Memory, Used_Memory, Kernels);
+         end;
+      end loop;
+
+      for I in 0 .. DOM.Core.Nodes.Length (List => Domains) - 1 loop
+         declare
+            Dom_Node : constant DOM.Core.Node
+              := DOM.Core.Nodes.Item
+                (List  => Domains,
+                 Index => I);
+            Name : constant String
+              := DOM.Core.Elements.Get_Attribute
+                (Elem => Dom_Node,
+                 Name => "name");
+
+            Domain_PT  : constant Unbounded_String
+              := To_Unbounded_String ("smmu_" & Name & "_pt");
+            Domain_Mem : constant DOM.Core.Node_List
+              := McKae.XML.XPath.XIA.XPath_Query
+                (N     => Dom_Node,
+                 XPath => "memory/memory");
+         begin
+            Mulog.Log (Msg => "Collect file-backed device domain memory for '"
+                               & Name & "'");
+
+            Register_Files (0, Domain_PT, Domain_Mem,
                             File_Backed_Memory, Used_Memory, Kernels);
          end;
       end loop;

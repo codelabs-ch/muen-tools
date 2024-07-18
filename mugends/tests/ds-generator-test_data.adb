@@ -134,6 +134,8 @@ package body DS.Generator.Test_Data is
       Generate_File ("obj/xilinxzcu104-string_reverser.pt", 16#3000#);
       Generate_File ("obj/xilinxzcu104-lnx2.pt", 16#6000#);
       Generate_File ("obj/xilinxzcu104-caesar_cipher.pt", 16#3000#);
+      Generate_File ("obj/smmu_usb_domain.pt", 16#5000#);
+      Generate_File ("obj/smmu_nic_domain.pt", 16#4000#);
 
       --  These are smaller, so they get padded.
       Generate_Padded ("obj/subject_one.bin",

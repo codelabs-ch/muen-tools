@@ -72,7 +72,7 @@ package body DS.Generator.Test_Data.Tests is
                Filename2 => "obj/xsct.cmd"),
               Message   => "xsct.cmd mismatch");
 
-      --  (4) text extracted/padded reference files
+      --  (4) test extracted/padded reference files
       Assert (Condition => Test_Utils.Equal_Files
               (Filename1 => "obj/kernel.bin-kernel_text.part.ref",
                Filename2 => "obj/kernel.bin-kernel_text.part"),
@@ -112,6 +112,12 @@ package body DS.Generator.Test_Data.Tests is
       Assert (Condition => not Ada.Directories.Exists
               (Name => "obj/xilinxzcu104-caesar_cipher.pt-caesar_cipher_pt.pad"),
               Message   => "obj/xilinxzcu104-caesar_cipher.pt should not get padded");
+      Assert (Condition => not Ada.Directories.Exists
+              (Name => "obj/smmu_usb_domain.pt.pad"),
+              Message   => "obj/smmu_usb_domain.pt should not get padded");
+      Assert (Condition => not Ada.Directories.Exists
+              (Name => "obj/smmu_nic_domain.pt.pad"),
+              Message   => "obj/smmu_nic_domain.pt should not get padded");
 
       Assert (Condition => Test_Utils.Equal_Files
               (Filename1 => "obj/subject_one.bin-string_reverser_binary.pad.ref",

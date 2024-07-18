@@ -10,6 +10,7 @@ restore rootfs_linux_one.cpio.gz-lnx1_rootfs.pad binary 0x4b000000
 restore Image_linux.bin-lnx1_binary.pad binary 0x20080000
 restore devicetree_linux_one.dtb-lnx1_dtb.pad binary 0x20040000
 restore lnx1_lowmem.fill binary 0x20000000
+restore smmu_nic_domain.pt binary 0x5400000
 restore subject_two.bin-caesar_cipher_binary.pad binary 0x5000000
 restore subject_one.bin-string_reverser_binary.pad binary 0x4000000
 restore kernel_interrupt_stack_0.fill binary 0x3ff000
@@ -17,6 +18,7 @@ restore xilinxzcu104-caesar_cipher.pt binary 0x230000
 restore xilinxzcu104-lnx2.pt binary 0x220000
 restore xilinxzcu104-string_reverser.pt binary 0x210000
 restore xilinxzcu104-lnx1.pt binary 0x200000
+restore smmu_usb_domain.pt binary 0x1f8000
 restore xilinxzcu104-core-1.pt binary 0x110000
 restore xilinxzcu104-core-0.pt binary 0x100000
 restore kernel_stack_1.fill binary 0xe0000

@@ -233,8 +233,35 @@
  <memory alignment="16#1000#" caching="WB" name="string_reverser|msrbm" physicalAddress="16#0002_0000_9000#" size="16#1000#" type="system_msrbm"/>
  <memory alignment="16#1000#" caching="WB" name="lnx2|msrbm" physicalAddress="16#0002_0000_a000#" size="16#1000#" type="system_msrbm"/>
  <memory alignment="16#1000#" caching="WB" name="caesar_cipher|msrbm" physicalAddress="16#0002_0000_b000#" size="16#1000#" type="system_msrbm"/>
+ <memory alignment="16#1000#" caching="WB" name="smmu_usb_domain_pt" physicalAddress="16#001f_8000#" size="16#5000#" type="system_pt">
+  <file filename="smmu_usb_domain.pt" offset="none"/>
+ </memory>
+ <memory alignment="16#1000#" caching="WB" name="smmu_nic_domain_pt" physicalAddress="16#0540_0000#" size="16#4000#" type="system_pt">
+  <file filename="smmu_nic_domain.pt" offset="none"/>
+ </memory>
 </memory>
-<deviceDomains/>
+<deviceDomains>
+  <domain id="1" name="usb_domain">
+   <memory>
+    <memory executable="false" logical="lowmem" physical="lnx1|lowmem" virtualAddress="16#0000_0000#" writable="true"/>
+    <memory executable="false" logical="ram" physical="lnx1|ram" virtualAddress="16#0075_d000#" writable="true"/>
+    <memory executable="false" logical="rootfs" physical="lnx1|rootfs" virtualAddress="16#4b00_0000#" writable="true"/>
+   </memory>
+   <devices>
+    <device logical="usb" physical="USB3_0_XHCI"/>
+   </devices>
+  </domain>
+  <domain id="2" name="nic_domain">
+   <memory>
+    <memory executable="false" logical="lowmem" physical="lnx2|lowmem" virtualAddress="16#0000_0000#" writable="true"/>
+    <memory executable="false" logical="ram" physical="lnx2|ram" virtualAddress="16#0075_d000#" writable="true"/>
+    <memory executable="false" logical="rootfs" physical="lnx2|rootfs" virtualAddress="16#2b00_0000#" writable="true"/>
+   </memory>
+   <devices>
+    <device logical="nic" physical="GEM3"/>
+   </devices>
+  </domain>
+ </deviceDomains>
 <events>
  <event name="system_panic" mode="kernel"/>
 </events>
