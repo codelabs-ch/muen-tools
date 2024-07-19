@@ -5,7 +5,8 @@ is
 
    type Subject_Spec_Type is record
       CPU_ID               : CPU_Range;
-      Subject_Category     : Subject_Category_Type;
+      GPR_0                : Bits_64;
+      ELR_EL2              : Bits_64;
       VTTBR_Address        : Bits_48;
       Default_Cacheability : Boolean;
       Trap_WFI_Instruction : Boolean;
@@ -19,7 +20,8 @@ is
    Subject_Specs : constant Subject_Spec_Array
      := (0 =>
            (CPU_ID               => 0,
-            Subject_Category     => Linux,
+            GPR_0                => 16#0004_0000#,
+            ELR_EL2              => 16#0008_0000#,
             VTTBR_Address        => 16#0020_0000#,
             Default_Cacheability => False,
             Trap_WFI_Instruction => False,
@@ -27,7 +29,8 @@ is
             Interrupt_Support    => True),
          1 =>
            (CPU_ID               => 0,
-            Subject_Category     => Native,
+            GPR_0                => 16#0#,
+            ELR_EL2              => 16#0#,
             VTTBR_Address        => 16#0021_0000#,
             Default_Cacheability => True,
             Trap_WFI_Instruction => True,
@@ -35,7 +38,8 @@ is
             Interrupt_Support    => False),
          2 =>
            (CPU_ID               => 1,
-            Subject_Category     => Linux,
+            GPR_0                => 16#0004_0000#,
+            ELR_EL2              => 16#0008_0000#,
             VTTBR_Address        => 16#0022_0000#,
             Default_Cacheability => False,
             Trap_WFI_Instruction => False,
@@ -43,7 +47,8 @@ is
             Interrupt_Support    => True),
          3 =>
            (CPU_ID               => 1,
-            Subject_Category     => Native,
+            GPR_0                => 16#0#,
+            ELR_EL2              => 16#0#,
             VTTBR_Address        => 16#0023_0000#,
             Default_Cacheability => True,
             Trap_WFI_Instruction => True,
@@ -61,10 +66,18 @@ is
 
    -------------------------------------------------------------------------
 
-   function Get_Subject_Category
+   function Get_General_Purpose_Register
+     (Subject_ID : Global_Subject_ID_Type;
+      Idx        : Natural)
+      return Bits_64
+   is (if Idx = 0 then Subject_Specs (Subject_ID).GPR_0 else 0);
+
+   -------------------------------------------------------------------------
+
+   function Get_Exception_Link_Register_EL2
      (Subject_ID : Global_Subject_ID_Type)
-      return Subject_Category_Type
-   is (Subject_Specs (Subject_ID).Subject_Category);
+      return Bits_64
+   is (Subject_Specs (Subject_ID).ELR_EL2);
 
    -------------------------------------------------------------------------
 
