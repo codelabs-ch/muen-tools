@@ -538,20 +538,20 @@
   <memory>
    <memory logical="lowmem" physical="linux|lowmem" virtualAddress="16#0000_0000#" writable="true" executable="true"/>
    <memory logical="dtb" physical="linux|dtb" virtualAddress="16#0004_0000#" writable="true" executable="true"/>
-   <memory logical="binary" physical="linux|binary" virtualAddress="16#0008_0000#" writable="true" executable="true"/>
-   <memory logical="ram" physical="linux|ram" virtualAddress="16#0075_d000#" writable="true" executable="true"/>
-   <memory logical="rootfs" physical="linux|rootfs" virtualAddress="16#1b00_0000#" writable="true" executable="true"/>
+   <memory logical="binary" physical="linux|binary" virtualAddress="16#0020_0000#" writable="true" executable="true"/>
+   <memory logical="ram" physical="linux|ram" virtualAddress="16#008d_d000#" writable="true" executable="true"/>
+   <memory logical="rootfs" physical="linux|rootfs" virtualAddress="16#1b18_0000#" writable="true" executable="true"/>
    <memory logical="scheduling_info" physical="scheduling_info_1" virtualAddress="16#2102_0000#" writable="false" executable="false"/>
   </memory>
   <devices>
    <device logical="vgic" physical="APU_GIC">
     <irq logical="linux_timer" physical="virtual_timer" vector="27"/>
-    <memory logical="vgic_dev1" physical="GICV" virtualAddress="16#2000_0000#" writable="true" executable="false"/>
-    <memory logical="vgic_dev2" physical="GICV_DIR" virtualAddress="16#2000_1000#" writable="true" executable="false"/>
+    <memory logical="vgic_dev1" physical="GICV" virtualAddress="16#3000_0000#" writable="true" executable="false"/>
+    <memory logical="vgic_dev2" physical="GICV_DIR" virtualAddress="16#3000_1000#" writable="true" executable="false"/>
    </device>
    <device logical="serial" physical="UART1">
     <irq logical="serial_irq" physical="irq" vector="32"/>
-    <memory logical="serial_dev" physical="mem" virtualAddress="16#2101_0000#" writable="true" executable="false"/>
+    <memory logical="serial_dev" physical="mem" virtualAddress="16#3101_0000#" writable="true" executable="false"/>
    </device>
   </devices>
   <events>

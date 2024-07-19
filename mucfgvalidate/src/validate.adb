@@ -246,6 +246,11 @@ is
       XML_Processors.Register
         (Process => Memory.Kernel_Sched_Info_Mappings'Access);
 
+      --  Arch Dependent: Validate that the Linux kernel image's base address is
+      --  properly aligned for ARMv8-A (2 MB).
+      XML_Processors.Register
+        (Process => Memory.Subject_Linux_Image_Alignment'Access);
+
       --  Partially Arch Dependent: Validate that subject state, timed event
       --  and pending interrupts memory regions are only mapped writable by
       --  subjects in the same scheduling group or by siblings. For ARMv8-A,
