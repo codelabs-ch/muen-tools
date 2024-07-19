@@ -1167,6 +1167,60 @@ is
 
    -------------------------------------------------------------------------
 
+   procedure Subject_Linux_Image_Alignment (XML_Data : Muxml.XML_Data_Type)
+   is
+      Linux_DT    : constant Muxml.Utils.Matching_Pairs_Type
+        := Muxml.Utils.Get_Matching
+          (XML_Data       => XML_Data,
+           Left_XPath     => "/system/subjects/subject/memory/memory",
+           Right_XPath    =>
+             "/system/memory/memory[@type='subject_devicetree']",
+           Match_Multiple => True,
+           Match          => Mutools.Match.Is_Valid_Reference'Access);
+      Physical_SB : constant DOM.Core.Node_List
+        := McKae.XML.XPath.XIA.XPath_Query
+          (N     => XML_Data.Doc,
+           XPath => "/system/memory/memory[@type='subject_binary']");
+   begin
+      for I in 0 .. DOM.Core.Nodes.Length (List => Linux_DT.Left) - 1 loop
+         declare
+            Subject   : constant DOM.Core.Node
+              := DOM.Core.Nodes.Parent_Node
+                (N => DOM.Core.Nodes.Parent_Node
+                  (N => DOM.Core.Nodes.Item (List  => Linux_DT.Left,
+                                             Index => I)));
+            Subj_Name : constant String
+              := DOM.Core.Elements.Get_Attribute
+                (Elem => Subject,
+                 Name => "name");
+            Subj_Mem  : constant DOM.Core.Node_List
+              := McKae.XML.XPath.XIA.XPath_Query
+                (N     => Subject,
+                 XPath => "memory/memory");
+            Linux_SB : constant Muxml.Utils.Matching_Pairs_Type
+              := Muxml.Utils.Get_Matching
+                (Left_Nodes     => Subj_Mem,
+                 Right_Nodes    => Physical_SB,
+                 Match_Multiple => True,
+                 Match          => Mutools.Match.Is_Valid_Reference'Access);
+         begin
+            Mulog.Log (Msg => "Checking subject binary alignment of Linux "
+                       & "subject '" & Subj_Name & "'");
+
+            Check_Attribute (Nodes     => Linux_SB.Left,
+                             Node_Type => "logical memory",
+                             Attr      => "virtualAddress",
+                             Name_Attr => "logical",
+                             Test      => Mod_Equal_Zero'Access,
+                             B         => 16#0020_0000#,
+                             Error_Msg => "is not 2MB aligned for Linux "
+                             & "subject '" & Subj_Name & "'");
+         end;
+      end loop;
+   end Subject_Linux_Image_Alignment;
+
+   -------------------------------------------------------------------------
+
    procedure Subject_MSR_Store_Mappings (XML_Data : Muxml.XML_Data_Type)
    is
    begin

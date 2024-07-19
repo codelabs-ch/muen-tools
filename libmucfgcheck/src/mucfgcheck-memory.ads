@@ -218,6 +218,10 @@ is
    procedure Subject_Sched_Info_Mappings (XML_Data : Muxml.XML_Data_Type);
 
    --D @Item List => validators_mem
+   --D Validate that Linux subjects have the subject binary properly aligned.
+   procedure Subject_Linux_Image_Alignment (XML_Data : Muxml.XML_Data_Type);
+
+   --D @Item List => validators_mem
    --D Validate that subject state, timed event and pending interrupts memory
    --D regions are only mapped writable by subjects in the same scheduling group
    --D or by siblings.
