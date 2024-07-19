@@ -28,6 +28,7 @@ with McKae.XML.XPath.XIA;
 
 with Mulog;
 with Muxml.Utils;
+with Mutools.Match;
 with Mutools.XML_Utils;
 with Mutools.Templates;
 with Mutools.System_Config;
@@ -188,11 +189,15 @@ is
              "[capabilities/capability/@name='gic']");
 
       --  (3) extract all physical memory regions that contain a linux
-      --  device tree (i.e. type of 'subject_devicetree')
+      --  device tree (i.e. type of 'subject_devicetree') or a subject binary
       Physical_DTS : constant DOM.Core.Node_List
         := McKae.XML.XPath.XIA.XPath_Query
           (N     => Policy.Doc,
            XPath => "/system/memory/memory[@type='subject_devicetree']");
+      Physical_SB  : constant DOM.Core.Node_List
+        := McKae.XML.XPath.XIA.XPath_Query
+          (N     => Policy.Doc,
+           XPath => "/system/memory/memory[@type='subject_binary']");
 
       --  (4) calculate number of subjects
       Subj_Count  : constant Natural
@@ -201,39 +206,55 @@ is
       Buffer : Unbounded_String;
       Tmpl   : Mutools.Templates.Template_Type;
 
-      --  Check if given subject is Linux VM.
-      function Is_Linux_VM (Subject : DOM.Core.Node) return Boolean;
+      --  Check if given subject is Linux VM and determine register values.
+      function Is_Linux_VM
+        (Subject     :        DOM.Core.Node;
+         GPR_0   : in out Unbounded_String;
+         ELR_EL2 : in out Unbounded_String)
+        return Boolean;
 
       ----------------------------------------------------------------------
 
-      function Is_Linux_VM (Subject : DOM.Core.Node) return Boolean
+      function Is_Linux_VM
+        (Subject     :        DOM.Core.Node;
+         GPR_0   : in out Unbounded_String;
+         ELR_EL2 : in out Unbounded_String)
+        return Boolean
       is
+         Subj_Mem : constant DOM.Core.Node_List
+           := McKae.XML.XPath.XIA.XPath_Query
+             (N     => Subject,
+              XPath => "memory/memory");
+         DT_Nodes : constant Muxml.Utils.Matching_Pairs_Type
+           := Muxml.Utils.Get_Matching
+             (Left_Nodes     => Subj_Mem,
+              Right_Nodes    => Physical_DTS,
+              Match_Multiple => True,
+              Match          => Mutools.Match.Is_Valid_Reference'Access);
+         SB_Nodes : constant Muxml.Utils.Matching_Pairs_Type
+           := Muxml.Utils.Get_Matching
+             (Left_Nodes     => Subj_Mem,
+              Right_Nodes    => Physical_SB,
+              Match_Multiple => True,
+              Match          => Mutools.Match.Is_Valid_Reference'Access);
       begin
-         --  (a) for every physical device tree memory node check if the
-         --  given subject exclusively makes use of this dts region to un-
-         --  ambiguously identify a Linux VM subject
-         for I in 0 .. DOM.Core.Nodes.Length (Physical_DTS) - 1 loop
-            declare
-               DTS_Node : constant DOM.Core.Node
-                 := DOM.Core.Nodes.Item (List  => Physical_DTS,
-                                         Index => I);
-               DTS_Name : constant String
-                 := DOM.Core.Elements.Get_Attribute (Elem => DTS_Node,
-                                                     Name => "name");
-
-               -- (b) extract all dts memory regions with given physical name
-               Linux_Subjects : constant DOM.Core.Node_List
-                 := McKae.XML.XPath.XIA.XPath_Query
-                   (N     => Subject,
-                    XPath => "memory/memory[@physical='" & DTS_Name & "']");
-            begin
-               --  (c) list has to be either length 1 or 0, with 1 indicating
-               --  a subject of type Linux VM
-               if DOM.Core.Nodes.Length (Linux_Subjects) = 1 then
-                  return True;
-               end if;
-            end;
-         end loop;
+         --  Identify Linux VM subjects by their associated device tree and
+         --  subject binary memory nodes.
+         if DOM.Core.Nodes.Length (List => DT_Nodes.Left) = 1 and then
+            DOM.Core.Nodes.Length (List => SB_Nodes.Left) = 1
+         then
+            GPR_0   := To_Unbounded_String
+              (DOM.Core.Elements.Get_Attribute
+                (Elem => DOM.Core.Nodes.Item (List  => DT_Nodes.Left,
+                                              Index => 0),
+                 Name => "virtualAddress"));
+            ELR_EL2 := To_Unbounded_String
+              (DOM.Core.Elements.Get_Attribute
+                (Elem => DOM.Core.Nodes.Item (List  => SB_Nodes.Left,
+                                              Index => 0),
+                 Name => "virtualAddress"));
+            return True;
+         end if;
 
          return False;
       end Is_Linux_VM;
@@ -263,13 +284,16 @@ is
          CPU_ID  : constant String
            := DOM.Core.Elements.Get_Attribute (Elem => Subject,
                                                Name => "cpu");
-
-         --  (b) get category for given subject (either "Linux" or "Native")
-         --  and set default cacheability and trapped instructions accordingly
+         --  (b) determine register values in case of Linux subjects and set
+         --  default cacheability and trapped instructions accordingly
+         GPR_0                : Unbounded_String
+           := U ("16#0#");
+         ELR_EL2              : Unbounded_String
+           := U ("16#0#");
          Linux_VM             : constant Boolean
-           := Is_Linux_VM (Subject => Subject);
-         Subject_Category     : constant String
-           := (if Linux_VM then "Linux" else "Native");
+           := Is_Linux_VM (Subject     => Subject,
+                           GPR_0       => GPR_0,
+                           ELR_EL2     => ELR_EL2);
          Default_Cacheability : constant String
            := (if Linux_VM then "False" else "True");
          Trap_WFI_Instruction : constant String
@@ -305,7 +329,9 @@ is
            ASCII.LF & Indent (N => 3) &
            "  (CPU_ID               => " & CPU_ID & "," &
            ASCII.LF & Indent (N => 3) &
-           "   Subject_Category     => " & Subject_Category & "," &
+           "   GPR_0                => " & To_String (GPR_0) & "," &
+           ASCII.LF & Indent (N => 3) &
+           "   ELR_EL2              => " & To_String (ELR_EL2) & "," &
            ASCII.LF & Indent (N => 3) &
            "   VTTBR_Address        => " &
            Mutools.Utils.To_Hex (Number => VTTBR_Address) & "," &

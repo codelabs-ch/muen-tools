@@ -5,7 +5,8 @@ is
 
    type Subject_Spec_Type is record
       CPU_ID               : CPU_Range;
-      Subject_Category     : Subject_Category_Type;
+      GPR_0                : Bits_64;
+      ELR_EL2              : Bits_64;
       VTTBR_Address        : Bits_48;
       Default_Cacheability : Boolean;
       Trap_WFI_Instruction : Boolean;
@@ -30,10 +31,18 @@ is
 
    -------------------------------------------------------------------------
 
-   function Get_Subject_Category
+   function Get_General_Purpose_Register
+     (Subject_ID : Global_Subject_ID_Type;
+      Idx        : Natural)
+      return Bits_64
+   is (if Idx = 0 then Subject_Specs (Subject_ID).GPR_0 else 0);
+
+   -------------------------------------------------------------------------
+
+   function Get_Exception_Link_Register_EL2
      (Subject_ID : Global_Subject_ID_Type)
-      return Subject_Category_Type
-   is (Subject_Specs (Subject_ID).Subject_Category);
+      return Bits_64
+   is (Subject_Specs (Subject_ID).ELR_EL2);
 
    -------------------------------------------------------------------------
 

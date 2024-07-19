@@ -12,15 +12,18 @@ is
 
    use Interfaces;
 
-   type Subject_Category_Type is (Linux, Native);
-
    function Get_CPU_ID
      (Subject_ID : Global_Subject_ID_Type)
       return CPU_Range;
 
-   function Get_Subject_Category
+   function Get_General_Purpose_Register
+     (Subject_ID : Global_Subject_ID_Type;
+      Idx        : Natural)
+      return Bits_64;
+
+   function Get_Exception_Link_Register_EL2
      (Subject_ID : Global_Subject_ID_Type)
-      return Subject_Category_Type;
+      return Bits_64;
 
    function Get_VTTBR_Address
      (Subject_ID : Global_Subject_ID_Type)

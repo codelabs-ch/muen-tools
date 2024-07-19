@@ -277,6 +277,9 @@
   <memory alignment="16#1000#" caching="WB" name="linux|acpi_empty" physicalAddress="16#006f_2000#" size="16#c000#" type="subject"/>
   <memory alignment="16#1000#" caching="WB" name="linux|lowmem" physicalAddress="16#0fe0_0000#" size="16#0009_b000#" type="subject"/>
   <memory alignment="16#1000#" caching="WB" name="linux|bios" physicalAddress="16#006c_2000#" size="16#0001_0000#" type="subject_bios"/>
+  <memory alignment="16#1000#" caching="WB" name="linux|dtb" physicalAddress="16#2004_0000#" size="16#0004_0000#" type="subject_devicetree">
+   <file filename="devicetree_linux.dtb" offset="none"/>
+  </memory>
   <memory alignment="16#1000#" caching="WB" name="virtual_time" physicalAddress="16#0fea_b000#" size="16#1000#" type="subject_channel"/>
   <memory alignment="16#1000#" caching="WB" name="linux_keyboard" physicalAddress="16#0fea_5000#" size="16#1000#" type="subject_channel"/>
   <memory alignment="16#1000#" caching="WB" name="linux_console" physicalAddress="16#006b_2000#" size="16#0001_0000#" type="subject_channel"/>
