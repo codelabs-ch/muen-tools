@@ -47,6 +47,7 @@ package body Pt.Generator.Test_Data.Tests is
          Knl_Pt0 : constant String := "xilinxzcu104-core-0.pt";
          Sub1_Pt : constant String := "xilinxzcu104-linux.pt";
          Sub2_Pt : constant String := "xilinxzcu104-event_logger.pt";
+         Dom_Pt  : constant String := "smmu_nic_domain.pt";
       begin
          Muxml.Parse (Data => Policy,
                       Kind => Muxml.Format_B,
@@ -67,6 +68,10 @@ package body Pt.Generator.Test_Data.Tests is
                  (Filename1 => "data/" & Sub2_Pt,
                   Filename2 => "obj/" & Sub2_Pt),
                  Message   => "ARMv8a: Subject 2 pagetables mismatch");
+         Assert (Condition => Test_Utils.Equal_Files
+                 (Filename1 => "data/" & Dom_Pt,
+                  Filename2 => "obj/" & Dom_Pt),
+                 Message   => "ARMv8a: Device domain pagetables mismatch");
       end Write_ARMv8a_PTs;
 
       ----------------------------------------------------------------------

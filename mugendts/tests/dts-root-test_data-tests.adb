@@ -184,10 +184,10 @@ package body DTS.Root.Test_Data.Tests is
 
 
 --  begin read only
-   procedure Test_Add_Memory_Node (Gnattest_T : in out Test);
-   procedure Test_Add_Memory_Node_090547 (Gnattest_T : in out Test) renames Test_Add_Memory_Node;
---  id:2.2/090547ccb151f6b1/Add_Memory_Node/1/0/
-   procedure Test_Add_Memory_Node (Gnattest_T : in out Test) is
+   procedure Test_Add_Memory_Nodes (Gnattest_T : in out Test);
+   procedure Test_Add_Memory_Nodes_dc8ecd (Gnattest_T : in out Test) renames Test_Add_Memory_Nodes;
+--  id:2.2/dc8ecd3caa2869fc/Add_Memory_Nodes/1/0/
+   procedure Test_Add_Memory_Nodes (Gnattest_T : in out Test) is
 --  end read only
 
       pragma Unreferenced (Gnattest_T);
@@ -202,6 +202,9 @@ package body DTS.Root.Test_Data.Tests is
         "               0x00000000 0x0075d000 0x00000000 0x1a8a3000" &
         ASCII.LF &
         "               0x00000000 0x1b000000 0x00000000 0x05000000>;" &
+        ASCII.LF & "    };" &
+        "    reserved@80000 {" & ASCII.LF &
+        "        reg = <0x00000000 0x00080000 0x00000000 0x006dd000>;" &
         ASCII.LF & "    };";
 
       Template : Mutools.Templates.Template_Type
@@ -209,7 +212,9 @@ package body DTS.Root.Test_Data.Tests is
           (Content =>
              "    memory@__memory_base__ {" & ASCII.LF &
              "        device_type = ""memory"";" & ASCII.LF &
-             "        __memory_registers__" & ASCII.LF & "    };");
+             "        __memory_registers__" & ASCII.LF & "    };" &
+             "    reserved@__reserved_base__ {" & ASCII.LF &
+             "        __reserved_registers__" & ASCII.LF & "    };");
 
       Policy : Muxml.XML_Data_Type;
 
@@ -226,18 +231,18 @@ package body DTS.Root.Test_Data.Tests is
          XPath => "/system/subjects/subject[@globalId='0']");
 
       --  (3) test the memory node entry according to template
-      Add_Memory_Node (Template  => Template,
-                       Policy    => Policy,
-                       Subject   => DOM.Core.Nodes.Item
-                         (List  => Subject,
-                          Index => 0));
+      Add_Memory_Nodes (Template  => Template,
+                        Policy    => Policy,
+                        Subject   => DOM.Core.Nodes.Item
+                          (List  => Subject,
+                           Index => 0));
 
       Assert (Actual   => Mutools.Templates.To_String (Template => Template),
               Expected => Expected_Entry,
               Message  => "wrong root entry for memory node test data");
 
 --  begin read only
-   end Test_Add_Memory_Node;
+   end Test_Add_Memory_Nodes;
 --  end read only
 
 --  begin read only

@@ -1,4 +1,5 @@
 --
+--  Copyright (C) 2024  Tobias Brunner <tobias@codelabs.ch>
 --  Copyright (C) 2014  Reto Buerki <reet@codelabs.ch>
 --  Copyright (C) 2014  Adrian-Ken Rueegsegger <ken@codelabs.ch>
 --
@@ -260,7 +261,66 @@ is
 
    -------------------------------------------------------------------------
 
-   procedure Add_Tables (Data : in out Muxml.XML_Data_Type)
+   procedure Add_SMMU_Tables (Data : in out Muxml.XML_Data_Type)
+   is
+      Domains : constant DOM.Core.Node_List
+        := McKae.XML.XPath.XIA.XPath_Query
+          (N     => Data.Doc,
+           XPath => "/system/deviceDomains/domain");
+      Physical_Mem  : constant DOM.Core.Node_List
+        := McKae.XML.XPath.XIA.XPath_Query
+          (N     => Data.Doc,
+           XPath => "/system/memory/memory");
+      Physical_Devs : constant DOM.Core.Node_List
+        := McKae.XML.XPath.XIA.XPath_Query
+          (N     => Data.Doc,
+           XPath => "/system/hardware/devices/device");
+   begin
+      --  Second-level address translation tables for each domain.
+      for I in 0 .. DOM.Core.Nodes.Length (List => Domains) - 1 loop
+         declare
+            Domain    : constant DOM.Core.Node
+              := DOM.Core.Nodes.Item
+                (List  => Domains,
+                 Index => I);
+            Name      : constant String
+              := DOM.Core.Elements.Get_Attribute
+                (Elem => Domain,
+                 Name => "name");
+            Size_Str  : constant String
+              := Mutools.Utils.To_Hex
+                (Number => XML_Utils.Calculate_PT_Size
+                   (Policy             => Data,
+                    Paging_Levels      => 3,
+                    Large_Pages        => True,
+                    Physical_Memory    => Physical_Mem,
+                    Physical_Devices   => Physical_Devs,
+                    Dev_Virt_Mem_XPath => "none",
+                    Virt_Mem_XPath     => "/system/deviceDomains/domain"
+                    & "[@name='" & Name & "']/memory/memory"));
+            Descr     : constant String := "smmu_" & Name & "_pt";
+            File_Name : constant String := "smmu_" & Name & ".pt";
+         begin
+            Mulog.Log (Msg => "Adding SMMU second-level paging entries "
+                       & "for domain '" & Name & "' with size " & Size_Str);
+            Mutools.XML_Utils.Add_Memory_Region
+              (Policy       => Data,
+               Name         => Descr,
+               Address      => "",
+               Size         => Size_Str,
+               Caching      => "WB",
+               Alignment    => "16#1000#",
+               Memory_Type  => "system_pt",
+               File_Name    => File_Name,
+               File_Offset  => "none",
+               File_Size    => "");
+         end;
+      end loop;
+   end Add_SMMU_Tables;
+
+   -------------------------------------------------------------------------
+
+   procedure Add_VTD_Tables (Data : in out Muxml.XML_Data_Type)
    is
       Domains : constant DOM.Core.Node_List
         := McKae.XML.XPath.XIA.XPath_Query
@@ -383,7 +443,7 @@ is
                Fill_Pattern => "16#00#"); --  Force placement in lower memory.
          end;
       end loop;
-   end Add_Tables;
+   end Add_VTD_Tables;
 
    -------------------------------------------------------------------------
 

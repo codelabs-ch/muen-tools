@@ -601,15 +601,17 @@ is
       --  checks like context bank restrictions, matching mechanism,
       --  stream to context register constraints etc.
 
-      --  Partially Arch Dependent?: The Device Domain concept seems to
-      --  originate from IOMMU / PCI concepts. Currently, the ARMv8-A
-      --  implementation assigns the subject's translation tables to
-      --  its assigned devices (one translation table per subject and
-      --  context bank as well as one stream to context register per
-      --  device). The concept of device domains could be realised by
-      --  adding support for 'regex-masks' for Stream IDs and separate
-      --  translation tables per device domain (keep in mind the SMMU
-      --  hardware limitations, e.g. 16 Context Banks on Xilinx ZCU104).
+      --  Partially Arch Dependent: Validate most aspects of device domains.
+      --  Others could possibly be added (e.g. for SMMU hardware limitations
+      --  like 16 Context Banks on Xilinx ZCU104).
+      XML_Processors.Register
+        (Process => Device_Domains.Device_Reference_Uniqueness'Access);
+      XML_Processors.Register
+        (Process => Device_Domains.Domain_Memory_Overlap'Access);
+      XML_Processors.Register
+        (Process => Device_Domains.Domain_Memory_Type'Access);
+      XML_Processors.Register
+        (Process => Device_Domains.Domain_PT_Region_Presence'Access);
    end Register_ARMv8a;
 
    -------------------------------------------------------------------------

@@ -29,6 +29,16 @@
                0x00000000 0x1b000000 0x00000000 0x05000000>;
     };
 
+    reserved-memory {
+        #address-cells = <0x2>;
+        #size-cells = <0x2>;
+        ranges;
+
+        exclude_kernel@80000 {
+            reg = <0x00000000 0x00080000 0x00000000 0x006dd000>;
+        };
+    };
+
     cpus {
         #address-cells = <0x1>;
         #size-cells = <0x0>;

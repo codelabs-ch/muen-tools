@@ -184,8 +184,22 @@
  <memory alignment="16#1000#" caching="WB" name="event_logger|iobm" physicalAddress="16#0002_0000_2000#" size="16#2000#" type="system_iobm"/>
  <memory alignment="16#1000#" caching="WB" name="linux|msrbm" physicalAddress="16#0002_0000_8000#" size="16#1000#" type="system_msrbm"/>
  <memory alignment="16#1000#" caching="WB" name="event_logger|msrbm" physicalAddress="16#0002_0000_9000#" size="16#1000#" type="system_msrbm"/>
+ <memory alignment="16#1000#" caching="WB" name="smmu_nic_domain_pt" physicalAddress="16#0540_0000#" size="16#4000#" type="system_pt">
+   <file filename="smmu_nic_domain.pt" offset="none"/>
+  </memory>
 </memory>
-<deviceDomains/>
+<deviceDomains>
+ <domain id="1" name="nic_domain">
+  <memory>
+   <memory logical="lowmem" physical="linux|lowmem" virtualAddress="16#0000_0000#" writable="true" executable="true"/>
+   <memory logical="ram" physical="linux|ram" virtualAddress="16#0075_d000#" writable="true" executable="true"/>
+   <memory logical="rootfs" physical="linux|rootfs" virtualAddress="16#1b00_0000#" writable="true" executable="true"/>
+  </memory>
+  <devices>
+   <device logical="nic" physical="GEM3"/>
+  </devices>
+ </domain>
+</deviceDomains>
 <events>
  <event name="system_panic" mode="kernel"/>
  <event name="magic_number" mode="kernel"/>
