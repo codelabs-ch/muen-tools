@@ -90,7 +90,7 @@ is
 
    -------------------------------------------------------------------------
 
-   procedure Add_Memory_Node
+   procedure Add_Memory_Nodes
      (Template : in out Mutools.Templates.Template_Type;
       Policy   :        Muxml.XML_Data_Type;
       Subject  :        DOM.Core.Node)
@@ -107,13 +107,14 @@ is
 
       Register_Offset : constant String
         :=  Mutools.Utils.Indent (15, 1);
+      Reserved_Offset : constant String
+        :=  Mutools.Utils.Indent (19, 1);
 
       Base_Address    : Unsigned_64 := Unsigned_64'Last;
       Register_Ranges : Unbounded_String;
+      Reserved_Base   : Unsigned_64 := Unsigned_64'Last;
+      Reserved_Ranges : Unbounded_String;
    begin
-      Append (Source   => Register_Ranges,
-              New_Item => "reg = <");
-
       for I in 0 .. DOM.Core.Nodes.Length (Subject_Memory) - 1 loop
          declare
             Virtual_Memory_Node : constant DOM.Core.Node
@@ -138,10 +139,6 @@ is
               := DOM.Core.Elements.Get_Attribute (Elem => Physical_Memory_Node,
                                                   Name => "size");
          begin
-            if Unsigned_64'Value (Virtual_Memory_Base) < Base_Address then
-               Base_Address := Unsigned_64'Value (Virtual_Memory_Base);
-            end if;
-
             --  The kernel image is added to the usable memory as according to
             --  Documentation/arch/arm64/booting.rst the image must be placed
             --  "anywhere in usable system RAM" and the kernel does access some
@@ -151,7 +148,11 @@ is
               Physical_Memory_Type in Mutools.Types.Subject_RAM_Memory or
               Physical_Memory_Type in Mutools.Types.Subject_Binary
             then
-               if I /= 0 then
+               if Unsigned_64'Value (Virtual_Memory_Base) < Base_Address then
+                  Base_Address := Unsigned_64'Value (Virtual_Memory_Base);
+               end if;
+
+               if Length (Register_Ranges) > 0 then
                   Append (Source   => Register_Ranges,
                           New_Item => ASCII.LF & Register_Offset);
                end if;
@@ -161,11 +162,27 @@ is
                          (Virtual_Memory_Base)) & " " & To_DTS_Cell
                        (Unsigned_64'Value (Physical_Memory_Size)));
             end if;
+
+            --  The kernel image is marked as reserved memory, so it won't get
+            --  used by the kernel. In particular for DMA, so we don't have to
+            --  map it into the SMMU.
+            if Physical_Memory_Type in Mutools.Types.Subject_Binary then
+               if Unsigned_64'Value (Virtual_Memory_Base) < Reserved_Base then
+                  Reserved_Base := Unsigned_64'Value (Virtual_Memory_Base);
+               end if;
+
+               if Length (Reserved_Ranges) > 0 then
+                  Append (Source   => Reserved_Ranges,
+                          New_Item => ASCII.LF & Reserved_Offset);
+               end if;
+
+               Append (Source   => Reserved_Ranges,
+                       New_Item => To_DTS_Cell (Unsigned_64'Value
+                         (Virtual_Memory_Base)) & " " & To_DTS_Cell
+                       (Unsigned_64'Value (Physical_Memory_Size)));
+            end if;
          end;
       end loop;
-
-      Append (Source   => Register_Ranges,
-              New_Item => ">;");
 
       Mutools.Templates.Replace
         (Template => Template,
@@ -177,8 +194,20 @@ is
       Mutools.Templates.Replace
         (Template => Template,
          Pattern  => "__memory_registers__",
-         Content  => To_String (Source => Register_Ranges));
-   end Add_Memory_Node;
+         Content  => To_String (Source => "reg = <" & Register_Ranges & ">;"));
+
+      Mutools.Templates.Replace
+        (Template => Template,
+         Pattern  => "__reserved_base__",
+         Content  => Mutools.Utils.To_Hex (Number     => Reserved_Base,
+                                           Normalize  => False,
+                                           Byte_Short => False));
+
+      Mutools.Templates.Replace
+        (Template => Template,
+         Pattern  => "__reserved_registers__",
+         Content  => To_String (Source => "reg = <" & Reserved_Ranges & ">;"));
+   end Add_Memory_Nodes;
 
    -------------------------------------------------------------------------
 
@@ -201,9 +230,9 @@ is
                        Policy   => Policy,
                        Subject  => Subject);
 
-      Add_Memory_Node (Template => Template,
-                       Policy   => Policy,
-                       Subject  => Subject);
+      Add_Memory_Nodes (Template => Template,
+                        Policy   => Policy,
+                        Subject  => Subject);
 
       DTS.APU_Devices.Add_APU_Devices (Template => Template,
                                        Policy   => Policy,

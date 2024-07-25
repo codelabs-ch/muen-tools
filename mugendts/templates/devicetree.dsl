@@ -26,6 +26,16 @@
         __memory_registers__
     };
 
+    reserved-memory {
+        #address-cells = <0x2>;
+        #size-cells = <0x2>;
+        ranges;
+
+        exclude_kernel@__reserved_base__ {
+            __reserved_registers__
+        };
+    };
+
     cpus {
         #address-cells = <0x1>;
         #size-cells = <0x0>;
