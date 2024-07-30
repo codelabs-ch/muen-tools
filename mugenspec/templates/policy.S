@@ -3,6 +3,7 @@
 .global kernel_translation_tables
 .global gic_physical_addresses
 .global smmu_physical_address
+.global global_all_barrier
 
 .section   .globalrodata
 
@@ -22,3 +23,11 @@ __gic_physical_addresses__
 
 smmu_physical_address:
 __smmu_physical_address__
+
+
+.section   .globaldata
+
+.align 8
+
+global_all_barrier:
+__global_all_barrier__

@@ -351,6 +351,24 @@ is
             end;
          end if;
 
+         declare
+            --  Note: For the ARM64 boot process the global all barrier
+            --  Sense_Barrier_Type as defined by the kernel implementation
+            --  has to be initialised manually at compile time. The Size
+            --  field at bit offset 8 .. 15 is thus set to the number of
+            --  configured CPU cores.
+            Barrier_Value : constant Unsigned_64
+              := Shift_Left (Value  => Unsigned_64 (CPU_Count),
+                             Amount => 8);
+         begin
+            Mutools.Templates.Replace
+              (Template => Tmpl,
+               Pattern  => "__global_all_barrier__",
+               Content  => "    .quad    0x" &
+                 Mutools.Utils.To_Hex (Number    => Barrier_Value,
+                                       Normalize => False));
+         end;
+
          Mutools. Templates.Write
            (Template => Tmpl,
             Filename => Output_Dir & "/policy.S");
