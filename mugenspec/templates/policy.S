@@ -5,7 +5,7 @@
 .global smmu_physical_address
 .global global_all_barrier
 
-.section   .globalrodata
+.section   .rodata
 
 .align 8
 
