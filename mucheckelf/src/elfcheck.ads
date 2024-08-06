@@ -40,7 +40,7 @@ private
 
    --  Mapping of memory region names to binary section names.
    --  These sections must be present in any given binary.
-   Section_Map : array (1 .. 7) of aliased Section_Mapping_Type
+   Section_Map : array (1 .. 6) of aliased Section_Mapping_Type
      := (1 => (Region_Name  => To_Unbounded_String ("kernel_text"),
                Section_Name => To_Unbounded_String (".text"),
                Mapped       => True,
@@ -66,12 +66,7 @@ private
                Mapped       => True,
                Present      => False,
                Identity     => True),
-         6 => (Region_Name  => To_Unbounded_String ("kernel_global_rodata"),
-               Section_Name => To_Unbounded_String (".globalrodata"),
-               Mapped       => True,
-               Present      => False,
-               Identity     => True),
-         7 => (Region_Name  => To_Unbounded_String ("kernel_stack_0"),
+         6 => (Region_Name  => To_Unbounded_String ("kernel_stack_0"),
                Section_Name => To_Unbounded_String (".stack"),
                Mapped       => True,
                Present      => False,
