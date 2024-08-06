@@ -118,17 +118,6 @@ is
                     (Number => Config.Kernel_Global_Data_Section_Addr),
                   Writable      => True,
                   Executable    => False));
-            --  TODO: MOA: Additional global_rodata section.
-            Muxml.Utils.Append_Child
-              (Node      => CPU_Node,
-               New_Child => MX.Create_Virtual_Memory_Node
-                 (Policy        => Data,
-                  Logical_Name  => "global_rodata",
-                  Physical_Name => "kernel_global_rodata",
-                  Address       => Mutools.Utils.To_Hex
-                    (Number => Config.Kernel_Global_Rodata_Section_Addr),
-                  Writable      => False,
-                  Executable    => False));
             Muxml.Utils.Append_Child
               (Node      => CPU_Node,
                New_Child => MX.Create_Virtual_Memory_Node
