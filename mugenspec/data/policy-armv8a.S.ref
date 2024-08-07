@@ -3,6 +3,7 @@
 .global kernel_translation_tables
 .global gic_physical_addresses
 .global smmu_physical_address
+.global global_all_barrier
 
 .section   .globalrodata
 
@@ -24,3 +25,11 @@ gic_physical_addresses:
 
 smmu_physical_address:
     .quad    0xfd800000
+
+
+.section   .globaldata
+
+.align 8
+
+global_all_barrier:
+    .quad    0x200

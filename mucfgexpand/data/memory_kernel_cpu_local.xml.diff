@@ -6,6 +6,12 @@
                                                                                                                                                      >    <memory alignment="16#1000#" caching="WB" name="kernel_bss_0" physicalAddress="16#0008_4000#" size="16#2000#" type="kernel_binary">
                                                                                                                                                      >     <fill pattern="16#00#"/>
                                                                                                                                                      >    </memory>
+                                                                                                                                                     >    <memory alignment="16#1000#" caching="WB" name="kernel_data_1" size="16#2000#" type="kernel_binary">
+                                                                                                                                                     >     <file filename="kernel.bin" offset="16#0008_2000#"/>
+                                                                                                                                                     >    </memory>
+                                                                                                                                                     >    <memory alignment="16#1000#" caching="WB" name="kernel_bss_1" size="16#2000#" type="kernel_binary">
+                                                                                                                                                     >     <fill pattern="16#00#"/>
+                                                                                                                                                     >    </memory>
  </memory>                                                                                                                                               </memory>
  <deviceDomains>                                                                                                                                         <deviceDomains>
 --

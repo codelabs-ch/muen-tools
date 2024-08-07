@@ -71,7 +71,6 @@ is
    --  messages.
    procedure Check_Kernel_Region_Presence
      (Data        : Muxml.XML_Data_Type;
-      CPUs        : Integer := -1;
       Region_Kind : String;
       Name_Prefix : String;
       Name_Suffix : String := "");
@@ -127,23 +126,17 @@ is
 
    procedure Check_Kernel_Region_Presence
      (Data        : Muxml.XML_Data_Type;
-      CPUs        : Integer := -1;
       Region_Kind : String;
       Name_Prefix : String;
       Name_Suffix : String := "")
    is
-      CPU_Count    : Positive;
+      CPU_Count    : constant Positive
+        := Mutools.XML_Utils.Get_Active_CPU_Count (Data => Data);
       Physical_Mem : constant DOM.Core.Node_List
         := XPath_Query
           (N     => Data.Doc,
            XPath => "/system/memory/memory");
    begin
-      if CPUs > 0 then
-         CPU_Count := CPUs;
-      else
-         CPU_Count := Mutools.XML_Utils.Get_Active_CPU_Count (Data => Data);
-      end if;
-
       Mulog.Log (Msg => "Checking presence of" & CPU_Count'Img & " "
                  & Region_Kind & " region(s)");
 
@@ -516,10 +509,8 @@ is
    procedure Kernel_BSS_Region_Presence (XML_Data : Muxml.XML_Data_Type)
    is
    begin
-      --  TODO: MOA: Only one BSS region for now.
       Check_Kernel_Region_Presence
         (Data        => XML_Data,
-         CPUs        => 1,
          Region_Kind => "kernel BSS",
          Name_Prefix => "kernel_bss");
    end Kernel_BSS_Region_Presence;
@@ -529,10 +520,8 @@ is
    procedure Kernel_Data_Region_Presence (XML_Data : Muxml.XML_Data_Type)
    is
    begin
-      --  TODO: MOA: Only one data region for now.
       Check_Kernel_Region_Presence
         (Data        => XML_Data,
-         CPUs        => 1,
          Region_Kind => "kernel data",
          Name_Prefix => "kernel_data");
    end Kernel_Data_Region_Presence;

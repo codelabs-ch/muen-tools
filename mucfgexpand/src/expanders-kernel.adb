@@ -88,24 +88,22 @@ is
                     (Number => Config.Kernel_Text_Section_Addr),
                   Writable      => False,
                   Executable    => True));
-            --  TODO: MOA: Only one kernel_data section.
             Muxml.Utils.Append_Child
               (Node      => CPU_Node,
                New_Child => MX.Create_Virtual_Memory_Node
                  (Policy        => Data,
                   Logical_Name  => "data",
-                  Physical_Name => "kernel_data_0",
+                  Physical_Name => "kernel_data_" & CPU_Str,
                   Address       => Mutools.Utils.To_Hex
                     (Number => Config.Kernel_Data_Section_Addr),
                   Writable      => True,
                   Executable    => False));
-            --  TODO: MOA: Only one kernel_bss section.
             Muxml.Utils.Append_Child
               (Node      => CPU_Node,
                New_Child => MX.Create_Virtual_Memory_Node
                  (Policy        => Data,
                   Logical_Name  => "bss",
-                  Physical_Name => "kernel_bss_0",
+                  Physical_Name => "kernel_bss_" & CPU_Str,
                   Address       => Mutools.Utils.To_Hex
                     (Number => Config.Kernel_BSS_Section_Addr),
                   Writable      => True,
