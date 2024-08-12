@@ -16,10 +16,10 @@
 --  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --
 
-with "../libpaging/libpaging";
+with "libpaging";
 
-with "../libtest/libtest";
-with "../libmutools/libmutools";
+with "libtest";
+with "libmutools";
 
 project GNATtest_Mugentau0cmds extends "../tests.gpr" is
 

@@ -16,9 +16,9 @@
 --  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --
 
-with "../libtest/libtest";
-with "../libmutools/libmutools";
-with "../libmucfgcheck/libmucfgcheck";
+with "libtest";
+with "libmutools";
+with "libmucfgcheck";
 
 project GNATtest_Mucgenspec extends "../tests.gpr" is
 
