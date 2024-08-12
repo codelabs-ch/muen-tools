@@ -19,8 +19,8 @@
 with "xmlada";
 with "xia";
 
-with "../libpaging/libpaging";
-with "../libmutools/libmutools";
+with "libpaging";
+with "libmutools";
 with "../shared_tools";
 
 project Mugenpt extends "../tools.gpr" is

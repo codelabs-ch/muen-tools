@@ -16,8 +16,8 @@
 --  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --
 
-with "../libmutools/libmutools";
-with "../libtest/libtest";
+with "libmutools";
+with "libtest";
 
 project GNATtest_Mugensolo5 extends "../tests.gpr" is
 

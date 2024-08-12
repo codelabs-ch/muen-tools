@@ -16,9 +16,9 @@
 --  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --
 
-with "../libpaging/libpaging";
-with "../libmutools/libmutools";
-with "../libtest/libtest";
+with "libpaging";
+with "libmutools";
+with "libtest";
 
 project GNATtest_Mugenpt extends "../tests.gpr" is
 

@@ -16,8 +16,8 @@
 --  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --
 
-with "../libtest/libtest";
-with "../libmutools/libmutools";
+with "libtest";
+with "libmutools";
 
 with "bfdada";
 
