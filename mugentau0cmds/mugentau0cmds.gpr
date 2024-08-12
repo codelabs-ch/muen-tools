@@ -19,9 +19,9 @@
 with "xmlada";
 with "xia";
 
-with "../libpaging/libpaging";
-with "../libmulog/libmulog";
-with "../libmutools/libmutools";
+with "libpaging";
+with "libmulog";
+with "libmutools";
 with "../shared_tools";
 
 project Mugentau0cmds extends "../tools.gpr" is
