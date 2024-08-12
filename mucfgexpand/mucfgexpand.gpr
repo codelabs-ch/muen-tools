@@ -19,13 +19,13 @@
 with "xmlada";
 with "xia";
 
-with "../liballoc/liballoc";
-with "../libpaging/libpaging";
-with "../libmulog/libmulog";
-with "../libmuxml/libmuxml";
-with "../libmutools/libmutools";
-with "../libmucfgvcpu/libmucfgvcpu";
-with "../libmucfgcheck/libmucfgcheck";
+with "liballoc";
+with "libpaging";
+with "libmulog";
+with "libmuxml";
+with "libmutools";
+with "libmucfgvcpu";
+with "libmucfgcheck";
 with "../shared_tools";
 
 project Mucfgexpand extends "../tools.gpr" is

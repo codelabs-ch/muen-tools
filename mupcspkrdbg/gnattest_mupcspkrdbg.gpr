@@ -15,7 +15,7 @@
 --  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --
 
-with "../libtest/libtest";
+with "libtest";
 
 project GNATtest_Mupcspkrdbg extends "../tests.gpr" is
 

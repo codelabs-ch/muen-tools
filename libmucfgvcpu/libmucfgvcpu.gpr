@@ -16,7 +16,7 @@
 --  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --
 
-with "../libmuxml/libmuxml";
+with "libmuxml";
 with "../shared_tools";
 
 library project Libmucfgvcpu extends "../libs.gpr" is

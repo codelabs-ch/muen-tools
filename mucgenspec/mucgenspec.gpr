@@ -17,8 +17,8 @@
 --
 
 with "../shared_tools";
-with "../libmutools/libmutools";
-with "../libmucfgcheck/libmucfgcheck";
+with "libmutools";
+with "libmucfgcheck";
 
 project Mucgenspec extends "../tools.gpr" is
 

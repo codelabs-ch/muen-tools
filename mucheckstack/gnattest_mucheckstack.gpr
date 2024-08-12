@@ -18,7 +18,7 @@
 
 with "gnatcoll";
 
-with "../libmutools/libmutools";
+with "libmutools";
 
 project GNATtest_Mucheckstack extends "../tests.gpr" is
 

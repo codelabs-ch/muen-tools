@@ -20,7 +20,7 @@ with "xmlada";
 with "xia";
 
 with "../shared_tools";
-with "../libtest/libtest";
+with "libtest";
 
 library project Libmuxml extends "../libs.gpr" is
 

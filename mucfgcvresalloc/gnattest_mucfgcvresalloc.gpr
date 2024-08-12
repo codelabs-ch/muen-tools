@@ -15,10 +15,10 @@
 --  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --
 
-with "../libmulog/libmulog";
-with "../libmutools/libmutools";
-with "../libmucfgcheck/libmucfgcheck";
-with "../libtest/libtest";
+with "libmulog";
+with "libmutools";
+with "libmucfgcheck";
+with "libtest";
 
 project GNATtest_Mucfgcvresalloc extends "../tests.gpr" is
 
