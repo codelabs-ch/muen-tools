@@ -16,9 +16,9 @@
 --  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --
 
-with "../libmulog/libmulog";
-with "../libmutools/libmutools";
-with "../libmucfgcheck/libmucfgcheck";
+with "libmulog";
+with "libmutools";
+with "libmucfgcheck";
 with "../shared_tools";
 
 project Mucfgmerge extends "../tools.gpr" is
