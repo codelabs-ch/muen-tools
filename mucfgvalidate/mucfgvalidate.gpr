@@ -19,10 +19,10 @@
 with "xmlada";
 with "xia";
 
-with "../libmulog/libmulog";
-with "../libmuxml/libmuxml";
-with "../libmutools/libmutools";
-with "../libmucfgcheck/libmucfgcheck";
+with "libmulog";
+with "libmuxml";
+with "libmutools";
+with "libmucfgcheck";
 with "../shared_tools";
 
 project Mucfgvalidate extends "../tools.gpr" is
