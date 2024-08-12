@@ -16,8 +16,8 @@
 --  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --
 
-with "../libmucfgcheck/libmucfgcheck";
-with "../libtest/libtest";
+with "libmucfgcheck";
+with "libtest";
 
 project GNATtest_Mucfgmemhashes extends "../tests.gpr" is
 

@@ -18,7 +18,7 @@
 
 with "gnatcoll";
 
-with "../libmutools/libmutools";
+with "libmutools";
 with "../shared_tools";
 
 project Mucheckstack extends "../tools.gpr" is

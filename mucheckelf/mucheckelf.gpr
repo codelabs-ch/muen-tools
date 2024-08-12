@@ -16,7 +16,7 @@
 --  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --
 
-with "../libmutools/libmutools";
+with "libmutools";
 with "../shared_tools";
 
 with "bfdada";

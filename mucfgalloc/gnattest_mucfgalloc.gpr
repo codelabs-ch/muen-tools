@@ -16,9 +16,9 @@
 --  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --
 
-with "../libmutools/libmutools";
-with "../liballoc/liballoc";
-with "../libtest/libtest";
+with "libmutools";
+with "liballoc";
+with "libtest";
 
 project GNATtest_Mucfgalloc extends "../tests.gpr" is
 

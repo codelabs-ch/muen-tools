@@ -16,8 +16,8 @@
 --  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --
 
-with "../libmuxml/libmuxml";
-with "../libtest/libtest";
+with "libmuxml";
+with "libtest";
 
 project GNATtest_Libmucfgvcpu extends "../tests.gpr" is
 

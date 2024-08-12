@@ -20,7 +20,7 @@
 with "xmlada";
 with "xia";
 
-with "../libmutools/libmutools";
+with "libmutools";
 with "../shared_tools";
 
 project Mugends extends "../tools.gpr" is
