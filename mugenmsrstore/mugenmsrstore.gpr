@@ -19,7 +19,7 @@
 with "xmlada";
 with "xia";
 
-with "../libmutools/libmutools";
+with "libmutools";
 with "../shared_tools";
 
 project Mugenmsrstore extends "../tools.gpr" is

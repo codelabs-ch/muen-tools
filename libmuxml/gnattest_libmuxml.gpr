@@ -19,7 +19,7 @@
 with "xia";
 with "xmlada";
 
-with "../libtest/libtest";
+with "libtest";
 
 project GNATtest_Libmuxml extends "../tests.gpr" is
 
