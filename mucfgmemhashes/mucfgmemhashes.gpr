@@ -16,7 +16,7 @@
 --  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --
 
-with "../libmucfgcheck/libmucfgcheck";
+with "libmucfgcheck";
 with "../shared_tools";
 
 project Mucfgmemhashes extends "../tools.gpr" is

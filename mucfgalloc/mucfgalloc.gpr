@@ -19,8 +19,8 @@
 with "xmlada";
 with "xia";
 
-with "../libmutools/libmutools";
-with "../liballoc/liballoc";
+with "libmutools";
+with "liballoc";
 with "../shared_tools";
 
 project Mucfgalloc extends "../tools.gpr" is
