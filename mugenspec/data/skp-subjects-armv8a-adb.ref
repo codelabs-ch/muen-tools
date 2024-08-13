@@ -53,9 +53,7 @@ is
             Default_Cacheability => True,
             Trap_WFI_Instruction => True,
             Trap_WFE_Instruction => True,
-            Interrupt_Support    => False))
-     with
-       Linker_Section => ".globalrodata";
+            Interrupt_Support    => False));
 
    -------------------------------------------------------------------------
 

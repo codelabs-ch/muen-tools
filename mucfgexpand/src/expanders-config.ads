@@ -32,8 +32,6 @@ is
    Kernel_Interrupt_Stack_Size      : constant := 16#0000_1000#;
    Kernel_Global_Data_Section_Addr  : constant := 16#0008_6000#;
    Kernel_Global_Data_Section_Size  : constant := 16#0000_a000#;
-   Kernel_Global_Rodata_Section_Addr : constant := 16#0009_0000#;
-   Kernel_Global_Rodata_Section_Size : constant := 16#0001_0000#;
    Kernel_RO_Section_Addr           : constant := 16#0007_0000#;
    Kernel_RO_Section_Size           : constant := 16#0001_2000#;
    Tau0_Interface_Virtual_Addr      : constant := 16#003f_f000#;

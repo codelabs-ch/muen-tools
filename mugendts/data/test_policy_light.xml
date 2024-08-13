@@ -162,9 +162,6 @@
  <memory alignment="16#1000#" caching="WB" name="kernel_global_data" physicalAddress="16#0007_6000#" size="16#a000#" type="kernel_binary">
   <file filename="kernel.bin" offset="16#0007_6000#"/>
  </memory>
- <memory alignment="16#1000#" caching="WB" name="kernel_global_rodata" physicalAddress="16#0008_0000#" size="16#0001_0000#" type="kernel_binary">
-  <file filename="kernel.bin" offset="16#0008_0000#"/>
- </memory>
  <memory alignment="16#1000#" caching="WB" name="kernel_stack_0" physicalAddress="16#000c_0000#" size="16#0002_0000#" type="kernel">
   <fill pattern="16#00#"/>
  </memory>
@@ -216,7 +213,6 @@
    <memory logical="data" physical="kernel_data_0" virtualAddress="16#0007_2000#" writable="true" executable="false"/>
    <memory logical="bss" physical="kernel_bss_0" virtualAddress="16#0007_4000#" writable="true" executable="false"/>
    <memory logical="globaldata" physical="kernel_global_data" virtualAddress="16#0007_6000#" writable="true" executable="false"/>
-   <memory logical="globalrodata" physical="kernel_global_rodata" virtualAddress="16#0008_0000#" writable="false" executable="false"/>
    <memory logical="stack" physical="kernel_stack_0" virtualAddress="16#0009_0000#" writable="true" executable="false"/>
    <memory logical="interrupt_stack" physical="kernel_interrupt_stack_0" virtualAddress="16#003f_f000#" writable="true" executable="false"/>
    <memory logical="crash_audit" physical="crash_audit" virtualAddress="16#0040_0000#" writable="true"  executable="false"/>

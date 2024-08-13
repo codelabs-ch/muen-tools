@@ -57,9 +57,7 @@ is
             102 => True,
             106 => True,
             108 => True,
-            others => False))
-     with
-       Linker_Section => ".globalrodata";
+            others => False));
 
    --------------------------
    -- Interrupt Assignment --
@@ -109,8 +107,6 @@ is
                Vector  => 38),
             others =>
               (Subject => Invalid_Subject,
-               Vector  => 0)))
-     with
-       Linker_Section => ".globalrodata";
+               Vector  => 0)));
 
 end SKP.Interrupts;

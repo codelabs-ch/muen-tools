@@ -92,9 +92,7 @@ is
             Valid_Entry        => 2#1#,
             Context_Bank_Index => 1,
             Reserved_24_31     => 16#00#),
-         others => Null_SMMU500_Controller_Configuration)
-     with
-       Linker_Section => ".globalrodata";
+         others => Null_SMMU500_Controller_Configuration);
 
    SMMU_Context_Configuration : constant SMMU500_Context_Configuration
      := (0 =>
@@ -109,8 +107,6 @@ is
             TTBR_Starting_Level        => 2#01#,
             TTBR_Physical_Address_Size => 2#010#,
             VM_Identifier              => 2),
-         others => Null_SMMU500_Context_Configuration)
-     with
-       Linker_Section => ".globalrodata";
+         others => Null_SMMU500_Context_Configuration);
 
 end SKP.IOMMU;

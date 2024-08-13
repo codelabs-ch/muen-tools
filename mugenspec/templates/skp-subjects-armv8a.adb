@@ -18,9 +18,7 @@ is
      of Subject_Spec_Type;
 
    Subject_Specs : constant Subject_Spec_Array
-     := (__subjects__)
-     with
-       Linker_Section => ".globalrodata";
+     := (__subjects__);
 
    -------------------------------------------------------------------------
 

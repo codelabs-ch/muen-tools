@@ -89,10 +89,6 @@ package body DS.Generator.Test_Data.Tests is
               (Filename1 => "obj/kernel.bin-kernel_global_data.part.ref",
                Filename2 => "obj/kernel.bin-kernel_global_data.part"),
               Message   => "obj/kernel.bin-kernel_global_data.part mismatch");
-      Assert (Condition => Test_Utils.Equal_Files
-              (Filename1 => "obj/kernel.bin-kernel_global_rodata.part.ref",
-               Filename2 => "obj/kernel.bin-kernel_global_rodata.part"),
-              Message   => "obj/kernel.bin-kernel_global_rodata.part mismatch");
 
       Assert (Condition => not Ada.Directories.Exists
               (Name => "obj/xilinxzcu104-core-0.pt-kernel_0_pt.pad"),
@@ -223,8 +219,8 @@ package body DS.Generator.Test_Data.Tests is
          when E : Generator_Error =>
             Assert (Condition => Ada.Exceptions.Exception_Message (X => E) =
                      "Offset into file 'obj/kernel.bin' referenced by physical "
-                     & "memory region 'kernel_global_rodata' is larger than "
-                     & "file size: 16#000c_0000# > 16#000b_0000#",
+                     & "memory region 'kernel_global_data' is larger than "
+                     & "file size: 16#000d_0000# > 16#000c_0000#",
                     Message   => "Unexpected error message '"
                      & Ada.Exceptions.Exception_Message (X => E) & "' if "
                      & "offset is larger than file");

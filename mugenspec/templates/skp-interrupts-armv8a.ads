@@ -37,17 +37,13 @@ is
    -- Interrupt Configuration --
    -----------------------------
    IRQ_Routing_Config : constant IRQ_Routing_Array
-     := (__irq_routing_table__)
-     with
-       Linker_Section => ".globalrodata";
+     := (__irq_routing_table__);
 
    --------------------------
    -- Interrupt Assignment --
    --------------------------
    Vector_Routing_Config : constant SK.Interrupts.Vector_Routing_Array
      (CPU_Range, Physical_Interrupt_ID_Config)
-     := (__vector_routing_table__)
-     with
-       Linker_Section => ".globalrodata";
+     := (__vector_routing_table__);
 
 end SKP.Interrupts;

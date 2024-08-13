@@ -82,13 +82,9 @@ is
      of SMMU500_Context_Configuration_Type;
 
    SMMU_Controller_Configuration : constant SMMU500_Controller_Configuration
-     := (__smmu_controller_config__)
-     with
-       Linker_Section => ".globalrodata";
+     := (__smmu_controller_config__);
 
    SMMU_Context_Configuration : constant SMMU500_Context_Configuration
-     := (__smmu_context_config__)
-     with
-       Linker_Section => ".globalrodata";
+     := (__smmu_context_config__);
 
 end SKP.IOMMU;
