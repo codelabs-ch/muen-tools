@@ -112,15 +112,16 @@ package body DS.Generator.Test_Data is
       pragma Unreferenced (Gnattest_T);
    begin
       --  Create kernel.bin from its expected parts.
-      Generate_File ("obj/kernel.bin-kernel_text.part.ref", 16#0005_8000#);
-      Generate_File ("obj/kernel.bin-kernel_ro.part.ref", 16#0001_8000#);
+      Generate_File ("obj/kernel.bin-kernel_text.part.ref", 16#0007_0000#);
+      Generate_File ("obj/kernel.bin-kernel_ro.part.ref", 16#0001_2000#);
       Generate_File ("obj/kernel.bin-kernel_data_0.part.ref", 16#2000#);
       Generate_File ("obj/kernel_bss_0.fill.ref", 16#2000#, True);
-      Generate_File ("obj/kernel.bin-kernel_global_data.part.ref", 16#c000#);
-      Generate_File ("obj/kernel.bin-kernel_global_rodata.part.ref", 16#0001_0000#);
+      Generate_File ("obj/kernel.bin-kernel_global_data.part.ref", 16#a000#);
+      --  This part is not used but contained in the binary (global_rodata section removed).
+      Generate_File ("obj/kernel.bin-kernel_unused.part.ref", 16#0001_0000#);
       --  This part is not mapped in the regular policy but contained in the binary.
       Generate_File ("obj/kernel.bin-kernel_stack", 16#0002_0000#);
-      Concat_Files ("obj/kernel.bin-kernel_text.part.ref:obj/kernel.bin-kernel_ro.part.ref:obj/kernel.bin-kernel_data_0.part.ref:obj/kernel_bss_0.fill.ref:obj/kernel.bin-kernel_global_data.part.ref:obj/kernel.bin-kernel_global_rodata.part.ref:obj/kernel.bin-kernel_stack",
+      Concat_Files ("obj/kernel.bin-kernel_text.part.ref:obj/kernel.bin-kernel_ro.part.ref:obj/kernel.bin-kernel_data_0.part.ref:obj/kernel_bss_0.fill.ref:obj/kernel.bin-kernel_global_data.part.ref:obj/kernel.bin-kernel_unused.part.ref:obj/kernel.bin-kernel_stack",
                     "obj/kernel.bin");
 
       --  Generate a reference file for the last part with padding.
