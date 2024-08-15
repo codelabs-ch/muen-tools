@@ -322,7 +322,7 @@
   <memory alignment="16#1000#" caching="WB" name="subject3|sinfo" size="16#8000#" type="subject_info">
    <file filename="subject3.sinfo" offset="none" size="16#8000#"/>
   </memory>
-  <memory alignment="16#1000#" caching="WB" name="kernel_0|pt" size="16#c000#" type="system_pt">
+  <memory alignment="16#1000#" caching="WB" name="kernel_0|pt" size="16#b000#" type="system_pt">
    <file filename="kernel_0.pt" offset="none"/>
   </memory>
   <memory alignment="16#1000#" caching="WB" name="kernel_1|pt" size="16#c000#" type="system_pt">
@@ -423,7 +423,6 @@
     <memory executable="false" logical="scheduling_info_1" physical="scheduling_info_1" virtualAddress="16#00b0_0000#" writable="true"/>
     <memory executable="false" logical="scheduling_info_4" physical="scheduling_info_4" virtualAddress="16#00b0_3000#" writable="true"/>
     <memory executable="false" logical="crash_audit" physical="crash_audit" virtualAddress="16#0040_0000#" writable="true"/>
-    <memory executable="false" logical="tau0_interface" physical="sys_interface" virtualAddress="16#003f_f000#" writable="true"/>
    </cpu>
    <cpu id="1">
     <memory executable="true" logical="text" physical="kernel_text" virtualAddress="16#0000#" writable="false"/>
@@ -448,7 +447,7 @@
     <memory executable="false" logical="scheduling_info_3" physical="scheduling_info_3" virtualAddress="16#00b0_2000#" writable="true"/>
     <memory executable="false" logical="scheduling_info_5" physical="scheduling_info_5" virtualAddress="16#00b0_4000#" writable="true"/>
     <memory executable="false" logical="crash_audit" physical="crash_audit" virtualAddress="16#0040_0000#" writable="true"/>
-    <memory executable="false" logical="tau0_interface" physical="sys_interface" virtualAddress="16#003f_f000#" writable="true"/>
+    <memory executable="false" logical="tau0_interface" physical="sys_interface" virtualAddress="16#003f_f000#" writable="false"/>
    </cpu>
   </memory>
   <devices>
