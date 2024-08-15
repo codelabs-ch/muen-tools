@@ -877,30 +877,26 @@ is
 
    procedure Map_Tau0_Interface (Data : in out Muxml.XML_Data_Type)
    is
-      Cores : constant DOM.Core.Node_List
-        := McKae.XML.XPath.XIA.XPath_Query
-             (N     => Data.Doc,
-              XPath => "/system/kernel/memory/cpu");
+      BSP_ID : constant String := Muxml.Utils.Get_Attribute
+        (Doc   => Data.Doc,
+         XPath => "/system/hardware/processor/cpu[@apicId='0']",
+         Name  => "cpuId");
+      BSP : constant DOM.Core.Node := Muxml.Utils.Get_Element
+        (Doc   => Data.Doc,
+         XPath => "/system/kernel/memory/cpu[@id='" & BSP_ID & "']");
    begin
-      --  TODO: MOA: Tau0 interface is mapped on all cores, writable.
-      Mulog.Log (Msg => "Mapping 'tau0' system interface on all cores");
+      Mulog.Log (Msg => "Mapping 'tau0' system interface on CPU " & BSP_ID);
 
-      for I in 0 .. DOM.Core.Nodes.Length (List => Cores) - 1 loop
-         Muxml.Utils.Append_Child
-           (Node      => DOM.Core.Nodes.Item
-              (List  => Cores,
-               Index => I),
-            New_Child =>
-              MX.Create_Virtual_Memory_Node
-                (Policy        => Data,
-                 Logical_Name  => "tau0_interface",
-                 Physical_Name => "sys_interface",
-                 Address       =>
-                   Mutools.Utils.To_Hex
-                     (Number => Config.Tau0_Interface_Virtual_Addr),
-                   Writable    => True,
-                   Executable  => False));
-      end loop;
+      Muxml.Utils.Append_Child
+        (Node      => BSP,
+         New_Child => MX.Create_Virtual_Memory_Node
+           (Policy        => Data,
+            Logical_Name  => "tau0_interface",
+            Physical_Name => "sys_interface",
+            Address       => Mutools.Utils.To_Hex
+              (Number => Config.Tau0_Interface_Virtual_Addr),
+            Writable      => False,
+            Executable    => False));
    end Map_Tau0_Interface;
 
 end Expanders.Kernel;
