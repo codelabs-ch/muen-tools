@@ -263,13 +263,14 @@ is
          begin
             --  TODO: MOA: Fixed physical address.
             Mutools.XML_Utils.Add_Memory_Region
-              (Policy      => Data,
-               Name        => "kernel_stack_" & CPU_Str,
-               Address     => Mutools.Utils.To_Hex (Number => Stack_Addr),
-               Size        => Mutools.Utils.To_Hex (Number => Stack_Size),
-               Caching     => "WB",
-               Alignment   => "16#1000#",
-               Memory_Type => "kernel");
+              (Policy       => Data,
+               Name         => "kernel_stack_" & CPU_Str,
+               Address      => Mutools.Utils.To_Hex (Number => Stack_Addr),
+               Size         => Mutools.Utils.To_Hex (Number => Stack_Size),
+               Caching      => "WB",
+               Alignment    => "16#1000#",
+               Memory_Type  => "kernel",
+               Fill_Pattern => "16#00#");
             Stack_Addr := Stack_Addr + Stack_Size;
             -- TODO: MOA: No interrupt stack.
             -- Mutools.XML_Utils.Add_Memory_Region
