@@ -3,7 +3,7 @@ with "../../shared_tools";
 project Binding is
 
    for Source_Dirs use (".");
-   for Object_Dir use "../obj/thin/" & Shared_Tools.Build;
+   for Object_Dir use external("OBJ_DIR", "../obj/thin/") & Shared_Tools.Build;
 
    Compiler_Switches := ("-fstack-check",
                          "-gnato",
