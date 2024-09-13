@@ -54,7 +54,7 @@ package body Stackcheck.Test_Data.Tests is
               Message   => "Dynamic stack not detected");
 
       Run (Project_File => "data/testci",
-           Limit        => 255,
+           Limit        => 239,
            Overflow     => Failure,
            Dynamic      => Dynamic_Stack);
       Assert (Condition => Failure,
