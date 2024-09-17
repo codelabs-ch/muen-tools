@@ -209,7 +209,9 @@ is
          end if;
       end Register_File;
    begin
-      Register_File (CPU, To_Unbounded_String ("pt"), PT);
+      Register_File (CPU      => CPU,
+                     Virtual  => To_Unbounded_String ("pt"),
+                     Physical => PT);
 
       for I in 0 .. DOM.Core.Nodes.Length (List => Nodes) - 1 loop
          declare
@@ -225,8 +227,9 @@ is
                 (Elem => Node,
                  Name => "physical");
          begin
-            Register_File (CPU, To_Unbounded_String (Logical),
-                           To_Unbounded_String (Physical));
+            Register_File (CPU      => CPU,
+                           Virtual  => To_Unbounded_String (Logical),
+                           Physical => To_Unbounded_String (Physical));
          end;
       end loop;
    end Register_Files;
@@ -495,8 +498,12 @@ is
             Mulog.Log (Msg => "Collect file-backed kernel memory for CPU "
                                & CPU);
 
-            Register_Files (CPU_Id, Kernel_PT, Kernel_Mem,
-                            File_Backed_Memory, Used_Memory, Kernels);
+            Register_Files (CPU                => CPU_Id,
+                            PT                 => Kernel_PT,
+                            Nodes              => Kernel_Mem,
+                            File_Backed_Memory => File_Backed_Memory,
+                            Used_Memory        => Used_Memory,
+                            Kernels            => Kernels);
          end;
       end loop;
 
@@ -526,8 +533,12 @@ is
             Mulog.Log (Msg => "Collect file-backed subject memory for '"
                                & Name & "'");
 
-            Register_Files (CPU, Subject_PT, Subject_Mem,
-                            File_Backed_Memory, Used_Memory, Kernels);
+            Register_Files (CPU                => CPU,
+                            PT                 => Subject_PT,
+                            Nodes              => Subject_Mem,
+                            File_Backed_Memory => File_Backed_Memory,
+                            Used_Memory        => Used_Memory,
+                            Kernels            => Kernels);
          end;
       end loop;
 
@@ -552,8 +563,12 @@ is
             Mulog.Log (Msg => "Collect file-backed device domain memory for '"
                                & Name & "'");
 
-            Register_Files (0, Domain_PT, Domain_Mem,
-                            File_Backed_Memory, Used_Memory, Kernels);
+            Register_Files (CPU                => 0,
+                            PT                 => Domain_PT,
+                            Nodes              => Domain_Mem,
+                            File_Backed_Memory => File_Backed_Memory,
+                            Used_Memory        => Used_Memory,
+                            Kernels            => Kernels);
          end;
       end loop;
 
@@ -565,13 +580,25 @@ is
          end if;
       end loop;
 
-      DS.BIF.Write (Kernels, Files, Output_Dir);
+      DS.BIF.Write
+         (CPUs       => Kernels,
+          Files      => Files,
+          Output_Dir => Output_Dir);
 
-      DS.GDB.Write (Kernels, Files, Output_Dir);
+      DS.GDB.Write
+         (CPUs       => Kernels,
+          Files      => Files,
+          Output_Dir => Output_Dir);
 
-      DS.UBOOT.Write (Kernels, Files, Output_Dir);
+      DS.UBOOT.Write
+         (CPUs       => Kernels,
+          Files      => Files,
+          Output_Dir => Output_Dir);
 
-      DS.XSCT.Write (Kernels, Files, Output_Dir);
+      DS.XSCT.Write
+         (CPUs       => Kernels,
+          Files      => Files,
+          Output_Dir => Output_Dir);
 
    end Write;
 
