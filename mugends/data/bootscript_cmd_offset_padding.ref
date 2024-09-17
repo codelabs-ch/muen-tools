@@ -1,10 +1,10 @@
 echo "Loading files from TFTP"
-tftpboot 0x0 kernel.bin-kernel_text.part
-tftpboot 0x70000 kernel.bin-kernel_ro.part
-tftpboot 0x82000 kernel.bin-kernel_data_0.part
+tftpboot 0x0 kernel.bin-kernel_text.part || panic
+tftpboot 0x70000 kernel.bin-kernel_ro.part || panic
+tftpboot 0x82000 kernel.bin-kernel_data_0.part || panic
 mw 0x84000 0x0 0x2000
-tftpboot 0x86000 kernel.bin-kernel_global_data.part
-tftpboot 0xa0000 kernel.bin-kernel_stack.part
+tftpboot 0x86000 kernel.bin-kernel_global_data.part || panic
+tftpboot 0xa0000 kernel.bin-kernel_stack.part || panic
 mw 0xc0000 0x0 0x10000
 
 dcache flush
