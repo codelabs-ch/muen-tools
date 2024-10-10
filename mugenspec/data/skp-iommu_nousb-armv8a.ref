@@ -2,7 +2,7 @@ with Interfaces;
 
 with System;
 
-package SKP.IOMMU
+package Skp.IOMMU
   with
     SPARK_Mode => On
 is
@@ -109,4 +109,4 @@ is
             VM_Identifier              => 2),
          others => Null_SMMU500_Context_Configuration);
 
-end SKP.IOMMU;
+end Skp.IOMMU;

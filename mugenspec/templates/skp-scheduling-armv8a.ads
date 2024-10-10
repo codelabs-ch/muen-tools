@@ -4,7 +4,7 @@ with SK;
 --D This package contains scheduling plans, minor frame synchronization barrier
 --D configurations and subject to scheduling partition as well as scheduling
 --D group ID mappings as specified by the system policy.
-package SKP.Scheduling
+package Skp.Scheduling
 is
 
    VMX_Timer_Rate : constant := __vmx_timer_rate__;
@@ -168,4 +168,4 @@ __subj_to_scheduling_group__);
    is
      (Scheduling_Group_Config (Group_ID).Group_Index);
 
-end SKP.Scheduling;
+end Skp.Scheduling;

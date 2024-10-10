@@ -8,7 +8,7 @@
 
 with ARMv8;
 
-package SKP
+package Skp
   with
     SPARK_Mode => On
 is
@@ -31,4 +31,4 @@ is
 
    type Dst_Vector_Range is range 0 .. Invalid_Vector;
 
-end SKP;
+end Skp;

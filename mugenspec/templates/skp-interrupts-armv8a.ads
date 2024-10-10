@@ -2,7 +2,7 @@ with GIC;
 
 with SK.Interrupts;
 
-package SKP.Interrupts
+package Skp.Interrupts
   with
     SPARK_Mode => On
 is
@@ -46,4 +46,4 @@ is
      (CPU_Range, Physical_Interrupt_ID_Config)
      := (__vector_routing_table__);
 
-end SKP.Interrupts;
+end Skp.Interrupts;

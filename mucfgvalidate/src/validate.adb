@@ -156,7 +156,7 @@ is
 
       --  Arch Independent: Validate that a subject state memory region
       --  with the expected size exists for every subject (not yet
-      --  supported on ARMv8-A, currently manually written SKP files).
+      --  supported on ARMv8-A, currently manually written Skp files).
       XML_Processors.Register
         (Process => Memory.Subject_State_Region_Presence'Access);
 
@@ -177,7 +177,7 @@ is
 
       --  Arch Independent: Validate that a subject FPU state memory region
       --  with the expected size exists for every subject. (not yet
-      --  supported on ARMv8-A, currently manually written SKP files).
+      --  supported on ARMv8-A, currently manually written Skp files).
       XML_Processors.Register
         (Process => Memory.Subject_FPU_State_Region_Presence'Access);
 
@@ -213,7 +213,7 @@ is
       --  Arch Independent: Validate that subject state memory regions are
       --  mapped by the kernel running that subject. Also verify that the
       --  kernel mapping is at the expected virtual location. (not yet
-      --  supported on ARMv8-A, currently manually written SKP files).
+      --  supported on ARMv8-A, currently manually written Skp files).
       XML_Processors.Register
         (Process => Memory.Subject_State_Mappings'Access);
 
@@ -232,7 +232,7 @@ is
       --  Arch Independent: Validate that subject FPU state regions are
       --  mapped by the kernel running that subject. Also verify that the
       --  kernel mapping is at the expected virtual location. (not yet
-      --  supported on ARMv8-A, currently manually written SKP files).
+      --  supported on ARMv8-A, currently manually written Skp files).
       XML_Processors.Register
         (Process => Memory.Subject_FPU_State_Mappings'Access);
 

@@ -2,7 +2,7 @@
 --D This package contains constant definitions for hardware-dependent I/O
 --D devices operated by the kernel. The values are derived from the system
 --D policy.
-package SKP.Hardware
+package Skp.Hardware
   with
     SPARK_Mode => On
 is
@@ -26,4 +26,4 @@ is
    Iommu_Fr_Offset : constant := 16#0220#;
    Iommu_Iotlb_Invalidate_Offset : constant := 16#00f8#;
 
-end SKP.Hardware;
+end Skp.Hardware;

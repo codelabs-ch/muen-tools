@@ -1,7 +1,7 @@
 --  Disable line length check
 pragma Style_Checks ("-m");
 
-package body SKP.Events
+package body Skp.Events
   with
     SPARK_Mode => On
 is
@@ -103,4 +103,4 @@ is
       return Trap_Event_Type
    is (Subject_Events (Subject_ID).Source_Traps (Trap_Nr));
 
-end SKP.Events;
+end Skp.Events;

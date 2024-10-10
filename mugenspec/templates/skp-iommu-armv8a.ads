@@ -2,7 +2,7 @@ with Interfaces;
 
 with System;
 
-package SKP.IOMMU
+package Skp.IOMMU
   with
     SPARK_Mode => On
 is
@@ -87,4 +87,4 @@ is
    SMMU_Context_Configuration : constant SMMU500_Context_Configuration
      := (__smmu_context_config__);
 
-end SKP.IOMMU;
+end Skp.IOMMU;
