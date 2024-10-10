@@ -1,4 +1,4 @@
-package body SKP.Subjects
+package body Skp.Subjects
   with
     SPARK_Mode => On
 is
@@ -77,4 +77,4 @@ is
       return Boolean
    is (Subject_Specs (Subject_ID).Interrupt_Support);
 
-end SKP.Subjects;
+end Skp.Subjects;

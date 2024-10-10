@@ -5,7 +5,7 @@ with Interfaces;
 --D policy. The given values define the configurable part of the subject
 --D state for each subject and establish their initial state according to
 --D the policy.
-package SKP.Subjects
+package Skp.Subjects
   with
     SPARK_Mode => On
 is
@@ -45,4 +45,4 @@ is
      (Subject_ID : Global_Subject_ID_Type)
       return Boolean;
 
-end SKP.Subjects;
+end Skp.Subjects;

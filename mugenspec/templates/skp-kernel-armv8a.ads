@@ -1,7 +1,7 @@
 --D @Interface
 --D This package contains virtual addresses of various kernel data structure
 --D mappings as specified by the system policy.
-package SKP.Kernel
+package Skp.Kernel
   with
     SPARK_Mode => On
 is
@@ -13,4 +13,4 @@ is
    Crash_Audit_Address       : constant := __crash_audit_addr__;
    Crash_Audit_Size          : constant := __crash_audit_size__;
 
-end SKP.Kernel;
+end Skp.Kernel;

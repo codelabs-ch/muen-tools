@@ -2,7 +2,7 @@ with GIC;
 
 with SK.Interrupts;
 
-package SKP.Interrupts
+package Skp.Interrupts
   with
     SPARK_Mode => On
 is
@@ -81,4 +81,4 @@ is
               (Subject => Invalid_Subject,
                Vector  => 0)));
 
-end SKP.Interrupts;
+end Skp.Interrupts;

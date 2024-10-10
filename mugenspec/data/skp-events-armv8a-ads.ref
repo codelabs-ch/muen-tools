@@ -3,7 +3,7 @@ with SK;
 --D @Interface
 --D This package contains subject source/target event as well as trap
 --D definitions as specified by the system policy.
-package SKP.Events
+package Skp.Events
   with
     SPARK_Mode => On
 is
@@ -123,4 +123,4 @@ private
      (Kind   => No_Action,
       Vector => Invalid_Vector);
 
-end SKP.Events;
+end Skp.Events;
