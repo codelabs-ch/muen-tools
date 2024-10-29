@@ -35,31 +35,16 @@ stop
 ###
 
 ### RST
-targets -set -nocase -filter {name =~ "*A53*1" && jtag_cable_name =~ "Xilinx HW-Z1-ZCU104 FT4232H*"}
-rst -processor
-after 2000
-rwr pc 0x00000000
-after 500
-
+__rst_entries__
 ###
 
 ### FILES
 targets -set -nocase -filter {name =~ "*A53*0" && jtag_cable_name =~ "Xilinx HW-Z1-ZCU104 FT4232H*"}
-dow -data kernel.bin-kernel_text.part 0x0
-dow -data kernel.bin-kernel_ro.part 0x70000
-dow -data kernel.bin-kernel_data_0.part 0x82000
-dow -data kernel_bss_0.fill 0x84000
-dow -data kernel.bin-kernel_global_data.part 0x86000
-dow -data kernel.bin-kernel_stack.part.pad 0xa0000
-
+__file_entries__
 ###
 
 ### Run
-targets -set -nocase -filter {name =~ "*A53*0" && jtag_cable_name =~ "Xilinx HW-Z1-ZCU104 FT4232H*"}
-con -addr 0x00000000
-targets -set -nocase -filter {name =~ "*A53*1" && jtag_cable_name =~ "Xilinx HW-Z1-ZCU104 FT4232H*"}
-con -addr 0x00000000
-
+__run_entries__
 ###
 
 disconnect
