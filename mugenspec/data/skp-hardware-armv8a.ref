@@ -1,0 +1,29 @@
+--D @Interface
+--D This package contains constant definitions for hardware-dependent I/O
+--D devices operated by the kernel. The values are derived from the system
+--D policy.
+package Skp.Hardware
+  with
+    SPARK_Mode => On
+is
+
+   Debugconsole_Serial_Dev : constant := 16#ff00_0000#;
+   Gic_Gic : constant := 16#f900_0000#;
+   Gic_Gicd : constant := 16#f900_1000#;
+   Gic_Gicc : constant := 16#f900_2000#;
+   Gic_Gicc_Dir : constant := 16#f900_3000#;
+   Gic_Gich : constant := 16#f900_4000#;
+   Gic_Gich_Alias : constant := 16#f900_5000#;
+   Gic_Gicv : constant := 16#f900_6000#;
+   Gic_Gicv_Dir : constant := 16#f900_7000#;
+   Gic_Pirq_Id_Max : constant := 16#00bf#;
+   Gic_Virq_Id_Max : constant := 16#01ff#;
+   Iommu_Controller : constant := 16#fd80_0000#;
+   Iommu_Context : constant := 16#fd81_0000#;
+   Iommu_Stream_Mapping_Id_Max : constant := 16#002f#;
+   Iommu_Context_Bank_Id_Max : constant := 16#000f#;
+   Iommu_Agaw : constant := 16#0027#;
+   Iommu_Fr_Offset : constant := 16#0220#;
+   Iommu_Iotlb_Invalidate_Offset : constant := 16#00f8#;
+
+end Skp.Hardware;

@@ -41,6 +41,8 @@ package body Spec.Skp_Interrupts.Test_Data.Tests is
       Output_Dir : constant String := "obj";
       Spec       : constant String := Output_Dir & "/skp-interrupts.ads";
    begin
+
+      Write_X86_64:
       declare
          Policy : Muxml.XML_Data_Type;
       begin
@@ -53,45 +55,125 @@ package body Spec.Skp_Interrupts.Test_Data.Tests is
          Assert (Condition => Test_Utils.Equal_Files
                  (Filename1 => Spec,
                   Filename2 => "data/skp-interrupts.ads"),
-                 Message   => "Interrupt spec mismatch");
+                 Message   => "Interrupt spec mismatch (x86/64)");
          Ada.Directories.Delete_File (Name => Spec);
-      end;
+      end Write_X86_64;
 
-      Write_No_IRQs :
+      Write_ARMv8a:
       declare
          Policy : Muxml.XML_Data_Type;
       begin
          Muxml.Parse (Data => Policy,
                       Kind => Muxml.Format_B,
-                      File => "data/test_policy.xml");
+                      File => "data/test_policy-armv8a.xml");
 
-         declare
-            Node : constant DOM.Core.Node := Muxml.Utils.Get_Element
-              (Doc   => Policy.Doc,
-               XPath => "/system/subjects/subject[@name='subject1']/devices");
-            Tmp : DOM.Core.Node;
-            pragma Unreferenced (Tmp);
-         begin
+         Write (Output_Dir => Output_Dir,
+                Policy     => Policy);
+         Assert (Condition => Test_Utils.Equal_Files
+                 (Filename1 => Spec,
+                  Filename2 => "data/skp-interrupts-armv8a.ref"),
+                 Message   => "Interrupt spec mismatch (ARMv8a)");
+         Ada.Directories.Delete_File (Name => Spec);
+      end Write_ARMv8a;
 
-            --  Remove all devices with IRQs.
-
-            while DOM.Core.Nodes.Has_Child_Nodes (N => Node) loop
-               Tmp := DOM.Core.Nodes.Remove_Child
-                 (N         => Node,
-                  Old_Child => DOM.Core.Nodes.First_Child (N => Node));
-            end loop;
-
-            Write (Output_Dir => Output_Dir,
-                   Policy     => Policy);
-            Assert (Condition => Test_Utils.Equal_Files
-                    (Filename1 => Spec,
-                     Filename2 => "data/skp-interrupts_noirq.ref"),
-                    Message   => "Interrupt spec mismatch");
-            Ada.Directories.Delete_File (Name => Spec);
-         end;
-      end Write_No_IRQs;
 --  begin read only
    end Test_Write;
+--  end read only
+
+
+--  begin read only
+   procedure Test_Write_ARMv8a (Gnattest_T : in out Test);
+   procedure Test_Write_ARMv8a_aa89b6 (Gnattest_T : in out Test) renames Test_Write_ARMv8a;
+--  id:2.2/aa89b6b5d2a505b7/Write_ARMv8a/1/0/
+   procedure Test_Write_ARMv8a (Gnattest_T : in out Test) is
+--  end read only
+
+      pragma Unreferenced (Gnattest_T);
+
+      Output_Dir : constant String := "obj";
+      Spec       : constant String := Output_Dir & "/skp-interrupts.ads";
+
+      Policy : Muxml.XML_Data_Type;
+   begin
+      Muxml.Parse (Data => Policy,
+                   Kind => Muxml.Format_B,
+                   File => "data/test_policy-armv8a.xml");
+
+      declare
+         Node : constant DOM.Core.Node := Muxml.Utils.Get_Element
+           (Doc   => Policy.Doc,
+            XPath => "/system/subjects/subject[@name='lnx2']/devices");
+         Tmp : DOM.Core.Node;
+         pragma Unreferenced (Tmp);
+      begin
+
+         --  Remove all devices with IRQs for CPU 1
+
+         while DOM.Core.Nodes.Has_Child_Nodes (N => Node) loop
+            Tmp := DOM.Core.Nodes.Remove_Child
+              (N         => Node,
+               Old_Child => DOM.Core.Nodes.First_Child (N => Node));
+         end loop;
+
+         Write (Output_Dir => Output_Dir,
+                Policy     => Policy);
+         Assert (Condition => Test_Utils.Equal_Files
+                 (Filename1 => Spec,
+                  Filename2 => "data/skp-interrupts_noirq-armv8a.ref"),
+                 Message   => "Interrupt spec mismatch (ARMv8a, no irqs)");
+         Ada.Directories.Delete_File (Name => Spec);
+      end;
+
+--  begin read only
+   end Test_Write_ARMv8a;
+--  end read only
+
+
+--  begin read only
+   procedure Test_Write_X86_64 (Gnattest_T : in out Test);
+   procedure Test_Write_X86_64_93a87b (Gnattest_T : in out Test) renames Test_Write_X86_64;
+--  id:2.2/93a87b7e3333f8da/Write_X86_64/1/0/
+   procedure Test_Write_X86_64 (Gnattest_T : in out Test) is
+--  end read only
+
+      pragma Unreferenced (Gnattest_T);
+
+      Output_Dir : constant String := "obj";
+      Spec       : constant String := Output_Dir & "/skp-interrupts.ads";
+
+      Policy : Muxml.XML_Data_Type;
+   begin
+      Muxml.Parse (Data => Policy,
+                   Kind => Muxml.Format_B,
+                   File => "data/test_policy.xml");
+
+      declare
+         Node : constant DOM.Core.Node := Muxml.Utils.Get_Element
+           (Doc   => Policy.Doc,
+            XPath => "/system/subjects/subject[@name='subject1']/devices");
+         Tmp : DOM.Core.Node;
+         pragma Unreferenced (Tmp);
+      begin
+
+         --  Remove all devices with IRQs.
+
+         while DOM.Core.Nodes.Has_Child_Nodes (N => Node) loop
+            Tmp := DOM.Core.Nodes.Remove_Child
+              (N         => Node,
+               Old_Child => DOM.Core.Nodes.First_Child (N => Node));
+         end loop;
+
+         Write (Output_Dir => Output_Dir,
+                Policy     => Policy);
+         Assert (Condition => Test_Utils.Equal_Files
+                 (Filename1 => Spec,
+                  Filename2 => "data/skp-interrupts_noirq.ref"),
+                 Message   => "Interrupt spec mismatch (x86/64, no irqs)");
+         Ada.Directories.Delete_File (Name => Spec);
+      end;
+
+--  begin read only
+   end Test_Write_X86_64;
 --  end read only
 
 --  begin read only

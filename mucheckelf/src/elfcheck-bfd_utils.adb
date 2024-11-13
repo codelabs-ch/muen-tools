@@ -48,7 +48,8 @@ is
       Virtual_Mem  : DOM.Core.Node_List;
       Region_Name  : String;
       Section      : Bfd.Sections.Section;
-      Mapped       : Boolean := True)
+      Mapped       : Boolean := True;
+      Identity     : Boolean := True)
    is
       use type DOM.Core.Node;
 
@@ -124,12 +125,14 @@ is
                   Section_Name => Section_Name,
                   Region_Name  => Region_Name,
                   Size         => Size);
-               Validate_LMA_In_Region
-                 (Section      => Section,
-                  Section_Name => Section_Name,
-                  Region_Name  => Region_Name,
-                  Address      => LMA,
-                  Size         => Size);
+               if Identity then
+                  Validate_LMA_In_Region
+                    (Section      => Section,
+                     Section_Name => Section_Name,
+                     Region_Name  => Region_Name,
+                     Address      => LMA,
+                     Size         => Size);
+               end if;
                Validate_Permission
                  (Section      => Section,
                   Section_Name => Section_Name,

@@ -26,7 +26,8 @@ is
    type Caching_Type is (UC, WC, WT, WP, WB);
 
    --  Supported paging modes.
-   type Paging_Mode_Type is (IA32e_Mode, EPT_Mode);
+   type Paging_Mode_Type is
+     (IA32e_Mode, EPT_Mode, ARMv8a_Stage1_Mode, ARMv8a_Stage2_Mode);
 
    Entries_Per_Table : constant := 512;
 

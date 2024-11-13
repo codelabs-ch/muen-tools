@@ -29,6 +29,7 @@ with Mulog;
 with Muxml.Utils;
 with Mutools.Utils;
 with Mutools.Constants;
+with Mutools.System_Config;
 with Mutools.XML_Utils;
 with Mucfgcheck.Kernel;
 with Mucfgcheck.Subject;
@@ -100,6 +101,7 @@ is
             Mulog.Log (Msg => "Adding kernel local memory regions for CPU "
                        & CPU_Str);
 
+            --  TODO: MOA: bootgen wants extension in filename.
             Mutools.XML_Utils.Add_Memory_Region
               (Policy      => Data,
                Name        => "kernel_data_" & CPU_Str,
@@ -107,7 +109,7 @@ is
                Size        => Data_Size,
                Caching     => "WB",
                Alignment   => "16#1000#",
-               File_Name   => "kernel",
+               File_Name   => "kernel.bin",
                File_Offset => Data_Offset,
                Memory_Type => "kernel_binary");
             Mutools.XML_Utils.Add_Memory_Region
@@ -137,6 +139,12 @@ is
         := McKae.XML.XPath.XIA.XPath_Query
           (N     => Data.Doc,
            XPath => "/system/hardware/devices/device");
+      Is_ARM_System : constant Boolean := Mutools.System_Config.Has_Boolean
+        (Data => Data,
+         Name => "armv8") and then
+        Mutools.System_Config.Get_Value
+          (Data => Data,
+           Name => "armv8");
    begin
 
       --  Validate that there are no overlapping kernel memory mappings and
@@ -155,7 +163,7 @@ is
               := XML_Utils.Calculate_PT_Size
                 (Policy             => Data,
                  Paging_Levels      => 4,
-                 Large_Pages        => False,
+                 Large_Pages        => Is_ARM_System,
                  Physical_Memory    => Physical_Mem,
                  Physical_Devices   => Physical_Devs,
                  Dev_Virt_Mem_XPath => "/system/kernel/devices/device/memory",
@@ -167,14 +175,15 @@ is
             Mulog.Log (Msg => "Adding pagetable region with size " & Size_Str
                        & " for CPU " & CPU_Str);
             Mutools.XML_Utils.Add_Memory_Region
-              (Policy       => Data,
-               Name         => "kernel_" & CPU_Str & "|pt",
-               Address      => "",
-               Size         => Size_Str,
-               Caching      => "WB",
-               Alignment    => "16#1000#",
-               Memory_Type  => "system_pt",
-               Fill_Pattern => "16#00#"); --  Force placement in lower memory.
+              (Policy      => Data,
+               Name        => "kernel_" & CPU_Str & "|pt",
+               Address     => "",
+               Size        => Size_Str,
+               Caching     => "WB",
+               Alignment   => "16#1000#",
+               Memory_Type => "system_pt",
+               File_Name   => "kernel_" & CPU_Str & ".pt",
+               File_Offset => "none");
          end;
       end loop;
    end Add_Kernel_PTs;
@@ -187,6 +196,7 @@ is
    begin
       Mulog.Log (Msg => "Adding kernel shared memory regions");
 
+      --  TODO: MOA: bootgen wants extension in filename.
       Mutools.XML_Utils.Add_Memory_Region
         (Policy      => Data,
          Name        => "kernel_text",
@@ -196,7 +206,7 @@ is
            (Number => Config.Kernel_Text_Section_Size),
          Caching     => "WB",
          Alignment   => "16#1000#",
-         File_Name   => "kernel",
+         File_Name   => "kernel.bin",
          File_Offset => "16#0000#",
          Memory_Type => "kernel_binary");
       Mutools.XML_Utils.Add_Memory_Region
@@ -208,7 +218,7 @@ is
            (Number => Config.Kernel_Global_Data_Section_Size),
          Caching     => "WB",
          Alignment   => "16#1000#",
-         File_Name   => "kernel",
+         File_Name   => "kernel.bin",
          File_Offset => Mutools.Utils.To_Hex
            (Number => Config.Kernel_Global_Data_Section_Addr
             - Config.Kernel_Text_Section_Addr),
@@ -222,7 +232,7 @@ is
            (Number => Config.Kernel_RO_Section_Size),
          Caching     => "WB",
          Alignment   => "16#1000#",
-         File_Name   => "kernel",
+         File_Name   => "kernel.bin",
          File_Offset => Mutools.Utils.To_Hex
            (Number => Config.Kernel_RO_Section_Addr
             - Config.Kernel_Text_Section_Addr),
@@ -233,12 +243,14 @@ is
 
    procedure Add_Kernel_Stack (Data : in out Muxml.XML_Data_Type)
    is
-      CPU_Count       : constant Positive
+      use type Interfaces.Unsigned_64;
+
+      CPU_Count  : constant Positive
         := Mutools.XML_Utils.Get_Active_CPU_Count (Data => Data);
-      Stack_Size      : constant String
-        := Mutools.Utils.To_Hex (Number => Config.Kernel_Stack_Size);
-      Intr_Stack_Size : constant String
-        := Mutools.Utils.To_Hex (Number => Config.Kernel_Interrupt_Stack_Size);
+      Stack_Addr : Interfaces.Unsigned_64          := Config.Kernel_Stack_Addr;
+      Stack_Size : constant Interfaces.Unsigned_64 := Config.Kernel_Stack_Size;
+      -- Intr_Stack_Size : constant String
+      --   := Mutools.Utils.To_Hex (Number => Config.Kernel_Interrupt_Stack_Size);
    begin
       Mulog.Log (Msg => "Adding kernel stack memory regions for"
                  & CPU_Count'Img & " CPU(s)");
@@ -249,22 +261,26 @@ is
               (Source => I'Img,
                Side   => Ada.Strings.Left);
          begin
+            --  TODO: MOA: Fixed physical address.
             Mutools.XML_Utils.Add_Memory_Region
-              (Policy      => Data,
-               Name        => "kernel_stack_" & CPU_Str,
-               Address     => "",
-               Size        => Stack_Size,
-               Caching     => "WB",
-               Alignment   => "16#1000#",
-               Memory_Type => "kernel");
-            Mutools.XML_Utils.Add_Memory_Region
-              (Policy      => Data,
-               Name        => "kernel_interrupt_stack_" & CPU_Str,
-               Address     => "",
-               Size        => Intr_Stack_Size,
-               Caching     => "WB",
-               Alignment   => "16#1000#",
-               Memory_Type => "kernel");
+              (Policy       => Data,
+               Name         => "kernel_stack_" & CPU_Str,
+               Address      => Mutools.Utils.To_Hex (Number => Stack_Addr),
+               Size         => Mutools.Utils.To_Hex (Number => Stack_Size),
+               Caching      => "WB",
+               Alignment    => "16#1000#",
+               Memory_Type  => "kernel",
+               Fill_Pattern => "16#00#");
+            Stack_Addr := Stack_Addr + Stack_Size;
+            -- TODO: MOA: No interrupt stack.
+            -- Mutools.XML_Utils.Add_Memory_Region
+            --   (Policy      => Data,
+            --    Name        => "kernel_interrupt_stack_" & CPU_Str,
+            --    Address     => "",
+            --    Size        => Intr_Stack_Size,
+            --    Caching     => "WB",
+            --    Alignment   => "16#1000#",
+            --    Memory_Type => "kernel");
          end;
       end loop;
    end Add_Kernel_Stack;
@@ -592,6 +608,15 @@ is
         := McKae.XML.XPath.XIA.XPath_Query
           (N     => Data.Doc,
            XPath => "/system/hardware/devices/device");
+      Is_ARM_System : constant Boolean := Mutools.System_Config.Has_Boolean
+        (Data => Data,
+         Name => "armv8") and then
+        Mutools.System_Config.Get_Value
+          (Data => Data,
+           Name => "armv8");
+      PT_Levels : constant Natural
+        := (if Is_ARM_System then 3
+            else 4);
    begin
 
       --  Validate that there are no overlapping subject memory mappings and
@@ -613,8 +638,8 @@ is
             Size      : constant Interfaces.Unsigned_64
               := XML_Utils.Calculate_PT_Size
                 (Policy             => Data,
-                 Paging_Levels      => 4,
-                 Large_Pages        => False,
+                 Paging_Levels      => PT_Levels,
+                 Large_Pages        => Is_ARM_System,
                  Physical_Memory    => Physical_Mem,
                  Physical_Devices   => Physical_Devs,
                  Dev_Virt_Mem_XPath => "/system/subjects/subject[@name='"
@@ -627,14 +652,15 @@ is
             Mulog.Log (Msg => "Adding pagetable region with size " & Size_Str
                        & " for subject '" & Subj_Name & "'");
             Mutools.XML_Utils.Add_Memory_Region
-              (Policy       => Data,
-               Name         => Subj_Name & "|pt",
-               Address      => "",
-               Size         => Size_Str,
-               Caching      => "WB",
-               Alignment    => "16#1000#",
-               Memory_Type  => "system_pt",
-               Fill_Pattern => "16#00#"); --  Force placement in lower memory.
+              (Policy      => Data,
+               Name        => Subj_Name & "|pt",
+               Address     => "",
+               Size        => Size_Str,
+               Caching     => "WB",
+               Alignment   => "16#1000#",
+               Memory_Type => "system_pt",
+               File_Name   => Subj_Name & ".pt",
+               File_Offset => "none");
          end;
       end loop;
    end Add_Subject_PTs;

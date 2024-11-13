@@ -36,8 +36,12 @@ TOOLS =             \
 	mugenspec       \
 	mugentau0cmds   \
 	mugenzp         \
+	mupcspkrdbg     \
 	muwalkpt        \
 	muxmlfilter     \
+	mugends         \
+	mugendts        \
+	mugenpt         \
 	sbs
 
 # Projects to test

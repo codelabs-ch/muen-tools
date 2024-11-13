@@ -134,6 +134,16 @@ is
       Logical_Memory  : DOM.Core.Node_List)
       return DOM.Core.Node;
 
+   --  Determines the start address and total size in the given virtual memory
+   --  mappings for all references to the given physical memory mappings (e.g.
+   --  initramfs nodes). If no mapped regions are found, zero values are
+   --  returned.
+   procedure Get_Addr_And_Size
+     (Virtual_Mappings :     DOM.Core.Node_List;
+      Physical_Memory  :     DOM.Core.Node_List;
+      Virtual_Address  : out Interfaces.Unsigned_64;
+      Size             : out Interfaces.Unsigned_64);
+
    --  Returns True if the given VMX controls specify that the DEBUGCTL MSR is
    --  saved/loaded automatically on VM-exits and entries.
    function Has_Managed_DEBUGCTL (Controls : DOM.Core.Node) return Boolean;

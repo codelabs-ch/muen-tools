@@ -1,0 +1,13 @@
+# xsct command stream with CMD:REGEX:JTAG_CABLE:FILE
+FPGA:PL*:Xilinx HW-Z1-ZCU104 FT4232H*:default_system.bit
+HDF:APU*:Xilinx HW-Z1-ZCU104 FT4232H*:default_system.hdf:list {0x80000000 0xbfffffff} {0x400000000 0x5ffffffff} {0x1000000000 0x7fffffffff}
+PMU:MicroBlaze PMU*:Xilinx HW-Z1-ZCU104 FT4232H*:debug_pmufw.elf
+FSBL:*A53*0:Xilinx HW-Z1-ZCU104 FT4232H*:debug_fsbl.elf
+RST:*A53*1:Xilinx HW-Z1-ZCU104 FT4232H*:processor:0x00000000
+EXE:*A53*0:Xilinx HW-Z1-ZCU104 FT4232H*:kernel.bin-kernel_text.part:0x0
+EXE:*A53*0:Xilinx HW-Z1-ZCU104 FT4232H*:kernel.bin-kernel_ro.part:0x70000
+EXE:*A53*0:Xilinx HW-Z1-ZCU104 FT4232H*:kernel.bin-kernel_data_0.part:0x82000
+EXE:*A53*0:Xilinx HW-Z1-ZCU104 FT4232H*:kernel_bss_0.fill:0x84000
+EXE:*A53*0:Xilinx HW-Z1-ZCU104 FT4232H*:kernel.bin-kernel_global_data.part:0x86000
+EXE:*A53*0:Xilinx HW-Z1-ZCU104 FT4232H*:kernel.bin-kernel_stack.part.pad:0xa0000
+

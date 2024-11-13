@@ -1,0 +1,1 @@
+cpu __cpu__ release 0x__addr__

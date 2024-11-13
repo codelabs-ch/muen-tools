@@ -41,6 +41,11 @@ is
      (Template : Template_Type;
       Filename : String);
 
+   --  Converts template back to string
+   function To_String
+     (Template : Template_Type)
+      return String;
+
    --  IO stream based template for efficient writing of large datasets.
    type Stream_Template_Type is limited private;
 

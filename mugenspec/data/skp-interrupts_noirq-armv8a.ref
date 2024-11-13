@@ -1,0 +1,84 @@
+with GIC;
+
+with SK.Interrupts;
+
+package Skp.Interrupts
+  with
+    SPARK_Mode => On
+is
+
+   ----------------
+   -- Base Types --
+   ----------------
+   subtype Physical_Interrupt_ID_Config is
+     GIC.Interrupt_ID_Type range 0 .. 191;
+
+   subtype Virtual_Interrupt_ID_Config is
+     GIC.Interrupt_ID_Type range 0 .. 511;
+
+   type IRQ_Routing_Array is array
+     (CPU_Range, Physical_Interrupt_ID_Config)
+     of Boolean;
+
+   -----------------------------
+   -- Interrupt Specification --
+   -----------------------------
+   subtype Interprocessor_Interrupts is
+     Physical_Interrupt_ID_Config range 0 .. 15;
+
+   Virtual_Maintenance_Interrupt : constant Physical_Interrupt_ID_Config
+     :=  25;
+   Hypervisor_Timer_Interrupt    : constant Physical_Interrupt_ID_Config
+     :=  26;
+   SMMU_Controller_Interrupt     : constant Physical_Interrupt_ID_Config
+     := 187;
+
+   -----------------------------
+   -- Interrupt Configuration --
+   -----------------------------
+   IRQ_Routing_Config : constant IRQ_Routing_Array
+     := (0 =>
+           (0  .. 15 => True,
+            25 .. 26 => True,
+            27 => True,
+            53 => True,
+            97 => True,
+            101 => True,
+            107 => True,
+            187 => True,
+            others => False),
+         1 =>
+           (0  .. 15 => True,
+            25 .. 26 => True,
+            others => False));
+
+   --------------------------
+   -- Interrupt Assignment --
+   --------------------------
+   Vector_Routing_Config : constant SK.Interrupts.Vector_Routing_Array
+     (CPU_Range, Physical_Interrupt_ID_Config)
+     := (0 =>
+           (27 =>
+              (Subject => 0,
+               Vector  => 27),
+            53 =>
+              (Subject => 0,
+               Vector  => 32),
+            97 =>
+              (Subject => 0,
+               Vector  => 34),
+            101 =>
+              (Subject => 0,
+               Vector  => 35),
+            107 =>
+              (Subject => 0,
+               Vector  => 36),
+            others =>
+              (Subject => Invalid_Subject,
+               Vector  => 0)),
+         1 =>
+           (others =>
+              (Subject => Invalid_Subject,
+               Vector  => 0)));
+
+end Skp.Interrupts;

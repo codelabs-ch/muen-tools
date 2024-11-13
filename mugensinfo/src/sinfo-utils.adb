@@ -49,7 +49,8 @@ is
            MTT.Subject_Acpi_Dsdt       => Musinfo.Subject_Acpi_Dsdt,
            MTT.Subject_Device          => Musinfo.Subject_Device,
            MTT.Subject_Solo5_Boot_Info => Musinfo.Subject_Solo5_Boot_Info,
-           MTT.Subject_Crash_Audit     => Musinfo.Subject_Crash_Audit);
+           MTT.Subject_Crash_Audit     => Musinfo.Subject_Crash_Audit,
+           MTT.Subject_Devicetree      => Musinfo.Subject_Devicetree);
 
    --  Convert given subject memory to Musinfo representation. Allowed values
    --  are Mutools.Types.Subject_Memory and Mutools.Types.Kernel_Interface

@@ -23,6 +23,7 @@ with McKae.XML.XPath.XIA;
 
 with Mulog;
 with Muxml.Utils;
+with Mutools.System_Config;
 with Mutools.Types;
 with Mutools.Utils;
 with Mutools.XML_Utils;
@@ -170,7 +171,7 @@ is
 
    procedure Domain_PT_Region_Presence (XML_Data : Muxml.XML_Data_Type)
    is
-      Domains   : constant DOM.Core.Node_List
+      Domains    : constant DOM.Core.Node_List
         := McKae.XML.XPath.XIA.XPath_Query
           (N     => XML_Data.Doc,
            XPath => "/system/deviceDomains/domain");
@@ -178,7 +179,15 @@ is
         := McKae.XML.XPath.XIA.XPath_Query
           (N     => XML_Data.Doc,
            XPath => "/system/memory/memory[@type='system_pt']");
-      Dom_Count : constant Natural := DOM.Core.Nodes.Length (List => Domains);
+      Dom_Count  : constant Natural := DOM.Core.Nodes.Length (List => Domains);
+
+      Is_ARM_System : constant Boolean
+        := Mutools.System_Config.Has_Boolean
+          (Data => XML_Data,
+           Name => "armv8") and then
+          Mutools.System_Config.Get_Value
+            (Data => XML_Data,
+             Name => "armv8");
    begin
       Mulog.Log (Msg => "Checking presence of" & Dom_Count'Img
                  & " security domain PT memory region(s)");
@@ -194,11 +203,13 @@ is
               := DOM.Core.Elements.Get_Attribute
                 (Elem => Dom_Node,
                  Name => "name");
+            Prefix   : constant String
+              := (if Is_ARM_System then "smmu_" else "vtd_");
             PT_Node  : constant DOM.Core.Node
               := Muxml.Utils.Get_Element
                 (Nodes     => PT_Regions,
                  Ref_Attr  => "name",
-                 Ref_Value => "vtd_" & Dom_Name & "_pt");
+                 Ref_Value => Prefix & Dom_Name & "_pt");
          begin
             if PT_Node = null then
                Validation_Errors.Insert

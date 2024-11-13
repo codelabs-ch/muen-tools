@@ -1,4 +1,6 @@
 --
+--  Copyright (C) 2024, 2024  Tobias Brunner <tobias@codelabs.ch>
+--  Copyright (C) 2024, 2024  David Loosli <david@codelabs.ch>
 --  Copyright (C) 2014, 2015  Reto Buerki <reet@codelabs.ch>
 --  Copyright (C) 2014, 2015  Adrian-Ken Rueegsegger <ken@codelabs.ch>
 --
@@ -31,6 +33,7 @@ with Muxml.Utils;
 with Mutools.Match;
 with Mutools.XML_Utils;
 with Mutools.Templates;
+with Mutools.System_Config;
 
 with String_Templates;
 
@@ -365,6 +368,251 @@ is
      (Output_Dir : String;
       Policy     : Muxml.XML_Data_Type)
    is
+      Is_ARM_System : constant Boolean
+        := Mutools.System_Config.Has_Boolean
+          (Data => Policy,
+           Name => "armv8") and then
+        Mutools.System_Config.Get_Value
+          (Data => Policy,
+           Name => "armv8");
+   begin
+      if Is_ARM_System then
+         Write_ARMv8a (Output_Dir => Output_Dir,
+                       Policy     => Policy);
+      else
+         Write_X86_64 (Output_Dir => Output_Dir,
+                       Policy     => Policy);
+      end if;
+   end Write;
+
+   -------------------------------------------------------------------------
+
+   procedure Write_ARMv8a
+     (Output_Dir : String;
+      Policy     : Muxml.XML_Data_Type)
+   is
+      use Interfaces;
+
+      --  (1) extract all physical devices with SMMU (i.c. iommu) capability
+      Physical_SMMU_Devs : constant DOM.Core.Node_List
+        := McKae.XML.XPath.XIA.XPath_Query
+          (N     => Policy.Doc,
+           XPath => "/system/hardware/devices/device" &
+             "[capabilities/capability/@name='iommu']");
+
+      --  (2) extract all device domains as a list
+      Domains : constant DOM.Core.Node_List
+        := McKae.XML.XPath.XIA.XPath_Query
+          (N     => Policy.Doc,
+           XPath => "/system/deviceDomains/domain");
+
+      Controller_Configuration    : Unbounded_String;
+      Context_Configuration       : Unbounded_String;
+
+      Controller_Configuration_ID : Natural := 0;
+      Context_Configuration_ID    : Natural := 0;
+
+      procedure Write_Entries
+        (Domain_ID             : Natural;
+         Domain_Name           : String;
+         Stream_Mapping_ID_Max : Natural;
+         Context_Bank_ID_Max   : Natural);
+
+      ----------------------------------------------------------------------
+
+      procedure Write_Entries
+        (Domain_ID             : Natural;
+         Domain_Name           : String;
+         Stream_Mapping_ID_Max : Natural;
+         Context_Bank_ID_Max   : Natural)
+      is
+         --  (4.a) match all devices assigned to the current device domain with
+         --  a stream id capability (SMMU support)
+         Stream_ID_Devices : constant Muxml.Utils.Matching_Pairs_Type
+           := Muxml.Utils.Get_Matching
+             (XML_Data       => Policy,
+              Left_XPath     => "/system/deviceDomains/domain[@name='"
+                & Domain_Name & "']/devices/device",
+              Right_XPath    => "/system/hardware/devices/device" &
+                "[capabilities/capability/@name='stream_id']",
+              Match_Multiple => False,
+              Match          => Mutools.Match.Is_Valid_Reference'Access);
+
+         --  (4.b) get device domain page tables
+         Memory_Entries : constant DOM.Core.Node_List
+           := McKae.XML.XPath.XIA.XPath_Query
+             (N     => Policy.Doc,
+              XPath => "/system/memory/memory[@name='smmu_" & Domain_Name
+                & "_pt']");
+      begin
+         if
+           DOM.Core.Nodes.Length (Stream_ID_Devices.Right) > 0 and
+           DOM.Core.Nodes.Length (Memory_Entries) = 1
+         then
+            for I in
+              0 .. DOM.Core.Nodes.Length (Stream_ID_Devices.Right) - 1
+            loop
+               declare
+                  Stream_ID_Device : constant DOM.Core.Node
+                    := DOM.Core.Nodes.Item (List  => Stream_ID_Devices.Right,
+                                            Index => I);
+                  Stream_ID        : constant Unsigned_64
+                    := Unsigned_64'Value (Muxml.Utils.Get_Element_Value
+                                          (Doc   => Stream_ID_Device,
+                                           XPath => "capabilities/capability" &
+                                             "[@name='stream_id']"));
+               begin
+                  if Controller_Configuration_ID <= Stream_Mapping_ID_Max then
+                     Controller_Configuration := Controller_Configuration &
+                       Ada.Strings.Fixed.Trim (Controller_Configuration_ID'Img,
+                                               Ada.Strings.Left) & " =>" &
+                       ASCII.LF & Indent (N => 3) &
+                       "  (Stream_Identifier  => " &
+                       Mutools.Utils.To_Hex (Stream_ID) & "," &
+                       ASCII.LF & Indent (N => 3) &
+                       "   Valid_Entry        => 2#1#," &
+                       ASCII.LF & Indent (N => 3) &
+                       "   Context_Bank_Index =>" &
+                       Context_Configuration_ID'Img & "," &
+                       ASCII.LF & Indent (N => 3) &
+                       "   Reserved_24_31     => 16#00#)," &
+                       ASCII.LF & Indent (N => 3);
+
+                     Controller_Configuration_ID :=
+                       Controller_Configuration_ID + 1;
+                  else
+                     Mulog.Log (Level => Mulog.Error,
+                                Msg   => "Number of stream mapping " &
+                                  "registers exceeded");
+                  end if;
+               end;
+            end loop;
+
+            if Context_Configuration_ID <= Context_Bank_ID_Max then
+               declare
+                  Domain_PT_Address : constant Unsigned_64
+                    := Unsigned_64'Value (DOM.Core.Elements.Get_Attribute
+                                          (Elem => DOM.Core.Nodes.Item
+                                           (List  => Memory_Entries,
+                                            Index => 0),
+                                           Name => "physicalAddress"));
+               begin
+                  Context_Configuration := Context_Configuration &
+                    Ada.Strings.Fixed.Trim (Context_Configuration_ID'Img,
+                                            Ada.Strings.Left) & " =>" &
+                    ASCII.LF & Indent (N => 3) &
+                    "  (TTBR_Base_Address          => " &
+                    Mutools.Utils.To_Hex (Domain_PT_Address) & "," &
+                    ASCII.LF & Indent (N => 3) &
+                    "   TTBR_Memory_Size_Offset    => 2#011001#," &
+                    ASCII.LF & Indent (N => 3) &
+                    "   TTBR_Starting_Level        => 2#01#," &
+                    ASCII.LF & Indent (N => 3) &
+                    "   TTBR_Physical_Address_Size => 2#010#," &
+                    ASCII.LF & Indent (N => 3) &
+                    "   VM_Identifier              =>" &
+                    Domain_ID'Img & ")," & ASCII.LF & Indent (N => 3);
+
+                  Context_Configuration_ID :=
+                    Context_Configuration_ID + 1;
+               end;
+            else
+               Mulog.Log (Level => Mulog.Error,
+                          Msg   => "Number of context banks exceeded");
+            end if;
+         end if;
+      end Write_Entries;
+
+      ----------------------------------------------------------------------
+
+      Tmpl : Mutools.Templates.Template_Type;
+   begin
+      Mulog.Log (Msg => "Writing IOMMU spec to '"
+                 & Output_Dir & "/skp-iommu.ads'");
+
+      Tmpl := Mutools.Templates.Create
+        (Content => String_Templates.skp_iommu_armv8a_ads);
+
+      --  Note: currently only one system memory management unit
+      --  SMMU-500 supported
+      if
+        DOM.Core.Nodes.Length (Physical_SMMU_Devs) = 1
+      then
+         declare
+            --  (3.a) get the physical SMMU device
+            Physical_SMMU_Dev  : constant DOM.Core.Node
+              := DOM.Core.Nodes.Item (List  => Physical_SMMU_Devs,
+                                      Index => 0);
+
+            --  (3.b) extract stream mapping and context bank max values
+            Stream_Mapping_ID_Max : constant Natural
+              := Natural'Value (Muxml.Utils.Get_Element_Value
+                                (Doc   => Physical_SMMU_Dev,
+                                 XPath => "capabilities/capability" &
+                                   "[@name='stream_mapping_id_max']"));
+            Context_Bank_ID_Max  : constant Natural
+              := Natural'Value (Muxml.Utils.Get_Element_Value
+                                (Doc   => Physical_SMMU_Dev,
+                                 XPath => "capabilities/capability" &
+                                   "[@name='context_bank_id_max']"));
+         begin
+            Mutools.Templates.Replace
+              (Template => Tmpl,
+               Pattern  => "__stream_mapping_id_max__",
+               Content  => Stream_Mapping_ID_Max'Img);
+            Mutools.Templates.Replace
+              (Template => Tmpl,
+               Pattern  => "__context_bank_id_max__",
+               Content  => Context_Bank_ID_Max'Img);
+
+            for I in 0 .. DOM.Core.Nodes.Length (Domains) - 1 loop
+               declare
+                  Domain      : constant DOM.Core.Node
+                    := DOM.Core.Nodes.Item (List  => Domains,
+                                            Index => I);
+                  Domain_ID   : constant Natural
+                    := Natural'Value (DOM.Core.Elements.Get_Attribute
+                                      (Elem => Domain,
+                                       Name => "id"));
+                  Domain_Name : constant String
+                    := DOM.Core.Elements.Get_Attribute (Elem => Domain,
+                                                        Name => "name");
+               begin
+                  Write_Entries
+                    (Domain_ID             => Domain_ID,
+                     Domain_Name           => Domain_Name,
+                     Stream_Mapping_ID_Max => Stream_Mapping_ID_Max,
+                     Context_Bank_ID_Max   => Context_Bank_ID_Max);
+               end;
+            end loop;
+
+            Controller_Configuration := Controller_Configuration &
+              "others => Null_SMMU500_Controller_Configuration";
+            Context_Configuration := Context_Configuration &
+              "others => Null_SMMU500_Context_Configuration";
+
+            Mutools.Templates.Replace
+              (Template => Tmpl,
+               Pattern  => "__smmu_controller_config__",
+               Content  => To_String (Controller_Configuration));
+            Mutools.Templates.Replace
+              (Template => Tmpl,
+               Pattern  => "__smmu_context_config__",
+               Content  => To_String (Context_Configuration));
+         end;
+      end if;
+
+      Mutools.Templates.Write
+        (Template => Tmpl,
+         Filename => Output_Dir & "/skp-iommu.ads");
+   end Write_ARMv8a;
+
+   -------------------------------------------------------------------------
+
+   procedure Write_X86_64
+     (Output_Dir : String;
+      Policy     : Muxml.XML_Data_Type)
+   is
       use type Interfaces.Unsigned_64;
 
       --  Return the lowest virtualAddress value string of the memory regions
@@ -404,7 +652,6 @@ is
          return Mutools.Utils.To_Hex (Number => Result);
       end Get_Base_Addr;
 
-      Filename  : constant String := Output_Dir & "/skp-iommu.ads";
       Phys_Mem  : constant DOM.Core.Node_List
         := McKae.XML.XPath.XIA.XPath_Query
           (N     => Policy.Doc,
@@ -443,10 +690,11 @@ is
         (if Nfr_Cap = "" then 1 else Positive'Value (Nfr_Cap));
       Tmpl : Mutools.Templates.Template_Type;
    begin
-      Mulog.Log (Msg => "Writing IOMMU spec to '" & Filename & "'");
+      Mulog.Log (Msg => "Writing IOMMU spec to '"
+                 & Output_Dir & "/skp-iommu.ads'");
 
       Tmpl := Mutools.Templates.Create
-        (Content => String_Templates.skp_iommu_ads);
+        (Content => String_Templates.skp_iommu_x86_64_ads);
 
       Mutools.Templates.Replace
         (Template => Tmpl,
@@ -493,10 +741,10 @@ is
 
       Mutools.Templates.Write
         (Template => Tmpl,
-         Filename => Filename);
+         Filename => Output_Dir & "/skp-iommu.ads");
 
       Tmpl := Mutools.Templates.Create
-        (Content => String_Templates.skp_iommu_adb);
+        (Content => String_Templates.skp_iommu_x86_64_adb);
       Mutools.Templates.Replace
         (Template => Tmpl,
          Pattern  => "__base_addr__",
@@ -509,6 +757,6 @@ is
       Mutools.Templates.Write
         (Template => Tmpl,
          Filename => Output_Dir & "/skp-iommu.adb");
-   end Write;
+   end Write_X86_64;
 
 end Spec.Skp_IOMMU;

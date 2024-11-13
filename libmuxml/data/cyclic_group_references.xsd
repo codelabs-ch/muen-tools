@@ -853,6 +853,7 @@
    <xs:enumeration value="subject_scheduling_info"/>
    <xs:enumeration value="subject_timed_event"/>
    <xs:enumeration value="subject_interrupts"/>
+   <xs:enumeration value="subject_devicetree"/>
    <xs:enumeration value="device_rmrr"/>
   </xs:restriction>
  </xs:simpleType><xs:complexType name="memoryBlockBaseType" abstract="true">
@@ -1947,6 +1948,7 @@
    <xs:enumeration value="subject_solo5_boot_info"/>
    <xs:enumeration value="subject_device"/>
    <xs:enumeration value="subject_timed_event"/>
+   <xs:enumeration value="subject_devicetree"/>
   </xs:restriction>
  </xs:simpleType><xs:complexType name="majorFrameType">
   <xs:annotation>

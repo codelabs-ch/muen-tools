@@ -1,0 +1,15 @@
+echo "Loading files from TFTP"
+tftpboot 0x0 kernel.bin-kernel_text.part || panic
+tftpboot 0x70000 kernel.bin-kernel_ro.part || panic
+tftpboot 0x82000 kernel.bin-kernel_data_0.part || panic
+mw 0x84000 0x0 0x2000
+tftpboot 0x86000 kernel.bin-kernel_global_data.part || panic
+tftpboot 0xa0000 kernel.bin-kernel_stack.part || panic
+mw 0xc0000 0x0 0x10000
+
+dcache flush
+cpu 1 release 0x0
+go 0x0
+echo "Failed to boot"
+sleep 1000
+
