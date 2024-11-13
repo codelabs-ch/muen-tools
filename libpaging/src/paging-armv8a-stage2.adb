@@ -312,14 +312,14 @@ is
       is
       begin
          Raw_Table (Index) := Create_Entry
-           (Address        => TEntry.Get_Dst_Address,
-            Present        => TEntry.Is_Present,
-            Readable       => TEntry.Is_Readable,
-            Writable       => TEntry.Is_Writable,
-            Executable     => TEntry.Is_Executable,
-            Not_Large_Page => not TEntry.Maps_Page,
-            Accessed       => TEntry.Maps_Page,
-            Memory_Type    => TEntry.Get_Caching);
+           (Address        => Entries.Get_Dst_Address (TEntry),
+            Present        => Entries.Is_Present (TEntry),
+            Readable       => Entries.Is_Readable (TEntry),
+            Writable       => Entries.Is_Writable (TEntry),
+            Executable     => Entries.Is_Executable (TEntry),
+            Not_Large_Page => not Entries.Maps_Page (TEntry),
+            Accessed       => Entries.Maps_Page (TEntry),
+            Memory_Type    => Entries.Get_Caching (TEntry));
       end Add_To_Raw_Table;
    begin
       Tables.Iterate (Table   => Table,
@@ -348,14 +348,14 @@ is
       is
       begin
          Raw_Table (Index) := Create_Entry
-           (Address        => TEntry.Get_Dst_Address,
-            Present        => TEntry.Is_Present,
-            Readable       => TEntry.Is_Readable,
-            Writable       => TEntry.Is_Writable,
-            Executable     => TEntry.Is_Executable,
-            Not_Large_Page => not TEntry.Maps_Page,
-            Accessed       => TEntry.Maps_Page,
-            Memory_Type    => TEntry.Get_Caching);
+           (Address        => Entries.Get_Dst_Address (TEntry),
+            Present        => Entries.Is_Present (TEntry),
+            Readable       => Entries.Is_Readable (TEntry),
+            Writable       => Entries.Is_Writable (TEntry),
+            Executable     => Entries.Is_Executable (TEntry),
+            Not_Large_Page => not Entries.Maps_Page (TEntry),
+            Accessed       => Entries.Maps_Page (TEntry),
+            Memory_Type    => Entries.Get_Caching (TEntry));
       end Add_To_Raw_Table;
    begin
       Tables.Iterate (Table   => Table,
@@ -384,14 +384,14 @@ is
       is
       begin
          Raw_Table (Index) := Create_Entry
-           (Address        => TEntry.Get_Dst_Address,
-            Present        => TEntry.Is_Present,
-            Readable       => TEntry.Is_Readable,
-            Writable       => TEntry.Is_Writable,
-            Executable     => TEntry.Is_Executable,
-            Not_Large_Page => not TEntry.Maps_Page,
-            Accessed       => TEntry.Maps_Page,
-            Memory_Type    => TEntry.Get_Caching);
+           (Address        => Entries.Get_Dst_Address (TEntry),
+            Present        => Entries.Is_Present (TEntry),
+            Readable       => Entries.Is_Readable (TEntry),
+            Writable       => Entries.Is_Writable (TEntry),
+            Executable     => Entries.Is_Executable (TEntry),
+            Not_Large_Page => not Entries.Maps_Page (TEntry),
+            Accessed       => Entries.Maps_Page (TEntry),
+            Memory_Type    => Entries.Get_Caching (TEntry));
       end Add_To_Raw_Table;
    begin
       Tables.Iterate (Table   => Table,
@@ -420,14 +420,14 @@ is
       is
       begin
          Raw_Table (Index) := Create_Entry
-           (Address        => TEntry.Get_Dst_Address,
-            Present        => TEntry.Is_Present,
-            Readable       => TEntry.Is_Readable,
-            Writable       => TEntry.Is_Writable,
-            Executable     => TEntry.Is_Executable,
+           (Address        => Entries.Get_Dst_Address (TEntry),
+            Present        => Entries.Is_Present (TEntry),
+            Readable       => Entries.Is_Readable (TEntry),
+            Writable       => Entries.Is_Writable (TEntry),
+            Executable     => Entries.Is_Executable (TEntry),
             Not_Large_Page => True,
-            Accessed       => TEntry.Maps_Page,
-            Memory_Type    => TEntry.Get_Caching);
+            Accessed       => Entries.Maps_Page (TEntry),
+            Memory_Type    => Entries.Get_Caching (TEntry));
       end Add_To_Raw_Table;
    begin
       Tables.Iterate (Table   => Table,
