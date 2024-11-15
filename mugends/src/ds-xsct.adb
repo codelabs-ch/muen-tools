@@ -33,11 +33,11 @@ package body DS.XSCT is
       Output_Dir : String)
    is
       Output_File : constant String
-        := Output_Dir & "/xsct.cmd";
+        := Output_Dir & "/xsct.tcl";
 
       Template    : Mutools.Templates.Template_Type
         := Mutools.Templates.Create
-          (Content => String_Templates.xsct_cmd_tcl);
+          (Content => String_Templates.xsct_tcl);
       Rst_Entries, File_Entries, Run_Entries : Unbounded_String;
    begin
       for CPU in CPUs.Iterate loop
