@@ -40,7 +40,6 @@ rst -processor
 after 2000
 rwr pc 0x00000000
 after 500
-
 ###
 
 ### FILES
@@ -73,7 +72,6 @@ dow -data lnx2_lowmem.fill 0x50000000
 dow -data devicetree_linux_two.dtb-lnx2_dtb.pad 0x50040000
 dow -data Image_linux.bin-lnx2_binary.pad 0x50080000
 dow -data rootfs_linux_two.cpio.gz-lnx2_rootfs.pad 0x7b000000
-
 ###
 
 ### Run
@@ -81,7 +79,6 @@ targets -set -nocase -filter {name =~ "*A53*0" && jtag_cable_name =~ "Xilinx HW-
 con -addr 0x00000000
 targets -set -nocase -filter {name =~ "*A53*1" && jtag_cable_name =~ "Xilinx HW-Z1-ZCU104 FT4232H*"}
 con -addr 0x00000000
-
 ###
 
 disconnect

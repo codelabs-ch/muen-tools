@@ -117,18 +117,24 @@ package body DS.XSCT is
          end;
       end loop;
 
-      Mutools.Templates.Replace
-        (Template => Template,
-         Pattern  => "__rst_entries__",
-         Content  => To_String (Rst_Entries));
-      Mutools.Templates.Replace
-        (Template => Template,
-         Pattern  => "__file_entries__",
-         Content  => To_String (File_Entries));
-      Mutools.Templates.Replace
-        (Template => Template,
-         Pattern  => "__run_entries__",
-         Content  => To_String (Run_Entries));
+      declare
+         Rst   : constant String := To_String (Rst_Entries);
+         Files : constant String := To_String (File_Entries);
+         Run   : constant String := To_String (Run_Entries);
+      begin
+         Mutools.Templates.Replace
+           (Template => Template,
+            Pattern  => "__rst_entries__",
+            Content  => Rst (Rst'First .. Rst'Last - 1));
+         Mutools.Templates.Replace
+           (Template => Template,
+            Pattern  => "__file_entries__",
+            Content  => Files (Files'First .. Files'Last - 1));
+         Mutools.Templates.Replace
+           (Template => Template,
+            Pattern  => "__run_entries__",
+            Content  => Run (Run'First .. Run'Last - 1));
+      end;
 
       Mutools.Templates.Write
         (Template => Template,
