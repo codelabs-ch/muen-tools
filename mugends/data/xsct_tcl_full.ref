@@ -1,5 +1,5 @@
 connect
-jtag target 1
+jtag targets -filter {name =~ "Xilinx HW-Z1-ZCU104 FT4232H*"} -set
 jtag frequency 30000000
 
 ### FPGA
