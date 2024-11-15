@@ -68,9 +68,9 @@ package body DS.Generator.Test_Data.Tests is
                Filename2 => "obj/gdbinit.config"),
               Message   => "gdbinit.config mismatch");
       Assert (Condition => Test_Utils.Equal_Files
-              (Filename1 => "data/xsct_cmd_full.ref",
-               Filename2 => "obj/xsct.cmd"),
-              Message   => "xsct.cmd mismatch");
+              (Filename1 => "data/xsct_tcl_full.ref",
+               Filename2 => "obj/xsct.tcl"),
+              Message   => "xsct.tcl mismatch");
 
       --  (4) test extracted/padded reference files
       Assert (Condition => Test_Utils.Equal_Files
@@ -196,9 +196,9 @@ package body DS.Generator.Test_Data.Tests is
                Filename2 => "obj/gdbinit.config"),
               Message   => "gdbinit.config mismatch");
       Assert (Condition => Test_Utils.Equal_Files
-              (Filename1 => "data/xsct_cmd_offset_padding.ref",
-               Filename2 => "obj/xsct.cmd"),
-              Message   => "xsct.cmd mismatch");
+              (Filename1 => "data/xsct_tcl_offset_padding.ref",
+               Filename2 => "obj/xsct.tcl"),
+              Message   => "xsct.tcl mismatch");
 
       Assert (Condition => Test_Utils.Equal_Files
               (Filename1 => "obj/kernel.bin-kernel_stack.part.pad.ref",

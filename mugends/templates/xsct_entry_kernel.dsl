@@ -1,1 +1,0 @@
-RST:*A53*__cpu__:Xilinx HW-Z1-ZCU104 FT4232H*:processor:0x00000000

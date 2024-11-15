@@ -1,0 +1,84 @@
+connect
+jtag targets -filter {name =~ "Xilinx HW-Z1-ZCU104 FT4232H*"} -set
+jtag frequency 30000000
+
+### FPGA
+targets -set -nocase -filter {name =~ "PL*" && jtag_cable_name =~ "Xilinx HW-Z1-ZCU104 FT4232H*"}
+fpga -file "default_system.bit"
+after 5000
+###
+
+### HDF
+targets -set -nocase -filter {name =~ "APU*" && jtag_cable_name =~ "Xilinx HW-Z1-ZCU104 FT4232H*"}
+loadhw -hw "default_system.hdf" -mem-ranges "{0x80000000 0xbfffffff} {0x400000000 0x5ffffffff} {0x1000000000 0x7fffffffff}"
+configparams force-mem-access 1
+after 5000
+###
+
+### PMU
+targets -set -nocase -filter {name =~ "PSU*" && jtag_cable_name =~ "Xilinx HW-Z1-ZCU104 FT4232H*"}
+mwr 0xffca0038 0x1ff
+after 500
+targets -set -nocase -filter {name =~ "MicroBlaze PMU*" && jtag_cable_name =~ "Xilinx HW-Z1-ZCU104 FT4232H*"}
+dow debug_pmufw.elf
+con
+after 5000
+###
+
+### FSBL
+targets -set -nocase -filter {name =~ "*A53*0" && jtag_cable_name =~ "Xilinx HW-Z1-ZCU104 FT4232H*"}
+rst -processor
+dow debug_fsbl.elf
+con
+after 10000
+stop
+###
+
+### RST
+targets -set -nocase -filter {name =~ "*A53*1" && jtag_cable_name =~ "Xilinx HW-Z1-ZCU104 FT4232H*"}
+rst -processor
+after 2000
+rwr pc 0x00000000
+after 500
+###
+
+### FILES
+targets -set -nocase -filter {name =~ "*A53*0" && jtag_cable_name =~ "Xilinx HW-Z1-ZCU104 FT4232H*"}
+dow -data kernel.bin-kernel_text.part 0x0
+dow -data kernel.bin-kernel_ro.part 0x70000
+dow -data kernel.bin-kernel_data_0.part 0x82000
+dow -data kernel_bss_0.fill 0x84000
+dow -data kernel.bin-kernel_global_data.part 0x86000
+dow -data kernel.bin-kernel_data_1.part 0x9e000
+dow -data kernel_stack_0.fill 0xa0000
+dow -data kernel_stack_1.fill 0xc0000
+dow -data xilinxzcu104-core-0.pt 0x100000
+dow -data xilinxzcu104-core-1.pt 0x110000
+dow -data kernel_bss_1.fill 0x1d8000
+dow -data smmu_usb_domain.pt 0x1f8000
+dow -data xilinxzcu104-lnx1.pt 0x200000
+dow -data xilinxzcu104-string_reverser.pt 0x210000
+dow -data xilinxzcu104-lnx2.pt 0x220000
+dow -data xilinxzcu104-caesar_cipher.pt 0x230000
+dow -data kernel_interrupt_stack_0.fill 0x3ff000
+dow -data subject_one.bin-string_reverser_binary.pad 0x4000000
+dow -data subject_two.bin-caesar_cipher_binary.pad 0x5000000
+dow -data smmu_nic_domain.pt 0x5400000
+dow -data lnx1_lowmem.fill 0x20000000
+dow -data devicetree_linux_one.dtb-lnx1_dtb.pad 0x20040000
+dow -data Image_linux.bin-lnx1_binary.pad 0x20080000
+dow -data rootfs_linux_one.cpio.gz-lnx1_rootfs.pad 0x4b000000
+dow -data lnx2_lowmem.fill 0x50000000
+dow -data devicetree_linux_two.dtb-lnx2_dtb.pad 0x50040000
+dow -data Image_linux.bin-lnx2_binary.pad 0x50080000
+dow -data rootfs_linux_two.cpio.gz-lnx2_rootfs.pad 0x7b000000
+###
+
+### Run
+targets -set -nocase -filter {name =~ "*A53*0" && jtag_cable_name =~ "Xilinx HW-Z1-ZCU104 FT4232H*"}
+con -addr 0x00000000
+targets -set -nocase -filter {name =~ "*A53*1" && jtag_cable_name =~ "Xilinx HW-Z1-ZCU104 FT4232H*"}
+con -addr 0x00000000
+###
+
+disconnect
