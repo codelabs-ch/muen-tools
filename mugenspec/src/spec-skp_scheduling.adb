@@ -110,10 +110,6 @@ is
          (Elem => CPU_Arch,
           Name => (if Is_ARM64 then "timerFrequency" else "tscFrequency")));
       Timer_Hz     : constant Interfaces.Unsigned_64 := 1000 * Timer_KHz;
-      Timer_Rate   : constant Natural := (if Is_ARM64 then 1
-        else Natural'Value (DOM.Core.Elements.Get_Attribute
-          (Elem => CPU_Arch,
-           Name => "vmxTimerRate")));
       Sched_Hz     : constant Interfaces.Unsigned_64
         := Interfaces.Unsigned_64'Value
           (DOM.Core.Elements.Get_Attribute
@@ -566,12 +562,6 @@ is
       Max_Minor_Count   := Get_Max_Minor_Count (Schedule => Scheduling);
       Max_Barrier_Count := Get_Max_Barrier_Count (Schedule => Scheduling);
 
-      TMPL.Stream (Template => Template);
-      TMPL.Write
-        (Template => Template,
-         Item     => Ada.Strings.Fixed.Trim
-           (Source => Timer_Rate'Img,
-            Side   => Ada.Strings.Left));
       TMPL.Stream (Template => Template);
       TMPL.Write
         (Template => Template,

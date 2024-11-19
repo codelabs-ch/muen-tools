@@ -16,12 +16,17 @@
 --  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --
 
+with Ada.Strings.Fixed;
+
 with Interfaces;
+
+with DOM.Core.Elements;
 
 with Mulog;
 with Muxml.Utils;
 
 with Mutools.Templates;
+with Mutools.XML_Utils;
 
 with String_Templates;
 
@@ -35,6 +40,8 @@ is
       Policy     : Muxml.XML_Data_Type)
    is
       Filename   : constant String := "skp-arch.ads";
+      Is_ARM64   : constant Boolean
+        := Mutools.XML_Utils.Is_Arm64 (Policy => Policy);
       VMXON_Addr : constant Interfaces.Unsigned_64
         := Interfaces.Unsigned_64'Value
           (Muxml.Utils.Get_Attribute
@@ -42,6 +49,13 @@ is
               XPath => "/system/memory/memory[@type='system_vmxon' and "
               & "contains(string(@name),'kernel_0')]",
               Name  => "physicalAddress"));
+      CPU_Arch   : constant DOM.Core.Node := Muxml.Utils.Get_Element
+        (Doc   => Policy.Doc,
+         XPath => "/system/hardware/processor/*");
+      Timer_Rate : constant Natural := (if Is_ARM64 then 1
+        else Natural'Value (DOM.Core.Elements.Get_Attribute
+          (Elem => CPU_Arch,
+           Name => "vmxTimerRate")));
 
       Tmpl : Mutools.Templates.Template_Type;
    begin
@@ -54,6 +68,12 @@ is
         (Template => Tmpl,
          Pattern  => "__vmxon_addr__",
          Content  => Mutools.Utils.To_Hex (Number => VMXON_Addr));
+      Mutools.Templates.Replace
+        (Template => Tmpl,
+         Pattern  => "__vmx_timer_rate__",
+         Content  => Ada.Strings.Fixed.Trim
+           (Source => Timer_Rate'Img,
+            Side   => Ada.Strings.Left));
       Mutools.Templates.Write
         (Template => Tmpl,
          Filename => Output_Dir & "/" & Filename);
