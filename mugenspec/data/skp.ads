@@ -37,6 +37,4 @@ is
 
    type Dst_Vector_Range is range 0 .. Invalid_Vector;
 
-   Vmxon_Address : constant := 16#1000#;
-
 end Skp;

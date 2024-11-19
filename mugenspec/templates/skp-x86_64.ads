@@ -37,6 +37,4 @@ __cpu_to_apic_id__);
 
    type Dst_Vector_Range is range 0 .. Invalid_Vector;
 
-   Vmxon_Address : constant := __vmxon_addr__;
-
 end Skp;
