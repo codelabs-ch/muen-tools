@@ -28,7 +28,7 @@ __event_kind_types__
       Target_Event   : Target_Event_Range;
       Handover       : Boolean;
       Send_IPI       : Boolean;
-      IRQ_Number     : SK.Byte8;
+      IRQ_Number     : SK.Byte;
    end record;
 
    Null_Source_Event : constant Source_Event_Type := Source_Event_Type'
