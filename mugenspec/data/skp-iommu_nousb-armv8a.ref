@@ -1,4 +1,4 @@
-with Interfaces;
+with ARMv8;
 
 with System;
 
@@ -7,7 +7,7 @@ package Skp.IOMMU
     SPARK_Mode => On
 is
 
-   use Interfaces;
+   use ARMv8;
 
    --------------------
    -- Register Types --

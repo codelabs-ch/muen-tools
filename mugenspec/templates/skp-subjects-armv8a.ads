@@ -1,4 +1,4 @@
-with Interfaces;
+with ARMv8;
 
 --D @Interface
 --D This package contains subject specifications as defined by the system
@@ -10,7 +10,7 @@ package Skp.Subjects
     SPARK_Mode => On
 is
 
-   use Interfaces;
+   use ARMv8;
 
    function Get_CPU_ID
      (Subject_ID : Global_Subject_ID_Type)
