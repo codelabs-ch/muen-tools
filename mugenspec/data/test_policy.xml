@@ -6,6 +6,8 @@
  </config>
  <hardware>
   <processor cpuCores="2" speed="2900000" vmxTimerRate="5">
+   <cpu apicId="64" cpuId="2"/>
+   <cpu apicId="16" cpuId="3"/>
    <cpu apicId="2" cpuId="1"/>
    <cpu apicId="0" cpuId="0"/>
   </processor>
