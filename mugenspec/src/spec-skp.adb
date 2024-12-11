@@ -56,20 +56,20 @@ is
 
       Mapping : array (0 .. Active_CPUs - 1) of Natural;
    begin
-      for I in 0 .. Active_CPUs - 1 loop
+      for CPU_ID in 0 .. Active_CPUs - 1 loop
          declare
+            CPU_ID_Str : constant String := Ada.Strings.Fixed.Trim
+              (Source => CPU_ID'Img,
+               Side   => Ada.Strings.Left);
             Node : constant DOM.Core.Node
-              := DOM.Core.Nodes.Item
-                (List  => CPU_Nodes,
-                 Index => I);
+              := Muxml.Utils.Get_Element
+                (Nodes     => CPU_Nodes,
+                 Ref_Attr  => "cpuId",
+                 Ref_Value => CPU_ID_Str);
             APIC_ID : constant Natural := Natural'Value
               (DOM.Core.Elements.Get_Attribute
                  (Elem => Node,
                   Name => "apicId"));
-            CPU_ID : constant Natural := Natural'Value
-              (DOM.Core.Elements.Get_Attribute
-                 (Elem => Node,
-                  Name => "cpuId"));
          begin
             Mapping (CPU_ID) := APIC_ID;
          end;
