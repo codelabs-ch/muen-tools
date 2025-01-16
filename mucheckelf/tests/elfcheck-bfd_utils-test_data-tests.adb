@@ -31,8 +31,8 @@ package body Elfcheck.Bfd_Utils.Test_Data.Tests is
 
 --  begin read only
    procedure Test_Check_Section (Gnattest_T : in out Test);
-   procedure Test_Check_Section_9bbc4c (Gnattest_T : in out Test) renames Test_Check_Section;
---  id:2.2/9bbc4c18ad2928d7/Check_Section/1/0/
+   procedure Test_Check_Section_bc219c (Gnattest_T : in out Test) renames Test_Check_Section;
+--  id:2.2/bc219cb8ae6379ab/Check_Section/1/0/
    procedure Test_Check_Section (Gnattest_T : in out Test) is
 --  end read only
 
@@ -190,7 +190,7 @@ package body Elfcheck.Bfd_Utils.Test_Data.Tests is
          when E : ELF_Error =>
             Assert (Condition => Ada.Exceptions.Exception_Message (X => E)
                     = "Unexpected kernel entry address 16#1000#, expected "
-                    & "16#0010_0000#",
+                    & "16#0000#",
                     Message   => "Exception mismatch");
       end;
 --  begin read only

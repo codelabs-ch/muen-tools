@@ -125,6 +125,28 @@ package body Mutools.Templates.Test_Data.Tests is
 
 
 --  begin read only
+   procedure Test_To_String (Gnattest_T : in out Test);
+   procedure Test_To_String_dab10f (Gnattest_T : in out Test) renames Test_To_String;
+--  id:2.2/dab10f64c6d0d0b0/To_String/1/0/
+   procedure Test_To_String (Gnattest_T : in out Test) is
+--  end read only
+
+      pragma Unreferenced (Gnattest_T);
+
+      S : constant String
+        := "This is a __test__ template.";
+      T : Template_Type;
+   begin
+      T := Create (Content => S);
+
+      Assert (Condition => To_String (T) = S,
+              Message   => "Strings are not equal.");
+--  begin read only
+   end Test_To_String;
+--  end read only
+
+
+--  begin read only
    procedure Test_2_Create (Gnattest_T : in out Test);
    procedure Test_Create_755d54 (Gnattest_T : in out Test) renames Test_2_Create;
 --  id:2.2/755d54b6c5dce8b4/Create/0/0/

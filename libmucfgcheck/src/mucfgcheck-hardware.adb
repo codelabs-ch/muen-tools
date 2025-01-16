@@ -98,10 +98,11 @@ is
                Validation_Errors.Insert
                  (Msg => Device_Type & " device '"
                   & Dev_Name & "' has no memory region");
-            elsif Mem_Count > 1 then
-               Validation_Errors.Insert
-                 (Msg => Device_Type & " device '"
-                  & Dev_Name & "' has multiple memory regions");
+            -- TODO: MOA: SMMU has two iomem regions.
+            -- elsif Mem_Count > 1 then
+            --    Validation_Errors.Insert
+            --      (Msg => Device_Type & " device '"
+            --       & Dev_Name & "' has multiple memory regions");
             end if;
          end;
       end loop;

@@ -20,6 +20,8 @@ with Mulog;
 with Mutools.Files;
 with Mutools.Utils;
 
+with Paging.ARMv8a.Stage1;
+with Paging.ARMv8a.Stage2;
 with Paging.Entries;
 with Paging.EPT;
 with Paging.IA32e;
@@ -47,7 +49,17 @@ is
            (1 => Paging.EPT.Deserialize_PML4_Entry'Access,
             2 => Paging.EPT.Deserialize_PDPT_Entry'Access,
             3 => Paging.EPT.Deserialize_PD_Entry'Access,
-            4 => Paging.EPT.Deserialize_PT_Entry'Access));
+            4 => Paging.EPT.Deserialize_PT_Entry'Access),
+         Paging.ARMv8a_Stage1_Mode   =>
+           (1 => Paging.ARMv8a.Stage1.Deserialize_Level0_Entry'Access,
+            2 => Paging.ARMv8a.Stage1.Deserialize_Level1_Entry'Access,
+            3 => Paging.ARMv8a.Stage1.Deserialize_Level2_Entry'Access,
+            4 => Paging.ARMv8a.Stage1.Deserialize_Level3_Entry'Access),
+         Paging.ARMv8a_Stage2_Mode   =>
+           (1 => Paging.ARMv8a.Stage2.Deserialize_Level0_Entry'Access,
+            2 => Paging.ARMv8a.Stage2.Deserialize_Level1_Entry'Access,
+            3 => Paging.ARMv8a.Stage2.Deserialize_Level2_Entry'Access,
+            4 => Paging.ARMv8a.Stage2.Deserialize_Level3_Entry'Access));
 
    ----------------------------------------------------------------------...
 
@@ -76,7 +88,7 @@ is
          Mulog.Log (Msg => "Invalid paging structure reference: Address below"
                     & " given PT pointer ("
                     & Mutools.Utils.To_Hex (Number => PT_Address) & " < "
-                    & Mutools.Utils.To_Hex (Number => PT_Pointer));
+                    & Mutools.Utils.To_Hex (Number => PT_Pointer) & ")");
          Success := False;
          Translated_Addr := 0;
          return;
@@ -141,6 +153,7 @@ is
      (Table_File      : String;
       Table_Type      : Paging.Paging_Mode_Type;
       Table_Pointer   : Interfaces.Unsigned_64;
+      Start_Level     : Paging.Paging_Level;
       Virtual_Address : Interfaces.Unsigned_64)
    is
       PT_File : Ada.Streams.Stream_IO.File_Type;
@@ -157,6 +170,8 @@ is
       Mulog.Log (Msg => "Translation of virtual address "
                  & Mutools.Utils.To_Hex (Number => Virtual_Address));
 
+      Mulog.Log (Msg => "Page table walk starting at level" & Start_Level'Img);
+
       declare
          Success     : Boolean;
          Target_Addr : Interfaces.Unsigned_64;
@@ -165,7 +180,7 @@ is
                   File            => PT_File,
                   PT_Pointer      => Table_Pointer,
                   PT_Type         => Table_Type,
-                  Level           => Paging.Paging_Level'First,
+                  Level           => Start_Level,
                   PT_Address      => Table_Pointer,
                   Success         => Success,
                   Translated_Addr => Target_Addr);

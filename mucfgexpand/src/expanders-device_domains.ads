@@ -1,4 +1,5 @@
 --
+--  Copyright (C) 2024  Tobias Brunner <tobias@codelabs.ch>
 --  Copyright (C) 2014  Reto Buerki <reet@codelabs.ch>
 --  Copyright (C) 2014  Adrian-Ken Rueegsegger <ken@codelabs.ch>
 --
@@ -27,8 +28,11 @@ is
    --  Expand domain IDs (DIDs).
    procedure Add_Domain_IDs (Data : in out Muxml.XML_Data_Type);
 
+   --  Add SMMU tables (address translation).
+   procedure Add_SMMU_Tables (Data : in out Muxml.XML_Data_Type);
+
    --  Add VT-d tables (root, context, address translation and IR tables).
-   procedure Add_Tables (Data : in out Muxml.XML_Data_Type);
+   procedure Add_VTD_Tables (Data : in out Muxml.XML_Data_Type);
 
    --  Map memory of subjects referenced by map subject memory directive.
    procedure Map_Subject_Memory (Data : in out Muxml.XML_Data_Type);

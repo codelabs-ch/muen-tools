@@ -64,7 +64,7 @@ is
       Subject_Channel, Subject_State, Subject_Timed_Event, Subject_Interrupts,
       Subject_Scheduling_Info, Subject_Bios, Subject_Acpi_Rsdp,
       Subject_Acpi_Xsdt, Subject_Acpi_Fadt, Subject_Acpi_Dsdt, Subject_Device,
-      Subject_Solo5_Boot_Info, Subject_Crash_Audit,
+      Subject_Solo5_Boot_Info, Subject_Crash_Audit, Subject_Devicetree,
       Device_Rmrr);
 
    --  Memory reserved for system use. Can neither be referenced by kernel nor
@@ -75,7 +75,7 @@ is
    subtype Kernel_Memory is Memory_Kind range Kernel .. Kernel_Vmcs;
 
    --  Memory mappable by subjects.
-   subtype Subject_Memory is Memory_Kind range Subject .. Subject_Crash_Audit;
+   subtype Subject_Memory is Memory_Kind range Subject .. Subject_Devicetree;
 
    --  Memory usable for device domains/DMA.
    subtype DMA_Memory is

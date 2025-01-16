@@ -26,4 +26,14 @@ is
      (Output_Dir : String;
       Policy     : Muxml.XML_Data_Type);
 
+private
+
+   procedure Write_ARMv8a
+     (Output_Dir : String;
+      Policy     : Muxml.XML_Data_Type);
+
+   procedure Write_X86_64
+     (Output_Dir : String;
+      Policy     : Muxml.XML_Data_Type);
+
 end Spec.Skp_IOMMU;

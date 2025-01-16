@@ -79,6 +79,7 @@
    <xs:enumeration value="subject_scheduling_info"/>
    <xs:enumeration value="subject_timed_event"/>
    <xs:enumeration value="subject_interrupts"/>
+   <xs:enumeration value="subject_devicetree"/>
    <xs:enumeration value="device_rmrr"/>
   </xs:restriction>
  </xs:simpleType>

@@ -28,12 +28,14 @@ is
    --  Check that a section matches the properties defined by the memory region
    --  identified by name. An exception is raised if a property does not fit
    --  the requirements. If Mapped is False, the VMA is not validated.
+   --  If Identity is True, VMA = LMA is checked.
    procedure Check_Section
      (Physical_Mem : DOM.Core.Node_List;
       Virtual_Mem  : DOM.Core.Node_List;
       Region_Name  : String;
       Section      : Bfd.Sections.Section;
-      Mapped       : Boolean := True);
+      Mapped       : Boolean := True;
+      Identity     : Boolean := True);
 
    --  Check that the given entry point address matches the expected kernel
    --  entry point. An exception is raised if they do not match.

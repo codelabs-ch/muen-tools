@@ -31,6 +31,9 @@ TOOLS =             \
 	mucheckstack    \
 	mugenacpi       \
 	mugenmsrstore   \
+	mugends         \
+	mugendts        \
+	mugenpt         \
 	mugensinfo      \
 	mugensolo5      \
 	mugenspec       \
