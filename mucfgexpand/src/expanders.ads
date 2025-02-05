@@ -21,4 +21,8 @@ is
 
    Expansion_Error : exception;
 
+   type Arch_Type is (X86_64, Arm64);
+
+   Arch : Arch_Type := Arch_Type'First;
+
 end Expanders;

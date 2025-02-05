@@ -17,6 +17,9 @@
 --
 
 with Mulog;
+with Mutools.System_Config;
+
+with Expanders;
 
 with Stage0.Pre_Checks;
 with Stage0.Expansion;
@@ -36,7 +39,19 @@ is
      (Policy      : in out Muxml.XML_Data_Type;
       Output_File :        String)
    is
+      Is_ARM_System : constant Boolean := Mutools.System_Config.Has_Boolean
+        (Data => Policy,
+         Name => "armv8") and then
+        Mutools.System_Config.Get_Value
+          (Data => Policy,
+           Name => "armv8");
    begin
+      if Is_ARM_System then
+         Expanders.Arch := Expanders.Arm64;
+      end if;
+
+      Mulog.Log (Msg => "Architecture is " & Expanders.Arch'Img);
+
       Stage0.Pre_Checks.Register_All (Data => Policy);
       Mulog.Log (Msg => "Registered stage 0 pre-checks"
                  & Stage0.Pre_Checks.Get_Count'Img);
