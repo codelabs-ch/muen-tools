@@ -80,16 +80,16 @@ is
       CPU_Count   : constant Positive
         := Mutools.XML_Utils.Get_Active_CPU_Count (Data => Data);
       Data_Addr   : constant String := Mutools.Utils.To_Hex
-        (Number => Config.Kernel_Data_Section_Addr);
+        (Number => Config.Arch_Specific (Arch).Kernel_Data_Section_Addr);
       Data_Size   : constant String := Mutools.Utils.To_Hex
         (Number => Config.Kernel_Data_Section_Size);
       Data_Offset : constant String := Mutools.Utils.To_Hex
-        (Number => Config.Kernel_Data_Section_Addr
+        (Number => Config.Arch_Specific (Arch).Kernel_Data_Section_Addr
          - Config.Kernel_Text_Section_Addr);
       BSS_Addr    : constant String := Mutools.Utils.To_Hex
-        (Number => Config.Kernel_BSS_Section_Addr);
+        (Number => Config.Arch_Specific (Arch).Kernel_BSS_Section_Addr);
       BSS_Size    : constant String := Mutools.Utils.To_Hex
-        (Number => Config.Kernel_BSS_Section_Size);
+        (Number => Config.Arch_Specific (Arch).Kernel_BSS_Section_Size);
    begin
       for I in Natural range 0 .. CPU_Count - 1 loop
          declare
@@ -196,7 +196,7 @@ is
          Address     => Mutools.Utils.To_Hex
            (Number => Config.Kernel_Text_Section_Addr),
          Size        => Mutools.Utils.To_Hex
-           (Number => Config.Kernel_Text_Section_Size),
+           (Number => Config.Arch_Specific (Arch).Kernel_Text_Section_Size),
          Caching     => "WB",
          Alignment   => "16#1000#",
          File_Name   => "kernel.bin",
@@ -206,28 +206,28 @@ is
         (Policy      => Data,
          Name        => "kernel_global_data",
          Address     => Mutools.Utils.To_Hex
-           (Number => Config.Kernel_Global_Data_Section_Addr),
+           (Number => Config.Arch_Specific (Arch).Kernel_Global_Data_Section_Addr),
          Size        => Mutools.Utils.To_Hex
-           (Number => Config.Kernel_Global_Data_Section_Size),
+           (Number => Config.Arch_Specific (Arch).Kernel_Global_Data_Section_Size),
          Caching     => "WB",
          Alignment   => "16#1000#",
          File_Name   => "kernel.bin",
          File_Offset => Mutools.Utils.To_Hex
-           (Number => Config.Kernel_Global_Data_Section_Addr
+           (Number => Config.Arch_Specific (Arch).Kernel_Global_Data_Section_Addr
             - Config.Kernel_Text_Section_Addr),
          Memory_Type => "kernel_binary");
       Mutools.XML_Utils.Add_Memory_Region
         (Policy      => Data,
          Name        => "kernel_ro",
          Address     => Mutools.Utils.To_Hex
-           (Number => Config.Kernel_RO_Section_Addr),
+           (Number => Config.Arch_Specific (Arch).Kernel_RO_Section_Addr),
          Size        => Mutools.Utils.To_Hex
-           (Number => Config.Kernel_RO_Section_Size),
+           (Number => Config.Arch_Specific (Arch).Kernel_RO_Section_Size),
          Caching     => "WB",
          Alignment   => "16#1000#",
          File_Name   => "kernel.bin",
          File_Offset => Mutools.Utils.To_Hex
-           (Number => Config.Kernel_RO_Section_Addr
+           (Number => Config.Arch_Specific (Arch).Kernel_RO_Section_Addr
             - Config.Kernel_Text_Section_Addr),
          Memory_Type => "kernel_binary");
    end Add_Kernel_Shared_Memory;
@@ -240,8 +240,10 @@ is
 
       CPU_Count  : constant Positive
         := Mutools.XML_Utils.Get_Active_CPU_Count (Data => Data);
-      Stack_Addr : Interfaces.Unsigned_64          := Config.Kernel_Stack_Addr;
-      Stack_Size : constant Interfaces.Unsigned_64 := Config.Kernel_Stack_Size;
+      Stack_Addr : Interfaces.Unsigned_64
+        := Config.Arch_Specific (Arch).Kernel_Stack_Addr;
+      Stack_Size : constant Interfaces.Unsigned_64
+        := Config.Arch_Specific (Arch).Kernel_Stack_Size;
       -- Intr_Stack_Size : constant String
       --   := Mutools.Utils.To_Hex (Number => Config.Kernel_Interrupt_Stack_Size);
    begin

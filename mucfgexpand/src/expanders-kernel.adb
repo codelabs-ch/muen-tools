@@ -95,7 +95,7 @@ is
                   Logical_Name  => "data",
                   Physical_Name => "kernel_data_" & CPU_Str,
                   Address       => Mutools.Utils.To_Hex
-                    (Number => Config.Kernel_Data_Section_Addr),
+                    (Number => Config.Arch_Specific (Arch).Kernel_Data_Section_Addr),
                   Writable      => True,
                   Executable    => False));
             Muxml.Utils.Append_Child
@@ -105,7 +105,7 @@ is
                   Logical_Name  => "bss",
                   Physical_Name => "kernel_bss_" & CPU_Str,
                   Address       => Mutools.Utils.To_Hex
-                    (Number => Config.Kernel_BSS_Section_Addr),
+                    (Number => Config.Arch_Specific (Arch).Kernel_BSS_Section_Addr),
                   Writable      => True,
                   Executable    => False));
             Muxml.Utils.Append_Child
@@ -115,7 +115,7 @@ is
                   Logical_Name  => "global_data",
                   Physical_Name => "kernel_global_data",
                   Address       => Mutools.Utils.To_Hex
-                    (Number => Config.Kernel_Global_Data_Section_Addr),
+                    (Number => Config.Arch_Specific (Arch).Kernel_Global_Data_Section_Addr),
                   Writable      => True,
                   Executable    => False));
             Muxml.Utils.Append_Child
@@ -125,7 +125,7 @@ is
                   Logical_Name  => "ro",
                   Physical_Name => "kernel_ro",
                   Address       => Mutools.Utils.To_Hex
-                    (Number => Config.Kernel_RO_Section_Addr),
+                    (Number => Config.Arch_Specific (Arch).Kernel_RO_Section_Addr),
                   Writable      => False,
                   Executable    => False));
             Muxml.Utils.Append_Child
@@ -135,7 +135,7 @@ is
                   Logical_Name  => "stack",
                   Physical_Name => "kernel_stack_" & CPU_Str,
                   Address       => Mutools.Utils.To_Hex
-                    (Number => Config.Kernel_Stack_Addr),
+                    (Number => Config.Arch_Specific (Arch).Kernel_Stack_Addr),
                   Writable      => True,
                   Executable    => False));
             -- TODO: MOA: No interrupt stack.
