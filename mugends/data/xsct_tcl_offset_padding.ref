@@ -44,19 +44,19 @@ after 500
 
 ### FILES
 targets -set -nocase -filter {name =~ "*A53*0" && jtag_cable_name =~ "Xilinx HW-Z1-ZCU104 FT4232H*"}
-dow -data kernel.bin-kernel_text.part 0x0
-dow -data kernel.bin-kernel_ro.part 0x70000
-dow -data kernel.bin-kernel_data_0.part 0x82000
-dow -data kernel_bss_0.fill 0x84000
-dow -data kernel.bin-kernel_global_data.part 0x86000
-dow -data kernel.bin-kernel_stack.part.pad 0xa0000
+dow -data kernel.bin-kernel_text.part 0x100000
+dow -data kernel.bin-kernel_ro.part 0x170000
+dow -data kernel.bin-kernel_data_0.part 0x182000
+dow -data kernel_bss_0.fill 0x184000
+dow -data kernel.bin-kernel_global_data.part 0x186000
+dow -data kernel.bin-kernel_stack.part.pad 0x1a0000
 ###
 
 ### Run
 targets -set -nocase -filter {name =~ "*A53*0" && jtag_cable_name =~ "Xilinx HW-Z1-ZCU104 FT4232H*"}
-con -addr 0x00000000
+con -addr 0x100000
 targets -set -nocase -filter {name =~ "*A53*1" && jtag_cable_name =~ "Xilinx HW-Z1-ZCU104 FT4232H*"}
-con -addr 0x00000000
+con -addr 0x100000
 ###
 
 disconnect

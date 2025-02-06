@@ -62,8 +62,14 @@ package body DS.BIF is
               (Template => Template,
                Pattern  => "__addr__",
                Content  => Mutools.Utils.To_Hex
-                  (Number => File.Address,
-                   Normalize  => False));
+                  (Number    => File.Address,
+                   Normalize => False));
+            Mutools.Templates.Replace
+              (Template => Template,
+               Pattern  => "__startup__",
+               Content  => Mutools.Utils.To_Hex
+                  (Number    => File.Address,
+                   Normalize => False));
             Mutools.Templates.Replace
               (Template => Template,
                Pattern  => "__file__",
