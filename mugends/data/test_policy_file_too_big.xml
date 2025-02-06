@@ -152,22 +152,22 @@
 <kernel>
  <memory>
   <cpu id="0">
-   <memory logical="text" physical="kernel_text" virtualAddress="16#0000#" writable="false" executable="true"/>
-   <memory logical="ro" physical="kernel_ro" virtualAddress="16#0007_0000#" writable="false" executable="false"/>
-   <memory logical="data" physical="kernel_data_0" virtualAddress="16#0008_2000#" writable="true" executable="false"/>
-   <memory logical="bss" physical="kernel_bss_0" virtualAddress="16#0008_4000#" writable="true" executable="false"/>
-   <memory logical="global_data" physical="kernel_global_data" virtualAddress="16#0008_6000#" writable="true" executable="false"/>
-   <memory logical="stack" physical="kernel_stack_0" virtualAddress="16#000a_0000#" writable="true" executable="false"/>
+   <memory logical="text" physical="kernel_text" virtualAddress="16#0010_0000#" writable="false" executable="true"/>
+   <memory logical="ro" physical="kernel_ro" virtualAddress="16#0017_0000#" writable="false" executable="false"/>
+   <memory logical="data" physical="kernel_data_0" virtualAddress="16#0018_2000#" writable="true" executable="false"/>
+   <memory logical="bss" physical="kernel_bss_0" virtualAddress="16#0018_4000#" writable="true" executable="false"/>
+   <memory logical="global_data" physical="kernel_global_data" virtualAddress="16#0018_6000#" writable="true" executable="false"/>
+   <memory logical="stack" physical="kernel_stack_0" virtualAddress="16#001a_0000#" writable="true" executable="false"/>
    <memory logical="interrupt_stack" physical="kernel_interrupt_stack_0" virtualAddress="16#003f_f000#" writable="true" executable="false"/>
    <memory logical="crash_audit" physical="crash_audit" virtualAddress="16#0040_0000#" writable="true" executable="false"/>
   </cpu>
   <cpu id="1">
-   <memory logical="text" physical="kernel_text" virtualAddress="16#0000#" writable="false" executable="true"/>
-   <memory logical="ro" physical="kernel_ro" virtualAddress="16#0007_0000#" writable="false" executable="false"/>
-   <memory logical="data" physical="kernel_data_1" virtualAddress="16#0008_2000#" writable="true" executable="false"/>
-   <memory logical="bss" physical="kernel_bss_1" virtualAddress="16#0008_4000#" writable="true" executable="false"/>
-   <memory logical="global_data" physical="kernel_global_data" virtualAddress="16#0008_6000#" writable="true" executable="false"/>
-   <memory logical="stack" physical="kernel_stack_1" virtualAddress="16#000a_0000#" writable="true" executable="false"/>
+   <memory logical="text" physical="kernel_text" virtualAddress="16#0010_0000#" writable="false" executable="true"/>
+   <memory logical="ro" physical="kernel_ro" virtualAddress="16#0017_0000#" writable="false" executable="false"/>
+   <memory logical="data" physical="kernel_data_1" virtualAddress="16#0018_2000#" writable="true" executable="false"/>
+   <memory logical="bss" physical="kernel_bss_1" virtualAddress="16#0018_4000#" writable="true" executable="false"/>
+   <memory logical="global_data" physical="kernel_global_data" virtualAddress="16#0018_6000#" writable="true" executable="false"/>
+   <memory logical="stack" physical="kernel_stack_1" virtualAddress="16#001a_0000#" writable="true" executable="false"/>
    <memory logical="interrupt_stack" physical="kernel_interrupt_stack_0" virtualAddress="16#003f_f000#" writable="true" executable="false"/>
    <memory logical="crash_audit" physical="crash_audit" virtualAddress="16#0040_0000#" writable="true" executable="false"/>
   </cpu>

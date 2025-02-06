@@ -100,16 +100,28 @@ package body DS.XSCT is
 
       for CPU in CPUs.Iterate loop
          declare
-            ID : constant Natural := CPU_Kernel_Map_Package.Key (CPU);
+            ID   : constant Natural       := CPU_Kernel_Map_Package.Key (CPU);
+            File : constant Loadable_File := CPUs (CPU);
 
             Template : Mutools.Templates.Template_Type
               := Mutools.Templates.Create
                 (Content => String_Templates.xsct_entry_run_tcl);
          begin
+            Mulog.Log (Msg => "Write load/startup instruction for CPU" & ID'Img
+                               & " '" & To_String (File.Filename) & "' at "
+                               & Mutools.Utils.To_Hex (Number => File.Address)
+                               & " to '" & Output_File & "'");
+
             Mutools.Templates.Replace
               (Template => Template,
                Pattern  => "__cpu__",
                Content  => ID'Img (ID'Img'First + 1 .. ID'Img'Last));
+            Mutools.Templates.Replace
+              (Template => Template,
+               Pattern  => "__startup__",
+               Content  => Mutools.Utils.To_Hex
+                  (Number    => File.Address,
+                   Normalize => False));
 
             Append
               (Source   => Run_Entries,
