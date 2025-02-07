@@ -14,7 +14,7 @@ with System.Assertions;
 --  This section can be used to add with clauses if necessary.
 --
 --  end read only
-
+with Mutools.System_Config;
 --  begin read only
 --  end read only
 package body Mutools.XML_Utils.Test_Data.Tests is
@@ -2398,6 +2398,34 @@ package body Mutools.XML_Utils.Test_Data.Tests is
       end;
 --  begin read only
    end Test_To_APIC_ID;
+--  end read only
+
+
+--  begin read only
+   procedure Test_Is_Arm64 (Gnattest_T : in out Test);
+   procedure Test_Is_Arm64_ea9f55 (Gnattest_T : in out Test) renames Test_Is_Arm64;
+--  id:2.2/ea9f5590c9830adc/Is_Arm64/1/0/
+   procedure Test_Is_Arm64 (Gnattest_T : in out Test) is
+--  end read only
+
+      pragma Unreferenced (Gnattest_T);
+
+      Policy : Muxml.XML_Data_Type;
+   begin
+      Muxml.Parse (Data => Policy,
+                   Kind => Muxml.Format_Src,
+                   File => "data/test_policy.xml");
+      Assert (Condition => not Is_Arm64 (Policy => Policy),
+              Message   => "Unexpected arch (1)");
+
+      System_Config.Set_Value
+        (Data  => Policy,
+         Name  => "armv8",
+         Value => True);
+      Assert (Condition => Is_Arm64 (Policy => Policy),
+              Message   => "Unexpected arch (2)");
+--  begin read only
+   end Test_Is_Arm64;
 --  end read only
 
 --  begin read only

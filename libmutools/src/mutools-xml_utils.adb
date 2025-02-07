@@ -31,6 +31,7 @@ with Muxml.Utils;
 
 with Mutools.Match;
 with Mutools.Utils;
+with Mutools.System_Config;
 
 package body Mutools.XML_Utils
 is
@@ -1175,6 +1176,21 @@ is
    begin
       return DOM.Core.Nodes.Length (List => Major_Frames) > 1;
    end Has_Multiple_Major_Frames;
+
+   -------------------------------------------------------------------------
+
+   function Is_Arm64 (Policy : Muxml.XML_Data_Type) return Boolean
+   is
+      Is_ARM_System : constant Boolean
+        := Mutools.System_Config.Has_Boolean
+          (Data => Policy,
+           Name => "armv8") and then
+        Mutools.System_Config.Get_Value
+          (Data => Policy,
+           Name => "armv8");
+   begin
+      return Is_ARM_System;
+   end Is_Arm64;
 
    -------------------------------------------------------------------------
 

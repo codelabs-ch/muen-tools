@@ -345,4 +345,7 @@ is
    APIC_ID_Not_Found : exception;
    IOAPIC_Not_Found  : exception;
 
+   --  Returns True if given policy specifies an Arm64 system.
+   function Is_Arm64 (Policy : Muxml.XML_Data_Type) return Boolean;
+
 end Mutools.XML_Utils;
