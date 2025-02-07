@@ -28,7 +28,7 @@ with McKae.XML.XPath.XIA;
 with Mulog;
 with Muxml.Utils;
 with Mutools.Files;
-with Mutools.System_Config;
+with Mutools.XML_Utils;
 with Mutools.Utils;
 
 with Interfaces;
@@ -107,15 +107,9 @@ is
          := McKae.XML.XPath.XIA.XPath_Query
         (N     => Policy.Doc,
          XPath => "/system/deviceDomains/domain");
-      Is_ARM_System : constant Boolean := Mutools.System_Config.Has_Boolean
-        (Data => Policy,
-         Name => "armv8") and then
-        Mutools.System_Config.Get_Value
-          (Data => Policy,
-           Name => "armv8");
    begin
       --  Only necessary to generate these for ARM.
-      if not Is_ARM_System then
+      if not Mutools.XML_Utils.Is_Arm64 (Policy => Policy) then
          return;
       end if;
 
@@ -179,15 +173,9 @@ is
         := McKae.XML.XPath.XIA.XPath_Query
         (N     => Policy.Doc,
          XPath => "/system/kernel/memory/cpu");
-      Is_ARM_System : constant Boolean := Mutools.System_Config.Has_Boolean
-        (Data => Policy,
-         Name => "armv8") and then
-        Mutools.System_Config.Get_Value
-          (Data => Policy,
-           Name => "armv8");
       Paging_Mode : constant Paging.Paging_Mode_Type
-        := (if Is_ARM_System then Paging.ARMv8a_Stage1_Mode
-            else Paging.IA32e_Mode);
+        := (if Mutools.XML_Utils.Is_Arm64 (Policy => Policy)
+            then Paging.ARMv8a_Stage1_Mode else Paging.IA32e_Mode);
    begin
       for I in 0 .. DOM.Core.Nodes.Length (List => CPUs) - 1 loop
          declare
@@ -419,12 +407,6 @@ is
          := McKae.XML.XPath.XIA.XPath_Query
         (N     => Policy.Doc,
          XPath => "/system/subjects/subject");
-      Is_ARM_System : constant Boolean := Mutools.System_Config.Has_Boolean
-        (Data => Policy,
-         Name => "armv8") and then
-        Mutools.System_Config.Get_Value
-          (Data => Policy,
-           Name => "armv8");
    begin
       for I in 0 .. DOM.Core.Nodes.Length (List => Subjects) - 1 loop
          declare
@@ -462,7 +444,7 @@ is
 
             Paging_Mode : Paging.Paging_Mode_Type;
          begin
-            if Is_ARM_System then
+            if Mutools.XML_Utils.Is_Arm64 (Policy => Policy) then
 
                --  All subjects use SLAT on ARM systems.
 
