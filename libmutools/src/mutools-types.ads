@@ -93,6 +93,9 @@ is
    --  Types of kernel diagnostics devices.
    type Kernel_Diagnostics_Kind is (None, Uart, Hsuart, Vga);
 
+   --  Currently supported architectures.
+   type Arch_Type is (X86_64, Arm64);
+
 private
 
    function Get_Max_ID (Group : Event_Group_Type) return Natural
