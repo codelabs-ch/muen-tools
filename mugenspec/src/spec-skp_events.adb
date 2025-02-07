@@ -31,7 +31,7 @@ with Muxml.Utils;
 with Mutools.Constants;
 with Mutools.Templates;
 with Mutools.Types;
-with Mutools.System_Config;
+with Mutools.XML_Utils;
 
 with String_Templates;
 
@@ -320,12 +320,7 @@ is
 
       --  Temporary differentiation between x86/64 and ARMv8a.
       Is_ARM_System : constant Boolean
-        := Mutools.System_Config.Has_Boolean
-          (Data => Policy,
-           Name => "armv8") and then
-        Mutools.System_Config.Get_Value
-          (Data => Policy,
-           Name => "armv8");
+        := Mutools.XML_Utils.Is_Arm64 (Policy => Policy);
 
       Ev_Buf : Unbounded_String;
       Buffer : Unbounded_String;

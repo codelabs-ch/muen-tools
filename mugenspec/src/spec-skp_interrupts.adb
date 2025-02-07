@@ -30,7 +30,6 @@ with Mutools.Constants;
 with Mutools.Match;
 with Mutools.XML_Utils;
 with Mutools.Templates;
-with Mutools.System_Config;
 
 with Spec.Utils;
 
@@ -45,15 +44,8 @@ is
      (Output_Dir : String;
       Policy     : Muxml.XML_Data_Type)
    is
-      Is_ARM_System : constant Boolean
-        := Mutools.System_Config.Has_Boolean
-          (Data => Policy,
-           Name => "armv8") and then
-        Mutools.System_Config.Get_Value
-          (Data => Policy,
-           Name => "armv8");
    begin
-      if Is_ARM_System then
+      if Mutools.XML_Utils.Is_Arm64 (Policy => Policy) then
          Write_ARMv8a (Output_Dir => Output_Dir,
                        Policy     => Policy);
       else
