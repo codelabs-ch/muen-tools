@@ -23,7 +23,6 @@ with McKae.XML.XPath.XIA;
 
 with Mulog;
 with Muxml.Utils;
-with Mutools.System_Config;
 with Mutools.Types;
 with Mutools.Utils;
 with Mutools.XML_Utils;
@@ -182,12 +181,7 @@ is
       Dom_Count  : constant Natural := DOM.Core.Nodes.Length (List => Domains);
 
       Is_ARM_System : constant Boolean
-        := Mutools.System_Config.Has_Boolean
-          (Data => XML_Data,
-           Name => "armv8") and then
-          Mutools.System_Config.Get_Value
-            (Data => XML_Data,
-             Name => "armv8");
+        := Mutools.XML_Utils.Is_Arm64 (Policy => XML_Data);
    begin
       Mulog.Log (Msg => "Checking presence of" & Dom_Count'Img
                  & " security domain PT memory region(s)");
