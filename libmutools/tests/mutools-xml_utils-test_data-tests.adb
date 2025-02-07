@@ -2428,6 +2428,36 @@ package body Mutools.XML_Utils.Test_Data.Tests is
    end Test_Is_Arm64;
 --  end read only
 
+
+--  begin read only
+   procedure Test_Get_Arch (Gnattest_T : in out Test);
+   procedure Test_Get_Arch_a1bb3f (Gnattest_T : in out Test) renames Test_Get_Arch;
+--  id:2.2/a1bb3f1cc57352d9/Get_Arch/1/0/
+   procedure Test_Get_Arch (Gnattest_T : in out Test) is
+--  end read only
+
+      pragma Unreferenced (Gnattest_T);
+
+      use type Types.Arch_Type;
+
+      Policy : Muxml.XML_Data_Type;
+   begin
+      Muxml.Parse (Data => Policy,
+                   Kind => Muxml.Format_Src,
+                   File => "data/test_policy.xml");
+      Assert (Condition => Get_Arch (Policy => Policy) = Types.X86_64,
+              Message   => "Unexpected arch (1)");
+
+      System_Config.Set_Value
+        (Data  => Policy,
+         Name  => "armv8",
+         Value => True);
+      Assert (Condition => Get_Arch (Policy => Policy) = Types.Arm64,
+              Message   => "Unexpected arch (2)");
+--  begin read only
+   end Test_Get_Arch;
+--  end read only
+
 --  begin read only
 --  id:2.2/02/
 --

@@ -24,6 +24,7 @@ with DOM.Core;
 
 with Muxml;
 with Mutools.Strings;
+with Mutools.Types;
 
 package Mutools.XML_Utils
 is
@@ -347,5 +348,14 @@ is
 
    --  Returns True if given policy specifies an Arm64 system.
    function Is_Arm64 (Policy : Muxml.XML_Data_Type) return Boolean;
+
+   --  Return architecture for given policy.
+   function Get_Arch (Policy : Muxml.XML_Data_Type) return Types.Arch_Type;
+
+private
+
+   function Get_Arch (Policy : Muxml.XML_Data_Type) return Types.Arch_Type
+   is (if Mutools.XML_Utils.Is_Arm64
+         (Policy => Policy) then Types.Arm64 else Types.X86_64);
 
 end Mutools.XML_Utils;
