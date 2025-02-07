@@ -58,6 +58,8 @@ is
 
    procedure Add_Binary_Mappings (Data : in out Muxml.XML_Data_Type)
    is
+      Arch      : constant Mutools.Types.Arch_Type
+        := Mutools.XML_Utils.Get_Arch (Policy => Data);
       CPU_Nodes : constant DOM.Core.Node_List
         := McKae.XML.XPath.XIA.XPath_Query
           (N     => Data.Doc,

@@ -18,6 +18,8 @@
 
 with Interfaces;
 
+with Mutools.Types;
+
 package Expanders.Config
 is
 
@@ -59,8 +61,8 @@ is
       Kernel_RO_Section_Size          : Interfaces.Unsigned_64;
    end record;
 
-   Arch_Specific : constant array (Expanders.Arch_Type) of Settings_Type :=
-     (Arm64 =>
+   Arch_Specific : constant array (Mutools.Types.Arch_Type) of Settings_Type :=
+     (Mutools.Types.Arm64 =>
         (Kernel_Text_Section_Size        => 16#0007_0000#,
          Kernel_Data_Section_Addr        => 16#0018_2000#,
          Kernel_BSS_Section_Addr         => 16#0018_4000#,
@@ -71,7 +73,7 @@ is
          Kernel_Global_Data_Section_Size => 16#0000_a000#,
          Kernel_RO_Section_Addr          => 16#0017_0000#,
          Kernel_RO_Section_Size          => 16#0001_2000#),
-      X86_64 =>
+      Mutools.Types.X86_64 =>
         (Kernel_Text_Section_Size        => 16#0001_1000#,
          Kernel_Data_Section_Addr        => 16#0012_0000#,
          Kernel_BSS_Section_Addr         => 16#0012_2000#,

@@ -30,6 +30,7 @@ with Muxml.Utils;
 with Mutools.Utils;
 with Mutools.Constants;
 with Mutools.XML_Utils;
+with Mutools.Types;
 with Mucfgcheck.Kernel;
 with Mucfgcheck.Subject;
 
@@ -79,6 +80,8 @@ is
 
       CPU_Count   : constant Positive
         := Mutools.XML_Utils.Get_Active_CPU_Count (Data => Data);
+      Arch        : constant Mutools.Types.Arch_Type
+        := Mutools.XML_Utils.Get_Arch (Policy => Data);
       Data_Addr   : constant String := Mutools.Utils.To_Hex
         (Number => Config.Arch_Specific (Arch).Kernel_Data_Section_Addr);
       Data_Size   : constant String := Mutools.Utils.To_Hex
@@ -128,6 +131,10 @@ is
 
    procedure Add_Kernel_PTs (Data : in out Muxml.XML_Data_Type)
    is
+      use type Mutools.Types.Arch_Type;
+
+      Arch      : constant Mutools.Types.Arch_Type
+        := Mutools.XML_Utils.Get_Arch (Policy => Data);
       CPU_Count : constant Positive
         := Mutools.XML_Utils.Get_Active_CPU_Count (Data => Data);
       Physical_Mem : constant DOM.Core.Node_List
@@ -156,7 +163,7 @@ is
               := XML_Utils.Calculate_PT_Size
                 (Policy             => Data,
                  Paging_Levels      => 4,
-                 Large_Pages        => Arch = Arm64,
+                 Large_Pages        => Arch = Mutools.Types.Arm64,
                  Physical_Memory    => Physical_Mem,
                  Physical_Devices   => Physical_Devs,
                  Dev_Virt_Mem_XPath => "/system/kernel/devices/device/memory",
@@ -186,6 +193,9 @@ is
    procedure Add_Kernel_Shared_Memory (Data : in out Muxml.XML_Data_Type)
    is
       use type Interfaces.Unsigned_64;
+
+      Arch : constant Mutools.Types.Arch_Type
+        := Mutools.XML_Utils.Get_Arch (Policy => Data);
    begin
       Mulog.Log (Msg => "Adding kernel shared memory regions");
 
@@ -238,6 +248,8 @@ is
    is
       use type Interfaces.Unsigned_64;
 
+      Arch       : constant Mutools.Types.Arch_Type
+        := Mutools.XML_Utils.Get_Arch (Policy => Data);
       CPU_Count  : constant Positive
         := Mutools.XML_Utils.Get_Active_CPU_Count (Data => Data);
       Stack_Addr : Interfaces.Unsigned_64
@@ -591,6 +603,10 @@ is
 
    procedure Add_Subject_PTs (Data : in out Muxml.XML_Data_Type)
    is
+      use type Mutools.Types.Arch_Type;
+
+      Arch  : constant Mutools.Types.Arch_Type
+        := Mutools.XML_Utils.Get_Arch (Policy => Data);
       Nodes : constant DOM.Core.Node_List
         := McKae.XML.XPath.XIA.XPath_Query
           (N     => Data.Doc,
@@ -604,8 +620,7 @@ is
           (N     => Data.Doc,
            XPath => "/system/hardware/devices/device");
       PT_Levels : constant Natural
-        := (if Arch = Arm64 then 3
-            else 4);
+        := (if Arch = Mutools.Types.Arm64 then 3 else 4);
    begin
 
       --  Validate that there are no overlapping subject memory mappings and
@@ -628,7 +643,7 @@ is
               := XML_Utils.Calculate_PT_Size
                 (Policy             => Data,
                  Paging_Levels      => PT_Levels,
-                 Large_Pages        => Arch = Arm64,
+                 Large_Pages        => Arch = Mutools.Types.Arm64,
                  Physical_Memory    => Physical_Mem,
                  Physical_Devices   => Physical_Devs,
                  Dev_Virt_Mem_XPath => "/system/subjects/subject[@name='"
