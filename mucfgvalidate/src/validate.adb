@@ -31,7 +31,7 @@ with Mucfgcheck.Events;
 with Mucfgcheck.Device_Domains;
 with Mucfgcheck.Validation_Errors;
 
-with Mutools.System_Config;
+with Mutools.XML_Utils;
 
 with Validate.XML_Processors;
 
@@ -955,21 +955,14 @@ is
                    Kind => Muxml.Format_B,
                    File => Policy);
 
-      declare
-         Is_ARM_System : constant Boolean
-           := Mutools.System_Config.Has_Boolean
-             (Data => Data,
-              Name => "armv8") and then
-           Mutools.System_Config.Get_Value
-             (Data => Data,
-              Name => "armv8");
-      begin
-         if Is_ARM_System then
-            Register_ARMv8a;
-         else
-            Register_X86_64;
-         end if;
-      end;
+      Mulog.Log (Msg => "Architecture: " & Mutools.XML_Utils.Get_Arch
+                   (Policy => Data)'Img);
+
+      if Mutools.XML_Utils.Is_Arm64 (Policy => Data) then
+         Register_ARMv8a;
+      else
+         Register_X86_64;
+      end if;
 
       Mulog.Log
         (Msg => "Registered validators" & XML_Processors.Get_Count'Img);
