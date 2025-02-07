@@ -28,7 +28,7 @@ with McKae.XML.XPath.XIA;
 with Mulog;
 with Muxml.Utils;
 with Mutools.Templates;
-with Mutools.System_Config;
+with Mutools.XML_Utils;
 
 with String_Templates;
 
@@ -41,15 +41,6 @@ is
      (Output_Dir : String;
       Policy     : Muxml.XML_Data_Type)
    is
-      --  Temporary differentiation between x86/64 and ARMv8a.
-      Is_ARM_System : constant Boolean
-        := Mutools.System_Config.Has_Boolean
-          (Data => Policy,
-           Name => "armv8") and then
-        Mutools.System_Config.Get_Value
-          (Data => Policy,
-           Name => "armv8");
-
       Tmpl : Mutools.Templates.Template_Type;
 
       --  Write kernel device resources.
@@ -195,7 +186,7 @@ is
                  & Output_Dir & "/skp-hardware.ads'");
 
       Tmpl := Mutools.Templates.Create
-        (Content => (if Is_ARM_System
+        (Content => (if Mutools.XML_Utils.Is_Arm64 (Policy => Policy)
                      then String_Templates.skp_hardware_armv8a_ads
                      else String_Templates.skp_hardware_x86_64_ads));
 

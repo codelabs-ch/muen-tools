@@ -30,7 +30,6 @@ with Mulog;
 with Muxml.Utils;
 with Mutools.XML_Utils;
 with Mutools.Templates;
-with Mutools.System_Config;
 
 with String_Templates;
 
@@ -126,18 +125,9 @@ is
       Max_Barrier_Count  : Natural;
       Majors             : DOM.Core.Node_List;
 
-      --  Temporary differentiation between x86/64 and ARMv8a.
-      Is_ARM_System : constant Boolean
-        := Mutools.System_Config.Has_Boolean
-          (Data => Policy,
-           Name => "armv8") and then
-        Mutools.System_Config.Get_Value
-          (Data => Policy,
-           Name => "armv8");
-
       Template : Mutools.Templates.Stream_Template_Type
         := TMPL.Create
-          (Content  => (if Is_ARM_System
+          (Content  => (if Mutools.XML_Utils.Is_Arm64 (Policy => Policy)
                         then String_Templates.skp_scheduling_armv8a_ads
                         else String_Templates.skp_scheduling_x86_64_ads),
            Filename => Output_Dir & "/skp-scheduling.ads");
