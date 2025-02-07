@@ -685,9 +685,8 @@ is
         (Process => Memory.Kernel_BSS_Region_Presence'Access);
       XML_Processors.Register
         (Process => Memory.Kernel_Stack_Region_Presence'Access);
-      -- TODO: MOA: No interrupt stack.
-      -- XML_Processors.Register
-      --   (Process => Memory.Kernel_Intr_Stack_Region_Presence'Access);
+      XML_Processors.Register
+        (Process => Memory.Kernel_Intr_Stack_Region_Presence'Access);
       XML_Processors.Register
         (Process => Memory.Kernel_PT_Region_Presence'Access);
       XML_Processors.Register
@@ -902,11 +901,10 @@ is
         (Process => Hardware.CPU_Sub_Elements'Access);
       XML_Processors.Register
         (Process => Hardware.System_Board_Presence'Access);
-      -- TODO: MOA: No I/O APIC.
-      -- XML_Processors.Register
-      --   (Process => Hardware.IOAPIC_Presence'Access);
-      -- XML_Processors.Register
-      --   (Process => Hardware.IOAPIC_Cap_SID'Access);
+      XML_Processors.Register
+        (Process => Hardware.IOAPIC_Presence'Access);
+      XML_Processors.Register
+        (Process => Hardware.IOAPIC_Cap_SID'Access);
       XML_Processors.Register
         (Process => Platform.Kernel_Diagnostics_Device_Reference'Access);
       XML_Processors.Register
