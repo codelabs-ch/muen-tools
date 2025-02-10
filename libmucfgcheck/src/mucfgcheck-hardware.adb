@@ -16,6 +16,7 @@
 --  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --
 
+with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded;
 
 with DOM.Core.Nodes;
@@ -38,24 +39,27 @@ is
    use McKae.XML.XPath.XIA;
 
    --  Checks that devices of given type identified by the specified capability
-   --  name exist and declare a device memory resource. Min_Count defines the
-   --  minimum, Max_Count the maximum number of devices that must be present in
-   --  the system. A Max_Count of 0 means that there is no upper limit.
+   --  name exist and declare Dev_Mem_Count device memory resources. Min_Count
+   --  defines the minimum, Max_Count the maximum number of devices that must
+   --  be present in the system. A Max_Count of 0 means that there is no upper
+   --  limit.
    procedure Check_Hardware_Device_Presence
-     (XML_Data    : Muxml.XML_Data_Type;
-      Device_Type : String;
-      Cap_Name    : String;
-      Min_Count   : Natural;
-      Max_Count   : Natural);
+     (XML_Data      : Muxml.XML_Data_Type;
+      Device_Type   : String;
+      Cap_Name      : String;
+      Min_Count     : Natural;
+      Max_Count     : Natural;
+      Dev_Mem_Count : Positive);
 
    -------------------------------------------------------------------------
 
    procedure Check_Hardware_Device_Presence
-     (XML_Data    : Muxml.XML_Data_Type;
-      Device_Type : String;
-      Cap_Name    : String;
-      Min_Count   : Natural;
-      Max_Count   : Natural)
+     (XML_Data      : Muxml.XML_Data_Type;
+      Device_Type   : String;
+      Cap_Name      : String;
+      Min_Count     : Natural;
+      Max_Count     : Natural;
+      Dev_Mem_Count : Positive)
    is
       Devices   : constant DOM.Core.Node_List
         := McKae.XML.XPath.XIA.XPath_Query
@@ -98,11 +102,14 @@ is
                Validation_Errors.Insert
                  (Msg => Device_Type & " device '"
                   & Dev_Name & "' has no memory region");
-            -- TODO: MOA: SMMU has two iomem regions.
-            -- elsif Mem_Count > 1 then
-            --    Validation_Errors.Insert
-            --      (Msg => Device_Type & " device '"
-            --       & Dev_Name & "' has multiple memory regions");
+            elsif Mem_Count /= Dev_Mem_Count then
+               Validation_Errors.Insert
+                 (Msg => Device_Type & " device '"
+                  & Dev_Name & "' has multiple unexpected memory regions ("
+                  & Ada.Strings.Fixed.Trim
+                     (Source => Mem_Count'Img,
+                      Side   => Ada.Strings.Left)
+                  & " /=" & Dev_Mem_Count'Img & ")");
             end if;
          end;
       end loop;
@@ -353,11 +360,12 @@ is
    is
    begin
       Check_Hardware_Device_Presence
-        (XML_Data    => XML_Data,
-         Device_Type => "I/O APIC",
-         Cap_Name    => "ioapic",
-         Min_Count   => 1,
-         Max_Count   => 0);
+        (XML_Data      => XML_Data,
+         Device_Type   => "I/O APIC",
+         Cap_Name      => "ioapic",
+         Min_Count     => 1,
+         Max_Count     => 0,
+         Dev_Mem_Count => 1);
    end IOAPIC_Presence;
 
    -------------------------------------------------------------------------
@@ -519,11 +527,13 @@ is
    is
    begin
       Check_Hardware_Device_Presence
-        (XML_Data    => XML_Data,
-         Device_Type => "IOMMU",
-         Cap_Name    => "iommu",
-         Min_Count   => 1,
-         Max_Count   => 8);
+        (XML_Data      => XML_Data,
+         Device_Type   => "IOMMU",
+         Cap_Name      => "iommu",
+         Min_Count     => 1,
+         Max_Count     => 8,
+         Dev_Mem_Count => (if Mutools.XML_Utils.Is_Arm64
+                            (Policy => XML_Data) then 2 else 1));
    end IOMMU_Presence;
 
    -------------------------------------------------------------------------
