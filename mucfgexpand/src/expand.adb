@@ -71,7 +71,7 @@ is
       end if;
       Mulog.Log (Msg => "Registered stage 2 pre-checks"
                  & Stage2.Pre_Checks.Get_Count'Img);
-      Stage2.Expansion.Register_All;
+      Stage2.Expansion.Register (Arch => Arch);
       Mulog.Log (Msg => "Registered stage 2 expanders"
                  & Stage2.Expansion.Get_Count'Img);
       Mulog.Log (Msg => "STAGE 2 processing");

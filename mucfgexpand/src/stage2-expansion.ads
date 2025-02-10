@@ -17,13 +17,14 @@
 --
 
 with Muxml;
+with Mutools.Types;
 with Mutools.Processors;
 
 package Stage2.Expansion
 is
 
    --  Register stage 2 expanders.
-   procedure Register_All;
+   procedure Register (Arch : Mutools.Types.Arch_Type);
 
    --  Run registered expanders.
    procedure Run (Data : in out Muxml.XML_Data_Type);
