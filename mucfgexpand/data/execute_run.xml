@@ -402,10 +402,10 @@
   <memory alignment="16#1000#" caching="WB" name="lnx_core_1|msrstore" size="16#1000#" type="kernel_msrstore">
    <file filename="lnx_core_1_msrstore" offset="none"/>
   </memory>
-  <memory alignment="16#1000#" caching="WB" name="kernel_0|pt" size="16#c000#" type="system_pt">
+  <memory alignment="16#1000#" caching="WB" name="kernel_0|pt" size="16#a000#" type="system_pt">
    <file filename="kernel_0_pt" offset="none"/>
   </memory>
-  <memory alignment="16#1000#" caching="WB" name="kernel_1|pt" size="16#c000#" type="system_pt">
+  <memory alignment="16#1000#" caching="WB" name="kernel_1|pt" size="16#a000#" type="system_pt">
    <file filename="kernel_1_pt" offset="none"/>
   </memory>
   <memory alignment="16#1000#" caching="WB" name="tau0|pt" size="16#7000#" type="system_pt">
@@ -547,13 +547,18 @@
    <device logical="debugconsole" physical="debugconsole">
     <ioPort logical="port" physical="serial"/>
    </device>
+   <device logical="ioapic_1" physical="ioapic">
+    <memory executable="false" logical="mmio_regs" physical="mmio_regs" virtualAddress="16#0050_0000#" writable="true"/>
+   </device>
    <device logical="iommu_1" physical="iommu_1">
-    <irq logical="smmu_irq" physical="irq" vector="187"/>
-    <memory executable="false" logical="mmio" physical="mmio" virtualAddress="16#fed9_0000#" writable="true"/>
+    <memory executable="false" logical="mmio" physical="mmio" virtualAddress="16#0050_1000#" writable="true"/>
    </device>
    <device logical="iommu_2" physical="second_iommu">
-    <irq logical="smmu_irq" physical="irq" vector="187"/>
-    <memory executable="false" logical="MMIO_1" physical="MMIO_1" virtualAddress="16#fed9_1000#" writable="true"/>
+    <memory executable="false" logical="MMIO_1" physical="MMIO_1" virtualAddress="16#0050_2000#" writable="true"/>
+   </device>
+   <device logical="system_board" physical="system_board">
+    <ioPort logical="reset_port" physical="ioport1"/>
+    <ioPort logical="poweroff_port" physical="pm1a_cnt"/>
    </device>
   </devices>
  </kernel>

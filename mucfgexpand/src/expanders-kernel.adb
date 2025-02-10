@@ -212,23 +212,42 @@ is
         := Mutools.Types.Kernel_Diagnostics_Kind'Value
           (Debug_Console_Type_Str);
 
-      --  Base address of kernel device mappings.
-      -- TODO: MOA: Device addrs are identity mapped.
-      -- Base_Address : Interfaces.Unsigned_64
-      --   := Config.Kernel_Devices_Virtual_Addr;
+      --  Base address of kernel device mappings (x86).
+      Base_Address_X86_64 : Interfaces.Unsigned_64
+        := Config.Kernel_Devices_Virtual_Addr;
 
       --  Create device reference with given device, MMIO region nodes.
-      function Create_Device_Reference
+      --  Variant for arm64.
+      function Create_Device_Reference_Arm64
         (Device_Logical  : String;
          Device_Physical : String;
          Cap_Name        : String;
          MMIO_Nodes      : DOM.Core.Node_List)
          return DOM.Core.Node;
 
+      --  Create device reference with given device, MMIO region nodes.
+      --  Variant for x86.
+      function Create_Device_Reference_X86_64
+        (Device_Logical  : String;
+         Device_Physical : String;
+         MMIO_Name       : String;
+         MMIO_Addr       : String)
+         return DOM.Core.Node;
+
       --  Add mapping for devices of given type identified by specified
       --  capability. The capability string is used as name prefix for logical
       --  device names.
-      procedure Add_Device_Mappings
+      --  Variant for arm64.
+      procedure Add_Device_Mappings_Arm64
+        (Devices_Node : DOM.Core.Node;
+         Device_Type  : String;
+         Cap_Name     : String);
+
+      --  Add mapping for devices of given type identified by specified
+      --  capability. The capability string is used as name prefix for logical
+      --  device names.
+      --  Variant for x86_64.
+      procedure Add_Device_Mappings_X86_64
         (Devices_Node : DOM.Core.Node;
          Device_Type  : String;
          Cap_Name     : String);
@@ -236,14 +255,8 @@ is
       --  Add debug console.
       procedure Add_Debug_Console (Devices : DOM.Core.Node);
 
-      --  Add I/O APIC.
-      procedure Add_IO_APIC (Devices : DOM.Core.Node);
-
-      --  Add IOMMUs (if present).
-      procedure Add_IOMMUs (Devices : DOM.Core.Node);
-
       --  Add system board.
-      -- procedure Add_System_Board (Devices : DOM.Core.Node);
+      procedure Add_System_Board (Devices : DOM.Core.Node);
 
       ----------------------------------------------------------------------
 
@@ -339,7 +352,7 @@ is
 
       ----------------------------------------------------------------------
 
-      procedure Add_Device_Mappings
+      procedure Add_Device_Mappings_Arm64
         (Devices_Node : DOM.Core.Node;
          Device_Type  : String;
          Cap_Name     : String)
@@ -374,7 +387,7 @@ is
                           & "' to kernel devices");
                Muxml.Utils.Append_Child
                  (Node      => Devices_Node,
-                  New_Child => Create_Device_Reference
+                  New_Child => Create_Device_Reference_Arm64
                     (Device_Logical  => Dev_Logical,
                      Device_Physical => Dev_Physical,
                      Cap_Name        => Cap_Name,
@@ -383,75 +396,115 @@ is
                Counter := Counter + 1;
             end;
          end loop;
-      end Add_Device_Mappings;
+      end Add_Device_Mappings_Arm64;
 
       ----------------------------------------------------------------------
 
-      --  TODO: MOA: Add_IO_APIC adds the GIC device.
-      procedure Add_IO_APIC (Devices : DOM.Core.Node)
+      procedure Add_Device_Mappings_X86_64
+        (Devices_Node : DOM.Core.Node;
+         Device_Type  : String;
+         Cap_Name     : String)
       is
+         Physical_Devs : constant DOM.Core.Node_List
+           := McKae.XML.XPath.XIA.XPath_Query
+             (N     => Data.Doc,
+              XPath => "/system/hardware/devices/device[capabilities/"
+              & "capability/@name='" & Cap_Name & "']");
+         Counter       : Positive := 1;
       begin
-         Add_Device_Mappings (Devices_Node => Devices,
-                              Device_Type  => "GIC",
-                              Cap_Name     => "gic");
-      end Add_IO_APIC;
+         for I in 0 .. DOM.Core.Nodes.Length (List => Physical_Devs) - 1 loop
+            declare
+               use type Interfaces.Unsigned_64;
+
+               Addr_Str : constant String
+                 := Mutools.Utils.To_Hex (Number => Base_Address_X86_64);
+               Dev_Node : constant DOM.Core.Node
+                 := DOM.Core.Nodes.Item
+                   (List  => Physical_Devs,
+                    Index => I);
+               Dev_Physical : constant String
+                 := DOM.Core.Elements.Get_Attribute
+                   (Elem => Dev_Node,
+                    Name => "name");
+               Dev_Logical : constant String
+                 := Cap_Name & "_" & Ada.Strings.Fixed.Trim
+                   (Source => Counter'Img,
+                    Side   => Ada.Strings.Left);
+               Mem_Node : constant DOM.Core.Node
+                 := Muxml.Utils.Get_Element (Doc   => Dev_Node,
+                                             XPath => "memory");
+               Mem_Name : constant String
+                 := DOM.Core.Elements.Get_Attribute
+                   (Elem => Mem_Node,
+                    Name => "name");
+               Mem_Size : constant Interfaces.Unsigned_64
+                 := Interfaces.Unsigned_64'Value
+                   (DOM.Core.Elements.Get_Attribute
+                      (Elem => Mem_Node,
+                       Name => "size"));
+            begin
+               Mulog.Log (Msg => "Adding " & Device_Type & " '" & Dev_Physical
+                          & "' to kernel devices, MMIO: " & Addr_Str);
+               Muxml.Utils.Append_Child
+                 (Node      => Devices_Node,
+                  New_Child => Create_Device_Reference_X86_64
+                    (Device_Logical  => Dev_Logical,
+                     Device_Physical => Dev_Physical,
+                     MMIO_Name       => Mem_Name,
+                     MMIO_Addr       => Addr_Str));
+
+               Base_Address_X86_64 := Base_Address_X86_64 + Mem_Size;
+               Counter := Counter + 1;
+            end;
+         end loop;
+      end Add_Device_Mappings_X86_64;
 
       ----------------------------------------------------------------------
 
-      procedure Add_IOMMUs (Devices : DOM.Core.Node)
+      procedure Add_System_Board (Devices : DOM.Core.Node)
       is
+         Phys_Dev : constant DOM.Core.Node
+           := Muxml.Utils.Get_Element
+             (Doc   => Data.Doc,
+              XPath => "/system/hardware/devices/device[capabilities/"
+              & "capability/@name='systemboard']");
+         Phys_Dev_Name : constant String
+           := DOM.Core.Elements.Get_Attribute
+             (Elem => Phys_Dev,
+              Name => "name");
+         Reset_Port : constant DOM.Core.Node
+           := Muxml.Utils.Get_Element
+             (Doc   => Phys_Dev,
+              XPath => "ioPort[@start='16#0cf9#' and @end='16#0cf9#']");
+         Poweroff_Port : constant DOM.Core.Node
+           := Muxml.Utils.Get_Element
+             (Doc   => Phys_Dev,
+              XPath => "ioPort[@name='pm1a_cnt']");
+         Log_Device : constant DOM.Core.Node
+           := XML_Utils.Create_Logical_Device_Node
+             (Policy        => Data,
+              Logical_Name  => "system_board",
+              Physical_Name => Phys_Dev_Name);
       begin
-         Add_Device_Mappings (Devices_Node => Devices,
-                              Device_Type  => "IOMMU",
-                              Cap_Name     => "iommu");
-      end Add_IOMMUs;
+         Mulog.Log (Msg => "Adding system board to kernel devices, physical "
+                    & "device '" & Phys_Dev_Name & "'");
+
+         Mutools.XML_Utils.Add_Resource
+           (Logical_Device        => Log_Device,
+            Physical_Resource     => Reset_Port,
+            Logical_Resource_Name => "reset_port");
+         Mutools.XML_Utils.Add_Resource
+           (Logical_Device        => Log_Device,
+            Physical_Resource     => Poweroff_Port,
+            Logical_Resource_Name => "poweroff_port");
+         Muxml.Utils.Append_Child
+           (Node      => Devices,
+            New_Child => Log_Device);
+      end Add_System_Board;
 
       ----------------------------------------------------------------------
 
-      -- procedure Add_System_Board (Devices : DOM.Core.Node)
-      -- is
-      --    Phys_Dev : constant DOM.Core.Node
-      --      := Muxml.Utils.Get_Element
-      --        (Doc   => Data.Doc,
-      --         XPath => "/system/hardware/devices/device[capabilities/"
-      --         & "capability/@name='systemboard']");
-      --    Phys_Dev_Name : constant String
-      --      := DOM.Core.Elements.Get_Attribute
-      --        (Elem => Phys_Dev,
-      --         Name => "name");
-      --    Reset_Port : constant DOM.Core.Node
-      --      := Muxml.Utils.Get_Element
-      --        (Doc   => Phys_Dev,
-      --         XPath => "ioPort[@start='16#0cf9#' and @end='16#0cf9#']");
-      --    Poweroff_Port : constant DOM.Core.Node
-      --      := Muxml.Utils.Get_Element
-      --        (Doc   => Phys_Dev,
-      --         XPath => "ioPort[@name='pm1a_cnt']");
-      --    Log_Device : constant DOM.Core.Node
-      --      := XML_Utils.Create_Logical_Device_Node
-      --        (Policy        => Data,
-      --         Logical_Name  => "system_board",
-      --         Physical_Name => Phys_Dev_Name);
-      -- begin
-      --    Mulog.Log (Msg => "Adding system board to kernel devices, physical "
-      --               & "device '" & Phys_Dev_Name & "'");
-
-      --    Mutools.XML_Utils.Add_Resource
-      --      (Logical_Device        => Log_Device,
-      --       Physical_Resource     => Reset_Port,
-      --       Logical_Resource_Name => "reset_port");
-      --    Mutools.XML_Utils.Add_Resource
-      --      (Logical_Device        => Log_Device,
-      --       Physical_Resource     => Poweroff_Port,
-      --       Logical_Resource_Name => "poweroff_port");
-      --    Muxml.Utils.Append_Child
-      --      (Node      => Devices,
-      --       New_Child => Log_Device);
-      -- end Add_System_Board;
-
-      ----------------------------------------------------------------------
-
-      function Create_Device_Reference
+      function Create_Device_Reference_Arm64
         (Device_Logical  : String;
          Device_Physical : String;
          Cap_Name        : String;
@@ -485,8 +538,6 @@ is
            (Node      => Ref,
             New_Child => IRQ);
 
-         --  TODO: MOA: Direct mapping of GIC IOMEM regions not possible
-         --             (spec vs xilinx impl. problem). Map manually.
          if Cap_Name = "gic" then
             Muxml.Utils.Append_Child
               (Node      => Ref,
@@ -593,20 +644,65 @@ is
          end loop;
 
          return Ref;
-      end Create_Device_Reference;
+      end Create_Device_Reference_Arm64;
+
+      ----------------------------------------------------------------------
+
+      function Create_Device_Reference_X86_64
+        (Device_Logical  : String;
+         Device_Physical : String;
+         MMIO_Name       : String;
+         MMIO_Addr       : String)
+         return DOM.Core.Node
+      is
+         Ref : constant DOM.Core.Node
+           := XML_Utils.Create_Logical_Device_Node
+             (Policy        => Data,
+              Logical_Name  => Device_Logical,
+              Physical_Name => Device_Physical);
+      begin
+         Muxml.Utils.Append_Child
+           (Node      => Ref,
+            New_Child => MX.Create_Virtual_Memory_Node
+              (Policy        => Data,
+               Logical_Name  => MMIO_Name,
+               Physical_Name => MMIO_Name,
+               Address       => MMIO_Addr,
+               Writable      => True,
+               Executable    => False));
+
+         return Ref;
+      end Create_Device_Reference_X86_64;
 
       Devices_Node : constant DOM.Core.Node
         := Muxml.Utils.Get_Element
           (Doc   => Data.Doc,
            XPath => "/system/kernel/devices");
+      Arch : constant Mutools.Types.Arch_Type
+        := Mutools.XML_Utils.Get_Arch (Policy => Data);
    begin
       if Debug_Console_Type /= Mutools.Types.None then
          Add_Debug_Console (Devices => Devices_Node);
       end if;
-      Add_IO_APIC       (Devices => Devices_Node);
-      Add_IOMMUs        (Devices => Devices_Node);
-      -- TODO: MOA: No system board.
-      -- Add_System_Board  (Devices => Devices_Node);
+
+      case Arch
+      is
+         when Mutools.Types.Arm64 =>
+            Add_Device_Mappings_Arm64 (Devices_Node => Devices_Node,
+                                       Device_Type  => "GIC",
+                                       Cap_Name     => "gic");
+            Add_Device_Mappings_Arm64 (Devices_Node => Devices_Node,
+                                       Device_Type  => "IOMMU",
+                                       Cap_Name     => "iommu");
+         when Mutools.Types.X86_64 =>
+            Add_Device_Mappings_X86_64 (Devices_Node => Devices_Node,
+                                        Device_Type  => "I/O APIC",
+                                        Cap_Name     => "ioapic");
+            Add_Device_Mappings_X86_64 (Devices_Node => Devices_Node,
+                                        Device_Type  => "IOMMU",
+                                        Cap_Name     => "iommu");
+            Add_System_Board (Devices => Devices_Node);
+      end case;
    end Add_Devices;
 
    -------------------------------------------------------------------------
