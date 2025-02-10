@@ -49,7 +49,7 @@ is
 
    -------------------------------------------------------------------------
 
-   procedure Register_All
+   procedure Register_Common
    is
       use Cfgchecks;
    begin
@@ -125,7 +125,7 @@ is
       -- TODO: MOA: Regions size of IOMMU mem is > 4k.
       -- Check_Procs.Register
       --   (Process => MC.Device.IOMMU_Region_Size'Access);
-   end Register_All;
+   end Register_Common;
 
    -------------------------------------------------------------------------
 

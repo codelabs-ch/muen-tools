@@ -22,8 +22,8 @@ with Mutools.Immutable_Processors;
 package Stage2.Pre_Checks
 is
 
-   --  Register stage 2 pre-checks.
-   procedure Register_All;
+   --  Register stage 2 pre-checks (common).
+   procedure Register_Common;
 
    --  Run registered pre-checks.
    procedure Run (Data : Muxml.XML_Data_Type);
