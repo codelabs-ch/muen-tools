@@ -18,7 +18,7 @@
 
 with Ada.Strings.Fixed;
 
--- with Interfaces;
+with Interfaces;
 
 with DOM.Core.Nodes;
 with DOM.Core.Elements;
@@ -562,78 +562,83 @@ is
                Siblings     => Siblings);
          end if;
 
-         --  Conditionally map BIOS regions after the sibling unified device
-         --  view step as new device mmio regions might be added to the
-         --  subject.
+         case Arch
+         is
+            when Mutools.Types.X86_64 =>
 
-         -- TODO: MOA: No BIOS regions required on ARMv8.
-         -- declare
-         --    use type Interfaces.Unsigned_64;
+               --  Conditionally map BIOS regions after the sibling unified device
+               --  view step as new device mmio regions might be added to the
+               --  subject (x86 only).
 
-         --    --D @Item(List     => 'linux_profile_actions',
-         --    --D       Priority => 0).
-         --    --D Add dummy legacy BIOS regions (start address
-         --    --D \texttt{16\#000c\_0000\#})
+               declare
+                  use type Interfaces.Unsigned_64;
 
-         --    BIOS_Region_Size   : constant Interfaces.Unsigned_64
-         --      := 16#0001_0000#;
-         --    Lo_BIOS_Addr_Start : constant Interfaces.Unsigned_64
-         --      := 16#000c_0000#;
-         --    Hi_BIOS_Addr_Start : constant Interfaces.Unsigned_64
-         --      := Lo_BIOS_Addr_Start + BIOS_Region_Size;
+                  --D @Item(List     => 'linux_profile_actions',
+                  --D       Priority => 0).
+                  --D Add dummy legacy BIOS regions (start address
+                  --D \texttt{16\#000c\_0000\#}, x86 only)
 
-         --    Map_Low_BIOS : constant Boolean
-         --      := XML_Utils.Is_Free_To_Map
-         --        (Subject         => Subject,
-         --         Virtual_Address => Lo_BIOS_Addr_Start,
-         --         Region_Size     => BIOS_Region_Size);
-         --    Map_High_BIOS : constant Boolean
-         --      := XML_Utils.Is_Free_To_Map
-         --        (Subject         => Subject,
-         --         Virtual_Address => Hi_BIOS_Addr_Start,
-         --         Region_Size     => BIOS_Region_Size);
-         -- begin
-         --    if Map_Low_BIOS or Map_High_BIOS then
-         --       Mulog.Log
-         --         (Msg => "Adding BIOS region(s) for subject '"
-         --          & Subj_Name & "'");
-         --       Mutools.XML_Utils.Add_Memory_Region
-         --         (Policy      => Data,
-         --          Name        => Subj_Name & "|bios",
-         --          Address     => "",
-         --          Size        => Mutools.Utils.To_Hex
-         --            (Number => BIOS_Region_Size),
-         --          Caching     => "WB",
-         --          Alignment   => "16#1000#",
-         --          Memory_Type => "subject_bios");
-         --    end if;
+                  BIOS_Region_Size   : constant Interfaces.Unsigned_64
+                    := 16#0001_0000#;
+                  Lo_BIOS_Addr_Start : constant Interfaces.Unsigned_64
+                    := 16#000c_0000#;
+                  Hi_BIOS_Addr_Start : constant Interfaces.Unsigned_64
+                    := Lo_BIOS_Addr_Start + BIOS_Region_Size;
 
-         --    if Map_Low_BIOS then
-         --       Muxml.Utils.Append_Child
-         --         (Node      => Subj_Mem_Node,
-         --          New_Child => Mutools.XML_Utils.Create_Virtual_Memory_Node
-         --            (Policy        => Data,
-         --             Logical_Name  => "bios_low",
-         --             Physical_Name => Subj_Name & "|bios",
-         --             Address       => Mutools.Utils.To_Hex
-         --               (Number => Lo_BIOS_Addr_Start),
-         --             Writable      => False,
-         --             Executable    => False));
-         --    end if;
+                  Map_Low_BIOS : constant Boolean
+                    := XML_Utils.Is_Free_To_Map
+                      (Subject         => Subject,
+                       Virtual_Address => Lo_BIOS_Addr_Start,
+                       Region_Size     => BIOS_Region_Size);
+                  Map_High_BIOS : constant Boolean
+                    := XML_Utils.Is_Free_To_Map
+                      (Subject         => Subject,
+                       Virtual_Address => Hi_BIOS_Addr_Start,
+                       Region_Size     => BIOS_Region_Size);
+               begin
+                  if Map_Low_BIOS or Map_High_BIOS then
+                     Mulog.Log
+                       (Msg => "Adding BIOS region(s) for subject '"
+                        & Subj_Name & "'");
+                     Mutools.XML_Utils.Add_Memory_Region
+                       (Policy      => Data,
+                        Name        => Subj_Name & "|bios",
+                        Address     => "",
+                        Size        => Mutools.Utils.To_Hex
+                          (Number => BIOS_Region_Size),
+                        Caching     => "WB",
+                        Alignment   => "16#1000#",
+                        Memory_Type => "subject_bios");
+                  end if;
 
-         --    if Map_High_BIOS then
-         --       Muxml.Utils.Append_Child
-         --         (Node      => Subj_Mem_Node,
-         --          New_Child => Mutools.XML_Utils.Create_Virtual_Memory_Node
-         --            (Policy        => Data,
-         --             Logical_Name  => "bios_high",
-         --             Physical_Name => Subj_Name & "|bios",
-         --             Address       => Mutools.Utils.To_Hex
-         --               (Number => Hi_BIOS_Addr_Start),
-         --             Writable      => False,
-         --             Executable    => False));
-         --    end if;
-         -- end;
+                  if Map_Low_BIOS then
+                     Muxml.Utils.Append_Child
+                       (Node      => Subj_Mem_Node,
+                        New_Child => Mutools.XML_Utils.Create_Virtual_Memory_Node
+                          (Policy        => Data,
+                           Logical_Name  => "bios_low",
+                           Physical_Name => Subj_Name & "|bios",
+                           Address       => Mutools.Utils.To_Hex
+                             (Number => Lo_BIOS_Addr_Start),
+                           Writable      => False,
+                           Executable    => False));
+                  end if;
+
+                  if Map_High_BIOS then
+                     Muxml.Utils.Append_Child
+                       (Node      => Subj_Mem_Node,
+                        New_Child => Mutools.XML_Utils.Create_Virtual_Memory_Node
+                          (Policy        => Data,
+                           Logical_Name  => "bios_high",
+                           Physical_Name => Subj_Name & "|bios",
+                           Address       => Mutools.Utils.To_Hex
+                             (Number => Hi_BIOS_Addr_Start),
+                           Writable      => False,
+                           Executable    => False));
+                  end if;
+               end;
+            when Mutools.Types.Arm64 => null;
+         end case;
       else
          declare
             VMXE_Node : constant DOM.Core.Node
