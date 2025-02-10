@@ -193,8 +193,11 @@ is
 
       --  RMRR mappings must be added before the VT-d tables.
 
-      -- Procs.Register (Process => Device_Domains.Add_VTD_Tables'Access);
-      Procs.Register (Process => Device_Domains.Add_SMMU_Tables'Access);
+      if Arch = Mutools.Types.X86_64 then
+         Procs.Register (Process => Device_Domains.Add_VTD_Tables'Access);
+      else
+         Procs.Register (Process => Device_Domains.Add_SMMU_Tables'Access);
+      end if;
 
       --  Device domains are allowed in a configuration where the IOMMU is
       --  disabled. This can be useful to quickly perform tests without
