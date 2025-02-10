@@ -54,6 +54,30 @@ package body Stage2.Pre_Checks.Test_Data.Tests is
 
 
 --  begin read only
+   procedure Test_Register_X86_64 (Gnattest_T : in out Test);
+   procedure Test_Register_X86_64_d9d62b (Gnattest_T : in out Test) renames Test_Register_X86_64;
+--  id:2.2/d9d62bf31bdb6fd8/Register_X86_64/1/0/
+   procedure Test_Register_X86_64 (Gnattest_T : in out Test) is
+--  end read only
+
+      pragma Unreferenced (Gnattest_T);
+
+   begin
+      Register_X86_64;
+      Assert (Condition => Check_Procs.Get_Count = 3,
+              Message   => "Count mismatch:" & Get_Count'Img);
+      Check_Procs.Clear;
+ 
+   exception
+      when others =>
+         Check_Procs.Clear;
+         raise;
+--  begin read only
+   end Test_Register_X86_64;
+--  end read only
+
+
+--  begin read only
    procedure Test_Run (Gnattest_T : in out Test);
    procedure Test_Run_9b6b0d (Gnattest_T : in out Test) renames Test_Run;
 --  id:2.2/9b6b0dee792a1a08/Run/1/0/
