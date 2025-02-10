@@ -77,7 +77,13 @@ is
       Procs.Register (Process => Memory.Add_Missing_Attributes'Access);
       Procs.Register (Process => Memory.Add_Kernel_Shared_Memory'Access);
       Procs.Register (Process => Memory.Add_Kernel_CPU_Local_Memory'Access);
-      Procs.Register (Process => Memory.Add_Kernel_Stack'Access);
+
+      if Arch = Mutools.Types.X86_64 then
+         Procs.Register (Process => Memory.Add_Kernel_Stack_X86_64'Access);
+      else
+         Procs.Register (Process => Memory.Add_Kernel_Stack_Arm64'Access);
+      end if;
+
       Procs.Register (Process => Memory.Add_Subject_States'Access);
       Procs.Register (Process => Memory.Add_Subject_Timed_Event_Pages'Access);
       Procs.Register (Process => Memory.Add_Subject_Interrupts_Pages'Access);

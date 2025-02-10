@@ -274,12 +274,10 @@
   <memory alignment="16#1000#" caching="WB" name="kernel_bss_1" size="16#4000#" type="kernel_binary">
    <fill pattern="16#00#"/>
   </memory>
-  <memory alignment="16#1000#" caching="WB" name="kernel_stack_0" physicalAddress="16#0012_7000#" size="16#1000#" type="kernel">
-   <fill pattern="16#00#"/>
-  </memory>
-  <memory alignment="16#1000#" caching="WB" name="kernel_stack_1" physicalAddress="16#0012_8000#" size="16#1000#" type="kernel">
-   <fill pattern="16#00#"/>
-  </memory>
+  <memory alignment="16#1000#" caching="WB" name="kernel_stack_0" size="16#1000#" type="kernel"/>
+  <memory alignment="16#1000#" caching="WB" name="kernel_interrupt_stack_0" size="16#1000#" type="kernel"/>
+  <memory alignment="16#1000#" caching="WB" name="kernel_stack_1" size="16#1000#" type="kernel"/>
+  <memory alignment="16#1000#" caching="WB" name="kernel_interrupt_stack_1" size="16#1000#" type="kernel"/>
   <memory alignment="16#1000#" caching="WB" name="tau0|state" size="16#1000#" type="subject_state"/>
   <memory alignment="16#1000#" caching="WB" name="lnx|state" size="16#1000#" type="subject_state"/>
   <memory alignment="16#1000#" caching="WB" name="subject1|state" size="16#1000#" type="subject_state"/>
