@@ -25,6 +25,9 @@ is
    --  Register stage 2 pre-checks (common).
    procedure Register_Common;
 
+   --  Register x86_64-specific stage2 pre-checks.
+   procedure Register_X86_64;
+
    --  Run registered pre-checks.
    procedure Run (Data : Muxml.XML_Data_Type);
 

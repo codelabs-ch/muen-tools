@@ -71,9 +71,6 @@ is
         (Process => MC.Hardware.PCI_Config_Space'Access);
       Check_Procs.Register
         (Process => MC.Hardware.CPU_Sub_Elements'Access);
-      -- TODO: MOA: No system board.
-      -- Check_Procs.Register
-      --   (Process => MC.Hardware.System_Board_Presence'Access);
       Check_Procs.Register
         (Process => MC.Events.Physical_Event_Name_Uniqueness'Access);
       Check_Procs.Register
@@ -108,9 +105,6 @@ is
       Check_Procs.Register (Process => Hardware_CPU_Count_Presence'Access);
       Check_Procs.Register
         (Process => Domain_Map_Subject_Memory_References'Access);
-      -- TODO: MOA: No I/O APIC.
-      -- Check_Procs.Register
-      --   (Process => MC.Hardware.IOAPIC_Presence'Access);
       Check_Procs.Register
         (Process => MC.Platform.Kernel_Diagnostics_Device_Reference'Access);
       Check_Procs.Register
@@ -122,10 +116,20 @@ is
 
       Check_Procs.Register
         (Process => MC.Hardware.IOMMU_Presence'Access);
-      -- TODO: MOA: Regions size of IOMMU mem is > 4k.
-      -- Check_Procs.Register
-      --   (Process => MC.Device.IOMMU_Region_Size'Access);
    end Register_Common;
+
+   -------------------------------------------------------------------------
+
+   procedure Register_X86_64
+   is
+   begin
+      Check_Procs.Register
+        (Process => MC.Hardware.System_Board_Presence'Access);
+      Check_Procs.Register
+        (Process => MC.Hardware.IOAPIC_Presence'Access);
+      Check_Procs.Register
+        (Process => MC.Device.IOMMU_Region_Size'Access);
+   end Register_X86_64;
 
    -------------------------------------------------------------------------
 
