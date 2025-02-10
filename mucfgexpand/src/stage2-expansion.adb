@@ -42,9 +42,10 @@ is
 
    -------------------------------------------------------------------------
 
-   procedure Register_All
+   procedure Register (Arch : Mutools.Types.Arch_Type)
    is
       use Expanders;
+      use type Mutools.Types.Arch_Type;
    begin
       Procs.Register (Process => Hardware.Add_PCI_Device_MSI_IRQs'Access);
 
@@ -82,18 +83,25 @@ is
       Procs.Register (Process => Memory.Add_Subject_Interrupts_Pages'Access);
       Procs.Register (Process => Memory.Add_Subject_FPU_State_Regions'Access);
       Procs.Register (Process => Memory.Add_Tau0_Interface'Access);
-      -- TODO: MOA: disable unneeded regions.
-      -- Procs.Register (Process => Memory.Add_AP_Trampoline'Access);
-      -- Procs.Register (Process => Memory.Add_VMXON_Regions'Access);
-      -- Procs.Register (Process => Memory.Add_VMCS_Regions'Access);
-      -- Procs.Register (Process => Memory.Add_Subject_Bitmaps'Access);
+
+      if Arch = Mutools.Types.X86_64 then
+         Procs.Register (Process => Memory.Add_AP_Trampoline'Access);
+         Procs.Register (Process => Memory.Add_VMXON_Regions'Access);
+         Procs.Register (Process => Memory.Add_VMCS_Regions'Access);
+         Procs.Register (Process => Memory.Add_Subject_Bitmaps'Access);
+      end if;
+
       Procs.Register (Process => Memory.Add_Scheduling_Info_Regions'Access);
       Procs.Register (Process => Kernel.Add_Section_Skeleton'Access);
       Procs.Register (Process => Kernel.Add_Binary_Mappings'Access);
       Procs.Register (Process => Kernel.Add_Subj_State_Mappings'Access);
       Procs.Register (Process => Kernel.Add_Subj_Timed_Event_Mappings'Access);
       Procs.Register (Process => Kernel.Add_Subj_Interrupts_Mappings'Access);
-      -- Procs.Register (Process => Kernel.Add_Subj_VMCS_Mappings'Access);
+
+      if Arch = Mutools.Types.X86_64 then
+         Procs.Register (Process => Kernel.Add_Subj_VMCS_Mappings'Access);
+      end if;
+
       Procs.Register (Process => Kernel.Add_Subj_FPU_State_Mappings'Access);
       Procs.Register (Process => Kernel.Add_Scheduling_Info_Mappings'Access);
       Procs.Register (Process => Kernel.Add_Crash_Audit_Mappings'Access);
@@ -157,9 +165,10 @@ is
 
       --  Subject profiles must be expanded since they may add MSR registers.
 
-      -- TODO: MOA: No msr store.
-      -- Procs.Register (Process => Memory.Add_Subject_MSR_Store'Access);
-      -- Procs.Register (Process => Kernel.Add_Subj_MSR_Store_Mappings'Access);
+      if Arch = Mutools.Types.X86_64 then
+         Procs.Register (Process => Memory.Add_Subject_MSR_Store'Access);
+         Procs.Register (Process => Kernel.Add_Subj_MSR_Store_Mappings'Access);
+      end if;
 
       --  All kernel/subject memory regions and mappings must exist and specify
       --  an alignment to add PTs.
@@ -191,7 +200,7 @@ is
 
       Procs.Register
         (Process => Hardware.Remove_Reserved_Mem_References'Access);
-   end Register_All;
+   end Register;
 
    -------------------------------------------------------------------------
 

@@ -307,6 +307,51 @@
   <memory alignment="16#1000#" caching="WB" name="sys_interface" size="16#1000#" type="kernel_interface">
    <fill pattern="16#00#"/>
   </memory>
+  <memory alignment="16#1000#" caching="WB" name="trampoline" physicalAddress="16#1000#" size="16#1000#" type="system"/>
+  <memory alignment="16#1000#" caching="WB" name="kernel_0|vmxon" physicalAddress="16#8000#" size="16#1000#" type="system_vmxon"/>
+  <memory alignment="16#1000#" caching="WB" name="kernel_1|vmxon" physicalAddress="16#9000#" size="16#1000#" type="system_vmxon"/>
+  <memory alignment="16#1000#" caching="WB" name="tau0|vmcs" size="16#1000#" type="kernel_vmcs"/>
+  <memory alignment="16#1000#" caching="WB" name="lnx|vmcs" size="16#1000#" type="kernel_vmcs"/>
+  <memory alignment="16#1000#" caching="WB" name="subject1|vmcs" size="16#1000#" type="kernel_vmcs"/>
+  <memory alignment="16#1000#" caching="WB" name="subject2|vmcs" size="16#1000#" type="kernel_vmcs"/>
+  <memory alignment="16#1000#" caching="WB" name="lnx_core_1|vmcs" size="16#1000#" type="kernel_vmcs"/>
+  <memory alignment="16#1000#" caching="WB" name="subject3|vmcs" size="16#1000#" type="kernel_vmcs"/>
+  <memory alignment="16#1000#" caching="WB" name="tau0|iobm" size="16#2000#" type="system_iobm">
+   <fill pattern="16#00#"/>
+  </memory>
+  <memory alignment="16#1000#" caching="WB" name="tau0|msrbm" size="16#1000#" type="system_msrbm">
+   <fill pattern="16#00#"/>
+  </memory>
+  <memory alignment="16#1000#" caching="WB" name="lnx|iobm" size="16#2000#" type="system_iobm">
+   <fill pattern="16#00#"/>
+  </memory>
+  <memory alignment="16#1000#" caching="WB" name="lnx|msrbm" size="16#1000#" type="system_msrbm">
+   <fill pattern="16#00#"/>
+  </memory>
+  <memory alignment="16#1000#" caching="WB" name="subject1|iobm" size="16#2000#" type="system_iobm">
+   <fill pattern="16#00#"/>
+  </memory>
+  <memory alignment="16#1000#" caching="WB" name="subject1|msrbm" size="16#1000#" type="system_msrbm">
+   <fill pattern="16#00#"/>
+  </memory>
+  <memory alignment="16#1000#" caching="WB" name="subject2|iobm" size="16#2000#" type="system_iobm">
+   <fill pattern="16#00#"/>
+  </memory>
+  <memory alignment="16#1000#" caching="WB" name="subject2|msrbm" size="16#1000#" type="system_msrbm">
+   <fill pattern="16#00#"/>
+  </memory>
+  <memory alignment="16#1000#" caching="WB" name="lnx_core_1|iobm" size="16#2000#" type="system_iobm">
+   <fill pattern="16#00#"/>
+  </memory>
+  <memory alignment="16#1000#" caching="WB" name="lnx_core_1|msrbm" size="16#1000#" type="system_msrbm">
+   <fill pattern="16#00#"/>
+  </memory>
+  <memory alignment="16#1000#" caching="WB" name="subject3|iobm" size="16#2000#" type="system_iobm">
+   <fill pattern="16#00#"/>
+  </memory>
+  <memory alignment="16#1000#" caching="WB" name="subject3|msrbm" size="16#1000#" type="system_msrbm">
+   <fill pattern="16#00#"/>
+  </memory>
   <memory alignment="16#1000#" caching="WB" name="scheduling_info_1" size="16#1000#" type="subject_scheduling_info"/>
   <memory alignment="16#1000#" caching="WB" name="scheduling_info_2" size="16#1000#" type="subject_scheduling_info"/>
   <memory alignment="16#1000#" caching="WB" name="scheduling_info_3" size="16#1000#" type="subject_scheduling_info"/>
@@ -329,6 +374,15 @@
   </memory>
   <memory alignment="16#1000#" caching="WB" name="subject3|sinfo" size="16#8000#" type="subject_info">
    <file filename="subject3.sinfo" offset="none" size="16#8000#"/>
+  </memory>
+  <memory alignment="16#1000#" caching="WB" name="lnx|msrstore" size="16#1000#" type="kernel_msrstore">
+   <file filename="lnx_msrstore" offset="none"/>
+  </memory>
+  <memory alignment="16#1000#" caching="WB" name="subject2|msrstore" size="16#1000#" type="kernel_msrstore">
+   <file filename="subject2_msrstore" offset="none"/>
+  </memory>
+  <memory alignment="16#1000#" caching="WB" name="lnx_core_1|msrstore" size="16#1000#" type="kernel_msrstore">
+   <file filename="lnx_core_1_msrstore" offset="none"/>
   </memory>
   <memory alignment="16#1000#" caching="WB" name="kernel_0|pt" size="16#c000#" type="system_pt">
    <file filename="kernel_0.pt" offset="none"/>
@@ -425,6 +479,9 @@
     <memory executable="false" logical="lnx|interrupts" physical="lnx|interrupts" virtualAddress="16#0080_1000#" writable="true"/>
     <memory executable="false" logical="subject1|interrupts" physical="subject1|interrupts" virtualAddress="16#0080_2000#" writable="true"/>
     <memory executable="false" logical="subject3|interrupts" physical="subject3|interrupts" virtualAddress="16#0080_5000#" writable="true"/>
+    <memory executable="false" logical="lnx|vmcs" physical="lnx|vmcs" virtualAddress="16#00a0_1000#" writable="true"/>
+    <memory executable="false" logical="subject1|vmcs" physical="subject1|vmcs" virtualAddress="16#00a0_2000#" writable="true"/>
+    <memory executable="false" logical="subject3|vmcs" physical="subject3|vmcs" virtualAddress="16#00a0_5000#" writable="true"/>
     <memory executable="false" logical="lnx|fpu" physical="lnx|fpu" virtualAddress="16#00c0_1000#" writable="true"/>
     <memory executable="false" logical="subject1|fpu" physical="subject1|fpu" virtualAddress="16#00c0_2000#" writable="true"/>
     <memory executable="false" logical="subject3|fpu" physical="subject3|fpu" virtualAddress="16#00c0_5000#" writable="true"/>
@@ -432,6 +489,7 @@
     <memory executable="false" logical="scheduling_info_4" physical="scheduling_info_4" virtualAddress="16#00b0_3000#" writable="true"/>
     <memory executable="false" logical="crash_audit" physical="crash_audit" virtualAddress="16#0040_0000#" writable="true"/>
     <memory executable="false" logical="microcode" physical="microcode" virtualAddress="16#00d0_0000#" writable="false"/>
+    <memory executable="false" logical="lnx|msrstore" physical="lnx|msrstore" virtualAddress="16#0090_1000#" writable="true"/>
    </cpu>
    <cpu id="1">
     <memory executable="true" logical="text" physical="kernel_text" virtualAddress="16#0010_0000#" writable="false"/>
@@ -449,6 +507,9 @@
     <memory executable="false" logical="tau0|interrupts" physical="tau0|interrupts" virtualAddress="16#0080_0000#" writable="true"/>
     <memory executable="false" logical="subject2|interrupts" physical="subject2|interrupts" virtualAddress="16#0080_3000#" writable="true"/>
     <memory executable="false" logical="lnx_core_1|interrupts" physical="lnx_core_1|interrupts" virtualAddress="16#0080_4000#" writable="true"/>
+    <memory executable="false" logical="tau0|vmcs" physical="tau0|vmcs" virtualAddress="16#00a0_0000#" writable="true"/>
+    <memory executable="false" logical="subject2|vmcs" physical="subject2|vmcs" virtualAddress="16#00a0_3000#" writable="true"/>
+    <memory executable="false" logical="lnx_core_1|vmcs" physical="lnx_core_1|vmcs" virtualAddress="16#00a0_4000#" writable="true"/>
     <memory executable="false" logical="tau0|fpu" physical="tau0|fpu" virtualAddress="16#00c0_0000#" writable="true"/>
     <memory executable="false" logical="subject2|fpu" physical="subject2|fpu" virtualAddress="16#00c0_3000#" writable="true"/>
     <memory executable="false" logical="lnx_core_1|fpu" physical="lnx_core_1|fpu" virtualAddress="16#00c0_4000#" writable="true"/>
@@ -458,6 +519,8 @@
     <memory executable="false" logical="crash_audit" physical="crash_audit" virtualAddress="16#0040_0000#" writable="true"/>
     <memory executable="false" logical="microcode" physical="microcode" virtualAddress="16#00d0_0000#" writable="false"/>
     <memory executable="false" logical="tau0_interface" physical="sys_interface" virtualAddress="16#003f_f000#" writable="false"/>
+    <memory executable="false" logical="subject2|msrstore" physical="subject2|msrstore" virtualAddress="16#0090_3000#" writable="true"/>
+    <memory executable="false" logical="lnx_core_1|msrstore" physical="lnx_core_1|msrstore" virtualAddress="16#0090_4000#" writable="true"/>
    </cpu>
   </memory>
   <devices>
