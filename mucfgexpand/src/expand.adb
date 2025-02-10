@@ -62,7 +62,7 @@ is
       Stage1.Pre_Checks.Run (Data => Policy);
       Stage1.Expansion.Run (Data => Policy);
 
-      Stage2.Pre_Checks.Register_All;
+      Stage2.Pre_Checks.Register_Common;
       Mulog.Log (Msg => "Registered stage 2 pre-checks"
                  & Stage2.Pre_Checks.Get_Count'Img);
       Stage2.Expansion.Register_All;
