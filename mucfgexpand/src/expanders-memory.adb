@@ -103,7 +103,6 @@ is
             Mulog.Log (Msg => "Adding kernel local memory regions for CPU "
                        & CPU_Str);
 
-            --  TODO: MOA: bootgen wants extension in filename.
             Mutools.XML_Utils.Add_Memory_Region
               (Policy      => Data,
                Name        => "kernel_data_" & CPU_Str,
@@ -111,7 +110,7 @@ is
                Size        => Data_Size,
                Caching     => "WB",
                Alignment   => "16#1000#",
-               File_Name   => "kernel.bin",
+               File_Name   => "kernel",
                File_Offset => Data_Offset,
                Memory_Type => "kernel_binary");
             Mutools.XML_Utils.Add_Memory_Region
@@ -182,7 +181,7 @@ is
                Caching     => "WB",
                Alignment   => "16#1000#",
                Memory_Type => "system_pt",
-               File_Name   => "kernel_" & CPU_Str & ".pt",
+               File_Name   => "kernel_" & CPU_Str & "_pt",
                File_Offset => "none");
          end;
       end loop;
@@ -199,7 +198,6 @@ is
    begin
       Mulog.Log (Msg => "Adding kernel shared memory regions");
 
-      --  TODO: MOA: bootgen wants extension in filename.
       Mutools.XML_Utils.Add_Memory_Region
         (Policy      => Data,
          Name        => "kernel_text",
@@ -209,7 +207,7 @@ is
            (Number => Config.Arch_Specific (Arch).Kernel_Text_Section_Size),
          Caching     => "WB",
          Alignment   => "16#1000#",
-         File_Name   => "kernel.bin",
+         File_Name   => "kernel",
          File_Offset => "16#0000#",
          Memory_Type => "kernel_binary");
       Mutools.XML_Utils.Add_Memory_Region
@@ -221,7 +219,7 @@ is
            (Number => Config.Arch_Specific (Arch).Kernel_Global_Data_Section_Size),
          Caching     => "WB",
          Alignment   => "16#1000#",
-         File_Name   => "kernel.bin",
+         File_Name   => "kernel",
          File_Offset => Mutools.Utils.To_Hex
            (Number => Config.Arch_Specific (Arch).Kernel_Global_Data_Section_Addr
             - Config.Kernel_Text_Section_Addr),
@@ -235,7 +233,7 @@ is
            (Number => Config.Arch_Specific (Arch).Kernel_RO_Section_Size),
          Caching     => "WB",
          Alignment   => "16#1000#",
-         File_Name   => "kernel.bin",
+         File_Name   => "kernel",
          File_Offset => Mutools.Utils.To_Hex
            (Number => Config.Arch_Specific (Arch).Kernel_RO_Section_Addr
             - Config.Kernel_Text_Section_Addr),
@@ -663,7 +661,7 @@ is
                Caching     => "WB",
                Alignment   => "16#1000#",
                Memory_Type => "system_pt",
-               File_Name   => Subj_Name & ".pt",
+               File_Name   => Subj_Name & "_pt",
                File_Offset => "none");
          end;
       end loop;

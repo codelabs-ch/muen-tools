@@ -1898,7 +1898,6 @@ is
          begin
             Mulog.Log (Msg => "Adding info region for subject '"
                        & Subj_Name & "'");
-            --  TODO: MOA: bootgen wants extension in filename.
             Mutools.XML_Utils.Add_Memory_Region
               (Policy      => Data,
                Name        => Subj_Name & "|sinfo",
@@ -1908,7 +1907,7 @@ is
                Caching     => "WB",
                Alignment   => "16#1000#",
                Memory_Type => "subject_info",
-               File_Name   => Subj_Name & ".sinfo",
+               File_Name   => Subj_Name & "_sinfo",
                File_Offset => "none",
                File_Size   => Mutools.Utils.To_Hex
                  (Number => Expanders.Config.Subject_Sinfo_Region_Size));

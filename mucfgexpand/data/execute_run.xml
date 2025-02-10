@@ -254,22 +254,22 @@
    <file filename="tau0" offset="16#001f_f000#"/>
   </memory>
   <memory alignment="16#1000#" caching="WB" name="kernel_text" physicalAddress="16#0010_0000#" size="16#0001_1000#" type="kernel_binary">
-   <file filename="kernel.bin" offset="16#0000#"/>
+   <file filename="kernel" offset="16#0000#"/>
   </memory>
   <memory alignment="16#1000#" caching="WB" name="kernel_global_data" physicalAddress="16#0012_b000#" size="16#1000#" type="kernel_binary">
-   <file filename="kernel.bin" offset="16#0002_b000#"/>
+   <file filename="kernel" offset="16#0002_b000#"/>
   </memory>
   <memory alignment="16#1000#" caching="WB" name="kernel_ro" physicalAddress="16#0012_f000#" size="16#002c_0000#" type="kernel_binary">
-   <file filename="kernel.bin" offset="16#0002_f000#"/>
+   <file filename="kernel" offset="16#0002_f000#"/>
   </memory>
   <memory alignment="16#1000#" caching="WB" name="kernel_data_0" physicalAddress="16#0012_0000#" size="16#2000#" type="kernel_binary">
-   <file filename="kernel.bin" offset="16#0002_0000#"/>
+   <file filename="kernel" offset="16#0002_0000#"/>
   </memory>
   <memory alignment="16#1000#" caching="WB" name="kernel_bss_0" physicalAddress="16#0012_2000#" size="16#4000#" type="kernel_binary">
    <fill pattern="16#00#"/>
   </memory>
   <memory alignment="16#1000#" caching="WB" name="kernel_data_1" size="16#2000#" type="kernel_binary">
-   <file filename="kernel.bin" offset="16#0002_0000#"/>
+   <file filename="kernel" offset="16#0002_0000#"/>
   </memory>
   <memory alignment="16#1000#" caching="WB" name="kernel_bss_1" size="16#4000#" type="kernel_binary">
    <fill pattern="16#00#"/>
@@ -358,22 +358,22 @@
   <memory alignment="16#1000#" caching="WB" name="scheduling_info_4" size="16#1000#" type="subject_scheduling_info"/>
   <memory alignment="16#1000#" caching="WB" name="scheduling_info_5" size="16#1000#" type="subject_scheduling_info"/>
   <memory alignment="16#1000#" caching="WB" name="tau0|sinfo" size="16#8000#" type="subject_info">
-   <file filename="tau0.sinfo" offset="none" size="16#8000#"/>
+   <file filename="tau0_sinfo" offset="none" size="16#8000#"/>
   </memory>
   <memory alignment="16#1000#" caching="WB" name="lnx|sinfo" size="16#8000#" type="subject_info">
-   <file filename="lnx.sinfo" offset="none" size="16#8000#"/>
+   <file filename="lnx_sinfo" offset="none" size="16#8000#"/>
   </memory>
   <memory alignment="16#1000#" caching="WB" name="subject1|sinfo" size="16#8000#" type="subject_info">
-   <file filename="subject1.sinfo" offset="none" size="16#8000#"/>
+   <file filename="subject1_sinfo" offset="none" size="16#8000#"/>
   </memory>
   <memory alignment="16#1000#" caching="WB" name="subject2|sinfo" size="16#8000#" type="subject_info">
-   <file filename="subject2.sinfo" offset="none" size="16#8000#"/>
+   <file filename="subject2_sinfo" offset="none" size="16#8000#"/>
   </memory>
   <memory alignment="16#1000#" caching="WB" name="lnx_core_1|sinfo" size="16#8000#" type="subject_info">
-   <file filename="lnx_core_1.sinfo" offset="none" size="16#8000#"/>
+   <file filename="lnx_core_1_sinfo" offset="none" size="16#8000#"/>
   </memory>
   <memory alignment="16#1000#" caching="WB" name="subject3|sinfo" size="16#8000#" type="subject_info">
-   <file filename="subject3.sinfo" offset="none" size="16#8000#"/>
+   <file filename="subject3_sinfo" offset="none" size="16#8000#"/>
   </memory>
   <memory alignment="16#1000#" caching="WB" name="lnx|zp_lnx" size="16#2000#" type="subject_zeropage">
    <hashRef memory="lnx|zp"/>
@@ -405,25 +405,25 @@
    <file filename="lnx_core_1_msrstore" offset="none"/>
   </memory>
   <memory alignment="16#1000#" caching="WB" name="kernel_0|pt" size="16#c000#" type="system_pt">
-   <file filename="kernel_0.pt" offset="none"/>
+   <file filename="kernel_0_pt" offset="none"/>
   </memory>
   <memory alignment="16#1000#" caching="WB" name="kernel_1|pt" size="16#c000#" type="system_pt">
-   <file filename="kernel_1.pt" offset="none"/>
+   <file filename="kernel_1_pt" offset="none"/>
   </memory>
   <memory alignment="16#1000#" caching="WB" name="tau0|pt" size="16#7000#" type="system_pt">
-   <file filename="tau0.pt" offset="none"/>
+   <file filename="tau0_pt" offset="none"/>
   </memory>
   <memory alignment="16#1000#" caching="WB" name="lnx|pt" size="16#e000#" type="system_pt">
-   <file filename="lnx.pt" offset="none"/>
+   <file filename="lnx_pt" offset="none"/>
   </memory>
   <memory alignment="16#1000#" caching="WB" name="subject1|pt" size="16#0001_b000#" type="system_pt">
-   <file filename="subject1.pt" offset="none"/>
+   <file filename="subject1_pt" offset="none"/>
   </memory>
   <memory alignment="16#1000#" caching="WB" name="subject2|pt" size="16#e000#" type="system_pt">
-   <file filename="subject2.pt" offset="none"/>
+   <file filename="subject2_pt" offset="none"/>
   </memory>
   <memory alignment="16#1000#" caching="WB" name="subject3|pt" size="16#b000#" type="system_pt">
-   <file filename="subject3.pt" offset="none"/>
+   <file filename="subject3_pt" offset="none"/>
   </memory>
   <memory alignment="16#1000#" caching="WB" name="smmu_nic1_domain_pt" size="16#6000#" type="system_pt">
    <file filename="smmu_nic1_domain.pt" offset="none"/>
