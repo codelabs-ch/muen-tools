@@ -58,6 +58,8 @@ is
 
    procedure Add_Binary_Mappings (Data : in out Muxml.XML_Data_Type)
    is
+      use type Mutools.Types.Arch_Type;
+
       Arch      : constant Mutools.Types.Arch_Type
         := Mutools.XML_Utils.Get_Arch (Policy => Data);
       CPU_Nodes : constant DOM.Core.Node_List
@@ -140,17 +142,19 @@ is
                     (Number => Config.Arch_Specific (Arch).Kernel_Stack_Addr),
                   Writable      => True,
                   Executable    => False));
-            -- TODO: MOA: No interrupt stack.
-            -- Muxml.Utils.Append_Child
-            --   (Node      => CPU_Node,
-            --    New_Child => MX.Create_Virtual_Memory_Node
-            --      (Policy        => Data,
-            --       Logical_Name  => "interrupt_stack",
-            --       Physical_Name => "kernel_interrupt_stack_" & CPU_Str,
-            --       Address       => Mutools.Utils.To_Hex
-            --         (Number => Config.Kernel_Interrupt_Stack_Addr),
-            --       Writable      => True,
-            --       Executable    => False));
+
+            if Arch = Mutools.Types.X86_64 then
+               Muxml.Utils.Append_Child
+                 (Node      => CPU_Node,
+                  New_Child => MX.Create_Virtual_Memory_Node
+                    (Policy        => Data,
+                     Logical_Name  => "interrupt_stack",
+                     Physical_Name => "kernel_interrupt_stack_" & CPU_Str,
+                     Address       => Mutools.Utils.To_Hex
+                       (Number => Config.Kernel_Interrupt_Stack_Addr),
+                     Writable      => True,
+                     Executable    => False));
+            end if;
          end;
       end loop;
    end Add_Binary_Mappings;
