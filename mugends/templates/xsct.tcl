@@ -48,3 +48,5 @@ __run_entries__
 ###
 
 disconnect
+
+exit
