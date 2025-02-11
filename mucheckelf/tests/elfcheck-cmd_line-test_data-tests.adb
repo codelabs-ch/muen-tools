@@ -109,7 +109,7 @@ package body Elfcheck.Cmd_Line.Test_Data.Tests is
       procedure Positive_Test
       is
          Args        : aliased GNAT.OS_Lib.Argument_List
-           := (1 => new String'("data/test_policy.xml"),
+           := (1 => new String'("data/test_policy-x86_64.xml"),
                2 => new String'("elf_binary"));
          Test_Parser : GNAT.Command_Line.Opt_Parser;
       begin
@@ -125,7 +125,7 @@ package body Elfcheck.Cmd_Line.Test_Data.Tests is
             GNAT.OS_Lib.Free (X => Args (A));
          end loop;
 
-         Assert (Condition => Policy = "data/test_policy.xml",
+         Assert (Condition => Policy = "data/test_policy-x86_64.xml",
                  Message   => "Policy mismatch");
          Assert (Condition => ELF_Binary = "elf_binary",
                  Message   => "ELF binary mismatch");

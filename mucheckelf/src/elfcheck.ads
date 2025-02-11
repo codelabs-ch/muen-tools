@@ -18,6 +18,8 @@
 
 private with Ada.Strings.Unbounded;
 
+private with Mutools.Types;
+
 package Elfcheck
 is
 
@@ -38,38 +40,76 @@ private
       Identity     : Boolean;
    end record;
 
+   type Section_Mapping_Array is array (1 .. 6)
+     of aliased Section_Mapping_Type;
+
+   type Arch_Section_Mapping_Array is array (Mutools.Types.Arch_Type)
+     of aliased Section_Mapping_Array;
+
    --  Mapping of memory region names to binary section names.
    --  These sections must be present in any given binary.
-   Section_Map : array (1 .. 6) of aliased Section_Mapping_Type
-     := (1 => (Region_Name  => To_Unbounded_String ("kernel_text"),
-               Section_Name => To_Unbounded_String (".text"),
-               Mapped       => True,
-               Present      => False,
-               Identity     => True),
-         2 => (Region_Name  => To_Unbounded_String ("kernel_data_0"),
-               Section_Name => To_Unbounded_String (".data"),
-               Mapped       => True,
-               Present      => False,
-               Identity     => True),
-         3 => (Region_Name  => To_Unbounded_String ("kernel_bss_0"),
-               Section_Name => To_Unbounded_String (".bss"),
-               Mapped       => True,
-               Present      => False,
-               Identity     => True),
-         4 => (Region_Name  => To_Unbounded_String ("kernel_ro"),
-               Section_Name => To_Unbounded_String (".rodata"),
-               Mapped       => True,
-               Present      => False,
-               Identity     => True),
-         5 => (Region_Name  => To_Unbounded_String ("kernel_global_data"),
-               Section_Name => To_Unbounded_String (".globaldata"),
-               Mapped       => True,
-               Present      => False,
-               Identity     => True),
-         6 => (Region_Name  => To_Unbounded_String ("kernel_stack_0"),
-               Section_Name => To_Unbounded_String (".stack"),
-               Mapped       => True,
-               Present      => False,
-               Identity     => False));
+   Section_Map : Arch_Section_Mapping_Array
+     := (Mutools.Types.Arm64 =>
+           (1 => (Region_Name  => To_Unbounded_String ("kernel_text"),
+                  Section_Name => To_Unbounded_String (".text"),
+                  Mapped       => True,
+                  Present      => False,
+                  Identity     => True),
+            2 => (Region_Name  => To_Unbounded_String ("kernel_data_0"),
+                  Section_Name => To_Unbounded_String (".data"),
+                  Mapped       => True,
+                  Present      => False,
+                  Identity     => True),
+            3 => (Region_Name  => To_Unbounded_String ("kernel_bss_0"),
+                  Section_Name => To_Unbounded_String (".bss"),
+                  Mapped       => True,
+                  Present      => False,
+                  Identity     => True),
+            4 => (Region_Name  => To_Unbounded_String ("kernel_ro"),
+                  Section_Name => To_Unbounded_String (".rodata"),
+                  Mapped       => True,
+                  Present      => False,
+                  Identity     => True),
+            5 => (Region_Name  => To_Unbounded_String ("kernel_global_data"),
+                  Section_Name => To_Unbounded_String (".globaldata"),
+                  Mapped       => True,
+                  Present      => False,
+                  Identity     => True),
+            6 => (Region_Name  => To_Unbounded_String ("kernel_stack_0"),
+                  Section_Name => To_Unbounded_String (".stack"),
+                  Mapped       => True,
+                  Present      => False,
+                  Identity     => False)),
+         Mutools.Types.X86_64 =>
+           (1 => (Region_Name  => To_Unbounded_String ("kernel_text"),
+                  Section_Name => To_Unbounded_String (".text"),
+                  Mapped       => True,
+                  Present      => False,
+                  Identity     => True),
+            2 => (Region_Name  => To_Unbounded_String ("kernel_data_0"),
+                  Section_Name => To_Unbounded_String (".data"),
+                  Mapped       => True,
+                  Present      => False,
+                  Identity     => True),
+            3 => (Region_Name  => To_Unbounded_String ("kernel_bss_0"),
+                  Section_Name => To_Unbounded_String (".bss"),
+                  Mapped       => True,
+                  Present      => False,
+                  Identity     => True),
+            4 => (Region_Name  => To_Unbounded_String ("kernel_ro"),
+                  Section_Name => To_Unbounded_String (".rodata"),
+                  Mapped       => True,
+                  Present      => False,
+                  Identity     => True),
+            5 => (Region_Name  => To_Unbounded_String ("kernel_global_data"),
+                  Section_Name => To_Unbounded_String (".globaldata"),
+                  Mapped       => True,
+                  Present      => False,
+                  Identity     => True),
+            6 => (Region_Name  => To_Unbounded_String ("kernel_text"),
+                  Section_Name => To_Unbounded_String (".trampoline"),
+                  Mapped       => False,
+                  Present      => False,
+                  Identity     => True)));
 
 end Elfcheck;
