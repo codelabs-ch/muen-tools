@@ -48,8 +48,8 @@ package body Elfcheck.Bfd_Utils.Test_Data.Tests is
       begin
          Muxml.Parse (Data => Policy,
                       Kind => Muxml.Format_B,
-                      File => "data/test_policy.xml");
-         Mutools.Bfd.Open (Filename   => "data/binary",
+                      File => "data/test_policy-x86_64.xml");
+         Mutools.Bfd.Open (Filename   => "data/binary.x86_64",
                            Descriptor => Fd);
          S := Bfd.Sections.Find_Section (File => Fd,
                                          Name => ".text");
@@ -89,8 +89,8 @@ package body Elfcheck.Bfd_Utils.Test_Data.Tests is
       begin
          Muxml.Parse (Data => Policy,
                       Kind => Muxml.Format_B,
-                      File => "data/test_policy.xml");
-         Mutools.Bfd.Open (Filename   => "data/binary",
+                      File => "data/test_policy-x86_64.xml");
+         Mutools.Bfd.Open (Filename   => "data/binary.x86_64",
                            Descriptor => Fd);
          S := Bfd.Sections.Find_Section (File => Fd,
                                          Name => ".text");
@@ -135,8 +135,8 @@ package body Elfcheck.Bfd_Utils.Test_Data.Tests is
       begin
          Muxml.Parse (Data => Policy,
                       Kind => Muxml.Format_B,
-                      File => "data/test_policy.xml");
-         Mutools.Bfd.Open (Filename   => "data/binary",
+                      File => "data/test_policy-x86_64.xml");
+         Mutools.Bfd.Open (Filename   => "data/binary.x86_64",
                            Descriptor => Fd);
          S := Bfd.Sections.Find_Section (File => Fd,
                                          Name => ".text");
