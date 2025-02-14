@@ -25,8 +25,8 @@ restore kernel.bin-kernel_global_data.part binary 0x186000
 restore kernel_bss_0.fill binary 0x184000
 restore kernel.bin-kernel_data_0.part binary 0x182000
 restore kernel.bin-kernel_ro.part binary 0x170000
-restore xilinxzcu104-core-1.pt binary 0x120000
-restore xilinxzcu104-core-0.pt binary 0x110000
+restore xilinxzcu104-core-1.bin binary 0x120000
+restore xilinxzcu104-core-0.bin binary 0x110000
 restore kernel.bin-kernel_text.part binary 0x100000
 restore kernel_stack_1.fill binary 0xc0000
 restore kernel_stack_0.fill binary 0xa0000

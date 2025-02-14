@@ -167,10 +167,10 @@
   <fill pattern="16#00#"/>
  </memory>
  <memory alignment="16#1000#" caching="WB" name="kernel_0|pt" physicalAddress="16#0011_0000#" size="16#8000#" type="system_pt">
-  <file filename="xilinxzcu104-core-0.pt" offset="none"/>
+  <file filename="xilinxzcu104-core-0" offset="none"/>
  </memory>
  <memory alignment="16#1000#" caching="WB" name="kernel_1|pt" physicalAddress="16#0012_0000#" size="16#8000#" type="system_pt">
-  <file filename="xilinxzcu104-core-1.pt" offset="none"/>
+  <file filename="xilinxzcu104-core-1" offset="none"/>
  </memory>
  <memory alignment="16#1000#" caching="WB" name="lnx1|pt" physicalAddress="16#0020_0000#" size="16#6000#" type="system_pt">
   <file filename="xilinxzcu104-lnx1.pt" offset="none"/>
