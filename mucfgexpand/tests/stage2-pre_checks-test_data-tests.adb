@@ -40,7 +40,7 @@ package body Stage2.Pre_Checks.Test_Data.Tests is
 
     begin
        Register_Common;
-       Assert (Condition => Check_Procs.Get_Count = 35,
+       Assert (Condition => Check_Procs.Get_Count = 34,
                Message   => "Count mismatch:" & Get_Count'Img);
        Check_Procs.Clear;
  
@@ -64,7 +64,7 @@ package body Stage2.Pre_Checks.Test_Data.Tests is
 
    begin
       Register_X86_64;
-      Assert (Condition => Check_Procs.Get_Count = 3,
+      Assert (Condition => Check_Procs.Get_Count = 4,
               Message   => "Count mismatch:" & Get_Count'Img);
       Check_Procs.Clear;
  
