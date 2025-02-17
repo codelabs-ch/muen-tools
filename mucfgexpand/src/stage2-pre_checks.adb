@@ -58,8 +58,6 @@ is
       Check_Procs.Register
         (Process => MC.Memory.Uncached_Crash_Audit_Presence'Access);
       Check_Procs.Register
-        (Process => MC.Memory.Microcode_Region_Count'Access);
-      Check_Procs.Register
         (Process => MC.Device.Device_Reference_Uniqueness'Access);
       Check_Procs.Register
         (Process => MC.Device.Device_Memory_References'Access);
@@ -123,6 +121,8 @@ is
    procedure Register_X86_64
    is
    begin
+      Check_Procs.Register
+        (Process => MC.Memory.Microcode_Region_Count'Access);
       Check_Procs.Register
         (Process => MC.Hardware.System_Board_Presence'Access);
       Check_Procs.Register
