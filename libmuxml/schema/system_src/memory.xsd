@@ -186,6 +186,7 @@
    <xs:enumeration value="subject_solo5_boot_info"/>
    <xs:enumeration value="subject_device"/>
    <xs:enumeration value="subject_timed_event"/>
+   <xs:enumeration value="subject_devicetree"/>
   </xs:restriction>
  </xs:simpleType>
 
