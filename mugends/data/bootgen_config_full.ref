@@ -2,8 +2,8 @@
 [destination_cpu = a53-1, exception_level = el-3, startup = 0x100000, load = 0x100000]kernel.bin-kernel_text.part
 [load = 0xa0000]kernel_stack_0.fill
 [load = 0xc0000]kernel_stack_1.fill
-[load = 0x110000]xilinxzcu104-core-0.pt
-[load = 0x120000]xilinxzcu104-core-1.pt
+[load = 0x110000]xilinxzcu104-core-0.bin
+[load = 0x120000]xilinxzcu104-core-1.bin
 [load = 0x170000]kernel.bin-kernel_ro.part
 [load = 0x182000]kernel.bin-kernel_data_0.part
 [load = 0x184000]kernel_bss_0.fill

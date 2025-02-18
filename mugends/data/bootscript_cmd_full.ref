@@ -2,8 +2,8 @@ echo "Loading files from TFTP"
 mw 0xa0000 0x0 0x20000
 mw 0xc0000 0x0 0x20000
 tftpboot 0x100000 kernel.bin-kernel_text.part || panic
-tftpboot 0x110000 xilinxzcu104-core-0.pt || panic
-tftpboot 0x120000 xilinxzcu104-core-1.pt || panic
+tftpboot 0x110000 xilinxzcu104-core-0.bin || panic
+tftpboot 0x120000 xilinxzcu104-core-1.bin || panic
 tftpboot 0x170000 kernel.bin-kernel_ro.part || panic
 tftpboot 0x182000 kernel.bin-kernel_data_0.part || panic
 mw 0x184000 0x0 0x2000

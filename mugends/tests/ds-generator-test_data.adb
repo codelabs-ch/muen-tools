@@ -128,9 +128,10 @@ package body DS.Generator.Test_Data is
       Pad_File ("obj/kernel.bin-kernel_stack", 16#0003_0000#,
                 "obj/kernel.bin-kernel_stack.part.pad.ref");
 
-      --  These are correctly sized, so no padding.
-      Generate_File ("obj/xilinxzcu104-core-0.pt", 16#8000#);
-      Generate_File ("obj/xilinxzcu104-core-1.pt", 16#8000#);
+      --  These are correctly sized, so no padding. First two without extension.
+      Generate_File ("obj/xilinxzcu104-core-0", 16#8000#);
+      Generate_File ("obj/xilinxzcu104-core-1", 16#8000#);
+
       Generate_File ("obj/xilinxzcu104-lnx1.pt", 16#6000#);
       Generate_File ("obj/xilinxzcu104-string_reverser.pt", 16#3000#);
       Generate_File ("obj/xilinxzcu104-lnx2.pt", 16#6000#);

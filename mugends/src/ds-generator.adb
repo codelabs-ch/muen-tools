@@ -1,5 +1,5 @@
 --
---  Copyright (C) 2023-2024  Tobias Brunner <tobias@codelabs.ch>
+--  Copyright (C) 2023-2025  Tobias Brunner <tobias@codelabs.ch>
 --
 --  This program is free software: you can redistribute it and/or modify
 --  it under the terms of the GNU General Public License as published by
@@ -29,6 +29,7 @@ with DOM.Core.Elements;
 with McKae.XML.XPath.XIA;
 
 with Interfaces;
+with Interfaces.C;
 
 with Mulog;
 with Muxml.Utils;
@@ -80,6 +81,15 @@ is
        File_Backed_Memory : in out File_Map_Package.Map;
        Used_Memory        : in out String_Sets_Package.Set;
        Kernels            : in out CPU_Kernel_Map_Package.Map);
+
+   --  Create a symlink.
+   function Create_Symlink
+      (Target_Path : Interfaces.C.char_array;
+       Link_Path   : Interfaces.C.char_array) return Interfaces.C.int
+   with
+      Import     => True,
+      Convention => C,
+      Link_Name  => "symlink";
 
    -------------------------------------------------------------------------
 
@@ -400,6 +410,34 @@ is
                             Target  => Pad_Path,
                             Length  => File.Padding_Length,
                             Pattern => File.Padding_Pattern);
+               end;
+            end if;
+
+            --  Make sure the name contains a file extension so bootgen can
+            --  handle it.
+            if Index (File.Filename, ".") = 0 then
+               declare
+                  use Interfaces.C;
+
+                  Ext_Name : constant Unbounded_String
+                    := Filename & ".bin";
+                  Ext_Path : constant Unbounded_String
+                    := Output_Dir & "/" & Ext_Name;
+               begin
+                  File.Filename := Ext_Name;
+                  Mulog.Log (Msg => "  symlink '"
+                                     & To_String (Path)
+                                     & "' to '"
+                                     & To_String (Ext_Path) & "' for bootgen");
+                  if not Ada.Directories.Exists (To_String (Ext_Path)) and then
+                     Create_Symlink
+                       (Target_Path => To_C (To_String (Filename)),
+                        Link_Path   => To_C (To_String (Ext_Path))) < 0
+                  then
+                     raise Generator_Error with "Unable to create symlink '"
+                        & To_String (Ext_Path) & "' to '"
+                        & To_String (Filename);
+                  end if;
                end;
             end if;
 

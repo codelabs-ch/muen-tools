@@ -90,12 +90,21 @@ package body DS.Generator.Test_Data.Tests is
                Filename2 => "obj/kernel.bin-kernel_global_data.part"),
               Message   => "obj/kernel.bin-kernel_global_data.part mismatch");
 
+      Assert (Condition => Test_Utils.Equal_Files
+              (Filename1 => "obj/xilinxzcu104-core-0",
+               Filename2 => "obj/xilinxzcu104-core-0.bin"),
+              Message   => "obj/xilinxzcu104-core-0.bin missing or mismatch");
+      Assert (Condition => Test_Utils.Equal_Files
+              (Filename1 => "obj/xilinxzcu104-core-1",
+               Filename2 => "obj/xilinxzcu104-core-1.bin"),
+              Message   => "obj/xilinxzcu104-core-1.bin missing or mismatch");
       Assert (Condition => not Ada.Directories.Exists
-              (Name => "obj/xilinxzcu104-core-0.pt-kernel_0_pt.pad"),
-              Message   => "obj/xilinxzcu104-core-0.pt should not get padded");
+              (Name => "obj/xilinxzcu104-core-0-kernel_0.pad"),
+              Message   => "obj/xilinxzcu104-core-0 should not get padded");
       Assert (Condition => not Ada.Directories.Exists
-              (Name => "obj/xilinxzcu104-core-1.pt-kernel_1_pt.pad"),
-              Message   => "obj/xilinxzcu104-core-1.pt should not get padded");
+              (Name => "obj/xilinxzcu104-core-1-kernel_1.pad"),
+              Message   => "obj/xilinxzcu104-core-1 should not get padded");
+
       Assert (Condition => not Ada.Directories.Exists
               (Name => "obj/xilinxzcu104-lnx1.pt-lnx1_pt.pad"),
               Message   => "obj/xilinxzcu104-lnx1.pt should not get padded");
