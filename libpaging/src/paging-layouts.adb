@@ -55,25 +55,47 @@ is
         := Physical_Address and Page_Address_Mask;
       Skip : Boolean;
    begin
-      if End_Lvl > 3 and then Start_Idx mod (Entries_Per_Table ** 2) /= 0 then
+      if Start_Idx mod (Entries_Per_Table ** 2) /= 0 then
 
          --  Region starts in the middle of a 1 GB page. Add the necessary
          --  PDPT table entry.
 
-         Maps.Add_Entry
-           (Map          => Mem_Layout.Structures (End_Lvl - 2),
-            Table_Number => Table_Range (Start_Idx / Entries_Per_Table ** 3),
-            Entry_Index  => Entry_Range
-              ((Start_Idx / Entries_Per_Table ** 2) mod Entries_Per_Table),
-            Table_Entry  => Entries.Create
-              (Dst_Index   => Table_Range (Start_Idx / Entries_Per_Table ** 2),
-               Dst_Address => 0,
-               Readable    => True,
-               Writable    => True,
-               Executable  => True,
-               Maps_Page   => False,
-               Global      => False,
-               Caching     => WB));
+         declare
+            Dst_Index   : constant Table_Range := Table_Range
+              (Start_Idx / Entries_Per_Table ** 2);
+            Entry_Index : constant Entry_Range := Entry_Range
+              (Dst_Index mod Entries_Per_Table);
+         begin
+            if End_Lvl > 3 then
+               Maps.Add_Entry
+                 (Map          => Mem_Layout.Structures (End_Lvl - 2),
+                  Table_Number => Table_Range
+                    (Start_Idx / Entries_Per_Table ** 3),
+                  Entry_Index  => Entry_Index,
+                  Table_Entry  => Entries.Create
+                    (Dst_Index   => Dst_Index,
+                     Dst_Address => 0,
+                     Readable    => True,
+                     Writable    => True,
+                     Executable  => True,
+                     Maps_Page   => False,
+                     Global      => False,
+                     Caching     => WB));
+            else
+               Tables.Add_Entry
+                 (Table => Mem_Layout.Level_1_Table,
+                  Index => Entry_Index,
+                  E     => Entries.Create
+                    (Dst_Index   => Dst_Index,
+                     Dst_Address => 0,
+                     Readable    => True,
+                     Writable    => True,
+                     Executable  => True,
+                     Maps_Page   => False,
+                     Global      => False,
+                     Caching     => WB));
+            end if;
+         end;
       end if;
 
       if Start_Idx mod Entries_Per_Table /= 0 then
@@ -102,53 +124,70 @@ is
       while Cur_Idx <= End_Idx loop
          Skip := False;
          if Cur_Idx mod Entries_Per_Table = 0 then
-            if End_Lvl > 3 and then Cur_Idx mod (Entries_Per_Table ** 2) = 0
-            then
-               if Use_Huge_Pages
-                 and then (End_Idx - Cur_Idx + 1) >= Entries_Per_Table ** 2
-               then
+            if Cur_Idx mod (Entries_Per_Table ** 2) = 0 then
+               declare
+                  Dst_Index   : constant Table_Range := Table_Range
+                    (Cur_Idx / Entries_Per_Table ** 2);
+                  Entry_Index : constant Entry_Range := Entry_Range
+                    (Dst_Index mod Entries_Per_Table);
+               begin
+                  if Use_Huge_Pages
+                    and then (End_Idx - Cur_Idx + 1) >= Entries_Per_Table ** 2
+                  then
 
-                  --  1-GB large page mapping.
+                     --  1-GB large page mapping.
 
-                  Maps.Add_Entry
-                    (Map          => Mem_Layout.Structures (End_Lvl - 2),
-                     Table_Number => Table_Range
-                       (Cur_Idx / Entries_Per_Table ** 3),
-                     Entry_Index  => Entry_Range
-                       ((Cur_Idx / Entries_Per_Table ** 2) mod Entries_Per_Table),
-                     Table_Entry  => Entries.Create
-                       (Dst_Index   => 0,
-                        Dst_Address => Cur_Phys_Addr,
-                        Readable    => True,
-                        Writable    => Writable,
-                        Executable  => Executable,
-                        Maps_Page   => True,
-                        Global      => False,
-                        Caching     => Caching));
+                     Maps.Add_Entry
+                       (Map          => Mem_Layout.Structures (End_Lvl - 2),
+                        Table_Number => Table_Range
+                          (Cur_Idx / Entries_Per_Table ** 3),
+                        Entry_Index  => Entry_Index,
+                        Table_Entry  => Entries.Create
+                          (Dst_Index   => 0,
+                           Dst_Address => Cur_Phys_Addr,
+                           Readable    => True,
+                           Writable    => Writable,
+                           Executable  => Executable,
+                           Maps_Page   => True,
+                           Global      => False,
+                           Caching     => Caching));
 
-                  Cur_Idx := Cur_Idx + Entries_Per_Table ** 2;
-                  Cur_Phys_Addr := Cur_Phys_Addr + PDPT_Page_Size;
+                     Cur_Idx := Cur_Idx + Entries_Per_Table ** 2;
+                     Cur_Phys_Addr := Cur_Phys_Addr + PDPT_Page_Size;
 
-                  Skip := True;
-               else
-                  Maps.Add_Entry
-                    (Map          => Mem_Layout.Structures (End_Lvl - 2),
-                     Table_Number => Table_Range
-                       (Cur_Idx / Entries_Per_Table ** 3),
-                     Entry_Index  => Entry_Range
-                       ((Cur_Idx / Entries_Per_Table ** 2)
-                        mod Entries_Per_Table),
-                     Table_Entry  => Entries.Create
-                       (Dst_Index   => Table_Range
-                            (Cur_Idx / Entries_Per_Table ** 2),
-                        Dst_Address => 0,
-                        Readable    => True,
-                        Writable    => True,
-                        Executable  => True,
-                        Maps_Page   => False,
-                        Global      => False,
-                        Caching     => WB));
-               end if;
+                     Skip := True;
+                  else
+                     if End_Lvl > 3 then
+                        Maps.Add_Entry
+                          (Map          => Mem_Layout.Structures (End_Lvl - 2),
+                           Table_Number => Table_Range
+                             (Cur_Idx / Entries_Per_Table ** 3),
+                           Entry_Index  => Entry_Index,
+                           Table_Entry  => Entries.Create
+                             (Dst_Index   => Dst_Index,
+                              Dst_Address => 0,
+                              Readable    => True,
+                              Writable    => True,
+                              Executable  => True,
+                              Maps_Page   => False,
+                              Global      => False,
+                              Caching     => WB));
+                     else
+                        Tables.Add_Entry
+                          (Table => Mem_Layout.Level_1_Table,
+                           Index => Entry_Index,
+                           E     => Entries.Create
+                             (Dst_Index   => Dst_Index,
+                              Dst_Address => 0,
+                              Readable    => True,
+                              Writable    => True,
+                              Executable  => True,
+                              Maps_Page   => False,
+                              Global      => False,
+                              Caching     => WB));
+                     end if;
+                  end if;
+               end;
             end if;
 
             if not Skip then
@@ -217,22 +256,24 @@ is
          end if;
       end loop;
 
-      Start_Idx := Start_Idx / Entries_Per_Table ** 3;
-      End_Idx := End_Idx /  Entries_Per_Table ** 3;
-      for Cur_Idx in Start_Idx .. End_Idx loop
-         Tables.Add_Entry
-           (Table => Mem_Layout.Level_1_Table,
-            Index => Entry_Range (Cur_Idx mod Entries_Per_Table),
-            E     => Entries.Create
-              (Dst_Index   => Table_Range (Cur_Idx),
-               Dst_Address => 0,
-               Readable    => True,
-               Writable    => True,
-               Executable  => True,
-               Maps_Page   => False,
-               Global      => False,
-               Caching     => WB));
-      end loop;
+      if End_Lvl > 3 then
+         Start_Idx := Start_Idx / Entries_Per_Table ** 3;
+         End_Idx := End_Idx /  Entries_Per_Table ** 3;
+         for Cur_Idx in Start_Idx .. End_Idx loop
+            Tables.Add_Entry
+              (Table => Mem_Layout.Level_1_Table,
+               Index => Entry_Range (Cur_Idx mod Entries_Per_Table),
+               E     => Entries.Create
+                 (Dst_Index   => Table_Range (Cur_Idx),
+                  Dst_Address => 0,
+                  Readable    => True,
+                  Writable    => True,
+                  Executable  => True,
+                  Maps_Page   => False,
+                  Global      => False,
+                  Caching     => WB));
+         end loop;
+      end if;
 
    exception
       when Tables.Duplicate_Entry =>
