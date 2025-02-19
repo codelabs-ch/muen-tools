@@ -51,12 +51,12 @@
    </device>
    <device name="SMMU_GPV">
     <irq name="irq" number="187"/>
-    <memory caching="UC" name="mem" physicalAddress="16#fd80_0000#" size="16#0020_0000#"/>
+    <memory caching="UC" name="controller" physicalAddress="16#fd80_0000#" size="16#0001_0000#"/>
+    <memory caching="UC" name="context" physicalAddress="16#fd81_0000#" size="16#0001_0000#"/>
     <capabilities>
      <capability name="iommu"/>
-     <capability name="agaw">39</capability>
-     <capability name="fr_offset">544</capability>
-     <capability name="iotlb_invalidate_offset">248</capability>
+     <capability name="stream_mapping_id_max">47</capability>
+     <capability name="context_bank_id_max">15</capability>
     </capabilities>
    </device>
    <device name="UART0">
@@ -134,6 +134,7 @@
   <memory alignment="16#1000#" caching="WB" name="linux|rootfs" physicalAddress="16#2b00_0000#" size="16#0500_0000#" type="subject_initrd">
    <file filename="rootfs_linux_one.cpio.gz" offset="none"/>
   </memory>
+  <memory caching="UC" name="crash_audit" physicalAddress="16#0006_0000#" size="16#1000#" type="subject_crash_audit"/>
  </memory>
  <deviceDomains>
   <domain name="nic_domain">
@@ -148,10 +149,19 @@
   </domain>
  </deviceDomains>
  <events>
+  <event mode="asap" name="trap_to_subject1"/>
   <event mode="kernel" name="system_panic"/>
-  <event mode="kernel" name="magic_number"/>
-  <event mode="self" name="event_demo"/>
  </events>
+ <components>
+  <component name="linux" profile="linux"/>
+  <component name="event_logger" profile="native">
+   <provides>
+    <memory executable="true" logical="binary" size="16#1000#" type="subject_binary" virtualAddress="16#0020_0000#" writable="true">
+     <file filename="event_logger_bin" offset="none"/>
+    </memory>
+   </provides>
+  </component>
+ </components>
  <subjects>
   <subject name="linux">
    <bootparams>console=ttyPS0,115200 root=/dev/ram0 initrd=0x0f000000,1451008 earlycon</bootparams>
@@ -173,7 +183,13 @@
      <memory executable="false" logical="serial_dev" physical="mem" virtualAddress="16#2101_0000#" writable="true"/>
     </device>
    </devices>
-   <events/>
+   <events>
+    <source>
+     <group name="vmx_exit">
+      <default physical="trap_to_subject1"/>
+     </group>
+    </source>
+   </events>
    <component ref="linux"/>
   </subject>
   <subject name="event_logger">
@@ -192,7 +208,18 @@
      <memory executable="false" logical="vgic_dev2" physical="GICV_DIR" virtualAddress="16#0401_1000#" writable="true"/>
     </device>
    </devices>
-   <events/>
+   <events>
+    <source>
+     <group name="vmx_exit">
+      <default physical="system_panic">
+       <system_panic/>
+      </default>
+     </group>
+    </source>
+    <target>
+     <event logical="handle_trap" physical="trap_to_subject1"/>
+    </target>
+   </events>
    <component ref="event_logger"/>
   </subject>
  </subjects>

@@ -1,5 +1,5 @@
-  <event mode="self" name="event_demo"/>                                                                                                                  <event mode="self" name="event_demo"/>
- </events>                                                                                                                                               </events>
+  </component>                                                                                                                                            </component>
+ </components>                                                                                                                                           </components>
                                                                                                                                                      >   <kernel>
                                                                                                                                                      >    <memory>
                                                                                                                                                      >     <cpu id="0"/>
@@ -21,7 +21,8 @@
                                                                                                                                                      >     </device>
                                                                                                                                                      >     <device logical="iommu_1" physical="SMMU_GPV">
                                                                                                                                                      >      <irq logical="smmu_irq" physical="irq" vector="187"/>
-                                                                                                                                                     >      <memory executable="false" logical="mem" physical="mem" virtualAddress="16#fd80_0000#" writable="true"/>
+                                                                                                                                                     >      <memory executable="false" logical="controller" physical="controller" virtualAddress="16#fd80_0000#" writable="true"/>
+                                                                                                                                                     >      <memory executable="false" logical="context" physical="context" virtualAddress="16#fd81_0000#" writable="true"/>
                                                                                                                                                      >     </device>
                                                                                                                                                      >    </devices>
                                                                                                                                                      >   </kernel>
