@@ -402,6 +402,74 @@ package body Paging.Layouts.Test_Data.Tests is
 
       ----------------------------------------------------------------------
 
+      procedure Add_High_Region_Three_Levels
+      is
+         Layout : Memory_Layout_Type (Levels => 3);
+      begin
+         Set_Large_Page_Support (Mem_Layout => Layout,
+                                 State      => True);
+
+         --  Sinfo region mapping
+         Add_Memory_Region
+           (Mem_Layout       => Layout,
+            Physical_Address => 16#0008_0000#,
+            Virtual_Address  => 16#000e_0000_0000#,
+            Size             => 16#8000#,
+            Caching          => WB,
+            Writable         => False,
+            Executable       => False);
+         --  Schedinfo region mapping
+         Add_Memory_Region
+           (Mem_Layout       => Layout,
+            Physical_Address => 16#000d_d000#,
+            Virtual_Address  => 16#000e_0000_8000#,
+            Size             => 16#1000#,
+            Caching          => WB,
+            Writable         => False,
+            Executable       => False);
+         --  Timed event region mapping
+         Add_Memory_Region
+           (Mem_Layout       => Layout,
+            Physical_Address => 16#000d_c000#,
+            Virtual_Address  => 16#000e_0001_0000#,
+            Size             => 16#1000#,
+            Caching          => WB,
+            Writable         => True,
+            Executable       => False);
+
+         Assert (Condition => not Tables.Contains
+                 (Table => Layout.Level_1_Table,
+                  Index => 0),
+                 Message   => "Level 1 entry 0 created");
+         Assert (Condition => Tables.Contains
+                 (Table => Layout.Level_1_Table,
+                  Index => 56),
+                 Message   => "Level 1 entry 56 not created");
+         Assert (Condition => Maps.Contains
+                 (Map          => Layout.Structures (2),
+                  Table_Number => 56,
+                  Entry_Index  => 0),
+                 Message   => "Level 2 entry not created");
+         Assert (Condition => Maps.Length (Map => Layout.Structures (2)) = 1,
+                 Message   => "More than one level 2 table");
+         for Idx in Entry_Range range 0 .. 8 loop
+            Assert (Condition => Maps.Contains
+                    (Map          => Layout.Structures (3),
+                     Table_Number => 28672,
+                     Entry_Index  => Idx),
+                    Message   => "Level 3 entry" & Idx'Img & " not created");
+         end loop;
+         Assert (Condition => Maps.Contains
+                 (Map          => Layout.Structures (3),
+                  Table_Number => 28672,
+                  Entry_Index  => 16),
+                 Message   => "Level 3 entry 16 not created");
+         Assert (Condition => Maps.Length (Map => Layout.Structures (3)) = 1,
+                 Message   => "More than one level 3 table");
+      end Add_High_Region_Three_Levels;
+
+      ----------------------------------------------------------------------
+
       procedure Add_Canonical_Low_High_Regions
       is
          Layout : Memory_Layout_Type (Levels => 4);
@@ -453,6 +521,7 @@ package body Paging.Layouts.Test_Data.Tests is
       Add_Multiple_PT_Regions;
       Add_Duplicate_PT_Regions;
       Add_Large_Region_Three_Levels;
+      Add_High_Region_Three_Levels;
       Add_Canonical_Low_High_Regions;
 --  begin read only
    end Test_Add_Memory_Region;
