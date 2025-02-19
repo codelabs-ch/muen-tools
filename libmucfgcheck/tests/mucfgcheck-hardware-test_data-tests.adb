@@ -15,6 +15,7 @@ with System.Assertions;
 --
 --  end read only
 with Mucfgcheck.Validation_Errors;
+with Mucfgcheck.Test_Data;
 --  begin read only
 --  end read only
 package body Mucfgcheck.Hardware.Test_Data.Tests is
@@ -442,6 +443,29 @@ package body Mucfgcheck.Hardware.Test_Data.Tests is
               (Msg => "IOMMU device 'iommu_2' has no memory region"),
               Message   => "Exception mismatch (1)");
 
+      Too_Many_Mem_Nodes:
+      declare
+         use Mucfgcheck.Test_Data;
+
+         Dev_Mem : constant DOM.Core.Node
+           := Muxml.Utils.Get_Element
+                (Doc   => Data.Doc,
+                 XPath => "/system/hardware/devices/device[@name='iommu_1']");
+         New_Node : DOM.Core.Node := Create_Mem_Node
+           (Doc     => Data.Doc,
+            Name    => "whereis",
+            Address => "16#1000#",
+            Size    => "16#1000#");
+      begin
+         Muxml.Utils.Append_Child
+           (Node      => Dev_Mem,
+            New_Child => New_Node);
+         IOMMU_Presence (XML_Data => Data);
+         Assert (Condition => Validation_Errors.Contains
+                 (Msg => "IOMMU device 'iommu_1' has unexpected mmio count (2 /= 1)"),
+                 Message   => "Exception mismatch (2)");
+      end Too_Many_Mem_Nodes;
+
       Too_Many_Devices:
       declare
          New_Dev : DOM.Core.Node
@@ -488,7 +512,7 @@ package body Mucfgcheck.Hardware.Test_Data.Tests is
          IOMMU_Presence (XML_Data => Data);
          Assert (Condition => Validation_Errors.Contains
                  (Msg => "IOMMU count is 11 but must not be larger than 8"),
-                 Message   => "Exception mismatch (2)");
+                 Message   => "Exception mismatch (3)");
       end Too_Many_Devices;
 
       Muxml.Utils.Set_Attribute
@@ -501,7 +525,7 @@ package body Mucfgcheck.Hardware.Test_Data.Tests is
       IOMMU_Presence (XML_Data => Data);
       Assert (Condition => Validation_Errors.Contains
               (Msg => "IOMMU count is 0 but must be at least 1"),
-              Message   => "Exception mismatch (3)");
+              Message   => "Exception mismatch (4)");
 --  begin read only
    end Test_IOMMU_Presence;
 --  end read only

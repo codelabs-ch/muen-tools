@@ -105,7 +105,7 @@ is
             elsif Mem_Count /= Dev_Mem_Count then
                Validation_Errors.Insert
                  (Msg => Device_Type & " device '"
-                  & Dev_Name & "' has multiple unexpected memory regions ("
+                  & Dev_Name & "' has unexpected mmio count ("
                   & Ada.Strings.Fixed.Trim
                      (Source => Mem_Count'Img,
                       Side   => Ada.Strings.Left)
