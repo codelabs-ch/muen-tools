@@ -133,6 +133,7 @@ is
                begin
                   if Use_Huge_Pages
                     and then (End_Idx - Cur_Idx + 1) >= Entries_Per_Table ** 2
+                    and then (Cur_Phys_Addr mod PDPT_Page_Size) = 0
                   then
 
                      --  1-GB large page mapping.
@@ -191,8 +192,9 @@ is
             end if;
 
             if not Skip then
-               if Mem_Layout.Use_Large_Pages and then
-                 (End_Idx - Cur_Idx + 1) >= Entries_Per_Table
+               if Mem_Layout.Use_Large_Pages
+                 and then (End_Idx - Cur_Idx + 1) >= Entries_Per_Table
+                 and then (Cur_Phys_Addr mod PD_Page_Size) = 0
                then
 
                   --  2 MB large page mapping.
