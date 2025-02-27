@@ -63,26 +63,26 @@ package body Expand.Test_Data.Tests is
          Assert (Condition => Test_Utils.Equal_Files
                  (Filename1 => Filename,
                   Filename2 => "data/execute_run.xml"),
-                 Message   => "Policy mismatch");
+                 Message   => "Policy mismatch (x86_64)");
 
          Ada.Directories.Delete_File (Name => Filename);
          Assert (Condition => Stage0.Pre_Checks.Get_Count = 0,
-                 Message   => "Pre-checks not zero (stage 0)");
+                 Message   => "Pre-checks not zero (x86_64 stage 0)");
          Assert (Condition => Stage0.Expansion.Get_Count = 0,
-                 Message   => "Expanders not zero (stage 0)");
+                 Message   => "Expanders not zero (x86_64 stage 0)");
          Assert (Condition => Stage1.Pre_Checks.Get_Count = 0,
-                 Message   => "Pre-checks not zero (stage 1)");
+                 Message   => "Pre-checks not zero (x86_64 stage 1)");
          Assert (Condition => Stage1.Expansion.Get_Count = 0,
-                 Message   => "Expanders not zero (stage 1)");
+                 Message   => "Expanders not zero (x86_64 stage 1)");
          Assert (Condition => Stage2.Pre_Checks.Get_Count = 0,
-                 Message   => "Pre-checks not zero (stage 2)");
+                 Message   => "Pre-checks not zero (x86_64 stage 2)");
          Assert (Condition => Stage2.Expansion.Get_Count = 0,
-                 Message   => "Expanders not zero (stage 2)");
+                 Message   => "Expanders not zero (x86_64 stage 2)");
          Assert (Condition => Post_Checks.Get_Count = 0,
-                 Message   => "Post-checks not zero");
+                 Message   => "Post-checks not zero (x86_64)");
 
          Assert (Condition => Mucfgcheck.Validation_Errors.Is_Empty,
-                 Message   => "Validation errors present");
+                 Message   => "Validation errors present (x86_64)");
       end Execute_Run;
 
       ----------------------------------------------------------------------
@@ -105,22 +105,22 @@ package body Expand.Test_Data.Tests is
 
          Ada.Directories.Delete_File (Name => Filename);
          Assert (Condition => Stage0.Pre_Checks.Get_Count = 0,
-                 Message   => "Pre-checks not zero (stage 0)");
+                 Message   => "Pre-checks not zero (arm64 stage 0)");
          Assert (Condition => Stage0.Expansion.Get_Count = 0,
-                 Message   => "Expanders not zero (stage 0)");
+                 Message   => "Expanders not zero (arm64 stage 0)");
          Assert (Condition => Stage1.Pre_Checks.Get_Count = 0,
-                 Message   => "Pre-checks not zero (stage 1)");
+                 Message   => "Pre-checks not zero (arm64 stage 1)");
          Assert (Condition => Stage1.Expansion.Get_Count = 0,
-                 Message   => "Expanders not zero (stage 1)");
+                 Message   => "Expanders not zero (arm64 stage 1)");
          Assert (Condition => Stage2.Pre_Checks.Get_Count = 0,
-                 Message   => "Pre-checks not zero (stage 2)");
+                 Message   => "Pre-checks not zero (arm64 stage 2)");
          Assert (Condition => Stage2.Expansion.Get_Count = 0,
-                 Message   => "Expanders not zero (stage 2)");
+                 Message   => "Expanders not zero (arm64 stage 2)");
          Assert (Condition => Post_Checks.Get_Count = 0,
-                 Message   => "Post-checks not zero");
+                 Message   => "Post-checks not zero (arm64)");
 
          Assert (Condition => Mucfgcheck.Validation_Errors.Is_Empty,
-                 Message   => "Validation errors present");
+                 Message   => "Validation errors present (arm64)");
       end Execute_Run_Arm64;
 
       ----------------------------------------------------------------------
