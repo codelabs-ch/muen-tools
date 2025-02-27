@@ -312,6 +312,36 @@ is
 
    -------------------------------------------------------------------------
 
+   procedure Interrupt_Stack_Address_Equality (XML_Data : Muxml.XML_Data_Type)
+   is
+      Mem_Nodes : constant DOM.Core.Node_List
+        := McKae.XML.XPath.XIA.XPath_Query
+          (N     => XML_Data.Doc,
+           XPath => "/system/kernel/memory/cpu/memory");
+      Nodes : constant DOM.Core.Node_List
+        := Muxml.Utils.Get_Elements
+          (Nodes     => Mem_Nodes,
+           Ref_Attr  => "logical",
+           Ref_Value => "interrupt_stack");
+      Addr  : constant Interfaces.Unsigned_64
+        := Interfaces.Unsigned_64'Value
+          (DOM.Core.Elements.Get_Attribute
+             (Elem => DOM.Core.Nodes.Item
+                (List  => Nodes,
+                 Index => 0),
+              Name => "virtualAddress"));
+   begin
+      Check_Attribute (Nodes     => Nodes,
+                       Node_Type => "kernel interrupt stack memory",
+                       Attr      => "virtualAddress",
+                       Name_Attr => "physical",
+                       Test      => Equals'Access,
+                       B         => Addr,
+                       Error_Msg => "differs");
+   end Interrupt_Stack_Address_Equality;
+
+   -------------------------------------------------------------------------
+
    procedure IOMMU_Consecutiveness (XML_Data : Muxml.XML_Data_Type)
    is
       Nodes : constant Muxml.Utils.Matching_Pairs_Type
@@ -441,42 +471,6 @@ is
         := McKae.XML.XPath.XIA.XPath_Query
           (N     => XML_Data.Doc,
            XPath => "/system/kernel/memory/cpu/memory");
-   begin
-      Stack_Address_Equality_Arm64 (XML_Data => XML_Data);
-
-      Interrupt_Stack :
-      declare
-         Nodes : constant DOM.Core.Node_List
-           := Muxml.Utils.Get_Elements
-             (Nodes     => Mem_Nodes,
-              Ref_Attr  => "logical",
-              Ref_Value => "interrupt_stack");
-         Addr  : constant Interfaces.Unsigned_64
-           := Interfaces.Unsigned_64'Value
-             (DOM.Core.Elements.Get_Attribute
-                (Elem => DOM.Core.Nodes.Item
-                   (List  => Nodes,
-                    Index => 0),
-                 Name => "virtualAddress"));
-      begin
-         Check_Attribute (Nodes     => Nodes,
-                          Node_Type => "kernel interrupt stack memory",
-                          Attr      => "virtualAddress",
-                          Name_Attr => "physical",
-                          Test      => Equals'Access,
-                          B         => Addr,
-                          Error_Msg => "differs");
-      end Interrupt_Stack;
-   end Stack_Address_Equality;
-
-   -------------------------------------------------------------------------
-
-   procedure Stack_Address_Equality_Arm64 (XML_Data : Muxml.XML_Data_Type)
-   is
-      Mem_Nodes : constant DOM.Core.Node_List
-        := McKae.XML.XPath.XIA.XPath_Query
-          (N     => XML_Data.Doc,
-           XPath => "/system/kernel/memory/cpu/memory");
       Nodes : constant DOM.Core.Node_List
         := Muxml.Utils.Get_Elements
           (Nodes     => Mem_Nodes,
@@ -497,7 +491,7 @@ is
                        Test      => Equals'Access,
                        B         => Addr,
                        Error_Msg => "differs");
-   end Stack_Address_Equality_Arm64;
+   end Stack_Address_Equality;
 
    -------------------------------------------------------------------------
 

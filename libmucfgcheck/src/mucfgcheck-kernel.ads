@@ -42,10 +42,9 @@ is
    --D Validate that all stack virtual addresses are equal.
    procedure Stack_Address_Equality (XML_Data : Muxml.XML_Data_Type);
 
-   --D @Item List => validators_knl_arm64
-   --D Validate that all stack virtual addresses are equal. This is the Arm64
-   --D variant not checking interrupt stacks (there are none).
-   procedure Stack_Address_Equality_Arm64 (XML_Data : Muxml.XML_Data_Type);
+   --D @Item List => validators_knl_x86_64
+   --D Validate that all interrupt stack virtual addresses are equal.
+   procedure Interrupt_Stack_Address_Equality (XML_Data : Muxml.XML_Data_Type);
 
    --D @Item List => validators_knl
    --D Validate that all crash audit mappings exist and that their virtual
