@@ -676,13 +676,13 @@ is
                  & Output_Dir & "/skp-subjects.adb'");
 
       Tmpl := Mutools.Templates.Create
-        (Content => String_Templates.skp_subjects_ads);
+        (Content => String_Templates.skp_subjects_x86_64_ads);
       Mutools.Templates.Write
         (Template => Tmpl,
          Filename => Output_Dir & "/skp-subjects.ads");
 
       Tmpl := Mutools.Templates.Create
-        (Content => String_Templates.skp_subjects_adb);
+        (Content => String_Templates.skp_subjects_x86_64_adb);
 
       for I in 0 .. Subj_Count - 1 loop
          Write_Subject_Spec

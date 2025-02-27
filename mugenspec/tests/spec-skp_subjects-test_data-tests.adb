@@ -61,7 +61,7 @@ package body Spec.Skp_Subjects.Test_Data.Tests is
 
          Assert (Condition => Test_Utils.Equal_Files
                  (Filename1 => Spec_H,
-                  Filename2 => "templates/skp-subjects.ads"),
+                  Filename2 => "templates/skp-subjects-x86_64.ads"),
                  Message   => "Subject spec header mismatch (x86/64)");
          Ada.Directories.Delete_File (Name => Spec_H);
       end Write_X86_64;
@@ -161,7 +161,7 @@ package body Spec.Skp_Subjects.Test_Data.Tests is
 
       Assert (Condition => Test_Utils.Equal_Files
               (Filename1 => Spec_H,
-               Filename2 => "templates/skp-subjects.ads"),
+               Filename2 => "templates/skp-subjects-x86_64.ads"),
               Message   => "Subject spec header mismatch (x86/64)");
       Ada.Directories.Delete_File (Name => Spec_H);
 --  begin read only
