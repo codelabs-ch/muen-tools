@@ -395,7 +395,7 @@ is
       --  Arch Independent: Validate that all stack virtual addresses
       --  are equal.
       XML_Processors.Register
-        (Process => Kernel.Stack_Address_Equality_Arm64'Access);
+        (Process => Kernel.Stack_Address_Equality'Access);
 
       --  Arch Dedependent: ARMv8-A does not require an interrupt stack
       --  and therefore the stack layout is different. Checks have to
@@ -805,6 +805,8 @@ is
         (Process => Kernel.Crash_Audit_Address_Equality'Access);
       XML_Processors.Register
         (Process => Kernel.Stack_Address_Equality'Access);
+      XML_Processors.Register
+        (Process => Kernel.Interrupt_Stack_Address_Equality'Access);
       XML_Processors.Register
         (Process => Kernel.Microcode_Address_Equality'Access);
       XML_Processors.Register
