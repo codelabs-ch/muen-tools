@@ -250,14 +250,6 @@
   <fill pattern="16#00#"/>
  </memory>
  <memory alignment="16#1000#" caching="UC" name="crash_audit" physicalAddress="16#0040_0000#" size="16#1000#" type="subject_crash_audit"/>
- <memory alignment="16#1000#" caching="WB" name="lnx1|iobm" physicalAddress="16#0002_0000_0000#" size="16#2000#" type="system_iobm"/>
- <memory alignment="16#1000#" caching="WB" name="string_reverser|iobm" physicalAddress="16#0002_0000_2000#" size="16#2000#" type="system_iobm"/>
- <memory alignment="16#1000#" caching="WB" name="lnx2|iobm" physicalAddress="16#0002_0000_4000#" size="16#2000#" type="system_iobm"/>
- <memory alignment="16#1000#" caching="WB" name="caesar_cipher|iobm" physicalAddress="16#0002_0000_6000#" size="16#2000#" type="system_iobm"/>
- <memory alignment="16#1000#" caching="WB" name="lnx1|msrbm" physicalAddress="16#0002_0000_8000#" size="16#1000#" type="system_msrbm"/>
- <memory alignment="16#1000#" caching="WB" name="string_reverser|msrbm" physicalAddress="16#0002_0000_9000#" size="16#1000#" type="system_msrbm"/>
- <memory alignment="16#1000#" caching="WB" name="lnx2|msrbm" physicalAddress="16#0002_0000_a000#" size="16#1000#" type="system_msrbm"/>
- <memory alignment="16#1000#" caching="WB" name="caesar_cipher|msrbm" physicalAddress="16#0002_0000_b000#" size="16#1000#" type="system_msrbm"/>
  <memory alignment="16#1000#" caching="WB" name="smmu_usb_domain_pt" physicalAddress="16#001f_8000#" size="16#5000#" type="system_pt">
   <file filename="smmu_usb_domain.pt" offset="none"/>
  </memory>
