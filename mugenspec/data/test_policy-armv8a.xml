@@ -195,9 +195,6 @@
  <memory alignment="16#1000#" caching="WB" name="caesar_cipher|pt" physicalAddress="16#0023_0000#" size="16#3000#" type="system_pt">
   <file filename="xilinxzcu104-caesar_cipher.pt" offset="none"/>
  </memory>
- <!-- TODO: Remove or replace VMXON kernel memory nodes (compatibility mugenspec) -->
- <memory alignment="16#1000#" caching="WB" name="kernel_0|vmxon" physicalAddress="16#0023_3000#" size="16#1000#" type="system_vmxon"/>
- <memory alignment="16#1000#" caching="WB" name="kernel_1|vmxon" physicalAddress="16#0023_4000#" size="16#1000#" type="system_vmxon"/>
  <!-- TODO: Remove or replace system interface memory node (compatibility mugenspec) -->
  <memory alignment="16#1000#" caching="UC" name="sys_interface" physicalAddress="16#0023_5000#" size="16#1000#" type="system"/>
  <!-- TODO: Remove or replace subject linux| memory nodes (compatibility mugenspec) -->
