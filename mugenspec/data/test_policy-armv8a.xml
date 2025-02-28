@@ -205,13 +205,6 @@
  <memory alignment="16#1000#" caching="WB" name="lnx1|msrstore" physicalAddress="16#0024_0000#" size="16#1000#" type="kernel_msrstore">
   <file filename="lnx1_msrstore" offset="none"/>
  </memory>
- <memory alignment="16#1000#" caching="WB" name="lnx1|vmcs" physicalAddress="16#0024_1000#" size="16#1000#" type="kernel_vmcs"/>
- <memory alignment="16#1000#" caching="WB" name="lnx1|fpu" physicalAddress="16#0024_2000#" size="16#1000#" type="kernel"/>
- <!-- TODO: Remove or replace VMCS memory nodes (compatibility mugenspec) -->
- <memory alignment="16#1000#" caching="WB" name="lnx1|vmcs" physicalAddress="16#0023_6000#" size="16#1000#" type="kernel_vmcs"/>
- <memory alignment="16#1000#" caching="WB" name="string_reverser|vmcs" physicalAddress="16#0023_7000#" size="16#1000#" type="kernel_vmcs"/>
- <memory alignment="16#1000#" caching="WB" name="lnx2|vmcs" physicalAddress="16#0023_8000#" size="16#1000#" type="kernel_vmcs"/>
- <memory alignment="16#1000#" caching="WB" name="caesar_cipher|vmcs" physicalAddress="16#0023_9000#" size="16#1000#" type="kernel_vmcs"/>
  <!-- TODO: Remove or replace scheduling_info memory nodes (compatibility mugenspec) -->
  <memory alignment="16#1000#" caching="WB" name="scheduling_info_1" physicalAddress="16#0022_4000#" size="16#1000#" type="kernel"/>
  <!-- TODO: Remove or replace VTD root memory node (compatibility mugenspec) -->
