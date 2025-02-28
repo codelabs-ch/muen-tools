@@ -186,7 +186,6 @@
  <memory alignment="16#1000#" caching="WB" name="caesar_cipher|pt" physicalAddress="16#0023_0000#" size="16#3000#" type="system_pt">
   <file filename="xilinxzcu104-caesar_cipher.pt" offset="none"/>
  </memory>
- <!-- TODO: Remove or replace system interface memory node (compatibility mugenspec) -->
  <memory alignment="16#1000#" caching="UC" name="sys_interface" physicalAddress="16#0023_5000#" size="16#1000#" type="system"/>
  <!-- TODO: Remove or replace subject linux| memory nodes (compatibility mugenspec) -->
  <memory alignment="16#1000#" caching="WB" name="lnx1|state" physicalAddress="16#0023_6000#" size="16#1000#" type="kernel"/>
@@ -286,7 +285,6 @@
    <memory logical="stack" physical="kernel_stack_0" virtualAddress="16#0009_0000#" writable="true" executable="false"/>
    <memory logical="interrupt_stack" physical="kernel_interrupt_stack_0" virtualAddress="16#003f_f000#" writable="true" executable="false"/>
    <memory logical="crash_audit" physical="crash_audit" virtualAddress="16#0040_0000#" writable="true" executable="false"/>
-   <!-- TODO: Remove or replace tau0 interface memory node (compatibility mugenspec) -->
    <memory logical="tau0_interface" physical="sys_interface" virtualAddress="16#0040_1000#" writable="false" executable="false"/>
    <!-- TODO: Remove or replace lnx1| memory nodes (compatibility mugenspec) -->
    <memory logical="lnx1|state" physical="lnx1|state" virtualAddress="16#0040_2000#" writable="true" executable="false"/>
