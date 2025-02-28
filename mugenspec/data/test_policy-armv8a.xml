@@ -192,7 +192,6 @@
  <memory alignment="16#1000#" caching="WB" name="lnx1|timed_event" physicalAddress="16#0023_7000#" size="16#1000#" type="kernel"/>
  <memory alignment="16#1000#" caching="UC" name="lnx1|sinfo" physicalAddress="16#0023_8000#" size="16#7000#" type="subject_info"/>
  <memory alignment="16#1000#" caching="WB" name="lnx1|interrupts" physicalAddress="16#0023_f000#" size="16#1000#" type="kernel"/>
- <!-- TODO: Remove or replace scheduling_info memory nodes (compatibility mugenspec) -->
  <memory alignment="16#1000#" caching="WB" name="scheduling_info_1" physicalAddress="16#0022_4000#" size="16#1000#" type="kernel"/>
  <!-- TODO: Remove or replace sinfo memory nodes (compatibility mugenspec) -->
  <memory alignment="16#1000#" caching="UC" name="lnx1|sinfo" physicalAddress="16#0024_0000#" size="16#7000#" type="subject_info"/>
@@ -291,7 +290,6 @@
    <memory logical="lnx1|timed_event" physical="lnx1|timed_event" virtualAddress="16#0040_3000#" writable="true" executable="false"/>
    <memory logical="lnx1|sinfo" physical="lnx1|sinfo" virtualAddress="16#0040_4000#" writable="true" executable="false"/>
    <memory logical="lnx1|interrupts" physical="lnx1|interrupts" virtualAddress="16#0040_b000#" writable="true" executable="false"/>
-   <!-- TODO: Remove or replace scheduling_info memory nodes (compatibility mugenspec) -->
    <memory logical="scheduling_info_1" physical="scheduling_info_1" virtualAddress="16#0041_0000#" writable="true" executable="false"/>
   </cpu>
   <cpu id="1">
