@@ -96,7 +96,7 @@
    <irq name="irq5" number="101"/>
    <irq name="irq6" number="107"/>
    <!--  The USB device mapping currently does not use the minimal memory as defined by
-         the Xilinx UltraScale+ register reference but maps the entire region as expeced
+         the Xilinx UltraScale+ register reference but maps the entire region as expected
          by the Linux 6.1.35 mainline xlnx,zynqmp-dwc3/snps,dwc3 drivers with, e.g.,
          [ ] dwc3 31020000.usb3_0_dwc3: can't request region for resource [mem 0x3102c100-0x3105ffff]
          [ ] dwc3: probe of 31020000.usb3_0_dwc3 failed with error -16 -->
@@ -115,7 +115,7 @@
    <irq name="irq5" number="106"/>
    <irq name="irq6" number="108"/>
    <!--  The USB device mapping currently does not use the minimal memory as defined by
-         the Xilinx UltraScale+ register reference but maps the entire region as expeced
+         the Xilinx UltraScale+ register reference but maps the entire region as expected
          by the Linux 6.1.35 mainline xlnx,zynqmp-dwc3/snps,dwc3 drivers -->
    <memory caching="UC" name="mem1" physicalAddress="16#ff9e_0000#" size="16#0000_1000#"/>
    <memory caching="UC" name="mem2" physicalAddress="16#fe30_0000#" size="16#0004_0000#"/>
