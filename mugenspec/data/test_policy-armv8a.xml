@@ -187,12 +187,10 @@
   <file filename="xilinxzcu104-caesar_cipher.pt" offset="none"/>
  </memory>
  <memory alignment="16#1000#" caching="UC" name="sys_interface" physicalAddress="16#0023_5000#" size="16#1000#" type="system"/>
- <!-- TODO: Remove or replace subject linux| memory nodes (compatibility mugenspec) -->
  <memory alignment="16#1000#" caching="WB" name="lnx1|state" physicalAddress="16#0023_6000#" size="16#1000#" type="kernel"/>
  <memory alignment="16#1000#" caching="WB" name="lnx1|timed_event" physicalAddress="16#0023_7000#" size="16#1000#" type="kernel"/>
  <memory alignment="16#1000#" caching="UC" name="lnx1|sinfo" physicalAddress="16#0023_8000#" size="16#7000#" type="subject_info"/>
  <memory alignment="16#1000#" caching="WB" name="scheduling_info_1" physicalAddress="16#0022_4000#" size="16#1000#" type="kernel"/>
- <!-- TODO: Remove or replace sinfo memory nodes (compatibility mugenspec) -->
  <memory alignment="16#1000#" caching="UC" name="lnx1|sinfo" physicalAddress="16#0024_0000#" size="16#7000#" type="subject_info"/>
  <memory alignment="16#1000#" caching="UC" name="lnx2|sinfo" physicalAddress="16#0024_0000#" size="16#7000#" type="subject_info"/>
  <memory alignment="16#1000#" caching="WB" name="string_reverser|binary" physicalAddress="16#0400_0000#" size="16#0004_0000#" type="subject_binary">
@@ -284,7 +282,6 @@
    <memory logical="interrupt_stack" physical="kernel_interrupt_stack_0" virtualAddress="16#003f_f000#" writable="true" executable="false"/>
    <memory logical="crash_audit" physical="crash_audit" virtualAddress="16#0040_0000#" writable="true" executable="false"/>
    <memory logical="tau0_interface" physical="sys_interface" virtualAddress="16#0040_1000#" writable="false" executable="false"/>
-   <!-- TODO: Remove or replace lnx1| memory nodes (compatibility mugenspec) -->
    <memory logical="lnx1|state" physical="lnx1|state" virtualAddress="16#0040_2000#" writable="true" executable="false"/>
    <memory logical="lnx1|timed_event" physical="lnx1|timed_event" virtualAddress="16#0040_3000#" writable="true" executable="false"/>
    <memory logical="lnx1|sinfo" physical="lnx1|sinfo" virtualAddress="16#0040_4000#" writable="true" executable="false"/>
