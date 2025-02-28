@@ -16,15 +16,6 @@
   <memoryBlock allocatable="true" name="System RAM" physicalAddress="16#0000_0000#" size="16#8000_0000#"/>
  </memory>
  <devices>
-  <device name="ioapic_1">  <!-- TODO: Remove dummy I/O APIC  -->
-   <memory caching="UC" name="mem1" physicalAddress="16#fec0_0000#" size="16#1000#"/>
-   <capabilities>
-    <capability name="ioapic"/>
-    <capability name="gsi_base">0</capability>
-    <capability name="max_redirection_entry">23</capability>
-    <capability name="source_id">16#ff00#</capability>
-   </capabilities>
-  </device>
   <device name="APU_GIC">
    <irq name="sgi_0" number="0"/>
    <irq name="sgi_1" number="1"/>
