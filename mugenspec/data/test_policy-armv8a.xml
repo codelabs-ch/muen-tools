@@ -195,14 +195,6 @@
  <memory alignment="16#1000#" caching="WB" name="lnx1|interrupts" physicalAddress="16#0023_f000#" size="16#1000#" type="kernel"/>
  <!-- TODO: Remove or replace scheduling_info memory nodes (compatibility mugenspec) -->
  <memory alignment="16#1000#" caching="WB" name="scheduling_info_1" physicalAddress="16#0022_4000#" size="16#1000#" type="kernel"/>
- <!-- TODO: Remove or replace VTD root memory node (compatibility mugenspec) -->
- <memory alignment="16#1000#" caching="WB" name="vtd_root_table" physicalAddress="16#0023_a000#" size="16#1000#" type="system_vtd_root">
-  <file filename="vtd_root_table" offset="none"/>
- </memory>
- <!-- TODO: Remove or replace VTD ir memory node (compatibility mugenspec) -->
- <memory alignment="16#1000#" caching="WB" name="vtd_ir_table" physicalAddress="16#0023_b000#" size="16#1000#" type="system_vtd_ir">
-  <file filename="vtd_ir_table" offset="none"/>
- </memory>
  <!-- TODO: Remove or replace sinfo memory nodes (compatibility mugenspec) -->
  <memory alignment="16#1000#" caching="UC" name="lnx1|sinfo" physicalAddress="16#0024_0000#" size="16#7000#" type="subject_info"/>
  <memory alignment="16#1000#" caching="UC" name="lnx2|sinfo" physicalAddress="16#0024_0000#" size="16#7000#" type="subject_info"/>
