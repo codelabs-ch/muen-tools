@@ -318,7 +318,6 @@ is
           (N     => Policy.Doc,
            XPath => "/system/subjects/subject/events/target/event");
 
-      --  Temporary differentiation between x86/64 and ARMv8a.
       Is_ARM_System : constant Boolean
         := Mutools.XML_Utils.Is_Arm64 (Policy => Policy);
 
@@ -599,7 +598,6 @@ is
       Mulog.Log (Msg => "Writing event spec to '"
                  & Output_Dir & "/skp-events.adb'");
 
-      --  Temporary differentiation between x86/64 and ARMv8a.
       if Is_ARM_System then
          Tmpl := Mutools.Templates.Create
            (Content => String_Templates.skp_events_armv8a_ads);
@@ -624,7 +622,6 @@ is
         (Template => Tmpl,
          Filename => Output_Dir & "/skp-events.ads");
 
-      --  Temporary differentiation between x86/64 and ARMv8a.
       if Is_ARM_System then
          Tmpl := Mutools.Templates.Create
            (Content => String_Templates.skp_events_armv8a_adb);
