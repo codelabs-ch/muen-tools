@@ -191,14 +191,33 @@ package body Mucfgcheck.Kernel.Test_Data.Tests is
       Assert (Condition => Validation_Errors.Contains
               (Msg => "Attribute 'virtualAddress => 16#0031_0000#' of "
                & "'kernel_stack_1' kernel stack memory element differs"),
-              Message   => "Exception mismatch (1)");
+              Message   => "Exception mismatch");
+--  begin read only
+   end Test_Stack_Address_Equality;
+--  end read only
 
-      Muxml.Utils.Set_Attribute
-        (Doc   => Data.Doc,
-         XPath => "/system/kernel/memory/cpu/memory"
-         & "[@physical='kernel_stack_1']",
-         Name  => "virtualAddress",
-         Value => "16#0011_3000#");
+
+--  begin read only
+   procedure Test_Interrupt_Stack_Address_Equality (Gnattest_T : in out Test);
+   procedure Test_Interrupt_Stack_Address_Equality_187727 (Gnattest_T : in out Test) renames Test_Interrupt_Stack_Address_Equality;
+--  id:2.2/1877274d2ec371bf/Interrupt_Stack_Address_Equality/1/0/
+   procedure Test_Interrupt_Stack_Address_Equality (Gnattest_T : in out Test) is
+--  end read only
+
+      pragma Unreferenced (Gnattest_T);
+
+      Data : Muxml.XML_Data_Type;
+   begin
+      Muxml.Parse (Data => Data,
+                   Kind => Muxml.Format_B,
+                   File => "data/test_policy.xml");
+
+      --  Positive test, must not raise an exception.
+
+      Interrupt_Stack_Address_Equality (XML_Data => Data);
+      Assert (Condition => Validation_Errors.Is_Empty,
+              Message   => "Unexpected error in positive test");
+
       Muxml.Utils.Set_Attribute
         (Doc   => Data.Doc,
          XPath => "/system/kernel/memory/cpu/memory"
@@ -206,14 +225,14 @@ package body Mucfgcheck.Kernel.Test_Data.Tests is
          Name  => "virtualAddress",
          Value => "16#0051_0000#");
 
-      Stack_Address_Equality (XML_Data => Data);
+      Interrupt_Stack_Address_Equality (XML_Data => Data);
       Assert (Condition => Validation_Errors.Contains
               (Msg => "Attribute 'virtualAddress => 16#0051_0000#' of "
                & "'kernel_interrupt_stack_1' kernel interrupt stack "
                & "memory element differs"),
-              Message   => "Exception mismatch (2)");
+              Message   => "Exception mismatch");
 --  begin read only
-   end Test_Stack_Address_Equality;
+   end Test_Interrupt_Stack_Address_Equality;
 --  end read only
 
 

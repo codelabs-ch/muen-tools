@@ -1,0 +1,19 @@
+set schedule-multiple on
+
+target extended-remote 127.0.0.1:1234
+
+restore kernel.bin-kernel_stack.part.pad binary 0x1a0000
+restore kernel.bin-kernel_global_data.part binary 0x186000
+restore kernel_bss_0.fill binary 0x184000
+restore kernel.bin-kernel_data_0.part binary 0x182000
+restore kernel.bin-kernel_ro.part binary 0x170000
+restore kernel.bin-kernel_text.part binary 0x100000
+
+thread 2
+add-symbol-file kernel.elf 0x100000
+set $pc = 0x100000
+
+thread 1
+add-symbol-file kernel.elf 0x100000
+set $pc = 0x100000
+

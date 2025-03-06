@@ -14,7 +14,7 @@ with System.Assertions;
 --  This section can be used to add with clauses if necessary.
 --
 --  end read only
-
+with Mucfgcheck.Validation_Errors;
 --  begin read only
 --  end read only
 package body Expand.Test_Data.Tests is
@@ -41,6 +41,9 @@ package body Expand.Test_Data.Tests is
       --  Execute run procedure.
       procedure Execute_Run;
 
+      --  Execute run procedure (arm64).
+      procedure Execute_Run_Arm64;
+
       --  Test exception handling by trying to expand an invalid src policy.
       procedure Trigger_Exception;
 
@@ -60,24 +63,65 @@ package body Expand.Test_Data.Tests is
          Assert (Condition => Test_Utils.Equal_Files
                  (Filename1 => Filename,
                   Filename2 => "data/execute_run.xml"),
-                 Message   => "Policy mismatch");
+                 Message   => "Policy mismatch (x86_64)");
 
          Ada.Directories.Delete_File (Name => Filename);
          Assert (Condition => Stage0.Pre_Checks.Get_Count = 0,
-                 Message   => "Pre-checks not zero (stage 0)");
+                 Message   => "Pre-checks not zero (x86_64 stage 0)");
          Assert (Condition => Stage0.Expansion.Get_Count = 0,
-                 Message   => "Expanders not zero (stage 0)");
+                 Message   => "Expanders not zero (x86_64 stage 0)");
          Assert (Condition => Stage1.Pre_Checks.Get_Count = 0,
-                 Message   => "Pre-checks not zero (stage 1)");
+                 Message   => "Pre-checks not zero (x86_64 stage 1)");
          Assert (Condition => Stage1.Expansion.Get_Count = 0,
-                 Message   => "Expanders not zero (stage 1)");
+                 Message   => "Expanders not zero (x86_64 stage 1)");
          Assert (Condition => Stage2.Pre_Checks.Get_Count = 0,
-                 Message   => "Pre-checks not zero (stage 2)");
+                 Message   => "Pre-checks not zero (x86_64 stage 2)");
          Assert (Condition => Stage2.Expansion.Get_Count = 0,
-                 Message   => "Expanders not zero (stage 2)");
+                 Message   => "Expanders not zero (x86_64 stage 2)");
          Assert (Condition => Post_Checks.Get_Count = 0,
-                 Message   => "Post-checks not zero");
+                 Message   => "Post-checks not zero (x86_64)");
+
+         Assert (Condition => Mucfgcheck.Validation_Errors.Is_Empty,
+                 Message   => "Validation errors present (x86_64)");
       end Execute_Run;
+
+      ----------------------------------------------------------------------
+
+      procedure Execute_Run_Arm64
+      is
+         Filename : constant String := "obj/execute_run-arm64.xml";
+         Policy   : Muxml.XML_Data_Type;
+      begin
+         Muxml.Parse (Data => Policy,
+                      Kind => Muxml.Format_Src,
+                      File => "data/test_policy-arm64.xml");
+         Run (Policy      => Policy,
+              Output_File => Filename);
+
+         Assert (Condition => Test_Utils.Equal_Files
+                 (Filename1 => Filename,
+                  Filename2 => "data/execute_run-arm64.xml"),
+                 Message   => "Policy mismatch (arm64)");
+
+         Ada.Directories.Delete_File (Name => Filename);
+         Assert (Condition => Stage0.Pre_Checks.Get_Count = 0,
+                 Message   => "Pre-checks not zero (arm64 stage 0)");
+         Assert (Condition => Stage0.Expansion.Get_Count = 0,
+                 Message   => "Expanders not zero (arm64 stage 0)");
+         Assert (Condition => Stage1.Pre_Checks.Get_Count = 0,
+                 Message   => "Pre-checks not zero (arm64 stage 1)");
+         Assert (Condition => Stage1.Expansion.Get_Count = 0,
+                 Message   => "Expanders not zero (arm64 stage 1)");
+         Assert (Condition => Stage2.Pre_Checks.Get_Count = 0,
+                 Message   => "Pre-checks not zero (arm64 stage 2)");
+         Assert (Condition => Stage2.Expansion.Get_Count = 0,
+                 Message   => "Expanders not zero (arm64 stage 2)");
+         Assert (Condition => Post_Checks.Get_Count = 0,
+                 Message   => "Post-checks not zero (arm64)");
+
+         Assert (Condition => Mucfgcheck.Validation_Errors.Is_Empty,
+                 Message   => "Validation errors present (arm64)");
+      end Execute_Run_Arm64;
 
       ----------------------------------------------------------------------
 
@@ -125,6 +169,8 @@ package body Expand.Test_Data.Tests is
       end Trigger_Exception;
    begin
       Execute_Run;
+      Execute_Run_Arm64;
+
       Trigger_Exception;
 --  begin read only
    end Test_Run;

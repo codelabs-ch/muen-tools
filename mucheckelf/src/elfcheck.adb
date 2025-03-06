@@ -25,6 +25,7 @@ with Muxml;
 with Mulog;
 
 with Mutools.Bfd;
+with Mutools.XML_Utils;
 
 with Bfd.Files;
 with Bfd.Sections;
@@ -44,17 +45,20 @@ is
 
    --  Return section mapping info for section with given name. If no matching
    --  information is found, null is returned.
-   function Get_Mapping (Name : String) return Section_Mapping_Access;
+   function Get_Mapping
+     (Name : String;
+      Arch : Mutools.Types.Arch_Type)
+     return Section_Mapping_Access;
 
    --  Raise exception if not all sections in Section_Map are found.
-   procedure Check_Section_Presence;
+   procedure Check_Section_Presence (Arch : Mutools.Types.Arch_Type);
 
    -------------------------------------------------------------------------
 
-   procedure Check_Section_Presence
+   procedure Check_Section_Presence (Arch : Mutools.Types.Arch_Type)
    is
    begin
-      for M of Section_Map loop
+      for M of Section_Map (Arch) loop
          if not M.Present then
             raise ELF_Error with "Required section '" & S (M.Section_Name)
               & "' not present";
@@ -64,12 +68,15 @@ is
 
    -------------------------------------------------------------------------
 
-   function Get_Mapping (Name : String) return Section_Mapping_Access
+   function Get_Mapping
+     (Name : String;
+      Arch : Mutools.Types.Arch_Type)
+     return Section_Mapping_Access
    is
    begin
-      for I in Section_Map'Range loop
-         if Section_Map (I).Section_Name = Name then
-            return Section_Map (I)'Access;
+      for I in Section_Map (Arch)'Range loop
+         if Section_Map (Arch)(I).Section_Name = Name then
+            return Section_Map (Arch)(I)'Access;
          end if;
       end loop;
 
@@ -85,11 +92,16 @@ is
       Virt_Mem : DOM.Core.Node_List;
       Fd       : Bfd.Files.File_Type;
       Sections : Bfd.Sections.Section_Iterator;
+
+      Arch : Mutools.Types.Arch_Type;
    begin
       Mulog.Log (Msg => "Processing policy '" & Policy_File & "'");
       Muxml.Parse (Data => Policy,
                    Kind => Muxml.Format_B,
                    File => Policy_File);
+
+      Arch := Mutools.XML_Utils.Get_Arch (Policy => Policy);
+      Mulog.Log (Msg => "Architecture: " & Arch'Img);
 
       Phys_Mem := McKae.XML.XPath.XIA.XPath_Query
         (N     => Policy.Doc,
@@ -112,7 +124,8 @@ is
               := Bfd.Sections.Element (Iter => Sections);
             Name    : constant String := Bfd.Sections.Get_Name (S => Section);
             Mapping : constant Section_Mapping_Access
-              := Get_Mapping (Name => Name);
+              := Get_Mapping (Name => Name,
+                              Arch => Arch);
          begin
 
             --  Allow debug sections for now.
@@ -127,7 +140,8 @@ is
                   Virtual_Mem  => Virt_Mem,
                   Region_Name  => S (Mapping.Region_Name),
                   Section      => Section,
-                  Mapped       => Mapping.Mapped);
+                  Mapped       => Mapping.Mapped,
+                  Identity     => Mapping.Identity);
                Mapping.Present := True;
             end if;
          end;
@@ -135,7 +149,7 @@ is
          Bfd.Sections.Next (Iter => Sections);
       end loop;
 
-      Check_Section_Presence;
+      Check_Section_Presence (Arch => Arch);
 
       Bfd_Utils.Check_Entry_Point
         (Address => Interfaces.Unsigned_64

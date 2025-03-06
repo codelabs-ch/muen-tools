@@ -30,6 +30,7 @@ with Muxml.Utils;
 with Mutools.Utils;
 with Mutools.Constants;
 with Mutools.XML_Utils;
+with Mutools.Types;
 with Mucfgcheck.Kernel;
 with Mucfgcheck.Subject;
 
@@ -79,17 +80,19 @@ is
 
       CPU_Count   : constant Positive
         := Mutools.XML_Utils.Get_Active_CPU_Count (Data => Data);
+      Arch        : constant Mutools.Types.Arch_Type
+        := Mutools.XML_Utils.Get_Arch (Policy => Data);
       Data_Addr   : constant String := Mutools.Utils.To_Hex
-        (Number => Config.Kernel_Data_Section_Addr);
+        (Number => Config.Arch_Specific (Arch).Kernel_Data_Section_Addr);
       Data_Size   : constant String := Mutools.Utils.To_Hex
         (Number => Config.Kernel_Data_Section_Size);
       Data_Offset : constant String := Mutools.Utils.To_Hex
-        (Number => Config.Kernel_Data_Section_Addr
+        (Number => Config.Arch_Specific (Arch).Kernel_Data_Section_Addr
          - Config.Kernel_Text_Section_Addr);
       BSS_Addr    : constant String := Mutools.Utils.To_Hex
-        (Number => Config.Kernel_BSS_Section_Addr);
+        (Number => Config.Arch_Specific (Arch).Kernel_BSS_Section_Addr);
       BSS_Size    : constant String := Mutools.Utils.To_Hex
-        (Number => Config.Kernel_BSS_Section_Size);
+        (Number => Config.Arch_Specific (Arch).Kernel_BSS_Section_Size);
    begin
       for I in Natural range 0 .. CPU_Count - 1 loop
          declare
@@ -127,6 +130,10 @@ is
 
    procedure Add_Kernel_PTs (Data : in out Muxml.XML_Data_Type)
    is
+      use type Mutools.Types.Arch_Type;
+
+      Arch      : constant Mutools.Types.Arch_Type
+        := Mutools.XML_Utils.Get_Arch (Policy => Data);
       CPU_Count : constant Positive
         := Mutools.XML_Utils.Get_Active_CPU_Count (Data => Data);
       Physical_Mem : constant DOM.Core.Node_List
@@ -155,7 +162,7 @@ is
               := XML_Utils.Calculate_PT_Size
                 (Policy             => Data,
                  Paging_Levels      => 4,
-                 Large_Pages        => False,
+                 Large_Pages        => Arch = Mutools.Types.Arm64,
                  Physical_Memory    => Physical_Mem,
                  Physical_Devices   => Physical_Devs,
                  Dev_Virt_Mem_XPath => "/system/kernel/devices/device/memory",
@@ -166,15 +173,31 @@ is
          begin
             Mulog.Log (Msg => "Adding pagetable region with size " & Size_Str
                        & " for CPU " & CPU_Str);
-            Mutools.XML_Utils.Add_Memory_Region
-              (Policy       => Data,
-               Name         => "kernel_" & CPU_Str & "|pt",
-               Address      => "",
-               Size         => Size_Str,
-               Caching      => "WB",
-               Alignment    => "16#1000#",
-               Memory_Type  => "system_pt",
-               Fill_Pattern => "16#00#"); --  Force placement in lower memory.
+
+            case Arch
+            is
+               when Mutools.Types.Arm64 =>
+                  Mutools.XML_Utils.Add_Memory_Region
+                    (Policy       => Data,
+                     Name         => "kernel_" & CPU_Str & "|pt",
+                     Address      => "",
+                     Size         => Size_Str,
+                     Caching      => "WB",
+                     Alignment    => "16#1000#",
+                     Memory_Type  => "system_pt",
+                     File_Name    => "kernel_" & CPU_Str & "_pt",
+                     File_Offset  => "none");
+               when Mutools.Types.X86_64 =>
+                  Mutools.XML_Utils.Add_Memory_Region
+                    (Policy       => Data,
+                     Name         => "kernel_" & CPU_Str & "|pt",
+                     Address      => "",
+                     Size         => Size_Str,
+                     Caching      => "WB",
+                     Alignment    => "16#1000#",
+                     Memory_Type  => "system_pt",
+                     Fill_Pattern => "16#00#"); --  Force placement in lower memory.
+            end case;
          end;
       end loop;
    end Add_Kernel_PTs;
@@ -184,6 +207,9 @@ is
    procedure Add_Kernel_Shared_Memory (Data : in out Muxml.XML_Data_Type)
    is
       use type Interfaces.Unsigned_64;
+
+      Arch : constant Mutools.Types.Arch_Type
+        := Mutools.XML_Utils.Get_Arch (Policy => Data);
    begin
       Mulog.Log (Msg => "Adding kernel shared memory regions");
 
@@ -193,7 +219,7 @@ is
          Address     => Mutools.Utils.To_Hex
            (Number => Config.Kernel_Text_Section_Addr),
          Size        => Mutools.Utils.To_Hex
-           (Number => Config.Kernel_Text_Section_Size),
+           (Number => Config.Arch_Specific (Arch).Kernel_Text_Section_Size),
          Caching     => "WB",
          Alignment   => "16#1000#",
          File_Name   => "kernel",
@@ -203,40 +229,81 @@ is
         (Policy      => Data,
          Name        => "kernel_global_data",
          Address     => Mutools.Utils.To_Hex
-           (Number => Config.Kernel_Global_Data_Section_Addr),
+           (Number => Config.Arch_Specific (Arch).Kernel_Global_Data_Section_Addr),
          Size        => Mutools.Utils.To_Hex
-           (Number => Config.Kernel_Global_Data_Section_Size),
+           (Number => Config.Arch_Specific (Arch).Kernel_Global_Data_Section_Size),
          Caching     => "WB",
          Alignment   => "16#1000#",
          File_Name   => "kernel",
          File_Offset => Mutools.Utils.To_Hex
-           (Number => Config.Kernel_Global_Data_Section_Addr
+           (Number => Config.Arch_Specific (Arch).Kernel_Global_Data_Section_Addr
             - Config.Kernel_Text_Section_Addr),
          Memory_Type => "kernel_binary");
       Mutools.XML_Utils.Add_Memory_Region
         (Policy      => Data,
          Name        => "kernel_ro",
          Address     => Mutools.Utils.To_Hex
-           (Number => Config.Kernel_RO_Section_Addr),
+           (Number => Config.Arch_Specific (Arch).Kernel_RO_Section_Addr),
          Size        => Mutools.Utils.To_Hex
-           (Number => Config.Kernel_RO_Section_Size),
+           (Number => Config.Arch_Specific (Arch).Kernel_RO_Section_Size),
          Caching     => "WB",
          Alignment   => "16#1000#",
          File_Name   => "kernel",
          File_Offset => Mutools.Utils.To_Hex
-           (Number => Config.Kernel_RO_Section_Addr
+           (Number => Config.Arch_Specific (Arch).Kernel_RO_Section_Addr
             - Config.Kernel_Text_Section_Addr),
          Memory_Type => "kernel_binary");
    end Add_Kernel_Shared_Memory;
 
    -------------------------------------------------------------------------
 
-   procedure Add_Kernel_Stack (Data : in out Muxml.XML_Data_Type)
+   procedure Add_Kernel_Stack_Arm64 (Data : in out Muxml.XML_Data_Type)
    is
+      use type Interfaces.Unsigned_64;
+
+      Arch       : constant Mutools.Types.Arch_Type
+        := Mutools.XML_Utils.Get_Arch (Policy => Data);
+      CPU_Count  : constant Positive
+        := Mutools.XML_Utils.Get_Active_CPU_Count (Data => Data);
+      Stack_Addr : Interfaces.Unsigned_64
+        := Config.Arch_Specific (Arch).Kernel_Stack_Addr;
+      Stack_Size : constant Interfaces.Unsigned_64
+        := Config.Arch_Specific (Arch).Kernel_Stack_Size;
+   begin
+      Mulog.Log (Msg => "Adding kernel stack memory regions for"
+                 & CPU_Count'Img & " CPU(s)");
+
+      for I in 0 .. CPU_Count - 1 loop
+         declare
+            CPU_Str : constant String := Ada.Strings.Fixed.Trim
+              (Source => I'Img,
+               Side   => Ada.Strings.Left);
+         begin
+            Mutools.XML_Utils.Add_Memory_Region
+              (Policy       => Data,
+               Name         => "kernel_stack_" & CPU_Str,
+               Address      => Mutools.Utils.To_Hex (Number => Stack_Addr),
+               Size         => Mutools.Utils.To_Hex (Number => Stack_Size),
+               Caching      => "WB",
+               Alignment    => "16#1000#",
+               Memory_Type  => "kernel",
+               Fill_Pattern => "16#00#");
+            Stack_Addr := Stack_Addr + Stack_Size;
+         end;
+      end loop;
+   end Add_Kernel_Stack_Arm64;
+
+   -------------------------------------------------------------------------
+
+   procedure Add_Kernel_Stack_X86_64 (Data : in out Muxml.XML_Data_Type)
+   is
+      Arch            : constant Mutools.Types.Arch_Type
+        := Mutools.XML_Utils.Get_Arch (Policy => Data);
       CPU_Count       : constant Positive
         := Mutools.XML_Utils.Get_Active_CPU_Count (Data => Data);
       Stack_Size      : constant String
-        := Mutools.Utils.To_Hex (Number => Config.Kernel_Stack_Size);
+        := Mutools.Utils.To_Hex
+             (Number => Config.Arch_Specific (Arch).Kernel_Stack_Size);
       Intr_Stack_Size : constant String
         := Mutools.Utils.To_Hex (Number => Config.Kernel_Interrupt_Stack_Size);
    begin
@@ -267,7 +334,7 @@ is
                Memory_Type => "kernel");
          end;
       end loop;
-   end Add_Kernel_Stack;
+   end Add_Kernel_Stack_X86_64;
 
    -------------------------------------------------------------------------
 
@@ -580,6 +647,10 @@ is
 
    procedure Add_Subject_PTs (Data : in out Muxml.XML_Data_Type)
    is
+      use type Mutools.Types.Arch_Type;
+
+      Arch  : constant Mutools.Types.Arch_Type
+        := Mutools.XML_Utils.Get_Arch (Policy => Data);
       Nodes : constant DOM.Core.Node_List
         := McKae.XML.XPath.XIA.XPath_Query
           (N     => Data.Doc,
@@ -592,6 +663,8 @@ is
         := McKae.XML.XPath.XIA.XPath_Query
           (N     => Data.Doc,
            XPath => "/system/hardware/devices/device");
+      PT_Levels : constant Natural
+        := (if Arch = Mutools.Types.Arm64 then 3 else 4);
    begin
 
       --  Validate that there are no overlapping subject memory mappings and
@@ -613,8 +686,8 @@ is
             Size      : constant Interfaces.Unsigned_64
               := XML_Utils.Calculate_PT_Size
                 (Policy             => Data,
-                 Paging_Levels      => 4,
-                 Large_Pages        => False,
+                 Paging_Levels      => PT_Levels,
+                 Large_Pages        => Arch = Mutools.Types.Arm64,
                  Physical_Memory    => Physical_Mem,
                  Physical_Devices   => Physical_Devs,
                  Dev_Virt_Mem_XPath => "/system/subjects/subject[@name='"
@@ -626,15 +699,30 @@ is
          begin
             Mulog.Log (Msg => "Adding pagetable region with size " & Size_Str
                        & " for subject '" & Subj_Name & "'");
-            Mutools.XML_Utils.Add_Memory_Region
-              (Policy       => Data,
-               Name         => Subj_Name & "|pt",
-               Address      => "",
-               Size         => Size_Str,
-               Caching      => "WB",
-               Alignment    => "16#1000#",
-               Memory_Type  => "system_pt",
-               Fill_Pattern => "16#00#"); --  Force placement in lower memory.
+            case Arch
+            is
+               when Mutools.Types.Arm64 =>
+                  Mutools.XML_Utils.Add_Memory_Region
+                    (Policy      => Data,
+                     Name        => Subj_Name & "|pt",
+                     Address     => "",
+                     Size        => Size_Str,
+                     Caching     => "WB",
+                     Alignment   => "16#1000#",
+                     Memory_Type => "system_pt",
+                     File_Name   => Subj_Name & "_pt",
+                     File_Offset => "none");
+               when Mutools.Types.X86_64 =>
+                  Mutools.XML_Utils.Add_Memory_Region
+                    (Policy       => Data,
+                     Name         => Subj_Name & "|pt",
+                     Address      => "",
+                     Size         => Size_Str,
+                     Caching      => "WB",
+                     Alignment    => "16#1000#",
+                     Memory_Type  => "system_pt",
+                     Fill_Pattern => "16#00#"); --  Force placement in lower memory.
+            end case;
          end;
       end loop;
    end Add_Subject_PTs;

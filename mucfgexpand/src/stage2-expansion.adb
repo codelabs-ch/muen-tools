@@ -42,9 +42,10 @@ is
 
    -------------------------------------------------------------------------
 
-   procedure Register_All
+   procedure Register (Arch : Mutools.Types.Arch_Type)
    is
       use Expanders;
+      use type Mutools.Types.Arch_Type;
    begin
       Procs.Register (Process => Hardware.Add_PCI_Device_MSI_IRQs'Access);
 
@@ -76,23 +77,37 @@ is
       Procs.Register (Process => Memory.Add_Missing_Attributes'Access);
       Procs.Register (Process => Memory.Add_Kernel_Shared_Memory'Access);
       Procs.Register (Process => Memory.Add_Kernel_CPU_Local_Memory'Access);
-      Procs.Register (Process => Memory.Add_Kernel_Stack'Access);
+
+      if Arch = Mutools.Types.X86_64 then
+         Procs.Register (Process => Memory.Add_Kernel_Stack_X86_64'Access);
+      else
+         Procs.Register (Process => Memory.Add_Kernel_Stack_Arm64'Access);
+      end if;
+
       Procs.Register (Process => Memory.Add_Subject_States'Access);
       Procs.Register (Process => Memory.Add_Subject_Timed_Event_Pages'Access);
       Procs.Register (Process => Memory.Add_Subject_Interrupts_Pages'Access);
       Procs.Register (Process => Memory.Add_Subject_FPU_State_Regions'Access);
       Procs.Register (Process => Memory.Add_Tau0_Interface'Access);
-      Procs.Register (Process => Memory.Add_AP_Trampoline'Access);
-      Procs.Register (Process => Memory.Add_VMXON_Regions'Access);
-      Procs.Register (Process => Memory.Add_VMCS_Regions'Access);
-      Procs.Register (Process => Memory.Add_Subject_Bitmaps'Access);
+
+      if Arch = Mutools.Types.X86_64 then
+         Procs.Register (Process => Memory.Add_AP_Trampoline'Access);
+         Procs.Register (Process => Memory.Add_VMXON_Regions'Access);
+         Procs.Register (Process => Memory.Add_VMCS_Regions'Access);
+         Procs.Register (Process => Memory.Add_Subject_Bitmaps'Access);
+      end if;
+
       Procs.Register (Process => Memory.Add_Scheduling_Info_Regions'Access);
       Procs.Register (Process => Kernel.Add_Section_Skeleton'Access);
       Procs.Register (Process => Kernel.Add_Binary_Mappings'Access);
       Procs.Register (Process => Kernel.Add_Subj_State_Mappings'Access);
       Procs.Register (Process => Kernel.Add_Subj_Timed_Event_Mappings'Access);
       Procs.Register (Process => Kernel.Add_Subj_Interrupts_Mappings'Access);
-      Procs.Register (Process => Kernel.Add_Subj_VMCS_Mappings'Access);
+
+      if Arch = Mutools.Types.X86_64 then
+         Procs.Register (Process => Kernel.Add_Subj_VMCS_Mappings'Access);
+      end if;
+
       Procs.Register (Process => Kernel.Add_Subj_FPU_State_Mappings'Access);
       Procs.Register (Process => Kernel.Add_Scheduling_Info_Mappings'Access);
       Procs.Register (Process => Kernel.Add_Crash_Audit_Mappings'Access);
@@ -156,8 +171,10 @@ is
 
       --  Subject profiles must be expanded since they may add MSR registers.
 
-      Procs.Register (Process => Memory.Add_Subject_MSR_Store'Access);
-      Procs.Register (Process => Kernel.Add_Subj_MSR_Store_Mappings'Access);
+      if Arch = Mutools.Types.X86_64 then
+         Procs.Register (Process => Memory.Add_Subject_MSR_Store'Access);
+         Procs.Register (Process => Kernel.Add_Subj_MSR_Store_Mappings'Access);
+      end if;
 
       --  All kernel/subject memory regions and mappings must exist and specify
       --  an alignment to add PTs.
@@ -176,7 +193,11 @@ is
 
       --  RMRR mappings must be added before the VT-d tables.
 
-      Procs.Register (Process => Device_Domains.Add_Tables'Access);
+      if Arch = Mutools.Types.X86_64 then
+         Procs.Register (Process => Device_Domains.Add_VTD_Tables'Access);
+      else
+         Procs.Register (Process => Device_Domains.Add_SMMU_Tables'Access);
+      end if;
 
       --  Device domains are allowed in a configuration where the IOMMU is
       --  disabled. This can be useful to quickly perform tests without
@@ -188,7 +209,7 @@ is
 
       Procs.Register
         (Process => Hardware.Remove_Reserved_Mem_References'Access);
-   end Register_All;
+   end Register;
 
    -------------------------------------------------------------------------
 

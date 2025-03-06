@@ -24,6 +24,9 @@ with DOM.Core;
 
 with Muxml;
 with Mutools.Strings;
+with Mutools.Types;
+
+private with Mutools.System_Config;
 
 package Mutools.XML_Utils
 is
@@ -133,6 +136,16 @@ is
       Physical_Memory : DOM.Core.Node_List;
       Logical_Memory  : DOM.Core.Node_List)
       return DOM.Core.Node;
+
+   --  Determines the start address and total size in the given virtual memory
+   --  mappings for all references to the given physical memory mappings (e.g.
+   --  initramfs nodes). If no mapped regions are found, zero values are
+   --  returned.
+   procedure Get_Addr_And_Size
+     (Virtual_Mappings :     DOM.Core.Node_List;
+      Physical_Memory  :     DOM.Core.Node_List;
+      Virtual_Address  : out Interfaces.Unsigned_64;
+      Size             : out Interfaces.Unsigned_64);
 
    --  Returns True if the given VMX controls specify that the DEBUGCTL MSR is
    --  saved/loaded automatically on VM-exits and entries.
@@ -334,5 +347,21 @@ is
 
    APIC_ID_Not_Found : exception;
    IOAPIC_Not_Found  : exception;
+
+   --  Returns True if given policy specifies an Arm64 system.
+   function Is_Arm64 (Policy : Muxml.XML_Data_Type) return Boolean;
+
+   --  Return architecture for given policy.
+   function Get_Arch (Policy : Muxml.XML_Data_Type) return Types.Arch_Type;
+
+private
+
+   function Get_Arch (Policy : Muxml.XML_Data_Type) return Types.Arch_Type
+   is (if Mutools.XML_Utils.Is_Arm64
+         (Policy => Policy) then Types.Arm64 else Types.X86_64);
+
+   function Is_Arm64 (Policy : Muxml.XML_Data_Type) return Boolean is
+     (System_Config.Has_Boolean (Data => Policy, Name => "armv8")
+      and then System_Config.Get_Value (Data => Policy, Name => "armv8"));
 
 end Mutools.XML_Utils;

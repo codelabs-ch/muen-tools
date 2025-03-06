@@ -28,6 +28,7 @@ with McKae.XML.XPath.XIA;
 with Mulog;
 with Muxml.Utils;
 with Mutools.Templates;
+with Mutools.XML_Utils;
 
 with String_Templates;
 
@@ -185,7 +186,9 @@ is
                  & Output_Dir & "/skp-hardware.ads'");
 
       Tmpl := Mutools.Templates.Create
-        (Content => String_Templates.skp_hardware_ads);
+        (Content => (if Mutools.XML_Utils.Is_Arm64 (Policy => Policy)
+                     then String_Templates.skp_hardware_armv8a_ads
+                     else String_Templates.skp_hardware_x86_64_ads));
 
       Write_Device_Resources;
 

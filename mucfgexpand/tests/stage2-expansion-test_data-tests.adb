@@ -30,31 +30,31 @@ package body Stage2.Expansion.Test_Data.Tests is
 --  end read only
 
 --  begin read only
-   procedure Test_Register_All (Gnattest_T : in out Test);
-   procedure Test_Register_All_3f90ea (Gnattest_T : in out Test) renames Test_Register_All;
---  id:2.2/3f90ea30314141bf/Register_All/1/0/
-   procedure Test_Register_All (Gnattest_T : in out Test) is
+   procedure Test_Register (Gnattest_T : in out Test);
+   procedure Test_Register_7e46be (Gnattest_T : in out Test) renames Test_Register;
+--  id:2.2/7e46be5d3e170f65/Register/1/0/
+   procedure Test_Register (Gnattest_T : in out Test) is
 --  end read only
 
       pragma Unreferenced (Gnattest_T);
-
-      Policy : Muxml.XML_Data_Type;
-   begin
-      Muxml.Parse (Data => Policy,
-                   Kind => Muxml.Format_Src,
-                   File => "data/test_policy.xml");
-
-      Register_All;
+ 
+    begin
+      Register (Arch => Mutools.Types.X86_64);
       Assert (Condition => Procs.Get_Count = 68,
-              Message   => "Count mismatch(1):" & Get_Count'Img);
+              Message   => "Count mismatch(X86_64):" & Get_Count'Img);
       Procs.Clear;
 
+      Register (Arch => Mutools.Types.Arm64);
+      Assert (Condition => Procs.Get_Count = 61,
+              Message   => "Count mismatch(Arm64):" & Get_Count'Img);
+      Procs.Clear;
+ 
    exception
       when others =>
          Procs.Clear;
          raise;
 --  begin read only
-   end Test_Register_All;
+   end Test_Register;
 --  end read only
 
 

@@ -22,6 +22,7 @@ with Ada.Strings.Unbounded;
 with Interfaces;
 
 with DOM.Core.Elements;
+with DOM.Core.Nodes;
 
 with McKae.XML.XPath.XIA;
 
@@ -151,6 +152,316 @@ is
    -------------------------------------------------------------------------
 
    procedure Write
+     (Output_Dir : String;
+      Policy     : Muxml.XML_Data_Type)
+   is
+   begin
+      if Mutools.XML_Utils.Is_Arm64 (Policy => Policy) then
+         Write_ARMv8a (Output_Dir => Output_Dir,
+                       Policy     => Policy);
+      else
+         Write_X86_64 (Output_Dir => Output_Dir,
+                       Policy     => Policy);
+      end if;
+   end Write;
+
+   -------------------------------------------------------------------------
+
+   procedure Write_ARMv8a
+     (Output_Dir : String;
+      Policy     : Muxml.XML_Data_Type)
+   is
+      Phys_Memory : constant DOM.Core.Node_List
+        := McKae.XML.XPath.XIA.XPath_Query
+          (N     => Policy.Doc,
+           XPath => "/system/memory/memory");
+
+      Tau0_Iface_Addr : constant Unsigned_64 := Unsigned_64'Value
+        (Muxml.Utils.Get_Attribute
+           (Doc   => Policy.Doc,
+            XPath => "/system/kernel/memory/cpu/"
+            & "memory[@logical='tau0_interface']",
+            Name  => "virtualAddress"));
+
+      --  Write ASM specification for kernel to specified output directory.
+      procedure Write_Kernel_ASM
+        (Output_Dir : String;
+         Policy     : Muxml.XML_Data_Type);
+
+      --  Write SPARK specification for kernel to specified output directory.
+      procedure Write_Kernel_Spec
+        (Output_Dir : String;
+         Policy     : Muxml.XML_Data_Type);
+
+      ----------------------------------------------------------------------
+
+      procedure Write_Kernel_ASM
+        (Output_Dir : String;
+         Policy     : Muxml.XML_Data_Type)
+      is
+
+         function U
+           (Source : String)
+            return Unbounded_String
+            renames To_Unbounded_String;
+
+         --  (1) get number of cores
+         CPU_Count  : constant Positive
+           := Mutools.XML_Utils.Get_Active_CPU_Count (Data => Policy);
+
+         --  (2) extract all physical memory nodes
+         Physical_Memory : constant DOM.Core.Node_List
+           := McKae.XML.XPath.XIA.XPath_Query
+             (N     => Policy.Doc,
+              XPath => "/system/memory/memory");
+
+         --  (3) extract all physical devices with GIC capability
+         Physical_GIC_Devs : constant DOM.Core.Node_List
+           := McKae.XML.XPath.XIA.XPath_Query
+             (N     => Policy.Doc,
+              XPath => "/system/hardware/devices/device" &
+                "[capabilities/capability/@name='gic']");
+
+         --  (4) extract all physical devices with SMMU (i.c. iommu) capability
+         Physical_SMMU_Devs : constant DOM.Core.Node_List
+           := McKae.XML.XPath.XIA.XPath_Query
+             (N     => Policy.Doc,
+              XPath => "/system/hardware/devices/device" &
+                "[capabilities/capability/@name='iommu']");
+
+         TT_Addr_Str : Unbounded_String;
+         Tmpl        : Mutools.Templates.Template_Type;
+      begin
+         Mulog.Log (Msg => "Writing kernel header file to '"
+                    & Output_Dir & "/policy.S'");
+
+         Tmpl := Mutools.Templates.Create
+           (Content => String_Templates.policy_S);
+         Mutools.Templates.Replace
+           (Template => Tmpl,
+            Pattern  => "__kernel_cluster_count__",
+            Content  => "    .quad    0x1");
+         Mutools.Templates.Replace
+           (Template => Tmpl,
+            Pattern  => "__kernel_cpu_count__",
+            Content  => "    .quad    0x" & Mutools.Utils.To_Hex
+              (Number    => Unsigned_64 (CPU_Count),
+               Normalize => False));
+
+         for I in 0 .. (CPU_Count - 1) loop
+            declare
+               CPU_Str : constant String := Ada.Strings.Fixed.Trim
+                 (Source => I'Img,
+                  Side   => Ada.Strings.Left);
+               TT_Addr : constant Unsigned_64 := Unsigned_64'Value
+                 (Muxml.Utils.Get_Attribute
+                    (Nodes     => Physical_Memory,
+                     Refs      => ((Name  => U ("type"),
+                                    Value => U ("system_pt")),
+                                   (Name  => U ("name"),
+                                    Value => U ("kernel_" & CPU_Str & "|pt"))),
+                     Attr_Name => "physicalAddress"));
+            begin
+               TT_Addr_Str := TT_Addr_Str & "    .quad    0x" &
+                 Mutools.Utils.To_Hex (Number    => TT_Addr,
+                                       Normalize => False);
+               if I < (CPU_Count - 1) then
+                  TT_Addr_Str := TT_Addr_Str & ASCII.LF;
+               end if;
+            end;
+         end loop;
+
+         Mutools.Templates.Replace
+           (Template => Tmpl,
+            Pattern  => "__kernel_translation_tables__",
+            Content  => To_String (TT_Addr_Str));
+
+         --  Note: currently only one GIC-400 supported.
+         if DOM.Core.Nodes.Length (Physical_GIC_Devs) = 1 then
+            declare
+               --  (a) extract GIC device memory nodes
+               Physical_GIC_Dev : constant DOM.Core.Node
+                 := DOM.Core.Nodes.Item (List  => Physical_GIC_Devs,
+                                         Index => 0);
+               GIC_Memory_Nodes : constant DOM.Core.Node_List
+                 := McKae.XML.XPath.XIA.XPath_Query
+                   (N     => Physical_GIC_Dev,
+                    XPath => "memory");
+
+               --  (b) get distributor and CPU interface physical addresses
+               GICD_Address : constant Unsigned_64 := Unsigned_64'Value
+                 (Muxml.Utils.Get_Attribute
+                    (Nodes     => GIC_Memory_Nodes,
+                     Ref_Attr  => "name",
+                     Ref_Value => "GICD",
+                     Attr_Name => "physicalAddress"));
+               GICC_Address : constant Unsigned_64 := Unsigned_64'Value
+                 (Muxml.Utils.Get_Attribute
+                    (Nodes     => GIC_Memory_Nodes,
+                     Ref_Attr  => "name",
+                     Ref_Value => "GICC",
+                     Attr_Name => "physicalAddress"));
+            begin
+               Mutools.Templates.Replace
+                 (Template => Tmpl,
+                  Pattern  => "__gic_physical_addresses__",
+                  Content  => "    .quad    0x" &
+                    Mutools.Utils.To_Hex (Number    => GICD_Address,
+                                          Normalize => False) &
+                    ASCII.LF & "    .quad    0x" &
+                    Mutools.Utils.To_Hex (Number    => GICC_Address,
+                                          Normalize => False));
+            end;
+         end if;
+
+         --  Note: currently only one SMMU-500 supported.
+         if DOM.Core.Nodes.Length (Physical_SMMU_Devs) = 1 then
+            declare
+               --  (1) extract SMMU device memory nodes
+               Physical_SMMU_Dev : constant DOM.Core.Node
+                 := DOM.Core.Nodes.Item (List  => Physical_SMMU_Devs,
+                                         Index => 0);
+               SMMU_Memory_Nodes : constant DOM.Core.Node_List
+                 := McKae.XML.XPath.XIA.XPath_Query
+                   (N     => Physical_SMMU_Dev,
+                    XPath => "memory");
+
+               --  (b) get SMMU base address
+               SMMU_Address : constant Unsigned_64 := Unsigned_64'Value
+                 (Muxml.Utils.Get_Attribute
+                    (Nodes     => SMMU_Memory_Nodes,
+                     Ref_Attr  => "name",
+                     Ref_Value => "controller",
+                     Attr_Name => "physicalAddress"));
+            begin
+               Mutools.Templates.Replace
+                 (Template => Tmpl,
+                  Pattern  => "__smmu_physical_address__",
+                  Content  => "    .quad    0x" &
+                    Mutools.Utils.To_Hex (Number    => SMMU_Address,
+                                          Normalize => False));
+            end;
+         end if;
+
+         declare
+            --  Note: For the ARM64 boot process the global all barrier
+            --  Sense_Barrier_Type as defined by the kernel implementation
+            --  has to be initialised manually at compile time. The Size
+            --  field at bit offset 0 .. 7 is thus set to the number of
+            --  configured CPU cores.
+            Barrier_Value : constant Unsigned_64
+              := Unsigned_64 (CPU_Count);
+         begin
+            Mutools.Templates.Replace
+              (Template => Tmpl,
+               Pattern  => "__global_all_barrier__",
+               Content  => "    .quad    0x" &
+                 Mutools.Utils.To_Hex (Number    => Barrier_Value,
+                                       Normalize => False));
+         end;
+
+         Mutools. Templates.Write
+           (Template => Tmpl,
+            Filename => Output_Dir & "/policy.S");
+      end Write_Kernel_ASM;
+
+      ----------------------------------------------------------------------
+
+      procedure Write_Kernel_Spec
+        (Output_Dir : String;
+         Policy     : Muxml.XML_Data_Type)
+      is
+         First_Subject_Name : constant String
+           := Muxml.Utils.Get_Attribute
+             (Doc   =>  Policy.Doc,
+              XPath => "/system/subjects/subject[@globalId='0']",
+               Name  => "name");
+         Subj_States_Addr : constant Unsigned_64 := Unsigned_64'Value
+           (Muxml.Utils.Get_Attribute
+              (Doc   => Policy.Doc,
+               XPath => "/system/kernel/memory/cpu/"
+               & "memory[@logical='" & First_Subject_Name & "|state']",
+               Name  => "virtualAddress"));
+         Subj_Timed_Events_Addr : constant Unsigned_64 := Unsigned_64'Value
+           (Muxml.Utils.Get_Attribute
+              (Doc   => Policy.Doc,
+               XPath => "/system/kernel/memory/cpu/"
+               & "memory[@logical='" & First_Subject_Name & "|timed_event']",
+               Name  => "virtualAddress"));
+         Sched_Info_Addr : constant Unsigned_64 := Unsigned_64'Value
+           (Muxml.Utils.Get_Attribute
+              (Doc   => Policy.Doc,
+               XPath => "/system/kernel/memory/cpu/"
+               & "memory[@logical='scheduling_info_1']",
+               Name  => "virtualAddress"));
+
+         Crash_Audit_Node : constant DOM.Core.Node
+           := Muxml.Utils.Get_Element
+             (Doc   => Policy.Doc,
+              XPath => "/system/kernel/memory/cpu[@id='0']/"
+              & "memory[@logical='crash_audit']");
+         Crash_Audit_Ref : constant String
+           := DOM.Core.Elements.Get_Attribute
+             (Elem => Crash_Audit_Node,
+              Name => "physical");
+         Crash_Audit_Size : constant String
+           := Muxml.Utils.Get_Attribute
+             (Nodes     => Phys_Memory,
+              Ref_Attr  => "name",
+              Ref_Value => Crash_Audit_Ref,
+              Attr_Name => "size");
+         Crash_Audit_Addr : constant String
+           := DOM.Core.Elements.Get_Attribute
+             (Elem => Crash_Audit_Node,
+              Name => "virtualAddress");
+
+         Tmpl : Mutools.Templates.Template_Type;
+      begin
+         Mulog.Log (Msg => "Writing kernel spec to '"
+                    & Output_Dir & "/skp-kernel.ads'");
+
+         Tmpl := Mutools.Templates.Create
+           (Content => String_Templates.skp_kernel_armv8a_ads);
+         Mutools.Templates.Replace
+           (Template => Tmpl,
+            Pattern  => "__tau0_iface_addr__",
+            Content  => Mutools.Utils.To_Hex (Number => Tau0_Iface_Addr));
+         Mutools.Templates.Replace
+           (Template => Tmpl,
+            Pattern  => "__subj_states_addr__",
+            Content  => Mutools.Utils.To_Hex (Number => Subj_States_Addr));
+         Mutools.Templates.Replace
+           (Template => Tmpl,
+            Pattern  => "__subj_timed_events_addr__",
+            Content  => Mutools.Utils.To_Hex
+              (Number => Subj_Timed_Events_Addr));
+         Mutools.Templates.Replace
+           (Template => Tmpl,
+            Pattern  => "__sched_info_addr__",
+            Content  => Mutools.Utils.To_Hex (Number => Sched_Info_Addr));
+         Mutools.Templates.Replace
+           (Template => Tmpl,
+            Pattern  => "__crash_audit_addr__",
+            Content  => Crash_Audit_Addr);
+         Mutools.Templates.Replace
+           (Template => Tmpl,
+            Pattern  => "__crash_audit_size__",
+            Content  => Crash_Audit_Size);
+
+         Mutools.Templates.Write
+           (Template => Tmpl,
+            Filename => Output_Dir & "/skp-kernel.ads");
+      end Write_Kernel_Spec;
+   begin
+      Write_Kernel_Spec (Output_Dir => Output_Dir,
+                         Policy     => Policy);
+      Write_Kernel_ASM (Output_Dir => Output_Dir,
+                        Policy     => Policy);
+   end Write_ARMv8a;
+
+   -------------------------------------------------------------------------
+
+   procedure Write_X86_64
      (Output_Dir : String;
       Policy     : Muxml.XML_Data_Type)
    is
@@ -371,7 +682,7 @@ is
                     & Output_Dir & "/skp-kernel.ads'");
 
          Tmpl := Mutools.Templates.Create
-           (Content => String_Templates.skp_kernel_ads);
+           (Content => String_Templates.skp_kernel_x86_64_ads);
          Mutools.Templates.Replace
            (Template => Tmpl,
             Pattern  => "__stack_addr__",
@@ -438,6 +749,6 @@ is
                          Policy     => Policy);
       Write_Kernel_Header (Output_Dir => Output_Dir,
                            Policy     => Policy);
-   end Write;
+   end Write_X86_64;
 
 end Spec.Skp_Kernel_Policy_H;

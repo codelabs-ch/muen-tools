@@ -236,6 +236,9 @@ package body Expanders.Kernel.Test_Data.Tests is
       pragma Unreferenced (Gnattest_T);
 
    begin
+
+      --  x86_64.
+
       Test_Utils.Expander.Run_Test
         (Filename => "obj/kernel_devices.xml",
          Ref_Diff => "data/kernel_devices.xml.diff",
@@ -247,6 +250,15 @@ package body Expanders.Kernel.Test_Data.Tests is
          Ref_Diff => "data/kernel_devices_vga.xml.diff",
          Pre      => Pre_Vga_Diagnostics'Access,
          Expander => Add_Devices'Access);
+
+      --  arm64.
+
+      Test_Utils.Expander.Run_Test
+        (Policy_Filename => "data/test_policy-arm64.xml",
+         Filename        => "obj/kernel_devices-arm64.xml",
+         Ref_Diff        => "data/kernel_devices-arm64.xml.diff",
+         Pre             => Add_Section_Skeleton'Access,
+         Expander        => Add_Devices'Access);
 --  begin read only
    end Test_Add_Devices;
 --  end read only

@@ -49,7 +49,7 @@ is
 
    -------------------------------------------------------------------------
 
-   procedure Register_All
+   procedure Register_Common
    is
       use Cfgchecks;
    begin
@@ -57,8 +57,6 @@ is
         (Process => MC.Memory.Physical_Memory_References'Access);
       Check_Procs.Register
         (Process => MC.Memory.Uncached_Crash_Audit_Presence'Access);
-      Check_Procs.Register
-        (Process => MC.Memory.Microcode_Region_Count'Access);
       Check_Procs.Register
         (Process => MC.Device.Device_Reference_Uniqueness'Access);
       Check_Procs.Register
@@ -71,8 +69,6 @@ is
         (Process => MC.Hardware.PCI_Config_Space'Access);
       Check_Procs.Register
         (Process => MC.Hardware.CPU_Sub_Elements'Access);
-      Check_Procs.Register
-        (Process => MC.Hardware.System_Board_Presence'Access);
       Check_Procs.Register
         (Process => MC.Events.Physical_Event_Name_Uniqueness'Access);
       Check_Procs.Register
@@ -108,8 +104,6 @@ is
       Check_Procs.Register
         (Process => Domain_Map_Subject_Memory_References'Access);
       Check_Procs.Register
-        (Process => MC.Hardware.IOAPIC_Presence'Access);
-      Check_Procs.Register
         (Process => MC.Platform.Kernel_Diagnostics_Device_Reference'Access);
       Check_Procs.Register
         (Process => MC.Platform.Kernel_Diagnostics_Type_Resources'Access);
@@ -120,9 +114,22 @@ is
 
       Check_Procs.Register
         (Process => MC.Hardware.IOMMU_Presence'Access);
+   end Register_Common;
+
+   -------------------------------------------------------------------------
+
+   procedure Register_X86_64
+   is
+   begin
+      Check_Procs.Register
+        (Process => MC.Memory.Microcode_Region_Count'Access);
+      Check_Procs.Register
+        (Process => MC.Hardware.System_Board_Presence'Access);
+      Check_Procs.Register
+        (Process => MC.Hardware.IOAPIC_Presence'Access);
       Check_Procs.Register
         (Process => MC.Device.IOMMU_Region_Size'Access);
-   end Register_All;
+   end Register_X86_64;
 
    -------------------------------------------------------------------------
 

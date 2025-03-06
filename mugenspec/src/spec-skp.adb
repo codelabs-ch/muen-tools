@@ -98,6 +98,58 @@ is
      (Output_Dir : String;
       Policy     : Muxml.XML_Data_Type)
    is
+   begin
+      if Mutools.XML_Utils.Is_Arm64 (Policy => Policy) then
+         Write_ARMv8a (Output_Dir => Output_Dir,
+                       Policy     => Policy);
+      else
+         Write_X86_64 (Output_Dir => Output_Dir,
+                       Policy     => Policy);
+      end if;
+   end Write;
+
+   -------------------------------------------------------------------------
+
+   procedure Write_ARMv8a
+     (Output_Dir : String;
+      Policy     : Muxml.XML_Data_Type)
+   is
+      S_Count   : constant Natural := DOM.Core.Nodes.Length
+        (List => McKae.XML.XPath.XIA.XPath_Query
+           (N     => Policy.Doc,
+            XPath => "/system/subjects/subject"));
+      CPU_Count : constant Natural
+        := Mutools.XML_Utils.Get_Active_CPU_Count (Data => Policy);
+
+      Tmpl : Mutools.Templates.Template_Type;
+   begin
+      Mulog.Log (Msg => "Writing system spec to '" & Output_Dir & "/skp.ads'");
+
+      Tmpl := Mutools.Templates.Create
+        (Content => String_Templates.skp_armv8a_ads);
+
+      Mutools.Templates.Replace
+        (Template => Tmpl,
+         Pattern  => "__cpu_count__",
+         Content  => Ada.Strings.Fixed.Trim
+           (Source => CPU_Count'Img,
+            Side   => Ada.Strings.Left));
+      Mutools.Templates.Replace
+        (Template => Tmpl,
+         Pattern  => "__subj_range__",
+         Content  => "0 .."  & Positive'Image (S_Count - 1));
+
+      Mutools.Templates.Write
+        (Template => Tmpl,
+         Filename => Output_Dir & "/skp.ads");
+   end Write_ARMv8a;
+
+   -------------------------------------------------------------------------
+
+   procedure Write_X86_64
+     (Output_Dir : String;
+      Policy     : Muxml.XML_Data_Type)
+   is
       use Ada.Strings.Unbounded;
       use Interfaces;
 
@@ -124,7 +176,8 @@ is
    begin
       Mulog.Log (Msg => "Writing system spec to '" & Output_Dir & "/skp.ads'");
 
-      Tmpl := Mutools.Templates.Create (Content => String_Templates.skp_ads);
+      Tmpl := Mutools.Templates.Create
+        (Content => String_Templates.skp_x86_64_ads);
       Mutools.Templates.Replace
         (Template => Tmpl,
          Pattern  => "__cpu_count__",
@@ -156,6 +209,6 @@ is
       Mutools.Templates.Write
         (Template => Tmpl,
          Filename => Output_Dir & "/skp.ads");
-   end Write;
+   end Write_X86_64;
 
 end Spec.Skp;

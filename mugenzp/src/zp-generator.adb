@@ -31,7 +31,6 @@ with Mulog;
 with Muxml.Utils;
 with Mutools.Files;
 with Mutools.Utils;
-with Mutools.Match;
 with Mutools.XML_Utils;
 
 with bootparam_h;
@@ -74,14 +73,6 @@ is
       Ramdisk_Size     : Interfaces.Unsigned_64;
       Subject_Memory   : DOM.Core.Node_List);
 
-   --  Find initramfs start address and total size in given subject memory
-   --  mappings. If no initramfs region is found, zero values are returned.
-   procedure Get_Initramfs_Addr_And_Size
-     (Subj_Mappings  :     DOM.Core.Node_List;
-      Phys_Initramfs :     DOM.Core.Node_List;
-      Virt_Addr      : out Interfaces.Unsigned_64;
-      Size           : out Interfaces.Unsigned_64);
-
    --  Returns the size of memory from the kernel load address to the end of
    --  the enclosing memory region. If the kernel load memory region is larger
    --  than 32-bit it is clamped down to Unsigned_32'Last minus kernel load
@@ -96,52 +87,6 @@ is
          Get_Kernel_Load_Region_Size'Result + Kernel_Load_Addr
            + Boot_Init_Pgt_Size
            <= Interfaces.Unsigned_64 (Interfaces.Unsigned_32'Last);
-
-   -------------------------------------------------------------------------
-
-   procedure Get_Initramfs_Addr_And_Size
-     (Subj_Mappings  :     DOM.Core.Node_List;
-      Phys_Initramfs :     DOM.Core.Node_List;
-      Virt_Addr      : out Interfaces.Unsigned_64;
-      Size           : out Interfaces.Unsigned_64)
-   is
-      --  Get size value of given node.
-      function Get_Size (Node : DOM.Core.Node) return String;
-
-      ----------------------------------------------------------------------
-
-      function Get_Size (Node : DOM.Core.Node) return String
-      is
-      begin
-         return DOM.Core.Elements.Get_Attribute
-           (Elem => Node,
-            Name => "size");
-      end Get_Size;
-
-      Pairs       : Muxml.Utils.Matching_Pairs_Type;
-      Unused_Addr : Interfaces.Unsigned_64;
-   begin
-      Virt_Addr := 0;
-      Size      := 0;
-
-      Pairs := Muxml.Utils.Get_Matching
-        (Left_Nodes     => Subj_Mappings,
-         Right_Nodes    => Phys_Initramfs,
-         Match_Multiple => True,
-         Match          => Mutools.Match.Is_Valid_Reference'Access);
-
-      if DOM.Core.Nodes.Length (List => Pairs.Left) > 0 then
-         Muxml.Utils.Get_Bounds (Nodes     => Pairs.Left,
-                                 Attr_Name => "virtualAddress",
-                                 Lower     => Virt_Addr,
-                                 Upper     => Unused_Addr);
-         Mutools.XML_Utils.Set_Memory_Size
-           (Virtual_Mem_Nodes => Pairs.Left,
-            Ref_Nodes         => Pairs.Right);
-         Size := Muxml.Utils.Sum (Nodes  => Pairs.Left,
-                                  Getter => Get_Size'Access);
-      end if;
-   end Get_Initramfs_Addr_And_Size;
 
    -------------------------------------------------------------------------
 
@@ -270,11 +215,11 @@ is
             Mulog.Log (Msg => "Init size "
                        & Mutools.Utils.To_Hex (Number => Init_Size));
 
-            Get_Initramfs_Addr_And_Size
-              (Subj_Mappings  => Subj_Memory,
-               Phys_Initramfs => Phys_Initrd_Mem,
-               Virt_Addr      => Initramfs_Address,
-               Size           => Initramfs_Size);
+            Mutools.XML_Utils.Get_Addr_And_Size
+              (Virtual_Mappings => Subj_Memory,
+               Physical_Memory  => Phys_Initrd_Mem,
+               Virtual_Address  => Initramfs_Address,
+               Size             => Initramfs_Size);
             if Initramfs_Address > 0 then
                Mulog.Log (Msg => "Declaring ramdisk of size "
                           & Mutools.Utils.To_Hex (Number => Initramfs_Size)

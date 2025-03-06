@@ -38,27 +38,54 @@ package body Spec.Skp_Events.Test_Data.Tests is
 
       pragma Unreferenced (Gnattest_T);
 
-      Policy     : Muxml.XML_Data_Type;
       Output_Dir : constant String := "obj";
       P_Spec     : constant String := Output_Dir & "/skp-events.ads";
       P_Body     : constant String := Output_Dir & "/skp-events.adb";
    begin
-      Muxml.Parse (Data => Policy,
-                   Kind => Muxml.Format_B,
-                   File => "data/test_policy.xml");
+      Write_X86_64 :
+      declare
+         Policy : Muxml.XML_Data_Type;
+      begin
+         Muxml.Parse (Data => Policy,
+                      Kind => Muxml.Format_B,
+                      File => "data/test_policy.xml");
 
-      Write (Output_Dir => Output_Dir,
-             Policy     => Policy);
-      Assert (Condition => Test_Utils.Equal_Files
-              (Filename1 => P_Spec,
-               Filename2 => "data/skp-events.ads"),
-              Message   => "Events spec mismatch");
-      Assert (Condition => Test_Utils.Equal_Files
-              (Filename1 => P_Body,
-               Filename2 => "data/skp-events.adb"),
-              Message   => "Events body mismatch");
-      Ada.Directories.Delete_File (Name => P_Spec);
-      Ada.Directories.Delete_File (Name => P_Body);
+         Write (Output_Dir => Output_Dir,
+                Policy     => Policy);
+         Assert (Condition => Test_Utils.Equal_Files
+                 (Filename1 => P_Spec,
+                  Filename2 => "data/skp-events.ads"),
+                 Message   => "Events spec mismatch (x86/64)");
+         Assert (Condition => Test_Utils.Equal_Files
+                 (Filename1 => P_Body,
+                  Filename2 => "data/skp-events.adb"),
+                 Message   => "Events body mismatch (x86/64)");
+         Ada.Directories.Delete_File (Name => P_Spec);
+         Ada.Directories.Delete_File (Name => P_Body);
+      end Write_X86_64;
+
+      Write_ARMv8a :
+      declare
+         Policy : Muxml.XML_Data_Type;
+      begin
+         Muxml.Parse (Data => Policy,
+                      Kind => Muxml.Format_B,
+                      File => "data/test_policy-armv8a.xml");
+
+         Write (Output_Dir => Output_Dir,
+                Policy     => Policy);
+         Assert (Condition => Test_Utils.Equal_Files
+                 (Filename1 => P_Spec,
+                  Filename2 => "data/skp-events-armv8a-ads.ref"),
+                 Message   => "Events spec mismatch (ARMv8a)");
+         Assert (Condition => Test_Utils.Equal_Files
+                 (Filename1 => P_Body,
+                  Filename2 => "data/skp-events-armv8a-adb.ref"),
+                 Message   => "Events body mismatch (ARMv8a)");
+         Ada.Directories.Delete_File (Name => P_Spec);
+         Ada.Directories.Delete_File (Name => P_Body);
+      end Write_ARMv8a;
+
 --  begin read only
    end Test_Write;
 --  end read only

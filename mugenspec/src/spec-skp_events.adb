@@ -31,6 +31,7 @@ with Muxml.Utils;
 with Mutools.Constants;
 with Mutools.Templates;
 with Mutools.Types;
+with Mutools.XML_Utils;
 
 with String_Templates;
 
@@ -317,6 +318,9 @@ is
           (N     => Policy.Doc,
            XPath => "/system/subjects/subject/events/target/event");
 
+      Is_ARM_System : constant Boolean
+        := Mutools.XML_Utils.Is_Arm64 (Policy => Policy);
+
       Ev_Buf : Unbounded_String;
       Buffer : Unbounded_String;
       Tmpl   : Mutools.Templates.Template_Type;
@@ -594,8 +598,14 @@ is
       Mulog.Log (Msg => "Writing event spec to '"
                  & Output_Dir & "/skp-events.adb'");
 
-      Tmpl := Mutools.Templates.Create
-        (Content => String_Templates.skp_events_ads);
+      if Is_ARM_System then
+         Tmpl := Mutools.Templates.Create
+           (Content => String_Templates.skp_events_armv8a_ads);
+      else
+         Tmpl := Mutools.Templates.Create
+           (Content => String_Templates.skp_events_x86_64_ads);
+      end if;
+
       Mutools.Templates.Replace
         (Template => Tmpl,
          Pattern  => "__event_bits__",
@@ -612,8 +622,13 @@ is
         (Template => Tmpl,
          Filename => Output_Dir & "/skp-events.ads");
 
-      Tmpl := Mutools.Templates.Create
-        (Content => String_Templates.skp_events_adb);
+      if Is_ARM_System then
+         Tmpl := Mutools.Templates.Create
+           (Content => String_Templates.skp_events_armv8a_adb);
+      else
+         Tmpl := Mutools.Templates.Create
+           (Content => String_Templates.skp_events_x86_64_adb);
+      end if;
 
       for I in 0 .. Subj_Count - 1 loop
          Write_Subject_Event_Spec

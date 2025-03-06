@@ -124,9 +124,12 @@ is
       Max_Minor_Count    : Positive;
       Max_Barrier_Count  : Natural;
       Majors             : DOM.Core.Node_List;
-      Template           : Mutools.Templates.Stream_Template_Type
+
+      Template : Mutools.Templates.Stream_Template_Type
         := TMPL.Create
-          (Content  => String_Templates.skp_scheduling_ads,
+          (Content  => (if Mutools.XML_Utils.Is_Arm64 (Policy => Policy)
+                        then String_Templates.skp_scheduling_armv8a_ads
+                        else String_Templates.skp_scheduling_x86_64_ads),
            Filename => Output_Dir & "/skp-scheduling.ads");
 
       Sched_Partition_Count : constant Natural

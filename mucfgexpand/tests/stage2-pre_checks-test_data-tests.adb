@@ -30,31 +30,50 @@ package body Stage2.Pre_Checks.Test_Data.Tests is
 --  end read only
 
 --  begin read only
-   procedure Test_Register_All (Gnattest_T : in out Test);
-   procedure Test_Register_All_3f90ea (Gnattest_T : in out Test) renames Test_Register_All;
---  id:2.2/3f90ea30314141bf/Register_All/1/0/
-   procedure Test_Register_All (Gnattest_T : in out Test) is
+   procedure Test_Register_Common (Gnattest_T : in out Test);
+   procedure Test_Register_Common_7d7ec7 (Gnattest_T : in out Test) renames Test_Register_Common;
+--  id:2.2/7d7ec7d691e44299/Register_Common/1/0/
+   procedure Test_Register_Common (Gnattest_T : in out Test) is
+--  end read only
+
+       pragma Unreferenced (Gnattest_T);
+
+    begin
+       Register_Common;
+       Assert (Condition => Check_Procs.Get_Count = 34,
+               Message   => "Count mismatch:" & Get_Count'Img);
+       Check_Procs.Clear;
+ 
+    exception
+       when others =>
+          Check_Procs.Clear;
+          raise;
+--  begin read only
+   end Test_Register_Common;
+--  end read only
+
+
+--  begin read only
+   procedure Test_Register_X86_64 (Gnattest_T : in out Test);
+   procedure Test_Register_X86_64_d9d62b (Gnattest_T : in out Test) renames Test_Register_X86_64;
+--  id:2.2/d9d62bf31bdb6fd8/Register_X86_64/1/0/
+   procedure Test_Register_X86_64 (Gnattest_T : in out Test) is
 --  end read only
 
       pragma Unreferenced (Gnattest_T);
 
-      Policy : Muxml.XML_Data_Type;
    begin
-      Muxml.Parse (Data => Policy,
-                   Kind => Muxml.Format_Src,
-                   File => "data/test_policy.xml");
-
-      Register_All;
-      Assert (Condition => Check_Procs.Get_Count = 38,
-              Message   => "Count mismatch(1):" & Get_Count'Img);
+      Register_X86_64;
+      Assert (Condition => Check_Procs.Get_Count = 4,
+              Message   => "Count mismatch:" & Get_Count'Img);
       Check_Procs.Clear;
-
+ 
    exception
       when others =>
          Check_Procs.Clear;
          raise;
 --  begin read only
-   end Test_Register_All;
+   end Test_Register_X86_64;
 --  end read only
 
 

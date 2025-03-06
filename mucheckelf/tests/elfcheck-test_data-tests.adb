@@ -15,6 +15,8 @@ with System.Assertions;
 --
 --  end read only
 with Ada.Exceptions;
+
+with Mutools.Types;
 --  begin read only
 --  end read only
 package body Elfcheck.Test_Data.Tests is
@@ -39,11 +41,16 @@ package body Elfcheck.Test_Data.Tests is
       pragma Unreferenced (Gnattest_T);
 
    begin
-      Run (Policy_File => "data/test_policy.xml",
-           ELF_Binary  => "data/binary");
+
+      --  Positive test.
+
+      Run (Policy_File => "data/test_policy-x86_64.xml",
+           ELF_Binary  => "data/binary.x86_64");
+
+      --  Unexpected section.
 
       begin
-         Run (Policy_File => "data/test_policy.xml",
+         Run (Policy_File => "data/test_policy-x86_64.xml",
               ELF_Binary  => "data/unexpected_section");
          Assert (Condition => True,
                  Message   => "Exception expected (1)");
@@ -55,12 +62,14 @@ package body Elfcheck.Test_Data.Tests is
                     Message   => "Exception expected (1)");
       end;
 
-      for M of Section_Map loop
+      --  Missing section.
+
+      for M of Section_Map (Mutools.Types.X86_64) loop
          M.Present := False;
       end loop;
 
       begin
-         Run (Policy_File => "data/test_policy.xml",
+         Run (Policy_File => "data/test_policy-x86_64.xml",
               ELF_Binary  => "data/section_missing");
          Assert (Condition => True,
                  Message   => "Exception expected (2)");
@@ -71,6 +80,11 @@ package body Elfcheck.Test_Data.Tests is
                     = "Required section '.text' not present",
                     Message   => "Exception mismatch (2)");
       end;
+
+      --  Positive test (arm64).
+
+      Run (Policy_File => "data/test_policy-arm64.xml",
+           ELF_Binary  => "data/binary.arm64");
 --  begin read only
    end Test_Run;
 --  end read only

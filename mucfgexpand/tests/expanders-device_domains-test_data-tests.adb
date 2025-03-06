@@ -70,22 +70,42 @@ package body Expanders.Device_Domains.Test_Data.Tests is
 
 
 --  begin read only
-   procedure Test_Add_Tables (Gnattest_T : in out Test);
-   procedure Test_Add_Tables_17f65c (Gnattest_T : in out Test) renames Test_Add_Tables;
---  id:2.2/17f65ca27fa9a88d/Add_Tables/1/0/
-   procedure Test_Add_Tables (Gnattest_T : in out Test) is
+   procedure Test_Add_SMMU_Tables (Gnattest_T : in out Test);
+   procedure Test_Add_SMMU_Tables_9f0497 (Gnattest_T : in out Test) renames Test_Add_SMMU_Tables;
+--  id:2.2/9f049747002466e9/Add_SMMU_Tables/1/0/
+   procedure Test_Add_SMMU_Tables (Gnattest_T : in out Test) is
 --  end read only
 
       pragma Unreferenced (Gnattest_T);
 
    begin
       Test_Utils.Expander.Run_Test
-        (Filename => "obj/device_domains_tables.xml",
-         Ref_Diff => "data/device_domains_tables.xml.diff",
-         Pre      => Add_Section_Skeleton_And_Kernel'Access,
-         Expander => Add_Tables'Access);
+         (Filename => "obj/device_domains_smmu_tables.xml",
+          Ref_Diff => "data/device_domains_smmu_tables.xml.diff",
+          Pre      => Add_Section_Skeleton_And_Kernel'Access,
+          Expander => Add_SMMU_Tables'Access);
 --  begin read only
-   end Test_Add_Tables;
+   end Test_Add_SMMU_Tables;
+--  end read only
+
+
+--  begin read only
+   procedure Test_Add_VTD_Tables (Gnattest_T : in out Test);
+   procedure Test_Add_VTD_Tables_82c305 (Gnattest_T : in out Test) renames Test_Add_VTD_Tables;
+--  id:2.2/82c30505009327e0/Add_VTD_Tables/1/0/
+   procedure Test_Add_VTD_Tables (Gnattest_T : in out Test) is
+--  end read only
+
+      pragma Unreferenced (Gnattest_T);
+
+   begin
+      Test_Utils.Expander.Run_Test
+         (Filename => "obj/device_domains_vtd_tables.xml",
+          Ref_Diff => "data/device_domains_vtd_tables.xml.diff",
+          Pre      => Add_Section_Skeleton_And_Kernel'Access,
+          Expander => Add_VTD_Tables'Access);
+--  begin read only
+   end Test_Add_VTD_Tables;
 --  end read only
 
 

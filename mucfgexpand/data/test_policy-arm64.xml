@@ -1,0 +1,247 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<system>
+ <config>
+  <boolean name="armv8" value="true"/>
+  <boolean name="debug_enabled" value="true"/>
+  <string name="debug_level" value="Level_3"/>
+ </config>
+ <hardware>
+  <processor cpuCores="4" speed="1199999988" vmxTimerRate="1">
+   <cpu apicId="0" cpuId="0"/>
+   <cpu apicId="2" cpuId="1"/>
+   <cpu apicId="4" cpuId="2"/>
+   <cpu apicId="6" cpuId="3"/>
+  </processor>
+  <memory>
+   <memoryBlock allocatable="true" name="System RAM" physicalAddress="16#0000_0000#" size="16#8000_0000#"/>
+  </memory>
+  <devices>
+   <device name="APU_GIC">
+    <irq name="sgi_0" number="0"/>
+    <irq name="sgi_1" number="1"/>
+    <irq name="sgi_2" number="2"/>
+    <irq name="sgi_3" number="3"/>
+    <irq name="sgi_4" number="4"/>
+    <irq name="sgi_5" number="5"/>
+    <irq name="sgi_6" number="6"/>
+    <irq name="sgi_7" number="7"/>
+    <irq name="sgi_8" number="8"/>
+    <irq name="sgi_9" number="9"/>
+    <irq name="sgi_10" number="10"/>
+    <irq name="sgi_11" number="11"/>
+    <irq name="sgi_12" number="12"/>
+    <irq name="sgi_13" number="13"/>
+    <irq name="sgi_14" number="14"/>
+    <irq name="sgi_15" number="15"/>
+    <irq name="maintenance" number="25"/>
+    <irq name="hypervisor_timer" number="26"/>
+    <irq name="virtual_timer" number="27"/>
+    <irq name="physical_timer" number="30"/>
+    <memory caching="UC" name="GIC" physicalAddress="16#f900_0000#" size="16#1000#"/>
+    <memory caching="UC" name="GICD" physicalAddress="16#f901_0000#" size="16#1000#"/>
+    <memory caching="UC" name="GICC" physicalAddress="16#f902_0000#" size="16#1000#"/>
+    <memory caching="UC" name="GICC_DIR" physicalAddress="16#f903_0000#" size="16#1000#"/>
+    <memory caching="UC" name="GICH" physicalAddress="16#f904_0000#" size="16#1000#"/>
+    <memory caching="UC" name="GICH_Alias" physicalAddress="16#f905_0000#" size="16#1000#"/>
+    <memory caching="UC" name="GICV" physicalAddress="16#f906_0000#" size="16#1000#"/>
+    <memory caching="UC" name="GICV_DIR" physicalAddress="16#f907_0000#" size="16#1000#"/>
+    <capabilities>
+     <capability name="gic"/>
+    </capabilities>
+   </device>
+   <device name="SMMU_GPV">
+    <irq name="irq" number="187"/>
+    <memory caching="UC" name="controller" physicalAddress="16#fd80_0000#" size="16#0001_0000#"/>
+    <memory caching="UC" name="context" physicalAddress="16#fd81_0000#" size="16#0001_0000#"/>
+    <capabilities>
+     <capability name="iommu"/>
+     <capability name="stream_mapping_id_max">47</capability>
+     <capability name="context_bank_id_max">15</capability>
+    </capabilities>
+   </device>
+   <device name="UART0">
+    <irq name="irq" number="53"/>
+    <memory caching="UC" name="mem" physicalAddress="16#ff00_0000#" size="16#0001_0000#"/>
+    <capabilities>
+     <capability name="serial"/>
+    </capabilities>
+   </device>
+   <device name="UART1">
+    <irq name="irq" number="54"/>
+    <memory caching="UC" name="mem" physicalAddress="16#ff01_0000#" size="16#0001_0000#"/>
+    <capabilities>
+     <capability name="serial"/>
+    </capabilities>
+   </device>
+   <device name="USB3_0_XHCI">
+    <irq name="irq1" number="97"/>
+    <irq name="irq2" number="98"/>
+    <irq name="irq3" number="99"/>
+    <irq name="irq4" number="100"/>
+    <irq name="irq5" number="101"/>
+    <irq name="irq6" number="107"/>
+    <memory caching="UC" name="mem1" physicalAddress="16#fe20_0000#" size="16#1000#"/>
+    <memory caching="UC" name="mem2" physicalAddress="16#fe20_c000#" size="16#1000#"/>
+   </device>
+   <device name="USB3_1_XHCI">
+    <irq name="irq1" number="102"/>
+    <irq name="irq2" number="103"/>
+    <irq name="irq3" number="104"/>
+    <irq name="irq4" number="105"/>
+    <irq name="irq5" number="106"/>
+    <irq name="irq6" number="108"/>
+    <memory caching="UC" name="mem1" physicalAddress="16#fe30_0000#" size="16#1000#"/>
+    <memory caching="UC" name="mem2" physicalAddress="16#fe30_c000#" size="16#1000#"/>
+   </device>
+   <device name="GEM3">
+    <irq name="irq1" number="95"/>
+    <irq name="irq2" number="96"/>
+    <memory caching="UC" name="mem1" physicalAddress="16#ff0e_0000#" size="16#1000#"/>
+   </device>
+  </devices>
+ </hardware>
+ <platform>
+  <mappings>
+   <aliases>
+    <alias name="serial_device_1" physical="UART0">
+     <resource name="mem1" physical="mem"/>
+     <resource name="irq1" physical="irq"/>
+    </alias>
+    <alias name="serial_device_2" physical="UART1">
+     <resource name="mem1" physical="mem"/>
+     <resource name="irq1" physical="irq"/>
+    </alias>
+   </aliases>
+   <classes/>
+  </mappings>
+  <kernelDiagnostics type="hsuart">
+   <device physical="UART0">
+    <memory physical="mem"/>
+   </device>
+  </kernelDiagnostics>
+ </platform>
+ <memory>
+  <memory alignment="16#1000#" caching="WB" name="linux|lowmem" physicalAddress="16#1000_0000#" size="16#0004_0000#" type="subject">
+   <fill pattern="16#00#"/>
+  </memory>
+  <memory alignment="16#1000#" caching="WB" name="linux|dtb" physicalAddress="16#1004_0000#" size="16#0004_0000#" type="subject_binary">
+   <file filename="devicetree_linux_one.dtb" offset="none"/>
+  </memory>
+  <memory alignment="16#1000#" caching="WB" name="linux|binary" physicalAddress="16#1008_0000#" size="16#006d_d000#" type="subject_binary">
+   <file filename="Image_linux_one.bin" offset="none"/>
+  </memory>
+  <memory alignment="16#1000#" caching="WB" name="linux|ram" physicalAddress="16#1075_d000#" size="16#1a8a_3000#" type="subject"/>
+  <memory alignment="16#1000#" caching="WB" name="linux|rootfs" physicalAddress="16#2b00_0000#" size="16#0500_0000#" type="subject_initrd">
+   <file filename="rootfs_linux_one.cpio.gz" offset="none"/>
+  </memory>
+  <memory caching="UC" name="crash_audit" physicalAddress="16#0006_0000#" size="16#1000#" type="subject_crash_audit"/>
+ </memory>
+ <deviceDomains>
+  <domain name="nic_domain">
+   <memory>
+    <memory executable="true" logical="lowmem" physical="linux|lowmem" virtualAddress="16#0000_0000#" writable="true"/>
+    <memory executable="true" logical="ram" physical="linux|ram" virtualAddress="16#0075_d000#" writable="true"/>
+    <memory executable="true" logical="rootfs" physical="linux|rootfs" virtualAddress="16#1b00_0000#" writable="true"/>
+   </memory>
+   <devices>
+    <device logical="nic" physical="GEM3"/>
+   </devices>
+  </domain>
+ </deviceDomains>
+ <events>
+  <event mode="asap" name="trap_to_subject1"/>
+  <event mode="kernel" name="system_panic"/>
+ </events>
+ <components>
+  <component name="linux" profile="linux"/>
+  <component name="event_logger" profile="native">
+   <provides>
+    <memory executable="true" logical="binary" size="16#1000#" type="subject_binary" virtualAddress="16#0020_0000#" writable="true">
+     <file filename="event_logger_bin" offset="none"/>
+    </memory>
+   </provides>
+  </component>
+ </components>
+ <subjects>
+  <subject name="linux">
+   <bootparams>console=ttyPS0,115200 root=/dev/ram0 initrd=0x0f000000,1451008 earlycon</bootparams>
+   <memory>
+    <memory executable="true" logical="lowmem" physical="linux|lowmem" virtualAddress="16#0000_0000#" writable="true"/>
+    <memory executable="true" logical="dtb" physical="linux|dtb" virtualAddress="16#0004_0000#" writable="true"/>
+    <memory executable="true" logical="binary" physical="linux|binary" virtualAddress="16#0008_0000#" writable="true"/>
+    <memory executable="true" logical="ram" physical="linux|ram" virtualAddress="16#0075_d000#" writable="true"/>
+    <memory executable="true" logical="rootfs" physical="linux|rootfs" virtualAddress="16#1b00_0000#" writable="true"/>
+   </memory>
+   <devices>
+    <device logical="vgic" physical="APU_GIC">
+     <irq logical="linux_timer" physical="virtual_timer" vector="27"/>
+     <memory executable="false" logical="vgic_dev1" physical="GICV" virtualAddress="16#2000_0000#" writable="true"/>
+     <memory executable="false" logical="vgic_dev2" physical="GICV_DIR" virtualAddress="16#2000_1000#" writable="true"/>
+    </device>
+    <device logical="serial" physical="UART1">
+     <irq logical="serial_irq" physical="irq" vector="32"/>
+     <memory executable="false" logical="serial_dev" physical="mem" virtualAddress="16#2101_0000#" writable="true"/>
+    </device>
+   </devices>
+   <events>
+    <source>
+     <group name="vmx_exit">
+      <default physical="trap_to_subject1"/>
+     </group>
+    </source>
+   </events>
+   <component ref="linux"/>
+  </subject>
+  <subject name="event_logger">
+   <bootparams/>
+   <memory>
+    <memory executable="true" logical="binary" physical="event_logger|binary" virtualAddress="16#0000_0000#" writable="true"/>
+   </memory>
+   <devices>
+    <device logical="serial" physical="UART0">
+     <irq logical="serial_irq" physical="irq" vector="32"/>
+     <memory executable="false" logical="serial_dev" physical="mem" virtualAddress="16#0400_0000#" writable="true"/>
+    </device>
+    <device logical="vgic" physical="APU_GIC">
+     <irq logical="event_demo_irq" physical="sgi_12" vector="12"/>
+     <memory executable="false" logical="vgic_dev1" physical="GICV" virtualAddress="16#0401_0000#" writable="true"/>
+     <memory executable="false" logical="vgic_dev2" physical="GICV_DIR" virtualAddress="16#0401_1000#" writable="true"/>
+    </device>
+   </devices>
+   <events>
+    <source>
+     <group name="vmx_exit">
+      <default physical="system_panic">
+       <system_panic/>
+      </default>
+     </group>
+    </source>
+    <target>
+     <event logical="handle_trap" physical="trap_to_subject1"/>
+    </target>
+   </events>
+   <component ref="event_logger"/>
+  </subject>
+ </subjects>
+ <scheduling tickRate="1">
+  <partitions>
+   <partition name="linux">
+    <group>
+     <subject name="linux"/>
+    </group>
+   </partition>
+   <partition name="event_logger">
+    <group>
+     <subject name="event_logger"/>
+    </group>
+   </partition>
+  </partitions>
+  <majorFrame>
+   <cpu id="0">
+    <minorFrame partition="linux" ticks="10"/>
+    <minorFrame partition="event_logger" ticks="20"/>
+   </cpu>
+  </majorFrame>
+ </scheduling>
+</system>
+

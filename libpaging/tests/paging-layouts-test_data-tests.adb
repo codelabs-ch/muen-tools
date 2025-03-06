@@ -14,7 +14,7 @@ with System.Assertions;
 --  This section can be used to add with clauses if necessary.
 --
 --  end read only
-
+with Paging.Entries;
 --  begin read only
 --  end read only
 package body Paging.Layouts.Test_Data.Tests is
@@ -369,6 +369,188 @@ package body Paging.Layouts.Test_Data.Tests is
 
       ----------------------------------------------------------------------
 
+      procedure Add_Huge_Page_Region
+      is
+         Layout : Memory_Layout_Type (Levels => 4);
+      begin
+         Set_Large_Page_Support (Mem_Layout => Layout,
+                                 State      => True);
+         Add_Memory_Region
+           (Mem_Layout       => Layout,
+            Physical_Address => 16#0000#,
+            Virtual_Address  => 16#0000#,
+            Size             => PDPT_Page_Size,
+            Caching          => WB,
+            Writable         => True,
+            Executable       => False);
+
+         Assert (Condition => Tables.Contains
+                 (Table => Layout.Level_1_Table,
+                  Index => 0),
+                 Message   => "Huge page: Level 1 entry not created");
+
+         --  First entry in the level 2 table must contain huge page mapping.
+
+         declare
+            E : constant Entries.Table_Entry_Type := Maps.Get_Entry
+              (Map          => Layout.Structures (2),
+               Table_Number => 0,
+               Entry_Index  => 0);
+         begin
+            Assert (Condition => Entries.Is_Present (E => E),
+                    Message   => "Huge page: Level 2 entry 0: not present");
+            Assert (Condition => Entries.Maps_Page (E => E),
+                    Message   => "Huge page: Level 2 entry 0: does not map huge"
+                    & " page");
+         end;
+
+         --  Add virtually misaligned 1-GB mapping.
+
+         Add_Memory_Region
+           (Mem_Layout       => Layout,
+            Physical_Address => 16#4000_0000#,
+            Virtual_Address  => 16#4000_1000#,
+            Size             => PDPT_Page_Size,
+            Caching          => WB,
+            Writable         => True,
+            Executable       => False);
+
+         for Index in Entry_Range range 1 .. 2 loop
+            declare
+               E : constant Entries.Table_Entry_Type := Maps.Get_Entry
+                 (Map          => Layout.Structures (2),
+                  Table_Number => 0,
+                  Entry_Index  => Index);
+            begin
+               Assert (Condition => Entries.Is_Present (E => E),
+                       Message   => "Huge page: Level 2 entry" & Index'Img
+                       & ": not present");
+               Assert (Condition => not Entries.Maps_Page (E => E),
+                       Message   => "Huge page: Level 2 entry" & Index'Img
+                       & ": maps huge page");
+            end;
+         end loop;
+
+         --  Add physically misaligned 1-GB mapping.
+
+         Add_Memory_Region
+           (Mem_Layout       => Layout,
+            Physical_Address => 16#c000_1000#,
+            Virtual_Address  => 16#c000_0000#,
+            Size             => PDPT_Page_Size,
+            Caching          => WB,
+            Writable         => True,
+            Executable       => False);
+
+         declare
+            Index : constant := 3;
+            E : constant Entries.Table_Entry_Type := Maps.Get_Entry
+              (Map          => Layout.Structures (2),
+               Table_Number => 0,
+               Entry_Index  => Index);
+         begin
+            Assert (Condition => Entries.Is_Present (E => E),
+                    Message   => "Huge page: Level 2 entry" & Index'Img
+                    & ": not present");
+            Assert (Condition => not Entries.Maps_Page (E => E),
+                    Message   => "Huge page: Level 2 entry" & Index'Img
+                    & ": maps huge page");
+         end;
+      end Add_Huge_Page_Region;
+
+      ----------------------------------------------------------------------
+
+      procedure Add_Large_Page_Region
+      is
+         Layout : Memory_Layout_Type (Levels => 4);
+      begin
+         Set_Large_Page_Support (Mem_Layout => Layout,
+                                 State      => True);
+         Add_Memory_Region
+           (Mem_Layout       => Layout,
+            Physical_Address => 16#0000#,
+            Virtual_Address  => 16#0000#,
+            Size             => PD_Page_Size,
+            Caching          => WB,
+            Writable         => True,
+            Executable       => False);
+
+         Assert (Condition => Tables.Contains
+                 (Table => Layout.Level_1_Table,
+                  Index => 0),
+                 Message   => "Large page: Level 1 entry not created");
+
+         --  First entry in the level 3 table must contain large page mapping.
+
+         declare
+            E : constant Entries.Table_Entry_Type := Maps.Get_Entry
+              (Map          => Layout.Structures (3),
+               Table_Number => 0,
+               Entry_Index  => 0);
+         begin
+            Assert (Condition => Entries.Is_Present (E => E),
+                    Message   => "Large page: Level 3 entry 0: not present");
+            Assert (Condition => Entries.Maps_Page (E => E),
+                    Message   => "Large page: Level 3 entry 0: does not map "
+                    & "large page");
+         end;
+
+         --  Add virtually misaligned 2-MB mapping.
+
+         Add_Memory_Region
+           (Mem_Layout       => Layout,
+            Physical_Address => 16#0020_0000#,
+            Virtual_Address  => 16#0020_1000#,
+            Size             => PD_Page_Size,
+            Caching          => WB,
+            Writable         => True,
+            Executable       => False);
+
+         for Index in Entry_Range range 1 .. 2 loop
+            declare
+               E : constant Entries.Table_Entry_Type := Maps.Get_Entry
+                 (Map          => Layout.Structures (3),
+                  Table_Number => 0,
+                  Entry_Index  => Index);
+            begin
+               Assert (Condition => Entries.Is_Present (E => E),
+                       Message   => "Large page: Level 3 entry" & Index'Img
+                       & ": not present");
+               Assert (Condition => not Entries.Maps_Page (E => E),
+                       Message   => "Large page: Level 3 entry" & Index'Img
+                       & ": maps large page");
+            end;
+         end loop;
+
+         --  Add physically misaligned 2-MB mapping.
+
+         Add_Memory_Region
+           (Mem_Layout       => Layout,
+            Physical_Address => 16#0060_1000#,
+            Virtual_Address  => 16#0060_0000#,
+            Size             => PD_Page_Size,
+            Caching          => WB,
+            Writable         => True,
+            Executable       => False);
+
+         declare
+            Index : constant := 3;
+            E : constant Entries.Table_Entry_Type := Maps.Get_Entry
+              (Map          => Layout.Structures (3),
+               Table_Number => 0,
+               Entry_Index  => Index);
+         begin
+            Assert (Condition => Entries.Is_Present (E => E),
+                    Message   => "Large page: Level 3 entry" & Index'Img
+                    & ": not present");
+            Assert (Condition => not Entries.Maps_Page (E => E),
+                    Message   => "Large page: Level 3 entry" & Index'Img
+                    & ": maps large page");
+         end;
+      end Add_Large_Page_Region;
+
+      ----------------------------------------------------------------------
+
       procedure Add_Large_Region_Three_Levels
       is
          Layout : Memory_Layout_Type (Levels => 3);
@@ -399,6 +581,74 @@ package body Paging.Layouts.Test_Data.Tests is
                     Message   => "Level 2 table has no entry" & I'Img);
          end loop;
       end Add_Large_Region_Three_Levels;
+
+      ----------------------------------------------------------------------
+
+      procedure Add_High_Region_Three_Levels
+      is
+         Layout : Memory_Layout_Type (Levels => 3);
+      begin
+         Set_Large_Page_Support (Mem_Layout => Layout,
+                                 State      => True);
+
+         --  Sinfo region mapping
+         Add_Memory_Region
+           (Mem_Layout       => Layout,
+            Physical_Address => 16#0008_0000#,
+            Virtual_Address  => 16#000e_0000_0000#,
+            Size             => 16#8000#,
+            Caching          => WB,
+            Writable         => False,
+            Executable       => False);
+         --  Schedinfo region mapping
+         Add_Memory_Region
+           (Mem_Layout       => Layout,
+            Physical_Address => 16#000d_d000#,
+            Virtual_Address  => 16#000e_0000_8000#,
+            Size             => 16#1000#,
+            Caching          => WB,
+            Writable         => False,
+            Executable       => False);
+         --  Timed event region mapping
+         Add_Memory_Region
+           (Mem_Layout       => Layout,
+            Physical_Address => 16#000d_c000#,
+            Virtual_Address  => 16#000e_0001_0000#,
+            Size             => 16#1000#,
+            Caching          => WB,
+            Writable         => True,
+            Executable       => False);
+
+         Assert (Condition => not Tables.Contains
+                 (Table => Layout.Level_1_Table,
+                  Index => 0),
+                 Message   => "Level 1 entry 0 created");
+         Assert (Condition => Tables.Contains
+                 (Table => Layout.Level_1_Table,
+                  Index => 56),
+                 Message   => "Level 1 entry 56 not created");
+         Assert (Condition => Maps.Contains
+                 (Map          => Layout.Structures (2),
+                  Table_Number => 56,
+                  Entry_Index  => 0),
+                 Message   => "Level 2 entry not created");
+         Assert (Condition => Maps.Length (Map => Layout.Structures (2)) = 1,
+                 Message   => "More than one level 2 table");
+         for Idx in Entry_Range range 0 .. 8 loop
+            Assert (Condition => Maps.Contains
+                    (Map          => Layout.Structures (3),
+                     Table_Number => 28672,
+                     Entry_Index  => Idx),
+                    Message   => "Level 3 entry" & Idx'Img & " not created");
+         end loop;
+         Assert (Condition => Maps.Contains
+                 (Map          => Layout.Structures (3),
+                  Table_Number => 28672,
+                  Entry_Index  => 16),
+                 Message   => "Level 3 entry 16 not created");
+         Assert (Condition => Maps.Length (Map => Layout.Structures (3)) = 1,
+                 Message   => "More than one level 3 table");
+      end Add_High_Region_Three_Levels;
 
       ----------------------------------------------------------------------
 
@@ -452,7 +702,10 @@ package body Paging.Layouts.Test_Data.Tests is
       Add_PDPT_Region;
       Add_Multiple_PT_Regions;
       Add_Duplicate_PT_Regions;
+      Add_Huge_Page_Region;
+      Add_Large_Page_Region;
       Add_Large_Region_Three_Levels;
+      Add_High_Region_Three_Levels;
       Add_Canonical_Low_High_Regions;
 --  begin read only
    end Test_Add_Memory_Region;

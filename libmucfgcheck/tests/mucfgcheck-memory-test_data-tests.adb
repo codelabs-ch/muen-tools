@@ -2089,6 +2089,79 @@ package body Mucfgcheck.Memory.Test_Data.Tests is
 
 
 --  begin read only
+   procedure Test_Subject_Linux_Image_Alignment (Gnattest_T : in out Test);
+   procedure Test_Subject_Linux_Image_Alignment_086ed4 (Gnattest_T : in out Test) renames Test_Subject_Linux_Image_Alignment;
+--  id:2.2/086ed40c4cee268e/Subject_Linux_Image_Alignment/1/0/
+   procedure Test_Subject_Linux_Image_Alignment (Gnattest_T : in out Test) is
+--  end read only
+
+      pragma Unreferenced (Gnattest_T);
+
+      Data : Muxml.XML_Data_Type;
+      DT   : DOM.Core.Node;
+   begin
+      Muxml.Parse (Data => Data,
+                   Kind => Muxml.Format_B,
+                   File => "data/test_policy.xml");
+
+      --  Add device tree node to Linux subject.
+      DT := DOM.Core.Documents.Create_Element
+        (Doc      => Data.Doc,
+         Tag_Name => "memory");
+      DOM.Core.Elements.Set_Attribute
+        (Elem  => DT,
+         Name  => "executable",
+         Value => "true");
+      DOM.Core.Elements.Set_Attribute
+        (Elem  => DT,
+         Name  => "logical",
+         Value => "dtb");
+      DOM.Core.Elements.Set_Attribute
+        (Elem  => DT,
+         Name  => "physical",
+         Value => "linux|dtb");
+      DOM.Core.Elements.Set_Attribute
+        (Elem  => DT,
+         Name  => "virtualAddress",
+         Value => "16#0010_0000#");
+      DOM.Core.Elements.Set_Attribute
+        (Elem  => DT,
+         Name  => "writable",
+         Value => "true");
+
+      Muxml.Utils.Append_Child
+        (Node      => Muxml.Utils.Get_Element
+          (Doc   => Data.Doc,
+           XPath => "/system/subjects/subject[@name='linux']/memory"),
+         New_Child => DT);
+
+      --  Positive test, must not raise an exception.
+
+      Subject_Linux_Image_Alignment (XML_Data => Data);
+      Assert (Condition => Validation_Errors.Is_Empty,
+              Message   => "Unexpected error in positive test");
+
+      --  Misalign the subject binary of the Linux kernel.
+
+      Muxml.Utils.Set_Attribute
+        (Doc   => Data.Doc,
+         XPath => "/system/subjects/subject[@name='linux']/memory/memory[@logical='binary']",
+         Name  => "virtualAddress",
+         Value => "16#0008_0000#");
+
+      Subject_Linux_Image_Alignment (XML_Data => Data);
+      Assert (Condition => Validation_Errors.Contains
+              (Msg => "Attribute 'virtualAddress => 16#0008_0000#' of "
+               & "'binary' logical memory element is not 2MB aligned "
+               & "for Linux subject 'linux'"),
+              Message   => "Exception mismatch");
+
+--  begin read only
+   end Test_Subject_Linux_Image_Alignment;
+--  end read only
+
+
+--  begin read only
    procedure Test_Monitor_Subject_Region_Mappings (Gnattest_T : in out Test);
    procedure Test_Monitor_Subject_Region_Mappings_11712e (Gnattest_T : in out Test) renames Test_Monitor_Subject_Region_Mappings;
 --  id:2.2/11712e2ba12b3464/Monitor_Subject_Region_Mappings/1/0/

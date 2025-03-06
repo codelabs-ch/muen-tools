@@ -31,8 +31,8 @@ package body Elfcheck.Bfd_Utils.Test_Data.Tests is
 
 --  begin read only
    procedure Test_Check_Section (Gnattest_T : in out Test);
-   procedure Test_Check_Section_9bbc4c (Gnattest_T : in out Test) renames Test_Check_Section;
---  id:2.2/9bbc4c18ad2928d7/Check_Section/1/0/
+   procedure Test_Check_Section_bc219c (Gnattest_T : in out Test) renames Test_Check_Section;
+--  id:2.2/bc219cb8ae6379ab/Check_Section/1/0/
    procedure Test_Check_Section (Gnattest_T : in out Test) is
 --  end read only
 
@@ -48,8 +48,8 @@ package body Elfcheck.Bfd_Utils.Test_Data.Tests is
       begin
          Muxml.Parse (Data => Policy,
                       Kind => Muxml.Format_B,
-                      File => "data/test_policy.xml");
-         Mutools.Bfd.Open (Filename   => "data/binary",
+                      File => "data/test_policy-x86_64.xml");
+         Mutools.Bfd.Open (Filename   => "data/binary.x86_64",
                            Descriptor => Fd);
          S := Bfd.Sections.Find_Section (File => Fd,
                                          Name => ".text");
@@ -89,8 +89,8 @@ package body Elfcheck.Bfd_Utils.Test_Data.Tests is
       begin
          Muxml.Parse (Data => Policy,
                       Kind => Muxml.Format_B,
-                      File => "data/test_policy.xml");
-         Mutools.Bfd.Open (Filename   => "data/binary",
+                      File => "data/test_policy-x86_64.xml");
+         Mutools.Bfd.Open (Filename   => "data/binary.x86_64",
                            Descriptor => Fd);
          S := Bfd.Sections.Find_Section (File => Fd,
                                          Name => ".text");
@@ -135,8 +135,8 @@ package body Elfcheck.Bfd_Utils.Test_Data.Tests is
       begin
          Muxml.Parse (Data => Policy,
                       Kind => Muxml.Format_B,
-                      File => "data/test_policy.xml");
-         Mutools.Bfd.Open (Filename   => "data/binary",
+                      File => "data/test_policy-x86_64.xml");
+         Mutools.Bfd.Open (Filename   => "data/binary.x86_64",
                            Descriptor => Fd);
          S := Bfd.Sections.Find_Section (File => Fd,
                                          Name => ".text");

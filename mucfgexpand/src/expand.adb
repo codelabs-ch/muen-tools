@@ -17,6 +17,8 @@
 --
 
 with Mulog;
+with Mutools.Types;
+with Mutools.XML_Utils;
 
 with Stage0.Pre_Checks;
 with Stage0.Expansion;
@@ -36,7 +38,13 @@ is
      (Policy      : in out Muxml.XML_Data_Type;
       Output_File :        String)
    is
+      use type Mutools.Types.Arch_Type;
+
+      Arch : constant Mutools.Types.Arch_Type
+        := Mutools.XML_Utils.Get_Arch (Policy => Policy);
    begin
+      Mulog.Log (Msg => "Architecture: " & Arch'Img);
+
       Stage0.Pre_Checks.Register_All (Data => Policy);
       Mulog.Log (Msg => "Registered stage 0 pre-checks"
                  & Stage0.Pre_Checks.Get_Count'Img);
@@ -57,10 +65,13 @@ is
       Stage1.Pre_Checks.Run (Data => Policy);
       Stage1.Expansion.Run (Data => Policy);
 
-      Stage2.Pre_Checks.Register_All;
+      Stage2.Pre_Checks.Register_Common;
+      if Arch = Mutools.Types.X86_64 then
+         Stage2.Pre_Checks.Register_X86_64;
+      end if;
       Mulog.Log (Msg => "Registered stage 2 pre-checks"
                  & Stage2.Pre_Checks.Get_Count'Img);
-      Stage2.Expansion.Register_All;
+      Stage2.Expansion.Register (Arch => Arch);
       Mulog.Log (Msg => "Registered stage 2 expanders"
                  & Stage2.Expansion.Get_Count'Img);
       Mulog.Log (Msg => "STAGE 2 processing");

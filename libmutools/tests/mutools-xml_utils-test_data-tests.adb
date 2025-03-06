@@ -14,7 +14,7 @@ with System.Assertions;
 --  This section can be used to add with clauses if necessary.
 --
 --  end read only
-
+with Mutools.System_Config;
 --  begin read only
 --  end read only
 package body Mutools.XML_Utils.Test_Data.Tests is
@@ -803,6 +803,80 @@ package body Mutools.XML_Utils.Test_Data.Tests is
       end;
 --  begin read only
    end Test_Get_Enclosing_Virtual_Region;
+--  end read only
+
+
+--  begin read only
+   procedure Test_Get_Addr_And_Size (Gnattest_T : in out Test);
+   procedure Test_Get_Addr_And_Size_4229ad (Gnattest_T : in out Test) renames Test_Get_Addr_And_Size;
+--  id:2.2/4229ad476f61e11e/Get_Addr_And_Size/1/0/
+   procedure Test_Get_Addr_And_Size (Gnattest_T : in out Test) is
+--  end read only
+
+      pragma Unreferenced (Gnattest_T);
+
+      use type Interfaces.Unsigned_64;
+
+      Policy     : Muxml.XML_Data_Type;
+      Initrd_Mem : DOM.Core.Node_List;
+      Subj_Mem   : DOM.Core.Node_List;
+      Addr       : Interfaces.Unsigned_64;
+      Size       : Interfaces.Unsigned_64;
+   begin
+      Muxml.Parse (Data => Policy,
+                   Kind => Muxml.Format_B,
+                   File => "data/memory_initrd.xml");
+
+      Initrd_Mem := McKae.XML.XPath.XIA.XPath_Query
+        (N     => Policy.Doc,
+         XPath => "/system/memory/memory[@type='subject_initrd']");
+      Subj_Mem   := McKae.XML.XPath.XIA.XPath_Query
+        (N     => Policy.Doc,
+         XPath => "/system/subjects/subject[@name='nic_linux']/memory/memory");
+
+      Get_Addr_And_Size (
+         Virtual_Mappings => Subj_Mem,
+         Physical_Memory  => Initrd_Mem,
+         Virtual_Address  => Addr,
+         Size             => Size);
+
+      Assert (Condition => Addr = 16#9000_0000#,
+              Message   => "Virtual address for nic_linux initrd incorrect");
+      Assert (Condition => Size = 16#0030_0000#,
+              Message   => "Size for nic_linux initrd incorrect");
+
+      Subj_Mem := McKae.XML.XPath.XIA.XPath_Query
+        (N     => Policy.Doc,
+         XPath => "/system/subjects/subject[@name='storage_linux']/memory/memory");
+
+      Get_Addr_And_Size (
+         Virtual_Mappings => Subj_Mem,
+         Physical_Memory  => Initrd_Mem,
+         Virtual_Address  => Addr,
+         Size             => Size);
+
+      Assert (Condition => Addr = 16#8fff0000#,
+              Message   => "Virtual address for storage_linux initrd incorrect");
+      Assert (Condition => Size = 16#0031_0000#,
+              Message   => "Size for storage_linux initrd incorrect");
+
+      Subj_Mem := McKae.XML.XPath.XIA.XPath_Query
+        (N     => Policy.Doc,
+         XPath => "/system/subjects/subject[@name='nope']/memory/memory");
+
+      Get_Addr_And_Size (
+         Virtual_Mappings => Subj_Mem,
+         Physical_Memory  => Initrd_Mem,
+         Virtual_Address  => Addr,
+         Size             => Size);
+
+      Assert (Condition => Addr = 0,
+              Message   => "Virtual address for no match incorrect");
+      Assert (Condition => Size = 0,
+              Message   => "Size for no match incorrect");
+
+--  begin read only
+   end Test_Get_Addr_And_Size;
 --  end read only
 
 
@@ -2324,6 +2398,64 @@ package body Mutools.XML_Utils.Test_Data.Tests is
       end;
 --  begin read only
    end Test_To_APIC_ID;
+--  end read only
+
+
+--  begin read only
+   procedure Test_Is_Arm64 (Gnattest_T : in out Test);
+   procedure Test_Is_Arm64_ea9f55 (Gnattest_T : in out Test) renames Test_Is_Arm64;
+--  id:2.2/ea9f5590c9830adc/Is_Arm64/1/0/
+   procedure Test_Is_Arm64 (Gnattest_T : in out Test) is
+--  end read only
+
+      pragma Unreferenced (Gnattest_T);
+
+      Policy : Muxml.XML_Data_Type;
+   begin
+      Muxml.Parse (Data => Policy,
+                   Kind => Muxml.Format_Src,
+                   File => "data/test_policy.xml");
+      Assert (Condition => not Is_Arm64 (Policy => Policy),
+              Message   => "Unexpected arch (1)");
+
+      System_Config.Set_Value
+        (Data  => Policy,
+         Name  => "armv8",
+         Value => True);
+      Assert (Condition => Is_Arm64 (Policy => Policy),
+              Message   => "Unexpected arch (2)");
+--  begin read only
+   end Test_Is_Arm64;
+--  end read only
+
+
+--  begin read only
+   procedure Test_Get_Arch (Gnattest_T : in out Test);
+   procedure Test_Get_Arch_a1bb3f (Gnattest_T : in out Test) renames Test_Get_Arch;
+--  id:2.2/a1bb3f1cc57352d9/Get_Arch/1/0/
+   procedure Test_Get_Arch (Gnattest_T : in out Test) is
+--  end read only
+
+      pragma Unreferenced (Gnattest_T);
+
+      use type Types.Arch_Type;
+
+      Policy : Muxml.XML_Data_Type;
+   begin
+      Muxml.Parse (Data => Policy,
+                   Kind => Muxml.Format_Src,
+                   File => "data/test_policy.xml");
+      Assert (Condition => Get_Arch (Policy => Policy) = Types.X86_64,
+              Message   => "Unexpected arch (1)");
+
+      System_Config.Set_Value
+        (Data  => Policy,
+         Name  => "armv8",
+         Value => True);
+      Assert (Condition => Get_Arch (Policy => Policy) = Types.Arm64,
+              Message   => "Unexpected arch (2)");
+--  begin read only
+   end Test_Get_Arch;
 --  end read only
 
 --  begin read only

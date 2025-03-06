@@ -1,0 +1,8 @@
+[destination_cpu = a53-0, exception_level = el-3, startup = 0x100000, load = 0x100000]kernel.bin-kernel_text.part
+[destination_cpu = a53-1, exception_level = el-3, startup = 0x100000, load = 0x100000]kernel.bin-kernel_text.part
+[load = 0x170000]kernel.bin-kernel_ro.part
+[load = 0x182000]kernel.bin-kernel_data_0.part
+[load = 0x184000]kernel_bss_0.fill
+[load = 0x186000]kernel.bin-kernel_global_data.part
+[load = 0x1a0000]kernel.bin-kernel_stack.part.pad
+

@@ -1,0 +1,44 @@
+echo "Loading files from TFTP"
+mw 0xa0000 0x0 0x20000
+mw 0xc0000 0x0 0x20000
+tftpboot 0x100000 kernel.bin-kernel_text.part || panic
+tftpboot 0x110000 xilinxzcu104-core-0.bin || panic
+tftpboot 0x120000 xilinxzcu104-core-1.bin || panic
+tftpboot 0x170000 kernel.bin-kernel_ro.part || panic
+tftpboot 0x182000 kernel.bin-kernel_data_0.part || panic
+mw 0x184000 0x0 0x2000
+tftpboot 0x186000 kernel.bin-kernel_global_data.part || panic
+tftpboot 0x19e000 kernel.bin-kernel_data_1.part || panic
+mw 0x1d8000 0x0 0x2000
+tftpboot 0x1f8000 smmu_usb_domain.pt || panic
+tftpboot 0x200000 xilinxzcu104-lnx1.pt || panic
+tftpboot 0x210000 xilinxzcu104-string_reverser.pt || panic
+tftpboot 0x220000 xilinxzcu104-lnx2.pt || panic
+tftpboot 0x230000 xilinxzcu104-caesar_cipher.pt || panic
+mw 0x3ff000 0x0 0x1000
+tftpboot 0x4000000 subject_one.bin || panic
+mw 0x4020000 0x0 0x20000
+tftpboot 0x5000000 subject_two.bin || panic
+mw 0x5020001 0x0 0x1ffff
+tftpboot 0x5400000 smmu_nic_domain.pt || panic
+mw 0x20000000 0x0 0x40000
+tftpboot 0x20040000 devicetree_linux_one.dtb || panic
+mw 0x20041048 0x0 0x3efb8
+tftpboot 0x20080000 Image_linux.bin || panic
+mw 0x2075c808 0x0 0x7f8
+tftpboot 0x4b000000 rootfs_linux_one.cpio.gz || panic
+mw 0x4ce1043e 0x0 0x1efbc2
+mw 0x50000000 0x0 0x40000
+tftpboot 0x50040000 devicetree_linux_two.dtb || panic
+mw 0x50041049 0x0 0x3efb7
+tftpboot 0x50080000 Image_linux.bin || panic
+mw 0x5075c808 0x0 0x17f8
+tftpboot 0x7b000000 rootfs_linux_two.cpio.gz || panic
+mw 0x7ce10431 0x0 0x1efbcf
+
+dcache flush
+cpu 1 release 0x100000
+go 0x100000
+echo "Failed to boot"
+sleep 1000
+

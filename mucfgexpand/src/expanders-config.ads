@@ -16,23 +16,19 @@
 --  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --
 
+with Interfaces;
+
+with Mutools.Types;
+
 package Expanders.Config
 is
 
+   --  Common x86_64/arm64 settings.
+
    Kernel_Text_Section_Addr         : constant := 16#0010_0000#;
-   Kernel_Text_Section_Size         : constant := 16#0001_1000#;
-   Kernel_Data_Section_Addr         : constant := 16#0012_0000#;
    Kernel_Data_Section_Size         : constant := 16#0000_2000#;
-   Kernel_BSS_Section_Addr          : constant := 16#0012_2000#;
-   Kernel_BSS_Section_Size          : constant := 16#0000_4000#;
-   Kernel_Stack_Addr                : constant := 16#0012_7000#;
-   Kernel_Stack_Size                : constant := 16#0000_1000#;
    Kernel_Interrupt_Stack_Addr      : constant := 16#0012_9000#;
    Kernel_Interrupt_Stack_Size      : constant := 16#0000_1000#;
-   Kernel_Global_Data_Section_Addr  : constant := 16#0012_b000#;
-   Kernel_Global_Data_Section_Size  : constant := 16#0000_1000#;
-   Kernel_RO_Section_Addr           : constant := 16#0012_f000#;
-   Kernel_RO_Section_Size           : constant := 16#002c_0000#;
    Tau0_Interface_Virtual_Addr      : constant := 16#003f_f000#;
    Crash_Audit_Virtual_Addr         : constant := 16#0040_0000#;
    Kernel_Devices_Virtual_Addr      : constant := 16#0050_0000#;
@@ -49,5 +45,44 @@ is
    Scheduling_Info_Region_Size      : constant := 16#1000#;
 
    Subject_Loader_Source_Base_Addr  : constant := 16#7000_0000_0000#;
+
+   --  Per-arch specific settings.
+
+   type Settings_Type is record
+      Kernel_Text_Section_Size        : Interfaces.Unsigned_64;
+      Kernel_Data_Section_Addr        : Interfaces.Unsigned_64;
+      Kernel_BSS_Section_Addr         : Interfaces.Unsigned_64;
+      Kernel_BSS_Section_Size         : Interfaces.Unsigned_64;
+      Kernel_Stack_Addr               : Interfaces.Unsigned_64;
+      Kernel_Stack_Size               : Interfaces.Unsigned_64;
+      Kernel_Global_Data_Section_Addr : Interfaces.Unsigned_64;
+      Kernel_Global_Data_Section_Size : Interfaces.Unsigned_64;
+      Kernel_RO_Section_Addr          : Interfaces.Unsigned_64;
+      Kernel_RO_Section_Size          : Interfaces.Unsigned_64;
+   end record;
+
+   Arch_Specific : constant array (Mutools.Types.Arch_Type) of Settings_Type :=
+     (Mutools.Types.Arm64 =>
+        (Kernel_Text_Section_Size        => 16#0007_0000#,
+         Kernel_Data_Section_Addr        => 16#0018_2000#,
+         Kernel_BSS_Section_Addr         => 16#0018_4000#,
+         Kernel_BSS_Section_Size         => 16#0000_2000#,
+         Kernel_Stack_Addr               => 16#001a_0000#,
+         Kernel_Stack_Size               => 16#0002_0000#,
+         Kernel_Global_Data_Section_Addr => 16#0018_6000#,
+         Kernel_Global_Data_Section_Size => 16#0000_a000#,
+         Kernel_RO_Section_Addr          => 16#0017_0000#,
+         Kernel_RO_Section_Size          => 16#0001_2000#),
+      Mutools.Types.X86_64 =>
+        (Kernel_Text_Section_Size        => 16#0001_1000#,
+         Kernel_Data_Section_Addr        => 16#0012_0000#,
+         Kernel_BSS_Section_Addr         => 16#0012_2000#,
+         Kernel_BSS_Section_Size         => 16#0000_4000#,
+         Kernel_Stack_Addr               => 16#0012_7000#,
+         Kernel_Stack_Size               => 16#0000_1000#,
+         Kernel_Global_Data_Section_Addr => 16#0012_b000#,
+         Kernel_Global_Data_Section_Size => 16#0000_1000#,
+         Kernel_RO_Section_Addr          => 16#0012_f000#,
+         Kernel_RO_Section_Size          => 16#002c_0000#));
 
 end Expanders.Config;

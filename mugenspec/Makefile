@@ -19,7 +19,7 @@ include ../../build-cfg/mk/tests.mk
 $(OBJ_DIR)/gnatprove/gnatprove.out: $(SPECS) $(STATIC_SPECS)
 	gnatprove $(SPARK_OPTS) -q --report=fail -Pgnatprove_mugenspec
 
-$(OBJ_DIR)/prove/%: templates/% | $(OBJ_DIR)/prove
+$(STATIC_SPECS): templates/skp-subjects-x86_64.ads | $(OBJ_DIR)/prove
 	cp $< $@
 
 $(OBJ_DIR)/prove:

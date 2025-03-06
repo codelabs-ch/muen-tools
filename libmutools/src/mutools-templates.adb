@@ -110,6 +110,16 @@ is
 
    -------------------------------------------------------------------------
 
+   function To_String
+     (Template : Template_Type)
+      return String
+   is
+   begin
+      return To_String (Template.Data);
+   end To_String;
+
+   -------------------------------------------------------------------------
+
    procedure Tokenize
      (Data :     String;
       List : out USLP.List)
