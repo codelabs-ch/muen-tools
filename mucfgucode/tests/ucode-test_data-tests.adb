@@ -18,7 +18,7 @@ with Ada.Directories;
 with DOM.Core.Nodes;
 with DOM.Core.Elements;
 with McKae.XML.XPath.XIA;
-with Muxml;
+with Muxml.Utils;
 with Test_Utils;
 --  begin read only
 --  end read only
@@ -45,9 +45,9 @@ package body Ucode.Test_Data.Tests is
 
       ----------------------------------------------------------------------
 
-      procedure Positive
+      procedure Positive_Single
       is
-         Out_Dir : constant String := "obj/run";
+         Out_Dir : constant String := "obj/run-single";
       begin
          if not Ada.Directories.Exists (Name => Out_Dir) then
             Ada.Directories.Create_Directory (New_Directory => Out_Dir);
@@ -55,10 +55,10 @@ package body Ucode.Test_Data.Tests is
          Ada.Directories.Copy_File
            (Source_Name => "data/test_policy.xml",
             Target_Name => "obj/test_policy.xml");
-         --  Dummy file, should be replaced with real ucode.
+         --  Dummy file to assert replacement logic.
          Ada.Directories.Copy_File
            (Source_Name => "data/test_policy.xml",
-            Target_Name => "obj/run/f68.ucode");
+            Target_Name => Out_Dir & "/f68.ucode");
 
          Run (Policy     => "obj/test_policy.xml",
               Ucode_Dir  => "data/ucode",
@@ -98,10 +98,46 @@ package body Ucode.Test_Data.Tests is
          end;
 
          Ada.Directories.Delete_Tree (Directory => Out_Dir);
-      end Positive;
+      end Positive_Single;
 
+      ----------------------------------------------------------------------
+
+      procedure Positive_Multiple
+      is
+         Data    : Muxml.XML_Data_Type;
+         Out_Dir : constant String := "obj/run-multiple";
+      begin
+         if not Ada.Directories.Exists (Name => Out_Dir) then
+            Ada.Directories.Create_Directory (New_Directory => Out_Dir);
+         end if;
+
+         Muxml.Parse (Data => Data,
+                      Kind => Muxml.Format_Src,
+                      File => "data/test_policy.xml");
+         Muxml.Utils.Set_Attribute
+             (Doc   => Data.Doc,
+              XPath => "/system/hardware/processor/cpuid"
+              & "[@leaf='16#0000_0001#']",
+              Name  => "eax",
+              Value => "16#0009_0675#");
+         Muxml.Write (Data => Data,
+                      Kind => Muxml.Format_Src,
+                      File => "obj/test_policy.xml");
+
+         Run (Policy     => "obj/test_policy.xml",
+              Ucode_Dir  => "data/ucode",
+              Output_Dir => Out_Dir);
+
+         Assert (Condition => Test_Utils.Equal_Files
+                 (Filename1 => "data/06-97-05.patched",
+                  Filename2 => Out_Dir & "/90675.ucode"),
+                 Message   => "Microcode file mismatch");
+
+         Ada.Directories.Delete_Tree (Directory => Out_Dir);
+      end Positive_Multiple;
    begin
-      Positive;
+      Positive_Single;
+      Positive_Multiple;
 --  begin read only
    end Test_Run;
 --  end read only

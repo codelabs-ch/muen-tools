@@ -17,6 +17,7 @@
 --
 
 with Ada.Directories;
+with Ada.Direct_IO;
 
 with Interfaces;
 
@@ -31,6 +32,75 @@ with Mutools.XML_Utils;
 
 package body Ucode
 is
+
+   --  Adjust primary processor signature of the given update bundle to the
+   --  value specified.
+   procedure Adjust_Primary_Processor_Signature
+     (File_Path : String;
+      Signature : Interfaces.Unsigned_32);
+
+   -------------------------------------------------------------------------
+
+   procedure Adjust_Primary_Processor_Signature
+     (File_Path : String;
+      Signature : Interfaces.Unsigned_32)
+   is
+      use Interfaces;
+
+      package Uint32_IO is new Ada.Direct_IO
+        (Element_Type => Unsigned_32);
+
+      Old_Sig, Old_Checksum, New_Checksum : Unsigned_32;
+
+      Diff : Integer_64;
+      FD   : Uint32_IO.File_Type;
+   begin
+      Uint32_IO.Open
+        (File => FD,
+         Mode => Uint32_IO.Inout_File,
+         Name => File_Path);
+
+      --  See Intel SDM Vol. 3A, "9.11.1 Microcode Update"
+      --  Table 10-7.
+      --  Note: The index is the logical record position of Element_Type width,
+      --  not bytes and it starts at index 1 not 0.
+      Uint32_IO.Set_Index
+        (File => FD,
+         To   => 4);
+      Uint32_IO.Read
+        (File => FD,
+         Item => Old_Sig);
+
+      Diff := Integer_64 (Old_Sig) - Integer_64 (Signature);
+
+      if Diff /= 0 then
+         Uint32_IO.Set_Index
+           (File => FD,
+            To   => 4);
+         Uint32_IO.Write
+           (File => FD,
+            Item => Signature);
+         Uint32_IO.Set_Index
+           (File => FD,
+            To   => 5);
+         Uint32_IO.Read
+           (File => FD,
+            Item => Old_Checksum);
+         New_Checksum := Unsigned_32'Mod (Integer_64 (Old_Checksum) + Diff);
+         Uint32_IO.Set_Index
+           (File => FD,
+            To   => 5);
+         Uint32_IO.Write
+           (File => FD,
+            Item => New_Checksum);
+
+         Mulog.Log (Msg => "Setting primary processor signature to "
+           & Mutools.Utils.To_Hex (Number => Unsigned_64 (Signature)) & ", was "
+           & Mutools.Utils.To_Hex (Number => Unsigned_64 (Old_Sig)));
+      end if;
+
+      Uint32_IO.Close (File => FD);
+   end Adjust_Primary_Processor_Signature;
 
    -------------------------------------------------------------------------
 
@@ -69,6 +139,10 @@ is
             & " -s 0x" & Sig_C & " -w " & Path);
 
          if Ada.Directories.Exists (Name => Path) then
+            Adjust_Primary_Processor_Signature
+              (File_Path => Path,
+               Signature => Interfaces.Unsigned_32'Value (Sig));
+
             Mutools.OS.Execute (Command => "iucode_tool -l " & Path);
             declare
                use type DOM.Core.Node;
