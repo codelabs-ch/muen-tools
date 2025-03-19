@@ -299,7 +299,7 @@ is
                     Virt_Mem_XPath     => "/system/deviceDomains/domain"
                     & "[@name='" & Name & "']/memory/memory"));
             Descr     : constant String := "smmu_" & Name & "_pt";
-            File_Name : constant String := "smmu_" & Name & ".pt";
+            File_Name : constant String := "smmu_" & Name & "_pt";
          begin
             Mulog.Log (Msg => "Adding SMMU second-level paging entries "
                        & "for domain '" & Name & "' with size " & Size_Str);
