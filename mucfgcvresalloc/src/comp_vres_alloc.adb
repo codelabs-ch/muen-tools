@@ -39,6 +39,7 @@ with Mutools.Expressions;
 with Mutools.Conditionals;
 with Mutools.Substitutions;
 with Mutools.Xmldebuglog;
+with Mutools.Constants;
 
 with Mulog;
 
@@ -122,7 +123,7 @@ is
             end if;
 
             if Count = 0 then
-               New_Address := Interfaces.Unsigned_64'Last;
+               New_Address := Mutools.Constants.Non_Canonical_Address;
             else
                New_Address := Mutools.Intervals.Reserve_Interval
                  (List => Av_Ival,
