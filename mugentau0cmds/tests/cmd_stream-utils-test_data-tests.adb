@@ -15,6 +15,7 @@ with System.Assertions;
 --
 --  end read only
 with Ada.Directories;
+with Ada.Exceptions;
 
 with GNAT.OS_Lib;
 
@@ -115,20 +116,32 @@ package body Cmd_Stream.Utils.Test_Data.Tests is
       procedure No_Access
       is
          Stream : Stream_Document_Type;
-         Fn     : constant String := "/stream_no_access.xml";
+         Fn     : constant String := "stream_no_access.xml";
+         Fn_Obj : constant String := "obj/" & Fn;
+         Fd     : Ada.Text_IO.File_Type;
       begin
-         Assert (Condition => not GNAT.OS_Lib.Is_Owner_Writable_File
-                 (Name => Fn),
-                 Message   => "Unexpected access");
+         Ada.Text_IO.Create
+           (File => Fd,
+            Mode => Ada.Text_IO.Out_File,
+            Name => Fn_Obj);
+         Ada.Text_IO.Close (File => Fd);
+         GNAT.OS_Lib.Set_Non_Writable (Name => Fn_Obj);
 
          begin
             Create (Stream_Doc => Stream,
-                    Filename   => Fn);
+                    Filename   => Fn_Obj);
             Assert (Condition => False,
                     Message   => "Exception expected");
 
          exception
-            when IO_Error => null;
+            when E : IO_Error =>
+               GNAT.OS_Lib.Set_Writable (Name => Fn_Obj);
+               Ada.Directories.Delete_File (Name => Fn_Obj);
+               Assert (Condition => Ada.Exceptions.Exception_Message (X => E)
+                          = "Unable to open file 'obj/stream_no_access.xml' - "
+                          & "obj/stream_no_access.xml: Permission denied",
+                       Message   => "Exception mismatch"
+                          & Ada.Exceptions.Exception_Message (X => E));
          end;
       end No_Access;
    begin
