@@ -137,6 +137,86 @@
   </xs:attribute>
  </xs:complexType>
 
+ <xs:complexType name="pciBarMemType">
+  <xs:annotation>
+   <xs:documentation>
+    PCI device memory BAR configuration.
+   </xs:documentation>
+  </xs:annotation>
+  <xs:attribute name="ref" type="nameType" use="required">
+   <xs:annotation>
+    <xs:documentation>
+     Reference to device mmio region.
+    </xs:documentation>
+   </xs:annotation>
+  </xs:attribute>
+  <xs:attribute name="prefetchable" type="booleanType" use="required">
+   <xs:annotation>
+    <xs:documentation>
+     Whether the mmio region is prefetchable.
+    </xs:documentation>
+   </xs:annotation>
+  </xs:attribute>
+  <xs:attribute name="bit64" type="booleanType" use="required">
+   <xs:annotation>
+    <xs:documentation>
+     Whether the mmio region can be located anywhere in 64-bit
+     address space.
+    </xs:documentation>
+   </xs:annotation>
+  </xs:attribute>
+ </xs:complexType>
+
+ <xs:complexType name="pciBarPortType">
+  <xs:annotation>
+   <xs:documentation>
+    PCI device I/O port BAR configuration.
+   </xs:documentation>
+  </xs:annotation>
+  <xs:attribute name="ref" type="nameType" use="required">
+   <xs:annotation>
+    <xs:documentation>
+     Reference to device I/O port resource.
+    </xs:documentation>
+   </xs:annotation>
+  </xs:attribute>
+ </xs:complexType>
+
+ <xs:complexType name="pciBarsType">
+  <xs:annotation>
+   <xs:documentation>
+    The \texttt{bars} element specifies which device I/O or memory
+    resource is associated with which device PCI Base Address Register (BAR).
+   </xs:documentation>
+  </xs:annotation>
+  <xs:sequence>
+   <xs:choice minOccurs="0" maxOccurs="1">
+    <xs:element name="memBar0"  type="pciBarMemType"  minOccurs="1" maxOccurs="1"/>
+    <xs:element name="portBar0" type="pciBarPortType" minOccurs="1" maxOccurs="1"/>
+   </xs:choice>
+   <xs:choice minOccurs="0" maxOccurs="1">
+    <xs:element name="memBar1"  type="pciBarMemType"  minOccurs="1" maxOccurs="1"/>
+    <xs:element name="portBar1" type="pciBarPortType" minOccurs="1" maxOccurs="1"/>
+   </xs:choice>
+   <xs:choice minOccurs="0" maxOccurs="1">
+    <xs:element name="memBar2"  type="pciBarMemType"  minOccurs="1" maxOccurs="1"/>
+    <xs:element name="portBar2" type="pciBarPortType" minOccurs="1" maxOccurs="1"/>
+   </xs:choice>
+   <xs:choice minOccurs="0" maxOccurs="1">
+    <xs:element name="memBar3"  type="pciBarMemType"  minOccurs="1" maxOccurs="1"/>
+    <xs:element name="portBar3" type="pciBarPortType" minOccurs="1" maxOccurs="1"/>
+   </xs:choice>
+   <xs:choice minOccurs="0" maxOccurs="1">
+    <xs:element name="memBar4"  type="pciBarMemType"  minOccurs="1" maxOccurs="1"/>
+    <xs:element name="portBar4" type="pciBarPortType" minOccurs="1" maxOccurs="1"/>
+   </xs:choice>
+   <xs:choice minOccurs="0" maxOccurs="1">
+    <xs:element name="memBar5"  type="pciBarMemType"  minOccurs="1" maxOccurs="1"/>
+    <xs:element name="portBar5" type="pciBarPortType" minOccurs="1" maxOccurs="1"/>
+   </xs:choice>
+  </xs:sequence>
+ </xs:complexType>
+
  <xs:complexType name="devicesType">
   <xs:annotation>
    <xs:documentation>
