@@ -2,7 +2,6 @@
 
 #include <dt-bindings/interrupt-controller/arm-gic.h>
 #include <dt-bindings/interrupt-controller/irq.h>
-#include <dt-bindings/muen/channel-muensk.h>
 
 / {
     model = "Xilinx UltraScale+ ZCU104 - Muen ARM64";
