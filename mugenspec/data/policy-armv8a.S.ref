@@ -32,4 +32,4 @@ smmu_physical_address:
 .align 8
 
 global_all_barrier:
-    .quad    0x2
+    .word    0x2

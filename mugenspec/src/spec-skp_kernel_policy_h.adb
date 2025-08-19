@@ -349,14 +349,14 @@ is
             --  has to be initialised manually at compile time. The Size
             --  field at bit offset 0 .. 7 is thus set to the number of
             --  configured CPU cores.
-            Barrier_Value : constant Unsigned_64
-              := Unsigned_64 (CPU_Count);
+            Barrier_Value : constant Unsigned_32
+              := Unsigned_32 (CPU_Count);
          begin
             Mutools.Templates.Replace
               (Template => Tmpl,
                Pattern  => "__global_all_barrier__",
-               Content  => "    .quad    0x" &
-                 Mutools.Utils.To_Hex (Number    => Barrier_Value,
+               Content  => "    .word    0x" &
+                 Mutools.Utils.To_Hex (Number    => Unsigned_64 (Barrier_Value),
                                        Normalize => False));
          end;
 
