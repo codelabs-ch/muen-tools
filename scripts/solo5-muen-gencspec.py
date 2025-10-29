@@ -7,7 +7,6 @@ import shutil
 import subprocess
 import sys
 
-import _paths
 import muutils
 import lief
 from lief import ELF
@@ -15,14 +14,14 @@ from lxml import etree
 
 MFT_CMD = "solo5-elftool query-manifest"
 ABI_CMD = "solo5-elftool query-abi"
-DEFAULT_RAM_SIZE = "512"
+DEFAULT_RAM_SIZE = 512
+DEFAULT_CHANNEL_SIZE = 0x100000
 MAX_NAME_LEN = 63
 NOP = 0x90
 
 ABI_TARGET = "muen"
 ABI_VERSION = 3
 
-chan_size = 0x100000
 chan_addr = 0xE0000000
 comp_name = ""
 
@@ -190,16 +189,15 @@ def add_ram_memory(xml_spec, binary_end, ram_size_mb):
     return binary_end + ram_size
 
 
-def add_channel(name, channels):
+def add_channel(name, channels, chan_size: int):
     """
     Add channel reader/writer XML elements for Solo5 device with given name.
     """
-    global chan_addr, chan_size
+    global chan_addr
     print(
-        "* Adding channels for device '"
-        + name
-        + "' @ "
-        + muutils.int_to_ada_hex(chan_addr)
+        f"* Adding channels for device '{name}' @ "
+        f"{muutils.int_to_ada_hex(chan_addr)} with "
+        f"size {muutils.int_to_ada_hex(chan_size)}"
     )
     channels.append(
         etree.Element(
@@ -279,6 +277,10 @@ def parse_args():
     """
     Returned parsed command line arguments
     """
+
+    def auto_int(x):
+        return int(x, 0)
+
     arg_parser = argparse.ArgumentParser(description="Solo5 to Muen converter")
     arg_parser.add_argument("elf_binary", type=str, help="Solo5 unikernel ELF binary")
     arg_parser.add_argument(
@@ -301,7 +303,15 @@ def parse_args():
         "--ram",
         type=int,
         default=DEFAULT_RAM_SIZE,
-        help=("Allocate unikernel memory in MB (default: " + DEFAULT_RAM_SIZE + " MB"),
+        help=(f"Allocate unikernel memory in MB (default: {DEFAULT_RAM_SIZE} MB"),
+    )
+    arg_parser.add_argument(
+        "--channel-size",
+        type=auto_int,
+        default=DEFAULT_CHANNEL_SIZE,
+        help=(
+            f"Reader/writer channels size (default: {hex(DEFAULT_CHANNEL_SIZE)} bytes"
+        ),
     )
     arg_parser.add_argument(
         "--nocopy",
@@ -385,7 +395,7 @@ for dev in data["devices"]:
             if len(devs) > 0:
                 req.remove(devs[0])
                 req.append(devs[0])
-        add_channel(dev["name"], channels)
+        add_channel(dev["name"], channels, args.channel_size)
 
 if out_spec_path is None:
     out_spec_path = out_dir + "/"
