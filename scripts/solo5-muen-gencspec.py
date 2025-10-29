@@ -101,7 +101,7 @@ def add_elf_memory(xml_spec, binary, filename):
     end_addr = 0
     provides = xml_spec.xpath("/component/provides")[0]
     for segment in binary.segments:
-        if segment.type == ELF.SEGMENT_TYPES.LOAD:
+        if segment.type == lief.ELF.Segment.TYPE.LOAD:
             sections = segment.sections
             if len(sections) == 0:
                 continue
@@ -114,8 +114,8 @@ def add_elf_memory(xml_spec, binary, filename):
             if ".text" in mem_name:
                 mem_name = "text"
 
-            w = ELF.SEGMENT_FLAGS.W in segment
-            x = ELF.SEGMENT_FLAGS.X in segment
+            w = lief.ELF.Segment.FLAGS.W in segment
+            x = lief.ELF.Segment.FLAGS.X in segment
 
             virtual_addr = segment.virtual_address
             phy_size = segment.physical_size
@@ -342,7 +342,7 @@ resettable = args.resettable
 ram_size_mb = args.ram
 
 if not os.path.isfile(src_bin_path):
-    sys.exit("Error: ELF binary not found")
+    sys.exit(f"Error: ELF binary '{src_bin_path}' not found")
 
 if not os.path.isfile(src_spec_path):
     sys.exit("Error: Source component XML specification not found")
