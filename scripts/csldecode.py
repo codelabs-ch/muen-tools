@@ -3,6 +3,7 @@
 # Print CSL commands in given image.
 
 import argparse
+from io import BufferedWriter
 import os
 import sys
 import struct
@@ -18,10 +19,16 @@ def parse_args():
     """
     arg_parser = argparse.ArgumentParser(description="CSL decoder")
     arg_parser.add_argument("img_src", type=str, help="CSL image source")
+    arg_parser.add_argument(
+        "-e", "--extract", type=str, help=("extract data to given path")
+    )
     return arg_parser.parse_args()
 
 
-def hex_dump(data, width=16):
+# info output
+
+
+def hex_dump(data: bytes, width: int = 16) -> None:
     for i in range(0, len(data), width):
         chunk = data[i : i + width]
         hex_chunk = " ".join(f"{byte:02x}" for byte in chunk)
@@ -31,7 +38,7 @@ def hex_dump(data, width=16):
         print(f"{i:08x}  {hex_chunk:<{width*3}}  {ascii_chunk}")
 
 
-def csl_write(name, data):
+def csl_write(name: str, data: bytes) -> None:
     if len(data) < 9:
         raise ValueError(f"{name}: Invalid data length {len(data)}")
 
@@ -41,7 +48,7 @@ def csl_write(name, data):
     print(f"addr {hex(addr)}, len {hex(content_len)}")
 
 
-def csl_fill(name, data):
+def csl_fill(name: str, data: bytes) -> None:
     if len(data) != 24:
         raise ValueError(f"{name}: Invalid data length {len(data)}")
 
@@ -52,14 +59,14 @@ def csl_fill(name, data):
     print(f"addr {hex(addr)}, len {hex(fill_length)}, pattern {hex(pattern)}")
 
 
-def csl_set_entry_point(name, data):
+def csl_set_entry_point(name: str, data: bytes) -> None:
     if len(data) != 8:
         raise ValueError(f"{name}: Invalid data length {len(data)}")
     addr = int.from_bytes(data[0:8], "little")
     print(f"addr {hex(addr)}")
 
 
-def csl_check_cpuid(name, data):
+def csl_check_cpuid(name: str, data: bytes):
     if len(data) != 88:
         raise ValueError(f"{name}: Invalid data length {len(data)}")
 
@@ -78,9 +85,33 @@ def csl_check_cpuid(name, data):
     )
 
 
-def csl_vendor_specific(name, data):
+def csl_vendor_specific(name: str, data: bytes):
     print(f"data_len {hex(len(data))}")
     hex_dump(data)
+
+
+# extract
+
+
+def csl_write_file(name: str, data: bytes, out: BufferedWriter) -> None:
+    if len(data) < 9:
+        raise ValueError(f"{name}: Invalid data length {len(data)}")
+
+    addr = int.from_bytes(data[0:7], "little")
+    out.seek(addr)
+    out.write(data)
+
+
+def csl_fill_file(name: str, data: bytes, out: BufferedWriter) -> None:
+    if len(data) != 24:
+        raise ValueError(f"{name}: Invalid data length {len(data)}")
+
+    addr = int.from_bytes(data[0:8], "little")
+    fill_length = int.from_bytes(data[8:16], "little")
+    pattern = data[16:17]
+
+    out.seek(addr)
+    out.write(pattern * fill_length)
 
 
 args = parse_args()
@@ -88,10 +119,37 @@ args = parse_args()
 if not os.path.isfile(args.img_src):
     sys.exit("Error: CSL source '" + args.img_src + "' not found")
 
+
+def dispatch_info(cmd_str: str, data: bytes) -> None:
+    match cmd_str:
+        case "CMD_WRITE":
+            csl_write(cmd_str, data)
+        case "CMD_FILL":
+            csl_fill(cmd_str, data)
+        case "CMD_SET_ENTRY_POINT":
+            csl_set_entry_point(cmd_str, data)
+        case "CMD_CHECK_CPUID":
+            csl_check_cpuid(cmd_str, data)
+        case "VENDOR_SPECIFIC":
+            csl_vendor_specific(cmd_str, data)
+
+
+def dispatch_extract(cmd_str: str, data: bytes, out: BufferedWriter) -> None:
+    match cmd_str:
+        case "CMD_WRITE":
+            csl_write_file(cmd_str, data, out)
+        case "CMD_FILL":
+            csl_fill_file(cmd_str, data, out)
+
+
 with open(args.img_src, "rb") as img_src:
     magic = img_src.read(8)
     if magic != CSL_VERMAGIC:
         sys.exit("Error: source '" + args.img_src + "' is not a CSL image")
+
+    out_file = None
+    if args.extract:
+        out_file = open(args.extract, "wb")
 
     while True:
         data = img_src.read(8)
@@ -115,15 +173,11 @@ with open(args.img_src, "rb") as img_src:
         if len(data) != length:
             raise ValueError("Unable to read cmd data")
 
-        print(f"{cmd_str:22}", end="")
-        match cmd_str:
-            case "CMD_WRITE":
-                csl_write(cmd_str, data)
-            case "CMD_FILL":
-                csl_fill(cmd_str, data)
-            case "CMD_SET_ENTRY_POINT":
-                csl_set_entry_point(cmd_str, data)
-            case "CMD_CHECK_CPUID":
-                csl_check_cpuid(cmd_str, data)
-            case "VENDOR_SPECIFIC":
-                csl_vendor_specific(cmd_str, data)
+        if out_file:
+            dispatch_extract(cmd_str, data, out_file)
+        else:
+            print(f"{cmd_str:22}", end="")
+            dispatch_info(cmd_str, data)
+
+    if out_file:
+        out_file.close()
