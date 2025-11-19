@@ -25,7 +25,8 @@ RUN git clone https://github.com/mirage/mirage-skeleton \
 	&& git reset --hard c7841e2796270c3114cbff932e3f7a0ff86b62c4 \
 	&& eval $(opam env) \
 	&& mirage configure -t muen --ipv4=192.168.254.10/24 --ipv4-gateway=192.168.254.1 \
-	&& make depend
+	&& make \
+	&& mv dist/https.muen $HOME/
 
 RUN git clone -b with-kv-mirage4 https://github.com/roburio/unipi.git \
 	&& git -C unipi reset --hard 90dd597b41aee0162cdc75d87a1ce3ca415bef55
