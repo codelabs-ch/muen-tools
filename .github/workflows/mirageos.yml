@@ -35,7 +35,7 @@ jobs:
           context: .
           file: ./docker/Dockerfile.muen-mirageos
           platforms: linux/amd64
-          push: ${{ github.ref == 'refs/heads/devel' }}
+          push: ${{ github.ref == 'refs/heads/devel-59e3fac208fc-bob-publish' }}
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache
           tags: ghcr.io/codelabs-ch/muen-mirageos:latest
