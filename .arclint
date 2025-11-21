@@ -16,8 +16,8 @@
 				"script-and-regex.regex": "/^(?P<message>.*)$/m"
 		},
 
-		"pep8": {
-			"type": "pep8",
+		"black": {
+			"type": "black",
 			"include": "(\\.py$)"
 		}
 	}
