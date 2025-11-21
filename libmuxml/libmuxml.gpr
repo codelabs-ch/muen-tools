@@ -20,11 +20,11 @@ with "xmlada";
 with "xia";
 
 with "../shared_tools";
-with "../libtest/libtest";
+with "libtest";
 
 library project Libmuxml extends "../libs.gpr" is
 
-   for Source_Dirs use ("src", "generated");
+   for Source_Dirs use ("src", external("LIBMUXML_GENERATED"));
    for Object_Dir use "obj/" & Shared_Tools.Build;
    for Library_Dir use "lib/" & Shared_Tools.Build;
    for Library_Name use "muxml";

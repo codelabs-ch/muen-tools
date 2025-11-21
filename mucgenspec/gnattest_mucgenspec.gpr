@@ -16,14 +16,14 @@
 --  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --
 
-with "../libtest/libtest";
-with "../libmutools/libmutools";
-with "../libmucfgcheck/libmucfgcheck";
+with "libtest";
+with "libmutools";
+with "libmucfgcheck";
 
 project GNATtest_Mucgenspec extends "../tests.gpr" is
 
-   for Source_Dirs use ("src", "generated");
-   for Object_Dir use "obj/tests";
+   for Source_Dirs use ("src", external("MUCGENSPEC_GENERATED"));
+   for Object_Dir use external("OBJ_DIR");
 
    package Make renames Tests.Make;
 

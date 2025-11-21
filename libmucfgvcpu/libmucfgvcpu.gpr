@@ -16,12 +16,12 @@
 --  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --
 
-with "../libmuxml/libmuxml";
+with "libmuxml";
 with "../shared_tools";
 
 library project Libmucfgvcpu extends "../libs.gpr" is
 
-   for Source_Dirs use ("src", "generated");
+   for Source_Dirs use ("src", external("MUCFGVCPU_GENERATED"));
    for Object_Dir use "obj/" & Shared_Tools.Build;
    for Library_Dir use "lib/" & Shared_Tools.Build;
    for Library_Kind use "static";

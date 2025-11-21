@@ -242,7 +242,7 @@
     its vector is used to select a bit in this field. If the bit is 1, the
     exception causes a VM exit. If the bit is 0, the exception is delivered
     normally through the IDT, using the descriptor corresponding to the
-    exception’s vector.
+    exception's vector.
 
     See Intel SDM Vol. 3C, "24.6.3 Exception Bitmap" for more details on the
     exception bitmap configuration.

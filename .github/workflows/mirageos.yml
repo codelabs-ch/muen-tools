@@ -28,9 +28,13 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup env
+        run: echo "SHORTREF=$(echo $GITHUB_SHA | cut -c1-12)" >> $GITHUB_ENV
+
       - name: Build Docker image
         id: docker_build
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: .
           file: ./docker/Dockerfile.muen-mirageos
@@ -38,4 +42,7 @@ jobs:
           push: ${{ github.ref == 'refs/heads/devel' }}
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache
-          tags: ghcr.io/codelabs-ch/muen-mirageos:latest
+          tags: |
+            ghcr.io/codelabs-ch/muen-mirageos:latest
+            ghcr.io/codelabs-ch/muen-mirageos:${{ github.ref_name }}
+            ghcr.io/codelabs-ch/muen-mirageos:${{ github.ref_name }}-${{ env.SHORTREF }}
