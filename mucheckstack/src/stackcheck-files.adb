@@ -63,8 +63,10 @@ is
 
       Bind_File_Prefix : constant String := "b__";
 
-      Obj_Dir   : constant Virtual_File := Project.Object_Dir;
-      Src_Files : File_Array_Access     := Project.Source_Files;
+      Proj_Dir  : constant String   := Project.Project_Path.Display_Dir_Name;
+      CI_Dir    : constant String   := Proj_Dir & "/../ci/";
+      Obj_Dir   : constant String   := Project.Object_Dir.Display_Full_Name;
+      Src_Files : File_Array_Access := Project.Source_Files;
       Mains     : GNAT.Strings.String_List_Access
         := Project.Attribute_Value
           (Attribute    => GNATCOLL.Projects.Main_Attribute,
@@ -77,14 +79,19 @@ is
                 (File      => Src,
                  Suffix    => File_Extension (File => Src),
                  Normalize => True);
-            CI_File  : constant Unbounded_String
-              := To_Unbounded_String
-                (Obj_Dir.Display_Full_Name & (+Basename) & ".ci");
+            CI_File     : constant Unbounded_String
+              := To_Unbounded_String (CI_Dir & (+Basename) & ".ci");
+            CI_File_Obj : constant Unbounded_String
+              := To_Unbounded_String (Obj_Dir & (+Basename) & ".ci");
          begin
             if not File_Set.Contains (Item => CI_File)
               and then Ada.Directories.Exists (Name => To_String (CI_File))
             then
                File_Set.Insert (New_Item => CI_File);
+            elsif not File_Set.Contains (Item => CI_File_Obj)
+              and then Ada.Directories.Exists (Name => To_String (CI_File_Obj))
+            then
+               File_Set.Insert (New_Item => CI_File_Obj);
             end if;
          end;
       end loop;
@@ -103,8 +110,7 @@ is
                  := Ada.Directories.Base_Name (Name => Mains (I).all);
                CI_File : constant Unbounded_String
                  := To_Unbounded_String
-                   (Obj_Dir.Display_Full_Name & Bind_File_Prefix
-                    & Main & ".ci");
+                   (Obj_Dir & Bind_File_Prefix & Main & ".ci");
             begin
                if not File_Set.Contains (Item => CI_File)
                  and then Ada.Directories.Exists (Name => To_String (CI_File))
