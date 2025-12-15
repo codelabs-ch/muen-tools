@@ -151,9 +151,12 @@ is
          Mulog.Log (Msg => "Largest stack usage by "
                     & Utils.Entity_To_Ada_Name (To_String (Max_User))
                     & " with" & Max_Usage'Img & " bytes");
+         Overflow := Max_Usage > Limit;
+      else
+         Mulog.Log (Level => Mulog.Error,
+                    Msg   => "Unable to determine any stack usage");
+         Overflow := True;
       end if;
-
-      Overflow := Max_Usage > Limit;
    end Run;
 
 end Stackcheck;
