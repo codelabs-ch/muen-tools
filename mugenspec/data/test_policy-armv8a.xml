@@ -131,6 +131,7 @@
    <capabilities>
     <capability name="nic"/>
     <capability name="stream_id">16#0877#</capability>
+    <capability name="stream_id">16#0878#</capability>
    </capabilities>
   </device>
  </devices>

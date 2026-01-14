@@ -92,6 +92,11 @@ is
             Valid_Entry        => 2#1#,
             Context_Bank_Index => 1,
             Reserved_24_31     => 16#00#),
+         2 =>
+           (Stream_Identifier  => 16#0878#,
+            Valid_Entry        => 2#1#,
+            Context_Bank_Index => 1,
+            Reserved_24_31     => 16#00#),
          others => Null_SMMU500_Controller_Configuration);
 
    SMMU_Context_Configuration : constant SMMU500_Context_Configuration

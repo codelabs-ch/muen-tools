@@ -448,35 +448,49 @@ is
                   Stream_ID_Device : constant DOM.Core.Node
                     := DOM.Core.Nodes.Item (List  => Stream_ID_Devices.Right,
                                             Index => I);
-                  Stream_ID        : constant Unsigned_64
-                    := Unsigned_64'Value (Muxml.Utils.Get_Element_Value
-                                          (Doc   => Stream_ID_Device,
-                                           XPath => "capabilities/capability" &
-                                             "[@name='stream_id']"));
+                  Stream_IDs       : constant DOM.Core.Node_List
+                    := McKae.XML.XPath.XIA.XPath_Query
+                      (N     => Stream_ID_Device,
+                       XPath => "capabilities/capability" &
+                         "[@name='stream_id']/text()");
                begin
-                  if Controller_Configuration_ID <= Stream_Mapping_ID_Max then
-                     Controller_Configuration := Controller_Configuration &
-                       Ada.Strings.Fixed.Trim (Controller_Configuration_ID'Img,
-                                               Ada.Strings.Left) & " =>" &
-                       ASCII.LF & Indent (N => 3) &
-                       "  (Stream_Identifier  => " &
-                       Mutools.Utils.To_Hex (Stream_ID) & "," &
-                       ASCII.LF & Indent (N => 3) &
-                       "   Valid_Entry        => 2#1#," &
-                       ASCII.LF & Indent (N => 3) &
-                       "   Context_Bank_Index =>" &
-                       Context_Configuration_ID'Img & "," &
-                       ASCII.LF & Indent (N => 3) &
-                       "   Reserved_24_31     => 16#00#)," &
-                       ASCII.LF & Indent (N => 3);
+                  for J in 0 .. DOM.Core.Nodes.Length (Stream_IDs) - 1 loop
+                     declare
+                        Stream_ID : constant Unsigned_64
+                          := Unsigned_64'Value
+                            (DOM.Core.Nodes.Node_Value
+                               (N => DOM.Core.Nodes.Item
+                                  (List  => Stream_IDs,
+                                   Index => J)));
+                     begin
+                        if
+                          Controller_Configuration_ID <= Stream_Mapping_ID_Max
+                        then
+                           Controller_Configuration :=
+                             Controller_Configuration & Ada.Strings.Fixed.Trim
+                               (Controller_Configuration_ID'Img,
+                                Ada.Strings.Left) & " =>" &
+                             ASCII.LF & Indent (N => 3) &
+                             "  (Stream_Identifier  => " &
+                             Mutools.Utils.To_Hex (Stream_ID) & "," &
+                             ASCII.LF & Indent (N => 3) &
+                             "   Valid_Entry        => 2#1#," &
+                             ASCII.LF & Indent (N => 3) &
+                             "   Context_Bank_Index =>" &
+                             Context_Configuration_ID'Img & "," &
+                             ASCII.LF & Indent (N => 3) &
+                             "   Reserved_24_31     => 16#00#)," &
+                             ASCII.LF & Indent (N => 3);
 
-                     Controller_Configuration_ID :=
-                       Controller_Configuration_ID + 1;
-                  else
-                     Mulog.Log (Level => Mulog.Error,
-                                Msg   => "Number of stream mapping " &
-                                  "registers exceeded");
-                  end if;
+                           Controller_Configuration_ID :=
+                             Controller_Configuration_ID + 1;
+                        else
+                           Mulog.Log (Level => Mulog.Error,
+                                      Msg   => "Number of stream mapping " &
+                                        "registers exceeded");
+                        end if;
+                     end;
+                  end loop;
                end;
             end loop;
 
