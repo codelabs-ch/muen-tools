@@ -28,6 +28,7 @@ is
 
    Hasher_Error    : exception;
    Reference_Error : exception;
+   Thread_Error    : exception;
 
 private
 

@@ -16,18 +16,31 @@
 --  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --
 
+with Ada.Streams;
+
 with DOM.Core;
+
+with GNAT.SHA256;
 
 with Mutools.Strings;
 
 package Memhashes.Utils
 is
 
+   subtype Hash_String is String
+     (1 .. GNAT.SHA256.Message_Digest'Length + String'("16##")'Length);
+
+   type Result_Type is record
+      Hash         : Hash_String;
+      Use_Size     : Boolean;
+      Content_Size : Ada.Streams.Stream_Element_Count;
+   end record;
+
    --  Calculate SHA-256 digest of memory node with content. Files are expected
    --  to be found in the specified input directories.
    function SHA256_Digest
      (Node       : DOM.Core.Node;
       Input_Dirs : Mutools.Strings.String_Array)
-      return String;
+      return Result_Type;
 
 end Memhashes.Utils;

@@ -38,7 +38,8 @@ exception
       Ada.Command_Line.Set_Exit_Status (Code => Ada.Command_Line.Failure);
    when E : Muxml.XML_Input_Error
       | Muxml.Validation_Error
-      | Memhashes.Hasher_Error =>
+      | Memhashes.Hasher_Error
+      | Memhashes.Thread_Error =>
       Mulog.Log (Level => Mulog.Error,
                  Msg   => "Processing failed, aborting");
       Mulog.Log (Level => Mulog.Error,
