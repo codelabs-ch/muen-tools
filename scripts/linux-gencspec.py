@@ -5,7 +5,6 @@ from lxml import etree
 import os
 import sys
 
-import _paths
 import muutils
 
 DESCRIPTION = 'Linux XML component spec generator'
