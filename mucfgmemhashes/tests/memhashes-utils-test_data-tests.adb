@@ -70,7 +70,7 @@ package body Memhashes.Utils.Test_Data.Tests is
             if Ref_Hash'Length > 0 and Ref_Hash /= "none" then
                Assert (Condition => SHA256_Digest
                        (Node       => Cur_Mem,
-                        Input_Dirs => Input_Dirs) = Ref_Hash,
+                        Input_Dirs => Input_Dirs).Hash = Ref_Hash,
                        Message   => "Hash mismatch of memory region '"
                        & Mem_Name & "'");
             end if;
