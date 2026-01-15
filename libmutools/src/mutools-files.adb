@@ -27,7 +27,8 @@ is
    procedure Open
      (Filename :     String;
       File     : out Ada.Streams.Stream_IO.File_Type;
-      Writable :     Boolean := True)
+      Writable :     Boolean := True;
+      Form     :     String  := "")
    is
       use type Ada.Directories.File_Kind;
    begin
@@ -35,7 +36,8 @@ is
          Ada.Streams.Stream_IO.Create
            (File => File,
             Mode => Ada.Streams.Stream_IO.Out_File,
-            Name => Filename);
+            Name => Filename,
+            Form => Form);
       else
          if not Ada.Directories.Exists (Name => Filename) then
             raise IO_Error with "File does not exist";
@@ -50,7 +52,8 @@ is
          Ada.Streams.Stream_IO.Open
            (File => File,
             Mode => Ada.Streams.Stream_IO.In_File,
-            Name => Filename);
+            Name => Filename,
+            Form => Form);
       end if;
 
    exception
