@@ -27,7 +27,7 @@ is
      Physical_Interrupt_ID_Config range 0 .. 15;
 
    Virtual_Maintenance_Interrupt : constant Physical_Interrupt_ID_Config
-     :=  25;
+     :=__virtual_maintenance_irq__;
    Hypervisor_Timer_Interrupt    : constant Physical_Interrupt_ID_Config
      :=  26;
    SMMU_Controller_Interrupt     : constant Physical_Interrupt_ID_Config
