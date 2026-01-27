@@ -608,33 +608,35 @@ is
             Item     => Indent
             & " " & CPU'Img & " => Major_Frame_Array'("
             & ASCII.LF);
+         declare
+            Cur_CPU_ID_Str : constant String := Ada.Strings.Fixed.Trim
+              (Source => CPU'Img,
+               Side   => Ada.Strings.Left);
+            Cur_CPU_Majors : constant DOM.Core.Node_List
+              := McKae.XML.XPath.XIA.XPath_Query
+                (N     => Scheduling,
+                 XPath => "majorFrame/cpu[@id='" & Cur_CPU_ID_Str & "']");
+         begin
+            for Cur_Major_Idx in 0 .. Major_Count - 1 loop
+               declare
+                  Minors : constant DOM.Core.Node_List
+                    := McKae.XML.XPath.XIA.XPath_Query
+                      (N     => DOM.Core.Nodes.Item
+                         (List  => Cur_CPU_Majors,
+                          Index => Cur_Major_Idx),
+                       XPath => "minorFrame");
+               begin
+                  Write_Major_Frame (Minors => Minors,
+                                     Index  => Cur_Major_Idx);
 
-         for I in 0 .. Major_Count - 1 loop
-            declare
-               Major      : constant DOM.Core.Node := DOM.Core.Nodes.Item
-                 (List  => Majors,
-                  Index => I);
-               Major_CPUs : constant DOM.Core.Node_List
-                 := McKae.XML.XPath.XIA.XPath_Query
-                   (N     => Major,
-                    XPath => "cpu");
-               Minors     : constant DOM.Core.Node_List
-                 := McKae.XML.XPath.XIA.XPath_Query
-                   (N     => DOM.Core.Nodes.Item
-                      (List  => Major_CPUs,
-                       Index => CPU),
-                    XPath => "minorFrame");
-            begin
-               Write_Major_Frame (Minors => Minors,
-                                  Index  => I);
-
-               if I < Major_Count - 1 then
-                  TMPL.Write
-                    (Template => Template,
-                     Item     => "," & ASCII.LF);
-               end if;
-            end;
-         end loop;
+                  if Cur_Major_Idx < Major_Count - 1 then
+                     TMPL.Write
+                       (Template => Template,
+                        Item     => "," & ASCII.LF);
+                  end if;
+               end;
+            end loop;
+         end;
 
          TMPL.Write
            (Template => Template,
