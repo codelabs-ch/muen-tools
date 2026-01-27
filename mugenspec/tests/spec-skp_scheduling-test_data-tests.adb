@@ -38,20 +38,42 @@ package body Spec.Skp_Scheduling.Test_Data.Tests is
 
       pragma Unreferenced (Gnattest_T);
 
-      Policy    : Muxml.XML_Data_Type;
-      Spec_File : constant String := "obj/skp-scheduling.ads";
+      Output_Dir : constant String := "obj";
+      Spec_File  : constant String := Output_Dir & "/skp-scheduling.ads";
    begin
-      Muxml.Parse (Data => Policy,
-                   Kind => Muxml.Format_B,
-                   File => "data/test_policy.xml");
+      Write_X86_64 :
+      declare
+         Policy : Muxml.XML_Data_Type;
+      begin
+         Muxml.Parse (Data => Policy,
+                      Kind => Muxml.Format_B,
+                      File => "data/test_policy.xml");
 
-      Write (Output_Dir => "obj",
-             Policy     => Policy);
-      Assert (Condition => Test_Utils.Equal_Files
-              (Filename1 => "data/skp-scheduling.ads",
-               Filename2 => Spec_File),
-              Message   => "Scheduling spec mismatch");
-      Ada.Directories.Delete_File (Name => Spec_File);
+         Write (Output_Dir => Output_Dir,
+                Policy     => Policy);
+         Assert (Condition => Test_Utils.Equal_Files
+                 (Filename1 => "data/skp-scheduling.ads",
+                  Filename2 => Spec_File),
+                 Message   => "Scheduling spec mismatch (x86/64)");
+         Ada.Directories.Delete_File (Name => Spec_File);
+      end Write_X86_64;
+
+      Write_ARM64 :
+      declare
+         Policy : Muxml.XML_Data_Type;
+      begin
+         Muxml.Parse (Data => Policy,
+                      Kind => Muxml.Format_B,
+                      File => "data/test_policy-armv8a.xml");
+
+         Write (Output_Dir => Output_Dir,
+                Policy     => Policy);
+         Assert (Condition => Test_Utils.Equal_Files
+                 (Filename1 => "data/skp-scheduling-arm64.ref",
+                  Filename2 => Spec_File),
+                 Message   => "Scheduling spec mismatch (ARM64)");
+         Ada.Directories.Delete_File (Name => Spec_File);
+      end Write_ARM64;
 --  begin read only
    end Test_Write;
 --  end read only
