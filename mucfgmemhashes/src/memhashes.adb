@@ -16,15 +16,23 @@
 --  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --
 
+with Ada.Containers.Synchronized_Queue_Interfaces;
+with Ada.Containers.Unbounded_Synchronized_Queues;
+with Ada.Exceptions;
+with Ada.Streams;
+
 with DOM.Core.Nodes;
 with DOM.Core.Elements;
 with DOM.Core.Documents;
+
+with Interfaces;
 
 with McKae.XML.XPath.XIA;
 
 with Mulog;
 with Muxml.Utils;
 with Mutools.Strings;
+with Mutools.Utils;
 
 with Memhashes.Utils;
 with Memhashes.Pre_Checks;
@@ -41,9 +49,23 @@ is
    -------------------------------------------------------------------------
 
    procedure Generate_Hashes
-     (Policy    : in out Muxml.XML_Data_Type;
-      Input_Dir :        String)
+     (Policy       : in out Muxml.XML_Data_Type;
+      Input_Dir    :        String;
+      Worker_Count :        Positive)
    is
+      use type Ada.Containers.Count_Type;
+
+      type Input_Data_Type is record
+         Mem_Node : DOM.Core.Node;
+      end record;
+
+      type Output_Data_Type is record
+         Mem_Node     : DOM.Core.Node;
+         Hash_Str     : Utils.Hash_String;
+         Use_Size     : Boolean;
+         Content_Size : Ada.Streams.Stream_Element_Count;
+      end record;
+
       Nodes : constant DOM.Core.Node_List
         := McKae.XML.XPath.XIA.XPath_Query
           (N     => Policy.Doc,
@@ -52,26 +74,127 @@ is
       Input_Dirs : constant Mutools.Strings.String_Array
         := Mutools.Strings.Tokenize (Str => Input_Dir);
       Count : constant Natural := DOM.Core.Nodes.Length (List => Nodes);
+
+      package Input_Queue_Interfaces is new
+        Ada.Containers.Synchronized_Queue_Interfaces
+          (Element_Type => Input_Data_Type);
+      package Input_Queues is new Ada.Containers.Unbounded_Synchronized_Queues
+        (Queue_Interfaces => Input_Queue_Interfaces);
+      package Output_Queue_Interfaces is new
+        Ada.Containers.Synchronized_Queue_Interfaces
+          (Element_Type => Output_Data_Type);
+      package Output_Queues is new Ada.Containers.Unbounded_Synchronized_Queues
+        (Queue_Interfaces => Output_Queue_Interfaces);
+
+      Work_Input  : Input_Queues.Queue;
+      Work_Output : Output_Queues.Queue;
+
+      type Worker_Id_Type is new Positive range 1 .. Worker_Count;
+
+      task type Worker is
+         entry Start (Id : Worker_Id_Type);
+         entry Finish (Success : out Boolean);
+      end Worker;
+
+      task body Worker
+      is
+         Item          : Input_Data_Type;
+         Result        : Utils.Result_Type;
+         My_Id         : Worker_Id_Type;
+         Processed     : Natural := 0;
+         Error_Occured : Boolean := False;
+      begin
+         accept Start (Id : Worker_Id_Type) do
+            My_Id := Id;
+         end Start;
+
+         begin
+            Process : loop
+               select
+                  Work_Input.Dequeue (Element => Item);
+               else
+                  exit Process;
+               end select;
+
+               Result := Utils.SHA256_Digest (Node       => Item.Mem_Node,
+                                              Input_Dirs => Input_Dirs);
+               Work_Output.Enqueue
+                 (New_Item => (Mem_Node     => Item.Mem_Node,
+                               Hash_Str     => Result.Hash,
+                               Use_Size     => Result.Use_Size,
+                               Content_Size => Result.Content_Size));
+               Processed := Processed + 1;
+            end loop Process;
+            Mulog.Log
+              (Level => Mulog.Info,
+               Msg   => "Worker" & My_Id'Img & " is done," & Processed'Img
+                 & " items processed");
+
+         exception
+            when X : others =>
+               Mulog.Log (Level => Mulog.Error,
+                          Msg   => "Worker" & My_Id'Img & " terminated due to "
+                            & Ada.Exceptions.Exception_Information (X));
+               Error_Occured := True;
+         end;
+
+         accept Finish (Success : out Boolean) do
+            Success := not Error_Occured;
+         end Finish;
+      end Worker;
+
    begin
       Mulog.Log (Msg => "Looking for input files in '" & Input_Dir & "'");
       Mulog.Log (Msg => "Generating hashes for" & Count'Img
                  & " memory regions");
 
       for I in 0 .. Count - 1 loop
+         Work_Input.Enqueue (New_Item => Input_Data_Type'
+           (Mem_Node => DOM.Core.Nodes.Item (List => Nodes, Index => I)));
+      end loop;
+
+      declare
+         Workers : array (Worker_Id_Type) of Worker;
+         Success : array (Worker_Id_Type) of Boolean;
+      begin
+         for Id in Worker_Id_Type loop
+            Workers (Id).Start (Id => Id);
+         end loop;
+
+         for Id in Worker_Id_Type loop
+            Workers (Id).Finish (Success => Success (Id));
+         end loop;
+
+         if (for some Id in Worker_Id_Type => not Success (Id)) then
+            raise Thread_Error with "Error in hashing worker thread";
+         end if;
+      end;
+
+      while Work_Output.Current_Use > 0 loop
          declare
             use type DOM.Core.Node;
-
-            Mem_Node : constant DOM.Core.Node
-              := DOM.Core.Nodes.Item
-                (List  => Nodes,
-                 Index => I);
-            Hash_Str : constant String
-              := Utils.SHA256_Digest (Node       => Mem_Node,
-                                      Input_Dirs => Input_Dirs);
-            Hash_Node : DOM.Core.Node
-              := Muxml.Utils.Get_Element (Doc   => Mem_Node,
-                                          XPath => "hash");
+            Item         : Output_Data_Type;
+            Hash_Node    : DOM.Core.Node;
+            Content_Node : DOM.Core.Node;
          begin
+            Work_Output.Dequeue (Element => Item);
+
+            Hash_Node := Muxml.Utils.Get_Element
+              (Doc   => Item.Mem_Node,
+               XPath => "hash");
+
+            --  Annotate computed size of content node
+            if Item.Use_Size then
+               Content_Node := Muxml.Utils.Get_Element
+                 (Doc   => Item.Mem_Node,
+                  XPath => "*[self::fill or self::file]");
+               DOM.Core.Elements.Set_Attribute
+                 (Elem  => Content_Node,
+                  Name  => "size",
+                  Value => Mutools.Utils.To_Hex
+                    (Number => Interfaces.Unsigned_64 (Item.Content_Size)));
+            end if;
+
             if Hash_Node = null then
                Hash_Node := DOM.Core.Documents.Create_Element
                  (Doc      => Policy.Doc,
@@ -79,8 +202,8 @@ is
                DOM.Core.Elements.Set_Attribute
                  (Elem  => Hash_Node,
                   Name  => "value",
-                  Value => Hash_Str);
-               Muxml.Utils.Append_Child (Node      => Mem_Node,
+                  Value => Item.Hash_Str);
+               Muxml.Utils.Append_Child (Node      => Item.Mem_Node,
                                          New_Child => Hash_Node);
             else
                if DOM.Core.Elements.Get_Attribute
@@ -89,15 +212,15 @@ is
                then
                   Mulog.Log (Msg => "Skipping region with hash none: '"
                              & DOM.Core.Elements.Get_Attribute
-                               (Elem => Mem_Node,
+                               (Elem => Item.Mem_Node,
                                 Name => "name") & "'");
-               elsif Hash_Str /= DOM.Core.Elements.Get_Attribute
+               elsif Item.Hash_Str /= DOM.Core.Elements.Get_Attribute
                  (Elem => Hash_Node,
                   Name => "value")
                then
                   raise Hasher_Error with "Hash mismatch for memory "
                     & "region '"
-                    & DOM.Core.Elements.Get_Attribute (Elem => Mem_Node,
+                    & DOM.Core.Elements.Get_Attribute (Elem => Item.Mem_Node,
                                                        Name => "name")
                     & "'";
                end if;
@@ -220,7 +343,9 @@ is
 
    -------------------------------------------------------------------------
 
-   procedure Run (Policy_In, Policy_Out, Input_Dir : String)
+   procedure Run
+     (Policy_In, Policy_Out, Input_Dir : String;
+      Worker_Count                     : Positive)
    is
       Policy : Muxml.XML_Data_Type;
    begin
@@ -236,8 +361,9 @@ is
         (Data      => Remove_Sinfo_Files (Policy => Policy),
          Input_Dir => Input_Dir);
 
-      Generate_Hashes (Policy    => Policy,
-                       Input_Dir => Input_Dir);
+      Generate_Hashes (Policy       => Policy,
+                       Input_Dir    => Input_Dir,
+                       Worker_Count => Worker_Count);
       Resolve_Refs (Policy);
 
       Mulog.Log (Msg => "Writing policy to '" & Policy_Out & "'");

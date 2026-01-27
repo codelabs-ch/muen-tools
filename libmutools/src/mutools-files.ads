@@ -23,12 +23,14 @@ is
 
    --  Open file with specified name. If Writable is True, the file is opened
    --  for writing and created if it does not yet exist. If Writable is False,
-   --  the given file is opened for reading. Raises IO_Error if the file could
-   --  not be opened.
+   --  the given file is opened for reading. Form is passed to the respective
+   --  procedures in Ada.Stream_IO. Raises IO_Error if the file could not be
+   --  opened.
    procedure Open
      (Filename :     String;
       File     : out Ada.Streams.Stream_IO.File_Type;
-      Writable :     Boolean := True);
+      Writable :     Boolean := True;
+      Form     :     String  := "");
 
    IO_Error : exception;
 

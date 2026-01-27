@@ -35,9 +35,14 @@ is
    --  Return input directory.
    function Get_Input_Dir return String;
 
+   --  Return worker count for hashing.
+   function Get_Worker_Count return Positive;
+
    Invalid_Cmd_Line : exception;
 
 private
+
+   Worker_Count : aliased Integer;
 
    Policy_In, Policy_Out, Input_Dir : Ada.Strings.Unbounded.Unbounded_String;
 

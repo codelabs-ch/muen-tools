@@ -51,6 +51,11 @@ is
 
    -------------------------------------------------------------------------
 
+   function Get_Worker_Count return Positive
+   is (Worker_Count);
+
+   -----------------------------------------------------------------------------
+
    procedure Init (Description : String)
    is
       Cmdline : Mutools.Cmd_Line.Config_Type;
@@ -66,6 +71,13 @@ is
          Switch      => "-i:",
          Long_Switch => "--input-directory:",
          Help        => "Colon-separated list of input paths");
+      GNAT.Command_Line.Define_Switch
+        (Config      => Cmdline.Data,
+         Output      => Worker_Count'Access,
+         Switch      => "-j:",
+         Long_Switch => "--worker-count:",
+         Initial     => 1,
+         Help        => "Worker count for parallel hashing");
       GNAT.Command_Line.Define_Switch
         (Config      => Cmdline.Data,
          Switch      => "-h",
@@ -99,6 +111,7 @@ is
       if Policy_In = Null_Unbounded_String
         or else Policy_Out = Null_Unbounded_String
         or else Input_Dir = Null_Unbounded_String
+        or else Worker_Count not in Positive
       then
          GNAT.Command_Line.Display_Help (Config => Cmdline.Data);
          raise Invalid_Cmd_Line;
