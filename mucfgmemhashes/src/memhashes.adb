@@ -49,8 +49,9 @@ is
    -------------------------------------------------------------------------
 
    procedure Generate_Hashes
-     (Policy    : in out Muxml.XML_Data_Type;
-      Input_Dir :        String)
+     (Policy       : in out Muxml.XML_Data_Type;
+      Input_Dir    :        String;
+      Worker_Count :        Positive)
    is
       use type Ada.Containers.Count_Type;
 
@@ -88,8 +89,7 @@ is
       Work_Input  : Input_Queues.Queue;
       Work_Output : Output_Queues.Queue;
 
-      Worker_Count : constant := 16;
-      type Worker_Id_Type is range 1 .. Worker_Count;
+      type Worker_Id_Type is new Positive range 1 .. Worker_Count;
 
       task type Worker is
          entry Start (Id : Worker_Id_Type);
@@ -343,7 +343,9 @@ is
 
    -------------------------------------------------------------------------
 
-   procedure Run (Policy_In, Policy_Out, Input_Dir : String)
+   procedure Run
+     (Policy_In, Policy_Out, Input_Dir : String;
+      Worker_Count                     : Positive)
    is
       Policy : Muxml.XML_Data_Type;
    begin
@@ -359,8 +361,9 @@ is
         (Data      => Remove_Sinfo_Files (Policy => Policy),
          Input_Dir => Input_Dir);
 
-      Generate_Hashes (Policy    => Policy,
-                       Input_Dir => Input_Dir);
+      Generate_Hashes (Policy       => Policy,
+                       Input_Dir    => Input_Dir,
+                       Worker_Count => Worker_Count);
       Resolve_Refs (Policy);
 
       Mulog.Log (Msg => "Writing policy to '" & Policy_Out & "'");

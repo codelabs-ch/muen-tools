@@ -29,9 +29,10 @@ procedure Mucfgmemhashes
 is
 begin
    Memhashes.Cmd_Line.Init (Description => "Muen memory integrity hasher");
-   Memhashes.Run (Policy_In  => Memhashes.Cmd_Line.Get_Policy_Input,
-                  Policy_Out => Memhashes.Cmd_Line.Get_Policy_Output,
-                  Input_Dir  => Memhashes.Cmd_Line.Get_Input_Dir);
+   Memhashes.Run (Policy_In    => Memhashes.Cmd_Line.Get_Policy_Input,
+                  Policy_Out   => Memhashes.Cmd_Line.Get_Policy_Output,
+                  Input_Dir    => Memhashes.Cmd_Line.Get_Input_Dir,
+                  Worker_Count => Memhashes.Cmd_Line.Get_Worker_Count);
 
 exception
    when Memhashes.Cmd_Line.Invalid_Cmd_Line =>

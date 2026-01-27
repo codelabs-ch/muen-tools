@@ -24,7 +24,10 @@ is
    --  Open and validate given input policy. Generate memory integrity hashes
    --  for all memory regions which contain content (file or fill). Extend
    --  policy with generated hashes and write result to specified output file.
-   procedure Run (Policy_In, Policy_Out, Input_Dir : String);
+   --  Worker_Count determines level of parallelism.
+   procedure Run
+     (Policy_In, Policy_Out, Input_Dir : String;
+      Worker_Count                     : Positive);
 
    Hasher_Error    : exception;
    Reference_Error : exception;
@@ -34,8 +37,9 @@ private
 
    --  Generate hashes for memory content in given policy.
    procedure Generate_Hashes
-     (Policy    : in out Muxml.XML_Data_Type;
-      Input_Dir :        String);
+     (Policy       : in out Muxml.XML_Data_Type;
+      Input_Dir    :        String;
+      Worker_Count :        Positive);
 
    --  Resolve hash references.
    procedure Resolve_Refs (Policy : in out Muxml.XML_Data_Type);

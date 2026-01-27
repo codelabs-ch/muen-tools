@@ -40,9 +40,10 @@ package body Memhashes.Test_Data.Tests is
 
       Fname : constant String := "obj/test_policy_hashes.xml";
    begin
-      Run (Policy_In  => "data/test_policy.xml",
-           Policy_Out => Fname,
-           Input_Dir  => "data");
+      Run (Policy_In    => "data/test_policy.xml",
+           Policy_Out   => Fname,
+           Input_Dir    => "data",
+           Worker_Count => 8);
       Assert (Condition => Test_Utils.Equal_Files
               (Filename1 => Fname,
                Filename2 => "data/test_policy_hashes.xml"),
@@ -67,8 +68,9 @@ package body Memhashes.Test_Data.Tests is
       Muxml.Parse (Data => Policy,
                    Kind => Muxml.Format_B,
                    File => "data/test_policy.xml");
-      Generate_Hashes (Policy    => Policy,
-                       Input_Dir => "data");
+      Generate_Hashes (Policy       => Policy,
+                       Input_Dir    => "data",
+                       Worker_Count => 8);
       Assert (Condition => DOM.Core.Nodes.Length
               (List => McKae.XML.XPath.XIA.XPath_Query
                (N     => Policy.Doc,
@@ -78,8 +80,9 @@ package body Memhashes.Test_Data.Tests is
       --  Existing hashes should only be checked instead of adding additional
       --  hash elements.
 
-      Generate_Hashes (Policy    => Policy,
-                       Input_Dir => "data");
+      Generate_Hashes (Policy       => Policy,
+                       Input_Dir    => "data",
+                       Worker_Count => 8);
       Assert (Condition => DOM.Core.Nodes.Length
               (List => McKae.XML.XPath.XIA.XPath_Query
                (N     => Policy.Doc,
@@ -92,8 +95,9 @@ package body Memhashes.Test_Data.Tests is
          Name  => "value",
          Value => "16#00#");
       begin
-         Generate_Hashes (Policy    => Policy,
-                          Input_Dir => "data");
+         Generate_Hashes (Policy       => Policy,
+                          Input_Dir    => "data",
+                          Worker_Count => 8);
          Assert (Condition => False,
                  Message   => "Exception expected");
 
