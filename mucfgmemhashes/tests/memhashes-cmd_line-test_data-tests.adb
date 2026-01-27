@@ -142,8 +142,9 @@ package body Memhashes.Cmd_Line.Test_Data.Tests is
          Args : aliased GNAT.OS_Lib.Argument_List
            := (1 => new String'("-i"),
                2 => new String'("some_dir"),
-               3 => new String'("in_policy"),
-               4 => new String'("out_policy"));
+               3 => new String'("-j8"),
+               4 => new String'("in_policy"),
+               5 => new String'("out_policy"));
          Test_Parser : GNAT.Command_Line.Opt_Parser;
       begin
          GNAT.Command_Line.Initialize_Option_Scan
@@ -164,6 +165,8 @@ package body Memhashes.Cmd_Line.Test_Data.Tests is
                  Message   => "Policy output mismatch");
          Assert (Condition => Input_Dir = "some_dir",
                  Message   => "Input directory mismatch");
+         Assert (Condition => Worker_Count = 8,
+                 Message   => "Worker count mismatch");
       end Positive_Test;
    begin
       Invalid_Switch;
@@ -238,6 +241,26 @@ package body Memhashes.Cmd_Line.Test_Data.Tests is
               Message   => "Input dir mismatch");
 --  begin read only
    end Test_Get_Input_Dir;
+--  end read only
+
+
+--  begin read only
+   procedure Test_Get_Worker_Count (Gnattest_T : in out Test);
+   procedure Test_Get_Worker_Count_17c942 (Gnattest_T : in out Test) renames Test_Get_Worker_Count;
+--  id:2.2/17c942f4861b8e2b/Get_Worker_Count/1/0/
+   procedure Test_Get_Worker_Count (Gnattest_T : in out Test) is
+--  end read only
+
+      pragma Unreferenced (Gnattest_T);
+
+      Ref : constant Positive := 42;
+
+   begin
+      Worker_Count := Ref;
+      Assert (Condition => Get_Worker_Count = Ref,
+              Message   => "Worker count mismatch");
+--  begin read only
+   end Test_Get_Worker_Count;
 --  end read only
 
 --  begin read only
