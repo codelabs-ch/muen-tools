@@ -28,8 +28,7 @@ is
         "barriers, the compiler issues 'null range' warnings. To still " &
         "support these minimal configurations, the warnings have to be " &
         "turned off without specifying any details to prevent follow-up " &
-        "warnings for configurations with minor frame barriers (c.f. " &
-        "GNU GCC 12.3 GNAT RM, 2.197 Pragma Warnings).");
+        "warnings for configurations with minor frame barriers.");
    subtype Barrier_Range is
      Barrier_Index_Range range 1 .. Barrier_Index_Range'Last;
    pragma Warnings (On);
