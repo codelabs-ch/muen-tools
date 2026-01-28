@@ -180,6 +180,16 @@ is
                                 (Doc   => Physical_GIC_Dev,
                                  XPath => "capabilities/capability" &
                                    "[@name='virq_id_max']"));
+            Virt_Maintenance_IRQ : constant Natural
+              := Natural'Value (Muxml.Utils.Get_Attribute
+                                (Doc   => Physical_GIC_Dev,
+                                 XPath => "irq[@name='maintenance']",
+                                 Name  => "number"));
+            HV_Timer_IRQ : constant Natural
+              := Natural'Value (Muxml.Utils.Get_Attribute
+                                (Doc   => Physical_GIC_Dev,
+                                 XPath => "irq[@name='hypervisor_timer']",
+                                 Name  => "number"));
 
             Physical_SMMU_Dev : constant DOM.Core.Node
               := DOM.Core.Nodes.Item (List  => Physical_SMMU_Devs,
@@ -198,6 +208,14 @@ is
               (Template => Tmpl,
                Pattern  => "__virq_id_max__",
                Content  => Virtual_IRQ_Max'Img);
+            Mutools.Templates.Replace
+              (Template => Tmpl,
+               Pattern  => "__virtual_maintenance_irq__",
+               Content  => Virt_Maintenance_IRQ'Img);
+            Mutools.Templates.Replace
+              (Template => Tmpl,
+               Pattern  => "__hv_timer_irq__",
+               Content  => HV_Timer_IRQ'Img);
             Mutools.Templates.Replace
               (Template => Tmpl,
                Pattern  => "__pirq_id_smmu__",

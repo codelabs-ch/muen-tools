@@ -2070,13 +2070,14 @@
   </partition>
  </partitions>
  <majorFrame>
-  <cpu id="0">
-   <minorFrame barrier="none" partition="linux1" ticks="1048576"/>
-   <minorFrame barrier="none" partition="native1" ticks="65536"/>
-  </cpu>
   <cpu id="1">
    <minorFrame barrier="none" partition="linux2" ticks="1048576"/>
    <minorFrame barrier="none" partition="native2" ticks="65536"/>
+  </cpu>
+  <cpu id="0">
+   <minorFrame barrier="none" partition="linux1" ticks="1008576"/>
+   <minorFrame barrier="none" partition="native1" ticks="65536"/>
+   <minorFrame barrier="none" partition="linux1" ticks="4000"/>
   </cpu>
   <barriers/>
  </majorFrame>

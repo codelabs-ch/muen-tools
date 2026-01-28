@@ -7,21 +7,21 @@ with SK;
 package Skp.Scheduling
 is
 
-   VMX_Timer_Rate : constant := __vmx_timer_rate__;
+   VMX_Timer_Rate : constant := 1;
 
-   Max_Groups_Per_Partition : constant := __max_groups_per_partition__;
+   Max_Groups_Per_Partition : constant := 64;
 
-   type Scheduling_Partition_Range is range __scheduling_partition_range__;
+   type Scheduling_Partition_Range is range 1 .. 4;
 
    type Extended_Scheduling_Group_Range is
-     range 0 .. __scheduling_group_count__;
+     range 0 .. 4;
    subtype Scheduling_Group_Range is Extended_Scheduling_Group_Range
      range 1 .. Extended_Scheduling_Group_Range'Last;
 
    No_Group : constant Extended_Scheduling_Group_Range
      := Extended_Scheduling_Group_Range'First;
 
-   type Barrier_Index_Range is range 0 .. __max_barrier_count__;
+   type Barrier_Index_Range is range 0 .. 0;
 
    pragma Warnings
      (Off, Reason => "For minimal configurations without minor frame " &
@@ -46,7 +46,7 @@ is
       Barrier      => No_Barrier,
       Deadline     => 0);
 
-   type Minor_Frame_Range is range __minor_range__;
+   type Minor_Frame_Range is range 1 .. 3;
 
    type Minor_Frame_Array is array (Minor_Frame_Range) of Minor_Frame_Type;
 
@@ -55,7 +55,7 @@ is
       Minor_Frames : Minor_Frame_Array;
    end record;
 
-   type Major_Frame_Range is range __major_range__;
+   type Major_Frame_Range is range 0 .. 0;
 
    type Major_Frame_Array is array (Major_Frame_Range) of Major_Frame_Type;
 
@@ -68,7 +68,30 @@ is
    type Scheduling_Plan_Type is array (CPU_Range) of Major_Frame_Array;
 
    Scheduling_Plans : constant Scheduling_Plan_Type := Scheduling_Plan_Type'(
-__scheduling_plans__);
+     0 => Major_Frame_Array'(
+       0 => Major_Frame_Type'
+         (Length       => 3,
+          Minor_Frames => Minor_Frame_Array'(
+             1 => Minor_Frame_Type'(Partition_ID => 1,
+                                    Barrier      => No_Barrier,
+                                    Deadline     => 1210291187897088000),
+             2 => Minor_Frame_Type'(Partition_ID => 2,
+                                    Barrier      => No_Barrier,
+                                    Deadline     => 1288934387110656000),
+             3 => Minor_Frame_Type'(Partition_ID => 1,
+                                    Barrier      => No_Barrier,
+                                    Deadline     => 1293734387062656000)))),
+     1 => Major_Frame_Array'(
+       0 => Major_Frame_Type'
+         (Length       => 2,
+          Minor_Frames => Minor_Frame_Array'(
+             1 => Minor_Frame_Type'(Partition_ID => 3,
+                                    Barrier      => No_Barrier,
+                                    Deadline     => 1258291187417088000),
+             2 => Minor_Frame_Type'(Partition_ID => 4,
+                                    Barrier      => No_Barrier,
+                                    Deadline     => 1336934386630656000),
+             others => Null_Minor_Frame))));
 
    subtype Barrier_Size_Type is
      Natural range 1 .. Natural (CPU_Range'Last) + 1;
@@ -84,7 +107,10 @@ __scheduling_plans__);
      of Major_Frame_Info_Type;
 
    Major_Frames : constant Major_Frame_Info_Array := Major_Frame_Info_Array'(
-__major_frames_info__);
+       0 => Major_Frame_Info_Type'
+         (Period         => 1293734387062656000,
+          Barrier_Config => Barrier_Config_Array'(
+            others => Barrier_Size_Type'First)));
 
    type Scheduling_Group_Index_Range is
       range 0 .. Max_Groups_Per_Partition - 1;
@@ -106,7 +132,22 @@ __major_frames_info__);
 
    Scheduling_Partition_Config : constant Scheduling_Partition_Config_Array
      := Scheduling_Partition_Config_Array'(
-__scheduling_partitions__);
+          1 => (Last_Group_Index => 0,
+                Groups           => Scheduling_Group_Map'(
+                   0 => 1,
+                   others => No_Group)),
+          2 => (Last_Group_Index => 0,
+                Groups           => Scheduling_Group_Map'(
+                   0 => 2,
+                   others => No_Group)),
+          3 => (Last_Group_Index => 0,
+                Groups           => Scheduling_Group_Map'(
+                   0 => 3,
+                   others => No_Group)),
+          4 => (Last_Group_Index => 0,
+                Groups           => Scheduling_Group_Map'(
+                   0 => 4,
+                   others => No_Group)));
 
    type Scheduling_Group_Config_Type is record
       Initial_Subject : Global_Subject_ID_Type;
@@ -118,21 +159,34 @@ __scheduling_partitions__);
 
    Scheduling_Group_Config : constant Scheduling_Group_Config_Array
      := Scheduling_Group_Config_Array'(
-__scheduling_groups__);
+          1 => (Initial_Subject => 0,
+                Group_Index     => 0),
+          2 => (Initial_Subject => 1,
+                Group_Index     => 0),
+          3 => (Initial_Subject => 2,
+                Group_Index     => 0),
+          4 => (Initial_Subject => 3,
+                Group_Index     => 0));
 
    type Subject_To_Sched_Partition_Array is array (Global_Subject_ID_Type)
      of Scheduling_Partition_Range;
 
    Subject_To_Scheduling_Partition : constant Subject_To_Sched_Partition_Array
      := Subject_To_Sched_Partition_Array'(
-__subj_to_scheduling_partition__);
+          0 => 1,
+          1 => 2,
+          2 => 3,
+          3 => 4);
 
    type Subject_To_Scheduling_Group_Array is array (Global_Subject_ID_Type)
      of Scheduling_Group_Range;
 
    Subject_To_Scheduling_Group : constant Subject_To_Scheduling_Group_Array
      := Subject_To_Scheduling_Group_Array'(
-__subj_to_scheduling_group__);
+          0 => 1,
+          1 => 2,
+          2 => 3,
+          3 => 4);
 
    --  Returns the scheduling group ID of the subject specified by ID.
    function Get_Scheduling_Group_ID
