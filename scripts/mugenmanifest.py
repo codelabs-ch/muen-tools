@@ -3,7 +3,6 @@
 import sys
 from lxml import etree
 
-import _paths
 import muutils
 
 if len(sys.argv) != 3:
