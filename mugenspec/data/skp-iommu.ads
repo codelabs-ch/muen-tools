@@ -33,34 +33,12 @@ is
    --D Type defining range of active IOMMU devices.
    type IOMMU_Device_Range is range 1 .. 2;
 
-   --  Basic types
-
-   type Bit_2_Type is range 0 .. 2 ** 2 - 1
-     with
-       Size => 2;
-
-   type Bit_3_Type is range 0 .. 2 ** 3 - 1
-     with
-       Size => 3;
-
-   type Bit_4_Type is range 0 .. 2 ** 4 - 1
-     with
-       Size => 4;
-
-   type Bit_10_Type is range 0 .. 2 ** 10 - 1
-     with
-       Size => 10;
-
-   type Bit_52_Type is range 0 .. 2 ** 52 - 1
-     with
-       Size => 52;
-
    --  Registers
 
    --  Version register
    type Reg_Version_Type is record
-      MIN      : Bit_4_Type;
-      MAX      : Bit_4_Type;
+      MIN      : SK.Bit_4_Type;
+      MAX      : SK.Bit_4_Type;
       Reserved : SK.Bit_Array (1 .. 24);
    end record
      with
@@ -74,7 +52,7 @@ is
 
    --  Capability register
    type Reg_Capability_Type is record
-      ND         : Bit_3_Type;
+      ND         : SK.Bit_3_Type;
       AFL        : SK.Bit_Type;
       RWBF       : SK.Bit_Type;
       PLMR       : SK.Bit_Type;
@@ -85,7 +63,7 @@ is
       MGAW       : SK.Bit_Array (1 .. 6);
       ZLR        : SK.Bit_Type;
       Reserved_2 : SK.Bit_Type;
-      FRO        : Bit_10_Type;
+      FRO        : SK.Bit_10_Type;
       SLLPS      : SK.Bit_Array (1 .. 4);
       Reserved_3 : SK.Bit_Type;
       PSI        : SK.Bit_Type;
@@ -132,7 +110,7 @@ is
       Reserved_1 : SK.Bit_Type;
       PT         : SK.Bit_Type;
       SC         : SK.Bit_Type;
-      IRO        : Bit_10_Type;
+      IRO        : SK.Bit_10_Type;
       Reserved_2 : SK.Bit_Array (1 .. 2);
       MHMV       : SK.Bit_Array (1 .. 4);
       ECS        : SK.Bit_Type;
@@ -238,8 +216,8 @@ is
    --  Context Command Register
    type Reg_Context_Command_Type is record
       Unused : SK.Bit_Array (1 .. 59);
-      CAIG   : Bit_2_Type;
-      CIRG   : Bit_2_Type;
+      CAIG   : SK.Bit_2_Type;
+      CIRG   : SK.Bit_2_Type;
       ICC    : SK.Bit_Type;
    end record
      with
@@ -329,10 +307,10 @@ is
 
    --  Interrupt Remapping Table Address Register
    type Reg_IRT_Address is record
-      S        : Bit_4_Type;
+      S        : SK.Bit_4_Type;
       Reserved : SK.Bit_Array (1 .. 7);
       EIME     : SK.Bit_Type;
-      IRTA     : Bit_52_Type;
+      IRTA     : SK.Bit_52_Type;
    end record
      with
        Size => 64;
@@ -347,9 +325,9 @@ is
    --  IOTLB Invalidate Register (dynamic)
    type Reg_IOTLB_Invalidate is record
       Unused     : SK.Bit_Array (1 .. 57);
-      IAIG       : Bit_2_Type;
+      IAIG       : SK.Bit_2_Type;
       Reserved_1 : SK.Bit_Type;
-      IIRG       : Bit_2_Type;
+      IIRG       : SK.Bit_2_Type;
       Reserved_2 : SK.Bit_Type;
       IVT        : SK.Bit_Type;
    end record;
@@ -368,7 +346,7 @@ is
    --  Fault Recording Register (dynamic)
    type Reg_Fault_Recording_Type is record
       Reserved_1 : SK.Bit_Array (1 .. 12);
-      FI         : Bit_52_Type;
+      FI         : SK.Bit_52_Type;
       SID        : SK.Word16;
       Reserved_2 : SK.Bit_Array (1 .. 13);
       PRIV       : SK.Bit_Type;
@@ -376,7 +354,7 @@ is
       PP         : SK.Bit_Type;
       FR         : SK.Byte;
       PV         : SK.Bit_Array (1 .. 20);
-      AType      : Bit_2_Type;
+      AType      : SK.Bit_2_Type;
       T          : SK.Bit_Type;
       F          : SK.Bit_Type;
    end record

@@ -62,7 +62,7 @@ is
                                             XPath => "*");
    begin
       Buffer := Buffer
-        & Indent & "    GPRs               => SK.CPU_Registers_Type'("
+        & Indent & "    GPRs               => SK.Arch_Types.CPU_Registers_Type'("
         & ASCII.LF
         & Indent (N => 3) & " CR2 => 16#0000#";
       for I in 0 .. DOM.Core.Nodes.Length (List => Regs) - 1 loop
@@ -99,7 +99,7 @@ is
                                             XPath => "*");
    begin
       Buffer := Buffer
-        & Indent & "    Segment_Regs       => SK.Segment_Registers_Type'("
+        & Indent & "    Segment_Regs       => SK.Arch_Types.Segment_Registers_Type'("
         & ASCII.LF;
       for I in 0 .. DOM.Core.Nodes.Length (List => Segs) - 1 loop
          declare
