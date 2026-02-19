@@ -1,4 +1,4 @@
-with ARMv8;
+with SK;
 
 --D @Interface
 --D This package contains subject specifications as defined by the system
@@ -10,8 +10,6 @@ package Skp.Subjects
     SPARK_Mode => On
 is
 
-   use ARMv8;
-
    function Get_CPU_ID
      (Subject_ID : Global_Subject_ID_Type)
       return CPU_Range;
@@ -19,15 +17,15 @@ is
    function Get_General_Purpose_Register
      (Subject_ID : Global_Subject_ID_Type;
       Idx        : Natural)
-      return Bits_64;
+      return SK.Bit_64_Type;
 
    function Get_Exception_Link_Register_EL2
      (Subject_ID : Global_Subject_ID_Type)
-      return Bits_64;
+      return SK.Bit_64_Type;
 
    function Get_VTTBR_Address
      (Subject_ID : Global_Subject_ID_Type)
-      return Bits_48;
+      return SK.Bit_48_Type;
 
    function Has_Default_Cacheability
      (Subject_ID : Global_Subject_ID_Type)

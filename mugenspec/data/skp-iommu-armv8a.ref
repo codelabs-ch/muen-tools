@@ -1,4 +1,4 @@
-with ARMv8;
+with SK;
 
 with System;
 
@@ -7,17 +7,15 @@ package Skp.IOMMU
     SPARK_Mode => On
 is
 
-   use ARMv8;
-
    --------------------
    -- Register Types --
    --------------------
    type SMMU500_Controller_Configuration_Type
    is record
-      Stream_Identifier  : Bits_15;
-      Valid_Entry        : Bit;
-      Context_Bank_Index : Bits_8;
-      Reserved_24_31     : Bits_8;
+      Stream_Identifier  : SK.Bit_15_Type;
+      Valid_Entry        : SK.Bit_Type;
+      Context_Bank_Index : SK.Bit_8_Type;
+      Reserved_24_31     : SK.Bit_8_Type;
    end record
      with
        Size      => 32,
@@ -40,11 +38,11 @@ is
 
    type SMMU500_Context_Configuration_Type
    is record
-      TTBR_Base_Address          : Bits_48;
-      TTBR_Memory_Size_Offset    : Bits_6;
-      TTBR_Starting_Level        : Bits_2;
-      TTBR_Physical_Address_Size : Bits_3;
-      VM_Identifier              : Bits_5;
+      TTBR_Base_Address          : SK.Bit_48_Type;
+      TTBR_Memory_Size_Offset    : SK.Bit_6_Type;
+      TTBR_Starting_Level        : SK.Bit_2_Type;
+      TTBR_Physical_Address_Size : SK.Bit_3_Type;
+      VM_Identifier              : SK.Bit_5_Type;
    end record
      with
        Size      => 64,
