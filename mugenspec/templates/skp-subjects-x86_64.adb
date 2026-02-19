@@ -14,8 +14,8 @@ is
       MSR_Store_Address  : SK.Word64;
       Stack_Address      : SK.Word64;
       Entry_Point        : SK.Word64;
-      GPRs               : SK.CPU_Registers_Type;
-      Segment_Regs       : SK.Segment_Registers_Type;
+      GPRs               : SK.Arch_Types.CPU_Registers_Type;
+      Segment_Regs       : SK.Arch_Types.Segment_Registers_Type;
       CR0_Value          : SK.Word64;
       CR0_Shadow         : SK.Word64;
       CR0_Mask           : SK.Word64;
@@ -97,7 +97,7 @@ __subjects__);
 
    function Get_GPRs
      (Subject_ID : Global_Subject_ID_Type)
-      return SK.CPU_Registers_Type
+      return SK.Arch_Types.CPU_Registers_Type
    is (Subject_Specs (Subject_ID).GPRs);
 
    -------------------------------------------------------------------------
@@ -139,7 +139,7 @@ __subjects__);
 
    function Get_Segment_Registers
      (Subject_ID : Global_Subject_ID_Type)
-      return SK.Segment_Registers_Type
+      return SK.Arch_Types.Segment_Registers_Type
    is (Subject_Specs (Subject_ID).Segment_Regs);
 
    -------------------------------------------------------------------------

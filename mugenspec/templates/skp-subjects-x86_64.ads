@@ -1,4 +1,4 @@
-with SK;
+with SK.Arch_Types;
 
 --D @Interface
 --D This package contains subject specifications as defined by the system
@@ -55,11 +55,11 @@ is
 
    function Get_GPRs
      (Subject_ID : Global_Subject_ID_Type)
-      return SK.CPU_Registers_Type;
+      return SK.Arch_Types.CPU_Registers_Type;
 
    function Get_Segment_Registers
      (Subject_ID : Global_Subject_ID_Type)
-      return SK.Segment_Registers_Type;
+      return SK.Arch_Types.Segment_Registers_Type;
 
    function Get_VMX_Controls
      (Subject_ID : Global_Subject_ID_Type)

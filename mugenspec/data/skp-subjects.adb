@@ -14,8 +14,8 @@ is
       MSR_Store_Address  : SK.Word64;
       Stack_Address      : SK.Word64;
       Entry_Point        : SK.Word64;
-      GPRs               : SK.CPU_Registers_Type;
-      Segment_Regs       : SK.Segment_Registers_Type;
+      GPRs               : SK.Arch_Types.CPU_Registers_Type;
+      Segment_Regs       : SK.Arch_Types.Segment_Registers_Type;
       CR0_Value          : SK.Word64;
       CR0_Shadow         : SK.Word64;
       CR0_Mask           : SK.Word64;
@@ -41,7 +41,7 @@ is
        MSR_Store_Address  => 16#0090_1000#,
        Stack_Address      => 16#0012_0000#,
        Entry_Point        => 16#0abc#,
-       GPRs               => SK.CPU_Registers_Type'(
+       GPRs               => SK.Arch_Types.CPU_Registers_Type'(
           CR2 => 16#0000#,
           RAX => 16#0000#,
           RBX => 16#0000#,
@@ -58,7 +58,7 @@ is
           R13 => 16#0000#,
           R14 => 16#0000#,
           R15 => 16#0000#),
-       Segment_Regs       => SK.Segment_Registers_Type'(
+       Segment_Regs       => SK.Arch_Types.Segment_Registers_Type'(
           CS =>
             (Selector      => 16#0008#,
              Base          => 16#0000#,
@@ -123,7 +123,7 @@ is
        MSR_Store_Address  => 16#0091_1000#,
        Stack_Address      => 16#0012_0000#,
        Entry_Point        => 16#0abc#,
-       GPRs               => SK.CPU_Registers_Type'(
+       GPRs               => SK.Arch_Types.CPU_Registers_Type'(
           CR2 => 16#0000#,
           RAX => 16#0001#,
           RBX => 16#00ff#,
@@ -140,7 +140,7 @@ is
           R13 => 16#c9c9#,
           R14 => 16#a0b0#,
           R15 => 16#0000#),
-       Segment_Regs       => SK.Segment_Registers_Type'(
+       Segment_Regs       => SK.Arch_Types.Segment_Registers_Type'(
           CS =>
             (Selector      => 16#0008#,
              Base          => 16#0000#,
@@ -205,7 +205,7 @@ is
        MSR_Store_Address  => 16#0000#,
        Stack_Address      => 16#0012_0000#,
        Entry_Point        => 16#0abc#,
-       GPRs               => SK.CPU_Registers_Type'(
+       GPRs               => SK.Arch_Types.CPU_Registers_Type'(
           CR2 => 16#0000#,
           RAX => 16#0000#,
           RBX => 16#0000#,
@@ -222,7 +222,7 @@ is
           R13 => 16#0000#,
           R14 => 16#0000#,
           R15 => 16#0000#),
-       Segment_Regs       => SK.Segment_Registers_Type'(
+       Segment_Regs       => SK.Arch_Types.Segment_Registers_Type'(
           CS =>
             (Selector      => 16#0008#,
              Base          => 16#0000#,
@@ -287,7 +287,7 @@ is
        MSR_Store_Address  => 16#0000#,
        Stack_Address      => 16#0012_0000#,
        Entry_Point        => 16#0abc#,
-       GPRs               => SK.CPU_Registers_Type'(
+       GPRs               => SK.Arch_Types.CPU_Registers_Type'(
           CR2 => 16#0000#,
           RAX => 16#0001#,
           RBX => 16#0002#,
@@ -304,7 +304,7 @@ is
           R13 => 16#000d#,
           R14 => 16#000e#,
           R15 => 16#000f#),
-       Segment_Regs       => SK.Segment_Registers_Type'(
+       Segment_Regs       => SK.Arch_Types.Segment_Registers_Type'(
           CS =>
             (Selector      => 16#0008#,
              Base          => 16#0000#,
@@ -424,7 +424,7 @@ is
 
    function Get_GPRs
      (Subject_ID : Global_Subject_ID_Type)
-      return SK.CPU_Registers_Type
+      return SK.Arch_Types.CPU_Registers_Type
    is (Subject_Specs (Subject_ID).GPRs);
 
    -------------------------------------------------------------------------
@@ -466,7 +466,7 @@ is
 
    function Get_Segment_Registers
      (Subject_ID : Global_Subject_ID_Type)
-      return SK.Segment_Registers_Type
+      return SK.Arch_Types.Segment_Registers_Type
    is (Subject_Specs (Subject_ID).Segment_Regs);
 
    -------------------------------------------------------------------------
