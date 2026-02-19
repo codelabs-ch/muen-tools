@@ -104,7 +104,7 @@ is
          Pos   => Not_Global_Flag);
       Maps_Page  : constant Boolean := not Mutools.Utils.Bit_Test
         (Value => Raw_Entry,
-         Pos   => Not_Large_Page_Flag) or (Level = Paging_Level'Last);
+         Pos   => Not_Large_Page_Flag) or Level = Paging_Level'Last;
       DAIR_Idx   : constant Natural
         := Natural (Interfaces.Shift_Right
                     (Value  => Raw_Entry and ARMv8a_MT_Mask,

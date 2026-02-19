@@ -107,7 +107,7 @@ is
          Pos   => Present_Flag);
       Maps_Page  : constant Boolean := not Mutools.Utils.Bit_Test
         (Value => Raw_Entry,
-         Pos   => Not_Large_Page_Flag) or (Level = Paging_Level'Last);
+         Pos   => Not_Large_Page_Flag) or Level = Paging_Level'Last;
       Readable   : constant Boolean
         := (if Maps_Page then Mutools.Utils.Bit_Test
             (Value => Raw_Entry,
