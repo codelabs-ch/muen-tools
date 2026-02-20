@@ -51,6 +51,10 @@ is
    procedure CPU_Sub_Elements (XML_Data : Muxml.XML_Data_Type);
 
    --D @Item List => validators_hw
+   --D Validate that the processor APIC IDs are correct.
+   procedure CPU_APIC_IDs (XML_Data : Muxml.XML_Data_Type);
+
+   --D @Item List => validators_hw
    --D Validate that at least one I/O APIC device is present.
    procedure IOAPIC_Presence (XML_Data : Muxml.XML_Data_Type);
 
