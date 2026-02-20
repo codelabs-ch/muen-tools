@@ -124,6 +124,8 @@ is
       Check_Procs.Register
         (Process => MC.Memory.Microcode_Region_Count'Access);
       Check_Procs.Register
+        (Process => MC.Hardware.CPU_APIC_IDs'Access);
+      Check_Procs.Register
         (Process => MC.Hardware.System_Board_Presence'Access);
       Check_Procs.Register
         (Process => MC.Hardware.IOAPIC_Presence'Access);
