@@ -236,8 +236,9 @@ is
 
          Node : constant DOM.Core.Node
            := Muxml.Utils.Get_Element
-             (Doc   => XML_Data.Doc,
-              XPath => "/system/hardware/processor/cpu[@cpuId='0']");
+             (Nodes     => Sub_Nodes,
+              Ref_Attr  => "cpuId",
+              Ref_Value => "0");
       begin
          if Node = null then
             Validation_Errors.Insert
