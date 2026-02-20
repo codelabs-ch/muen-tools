@@ -574,9 +574,11 @@ is
       --  are always memory mapped (c.f. above).
 
       --  Arch Independent: Validate that the hardware provides enough
-      --  physical CPU cores.
+      --  physical CPU cores and that the CPU ID ordering is correct.
       XML_Processors.Register
         (Process => Hardware.CPU_Count'Access);
+      XML_Processors.Register
+        (Process => Hardware.CPU_Sub_Elements'Access);
 
       --  Arch Dependent: The ARMv8-A architecture does neither specify CPU
       --  sub-component concepts like APIC ID or x86/64 BSP (not to be
@@ -901,6 +903,8 @@ is
         (Process => Hardware.CPU_Count'Access);
       XML_Processors.Register
         (Process => Hardware.CPU_Sub_Elements'Access);
+      XML_Processors.Register
+        (Process => Hardware.CPU_APIC_IDs'Access);
       XML_Processors.Register
         (Process => Hardware.System_Board_Presence'Access);
       XML_Processors.Register
