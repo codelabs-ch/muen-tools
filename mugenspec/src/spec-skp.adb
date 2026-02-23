@@ -162,7 +162,7 @@ is
       CPU_Nodes  : constant DOM.Core.Node_List
         := McKae.XML.XPath.XIA.XPath_Query
           (N     => Policy.Doc,
-           XPath => "/system/hardware/processor/cpu");
+           XPath => "/system/hardware/processor/x86_64/cpu");
       VMXON_Addr : constant Unsigned_64 := Unsigned_64'Value
         (Muxml.Utils.Get_Attribute
            (Doc   => Policy.Doc,

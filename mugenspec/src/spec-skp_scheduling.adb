@@ -85,6 +85,8 @@ is
 
       Max_Groups_Per_Partition : constant := 64;
 
+      Is_ARM64     : constant Boolean
+        := Mutools.XML_Utils.Is_Arm64 (Policy => Policy);
       Subjects     : constant DOM.Core.Node_List
         := McKae.XML.XPath.XIA.XPath_Query
           (N     => Policy.Doc,
@@ -100,20 +102,20 @@ is
         := McKae.XML.XPath.XIA.XPath_Query
           (N     => Scheduling,
            XPath => "partitions/partition/group/subject");
-      Processor    : constant DOM.Core.Node := Muxml.Utils.Get_Element
+      CPU_Arch     : constant DOM.Core.Node := Muxml.Utils.Get_Element
         (Doc   => Policy.Doc,
-         XPath => "/system/hardware/processor");
-      CPU_Speed_Hz : constant Interfaces.Unsigned_64
-        := 1000 * Interfaces.Unsigned_64'Value
-          (DOM.Core.Elements.Get_Attribute
-             (Elem => Processor,
-              Name => "speed"));
-      Timer_Rate   : constant Natural
-        := Natural'Value
-          (DOM.Core.Elements.Get_Attribute (Elem => Processor,
-                                            Name => "vmxTimerRate"));
+         XPath => "/system/hardware/processor/*");
+      Timer_KHz    : constant Interfaces.Unsigned_64
+       := Interfaces.Unsigned_64'Value (DOM.Core.Elements.Get_Attribute
+         (Elem => CPU_Arch,
+          Name => (if Is_ARM64 then "timerFrequency" else "tscFrequency")));
+      Timer_Hz     : constant Interfaces.Unsigned_64 := 1000 * Timer_KHz;
+      Timer_Rate   : constant Natural := (if Is_ARM64 then 1
+        else Natural'Value (DOM.Core.Elements.Get_Attribute
+          (Elem => CPU_Arch,
+           Name => "vmxTimerRate")));
       Timer_Factor : constant Interfaces.Unsigned_64
-        := CPU_Speed_Hz / Interfaces.Unsigned_64'Value
+        := Timer_Hz / Interfaces.Unsigned_64'Value
           (DOM.Core.Elements.Get_Attribute
              (Elem => Scheduling,
               Name => "tickRate"));
@@ -127,7 +129,7 @@ is
 
       Template : Mutools.Templates.Stream_Template_Type
         := TMPL.Create
-          (Content  => (if Mutools.XML_Utils.Is_Arm64 (Policy => Policy)
+          (Content  => (if Is_ARM64
                         then String_Templates.skp_scheduling_armv8a_ads
                         else String_Templates.skp_scheduling_x86_64_ads),
            Filename => Output_Dir & "/skp-scheduling.ads");
