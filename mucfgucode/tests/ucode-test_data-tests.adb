@@ -116,7 +116,7 @@ package body Ucode.Test_Data.Tests is
                       File => "data/test_policy.xml");
          Muxml.Utils.Set_Attribute
              (Doc   => Data.Doc,
-              XPath => "/system/hardware/processor/cpuid"
+              XPath => "/system/hardware/processor/x86_64/cpuid"
               & "[@leaf='16#0000_0001#']",
               Name  => "eax",
               Value => "16#0009_0675#");

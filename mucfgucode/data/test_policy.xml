@@ -2,10 +2,12 @@
 <system>
  <config/>
  <hardware>
-  <processor cpuCores="2" speed="2112002" vmxTimerRate="5">
-   <cpu apicId="0"/>
-   <cpu apicId="2"/>
-   <cpuid eax="16#0000_0f68#" ebx="16#0004_0800#" ecx="16#ffb8_2223#" edx="16#178b_fbff#" leaf="16#0000_0001#" subleaf="16#00#"/>
+  <processor cpuCores="2">
+   <x86_64 tscFrequency="2112002" vmxTimerRate="5">
+    <cpu apicId="0"/>
+    <cpu apicId="2"/>
+    <cpuid eax="16#0000_0f68#" ebx="16#0004_0800#" ecx="16#ffb8_2223#" edx="16#178b_fbff#" leaf="16#0000_0001#" subleaf="16#00#"/>
+   </x86_64>
   </processor>
   <memory>
    <memoryBlock allocatable="true" name="ram_1" physicalAddress="16#0000#" size="16#8000_0000#"/>
