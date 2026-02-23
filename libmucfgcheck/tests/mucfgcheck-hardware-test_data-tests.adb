@@ -241,7 +241,7 @@ package body Mucfgcheck.Hardware.Test_Data.Tests is
          Value => "4");
       Muxml.Utils.Set_Attribute
         (Doc   => Data.Doc,
-         XPath => "/system/hardware/processor/cpu[@apicId='6']",
+         XPath => "/system/hardware/processor/x86_64/cpu[@apicId='6']",
          Name  => "cpuId",
          Value => "22");
 
@@ -252,7 +252,7 @@ package body Mucfgcheck.Hardware.Test_Data.Tests is
 
       Muxml.Utils.Set_Attribute
         (Doc   => Data.Doc,
-         XPath => "/system/hardware/processor/cpu[@cpuId='0']",
+         XPath => "/system/hardware/processor/x86_64/cpu[@cpuId='0']",
          Name  => "cpuId",
          Value => "4");
 
@@ -288,12 +288,12 @@ package body Mucfgcheck.Hardware.Test_Data.Tests is
 
       Muxml.Utils.Set_Attribute
         (Doc   => Data.Doc,
-         XPath => "/system/hardware/processor/cpu[@apicId='6']",
+         XPath => "/system/hardware/processor/x86_64/cpu[@apicId='6']",
          Name  => "cpuId",
          Value => "3");
       Muxml.Utils.Set_Attribute
         (Doc   => Data.Doc,
-         XPath => "/system/hardware/processor/cpu[@apicId='4']",
+         XPath => "/system/hardware/processor/x86_64/cpu[@apicId='4']",
          Name  => "apicId",
          Value => "1");
 
@@ -305,7 +305,7 @@ package body Mucfgcheck.Hardware.Test_Data.Tests is
 
       Muxml.Utils.Set_Attribute
         (Doc   => Data.Doc,
-         XPath => "/system/hardware/processor/cpu[@cpuId='0']",
+         XPath => "/system/hardware/processor/x86_64/cpu[@cpuId='0']",
          Name  => "cpuId",
          Value => "4");
 

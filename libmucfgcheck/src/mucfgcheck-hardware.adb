@@ -122,7 +122,7 @@ is
       Sub_Nodes : constant DOM.Core.Node_List
         := McKae.XML.XPath.XIA.XPath_Query
           (N     => XML_Data.Doc,
-           XPath => "/system/hardware/processor/cpu");
+           XPath => "/system/hardware/processor/x86_64/cpu");
       Sub_Node_Count : constant Natural
         := DOM.Core.Nodes.Length (List => Sub_Nodes);
    begin
@@ -141,7 +141,7 @@ is
          BSP : constant DOM.Core.Node
            := Muxml.Utils.Get_Element
              (Doc   => XML_Data.Doc,
-              XPath => "/system/hardware/processor/cpu[@apicId='0' and "
+              XPath => "/system/hardware/processor/x86_64/cpu[@apicId='0' and "
               & "@cpuId <" & Active_CPUs'Img & "]");
       begin
          if BSP = null then
@@ -214,7 +214,7 @@ is
       Sub_Nodes : constant DOM.Core.Node_List
         := McKae.XML.XPath.XIA.XPath_Query
           (N     => XML_Data.Doc,
-           XPath => "/system/hardware/processor/cpu");
+           XPath => "/system/hardware/processor/*/cpu");
       Sub_Node_Count : constant Natural
         := DOM.Core.Nodes.Length (List => Sub_Nodes);
    begin
