@@ -13,9 +13,11 @@
   <string name="platform_id" value="foobar"/>
  </config>
  <hardware>
-  <processor cpuCores="2" speed="50" vmxTimerRate="0">
-   <cpu apicId="0"/>
-   <cpu apicId="2"/>
+  <processor cpuCores="2">
+   <x86_64 tscFrequency="50" vmxTimerRate="0">
+    <cpu apicId="0"/>
+    <cpu apicId="2"/>
+   </x86_64>
   </processor>
   <memory>
    <memoryBlock allocatable="true" name="ram_2" physicalAddress="16#9900_0000#" size="16#2000#"/>
