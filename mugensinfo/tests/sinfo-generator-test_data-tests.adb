@@ -38,22 +38,29 @@ package body Sinfo.Generator.Test_Data.Tests is
 
       pragma Unreferenced (Gnattest_T);
 
-      Policy        : Muxml.XML_Data_Type;
-      Subject_Sinfo : constant String := "obj/lnx_sinfo";
+      ----------------------------------------------------------------------
+
+      procedure Write_Sinfo (Arch : String)
+      is
+         Policy        : Muxml.XML_Data_Type;
+         Subject_Sinfo : constant String := "obj/lnx_sinfo";
+      begin
+         Muxml.Parse (Data => Policy,
+                      Kind => Muxml.Format_B,
+                      File => "data/test_policy_" & Arch & ".xml");
+
+         Write (Output_Dir => "obj",
+                Policy     => Policy);
+
+         Assert (Condition => Test_Utils.Equal_Files
+                 (Filename1 => "data/lnx_sinfo",
+                  Filename2 => Subject_Sinfo),
+                 Message   => "Subject info file mismatch (" & Arch & ")");
+         Ada.Directories.Delete_File (Name => Subject_Sinfo);
+      end Write_Sinfo;
    begin
-      Muxml.Parse (Data => Policy,
-                   Kind => Muxml.Format_B,
-                   File => "data/test_policy.xml");
-
-      Write (Output_Dir => "obj",
-             Policy     => Policy);
-
-      Assert (Condition => Test_Utils.Equal_Files
-              (Filename1 => "data/lnx_sinfo",
-               Filename2 => Subject_Sinfo),
-              Message   => "Subject info file mismatch");
-
-      Ada.Directories.Delete_File (Name => Subject_Sinfo);
+      Write_Sinfo (Arch => "x86_64");
+      Write_Sinfo (Arch => "arm64");
 --  begin read only
    end Test_Write;
 --  end read only
