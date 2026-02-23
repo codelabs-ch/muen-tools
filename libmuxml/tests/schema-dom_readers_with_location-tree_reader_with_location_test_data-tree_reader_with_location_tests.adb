@@ -60,7 +60,7 @@ package body Schema.Dom_Readers_With_Location.Tree_Reader_With_Location_Test_Dat
       begin
          Assert (Condition => "format_src.xml:4:50" = Output1,
                  Message => "String mismatch: " & Output1);
-         Assert (Condition => "format_src.xml:41:12" = Output2,
+         Assert (Condition => "format_src.xml:43:12" = Output2,
                  Message => "String mismatch: " & Output2);
       end;
 

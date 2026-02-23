@@ -83,10 +83,10 @@
   </xs:complexContent>
  </xs:complexType>
 
- <xs:complexType name="cpuCoreType">
+ <xs:complexType name="x86_64CpuCoreType">
   <xs:annotation>
    <xs:documentation>
-    Specification of one physical CPU core.
+    Specification of one physical x86_64 CPU core.
    </xs:documentation>
   </xs:annotation>
   <xs:attribute name="apicId" type="xs:unsignedByte" use="required">
@@ -97,6 +97,21 @@
    </xs:annotation>
   </xs:attribute>
   <xs:attribute name="cpuId"  type="xs:unsignedByte" use="optional">
+   <xs:annotation>
+    <xs:documentation>
+     Unique CPU ID.
+    </xs:documentation>
+   </xs:annotation>
+  </xs:attribute>
+ </xs:complexType>
+
+ <xs:complexType name="arm64CpuCoreType">
+  <xs:annotation>
+   <xs:documentation>
+    Specification of one physical ARM64 CPU core.
+   </xs:documentation>
+  </xs:annotation>
+  <xs:attribute name="cpuId" type="xs:unsignedByte" use="optional">
    <xs:annotation>
     <xs:documentation>
      Unique CPU ID.

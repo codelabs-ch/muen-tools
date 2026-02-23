@@ -177,14 +177,26 @@
     <xs:attribute name="pciConfigSize" type="word64Type" use="optional"/>
   </xs:complexType>
   <xs:complexType name="processorType">
+    <xs:choice minOccurs="1" maxOccurs="1">
+      <xs:element name="x86_64" type="x86_64CpuArchitectureType"/>
+      <xs:element name="arm64" type="arm64CpuArchitectureType"/>
+    </xs:choice>
+    <xs:attribute name="cpuCores" type="xs:positiveInteger" use="required"/>
+  </xs:complexType>
+  <xs:complexType name="x86_64CpuArchitectureType">
     <xs:sequence>
-      <xs:element name="cpu" type="cpuCoreType" minOccurs="1" maxOccurs="unbounded"/>
+      <xs:element name="cpu" type="x86_64CpuCoreType" minOccurs="1" maxOccurs="unbounded"/>
       <xs:element name="cpuid" type="cpuIDValueType" minOccurs="0" maxOccurs="unbounded"/>
       <xs:element name="msr" type="msrValueType" minOccurs="0" maxOccurs="unbounded"/>
     </xs:sequence>
-    <xs:attribute name="cpuCores" type="xs:positiveInteger" use="required"/>
-    <xs:attribute name="speed" type="xs:positiveInteger" use="required"/>
+    <xs:attribute name="tscFrequency" type="xs:positiveInteger" use="required"/>
     <xs:attribute name="vmxTimerRate" type="vmxTimerRateType" use="required"/>
+  </xs:complexType>
+  <xs:complexType name="arm64CpuArchitectureType">
+    <xs:sequence>
+      <xs:element name="cpu" type="arm64CpuCoreType" minOccurs="1" maxOccurs="unbounded"/>
+    </xs:sequence>
+    <xs:attribute name="timerFrequency" type="xs:positiveInteger" use="required"/>
   </xs:complexType>
   <xs:simpleType name="vmxTimerRateType">
     <xs:restriction base="xs:nonNegativeInteger">
@@ -1239,8 +1251,11 @@
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
-  <xs:complexType name="cpuCoreType">
+  <xs:complexType name="x86_64CpuCoreType">
     <xs:attribute name="apicId" type="xs:unsignedByte" use="required"/>
+    <xs:attribute name="cpuId" type="xs:unsignedByte" use="optional"/>
+  </xs:complexType>
+  <xs:complexType name="arm64CpuCoreType">
     <xs:attribute name="cpuId" type="xs:unsignedByte" use="optional"/>
   </xs:complexType>
   <xs:complexType name="hardwareType">

@@ -114,10 +114,10 @@ package body Muxml.Utils.Test_Data.Tests is
       -- goto sibling
       Node1 := Get_Element
          (Doc   => Data.Doc,
-          XPath => "/system/hardware/processor/cpu[@apicId='0']");
+          XPath => "/system/hardware/processor/x86_64/cpu[@apicId='0']");
       Node2 := Get_Element
          (Doc   => Data.Doc,
-          XPath => "/system/hardware/processor/cpu[@apicId='2]");
+          XPath => "/system/hardware/processor/x86_64/cpu[@apicId='2]");
       Assert (Condition => Node2 = Next_Node
                  (Current_Node       => Node1,
                   Only_Element_Nodes => True),
