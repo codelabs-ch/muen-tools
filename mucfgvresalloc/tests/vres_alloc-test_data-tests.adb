@@ -209,7 +209,7 @@ package body Vres_Alloc.Test_Data.Tests is
       exception
          when E: Muxml.Validation_Error =>
             Assert (Condition => Ada.Exceptions.Exception_Message (X => E)
-                      = "XML validation error - obj/vres_false_auto.xml:416:14:"
+                      = "XML validation error - obj/vres_false_auto.xml:418:14:"
                       & " Invalid integer: ""auto""",
                     Message   => "Exception mismatch: "
                       & Ada.Exceptions.Exception_Message (X => E));
