@@ -1,6 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
 
+ <xs:complexType name="vcpuType">
+  <xs:choice  minOccurs="1" maxOccurs="1">
+   <xs:element name="x86_64" type="x86_64VcpuType"/>
+   <xs:element name="arm64"  type="arm64VcpuType"/>
+  </xs:choice>
+ </xs:complexType>
+
  <xs:complexType name="pinCtrlType">
   <xs:sequence>
    <xs:element name="ExternalInterruptExiting" type="bitValueType" minOccurs="1" maxOccurs="1"/>
@@ -146,11 +153,11 @@
   </xs:sequence>
  </xs:complexType>
 
- <xs:complexType name="vcpuType">
+ <xs:complexType name="x86_64VcpuType">
   <xs:sequence>
-   <xs:element name="vmx"       type="vmxType"       minOccurs="1" maxOccurs="1"/>
-   <xs:element name="msrs"      type="msrsType"      minOccurs="1" maxOccurs="1"/>
-   <xs:element name="registers" type="registersType" minOccurs="1" maxOccurs="1"/>
+   <xs:element name="vmx"       type="vmxType"             minOccurs="1" maxOccurs="1"/>
+   <xs:element name="msrs"      type="msrsType"            minOccurs="1" maxOccurs="1"/>
+   <xs:element name="registers" type="x86_64RegistersType" minOccurs="1" maxOccurs="1"/>
   </xs:sequence>
  </xs:complexType>
 
@@ -179,18 +186,18 @@
   </xs:sequence>
  </xs:complexType>
 
- <xs:complexType name="registersType">
+ <xs:complexType name="x86_64RegistersType">
   <xs:sequence>
-   <xs:element name="gpr"       type="gprType"      minOccurs="1" maxOccurs="1"/>
-   <xs:element name="cr0"       type="cr0Type"      minOccurs="1" maxOccurs="1"/>
-   <xs:element name="cr0Shadow" type="cr0Type"      minOccurs="1" maxOccurs="1"/>
-   <xs:element name="cr4"       type="cr4Type"      minOccurs="1" maxOccurs="1"/>
-   <xs:element name="cr4Shadow" type="cr4Type"      minOccurs="1" maxOccurs="1"/>
-   <xs:element name="segments"  type="segmentsType" minOccurs="1" maxOccurs="1"/>
+   <xs:element name="gpr"       type="x86_64GprType" minOccurs="1" maxOccurs="1"/>
+   <xs:element name="cr0"       type="cr0Type"       minOccurs="1" maxOccurs="1"/>
+   <xs:element name="cr0Shadow" type="cr0Type"       minOccurs="1" maxOccurs="1"/>
+   <xs:element name="cr4"       type="cr4Type"       minOccurs="1" maxOccurs="1"/>
+   <xs:element name="cr4Shadow" type="cr4Type"       minOccurs="1" maxOccurs="1"/>
+   <xs:element name="segments"  type="segmentsType"  minOccurs="1" maxOccurs="1"/>
   </xs:sequence>
  </xs:complexType>
 
- <xs:complexType name="gprType">
+ <xs:complexType name="x86_64GprType">
   <xs:sequence>
    <xs:element name="rip" type="word64Type" minOccurs="1" maxOccurs="1"/>
    <xs:element name="rsp" type="word64Type" minOccurs="1" maxOccurs="1"/>
@@ -222,6 +229,94 @@
    <xs:element name="ss" type="segmentType" minOccurs="1" maxOccurs="1"/>
    <xs:element name="tr" type="segmentType" minOccurs="1" maxOccurs="1"/>
    <xs:element name="ldtr" type="segmentType" minOccurs="1" maxOccurs="1"/>
+  </xs:sequence>
+ </xs:complexType>
+
+ <xs:complexType name="arm64VcpuType">
+  <xs:sequence>
+   <xs:element name="registers" type="arm64RegistersType" minOccurs="1" maxOccurs="1"/>
+  </xs:sequence>
+ </xs:complexType>
+
+ <xs:complexType name="arm64RegistersType">
+  <xs:sequence>
+   <xs:element name="gpr"     type="arm64GprType" minOccurs="1" maxOccurs="1"/>
+   <xs:element name="elr_el2" type="word64Type"   minOccurs="1" maxOccurs="1"/>
+   <xs:element name="hcr_el2" type="hcrType"      minOccurs="1" maxOccurs="1"/>
+  </xs:sequence>
+ </xs:complexType>
+
+ <xs:complexType name="arm64GprType">
+  <xs:sequence>
+   <xs:element name="x0" type="word64Type" minOccurs="1" maxOccurs="1"/>
+   <xs:element name="x1" type="word64Type" minOccurs="1" maxOccurs="1"/>
+   <xs:element name="x2" type="word64Type" minOccurs="1" maxOccurs="1"/>
+   <xs:element name="x3" type="word64Type" minOccurs="1" maxOccurs="1"/>
+   <xs:element name="x4" type="word64Type" minOccurs="1" maxOccurs="1"/>
+   <xs:element name="x5" type="word64Type" minOccurs="1" maxOccurs="1"/>
+   <xs:element name="x6" type="word64Type" minOccurs="1" maxOccurs="1"/>
+   <xs:element name="x7" type="word64Type" minOccurs="1" maxOccurs="1"/>
+   <xs:element name="x8" type="word64Type" minOccurs="1" maxOccurs="1"/>
+   <xs:element name="x9" type="word64Type" minOccurs="1" maxOccurs="1"/>
+   <xs:element name="x10" type="word64Type" minOccurs="1" maxOccurs="1"/>
+   <xs:element name="x11" type="word64Type" minOccurs="1" maxOccurs="1"/>
+   <xs:element name="x12" type="word64Type" minOccurs="1" maxOccurs="1"/>
+   <xs:element name="x13" type="word64Type" minOccurs="1" maxOccurs="1"/>
+   <xs:element name="x14" type="word64Type" minOccurs="1" maxOccurs="1"/>
+   <xs:element name="x15" type="word64Type" minOccurs="1" maxOccurs="1"/>
+   <xs:element name="x16" type="word64Type" minOccurs="1" maxOccurs="1"/>
+   <xs:element name="x17" type="word64Type" minOccurs="1" maxOccurs="1"/>
+   <xs:element name="x18" type="word64Type" minOccurs="1" maxOccurs="1"/>
+   <xs:element name="x19" type="word64Type" minOccurs="1" maxOccurs="1"/>
+   <xs:element name="x20" type="word64Type" minOccurs="1" maxOccurs="1"/>
+   <xs:element name="x21" type="word64Type" minOccurs="1" maxOccurs="1"/>
+   <xs:element name="x22" type="word64Type" minOccurs="1" maxOccurs="1"/>
+   <xs:element name="x23" type="word64Type" minOccurs="1" maxOccurs="1"/>
+   <xs:element name="x24" type="word64Type" minOccurs="1" maxOccurs="1"/>
+   <xs:element name="x25" type="word64Type" minOccurs="1" maxOccurs="1"/>
+   <xs:element name="x26" type="word64Type" minOccurs="1" maxOccurs="1"/>
+   <xs:element name="x27" type="word64Type" minOccurs="1" maxOccurs="1"/>
+   <xs:element name="x28" type="word64Type" minOccurs="1" maxOccurs="1"/>
+   <xs:element name="x29" type="word64Type" minOccurs="1" maxOccurs="1"/>
+   <xs:element name="x30" type="word64Type" minOccurs="1" maxOccurs="1"/>
+  </xs:sequence>
+ </xs:complexType>
+
+ <xs:complexType name="hcrType">
+  <xs:sequence>
+   <xs:element name="vm"    type="bitValueType" minOccurs="1" maxOccurs="1"/>
+   <xs:element name="swio"  type="bitValueType" minOccurs="1" maxOccurs="1"/>
+   <xs:element name="ptw"   type="bitValueType" minOccurs="1" maxOccurs="1"/>
+   <xs:element name="fmo"   type="bitValueType" minOccurs="1" maxOccurs="1"/>
+   <xs:element name="imo"   type="bitValueType" minOccurs="1" maxOccurs="1"/>
+   <xs:element name="amo"   type="bitValueType" minOccurs="1" maxOccurs="1"/>
+   <xs:element name="vf"    type="bitValueType" minOccurs="1" maxOccurs="1"/>
+   <xs:element name="vi"    type="bitValueType" minOccurs="1" maxOccurs="1"/>
+   <xs:element name="vse"   type="bitValueType" minOccurs="1" maxOccurs="1"/>
+   <xs:element name="fb"    type="bitValueType" minOccurs="1" maxOccurs="1"/>
+   <xs:element name="bsu"   type="bitValueType" minOccurs="1" maxOccurs="1"/>
+   <xs:element name="dc"    type="bitValueType" minOccurs="1" maxOccurs="1"/>
+   <xs:element name="twi"   type="bitValueType" minOccurs="1" maxOccurs="1"/>
+   <xs:element name="twe"   type="bitValueType" minOccurs="1" maxOccurs="1"/>
+   <xs:element name="tid0"  type="bitValueType" minOccurs="1" maxOccurs="1"/>
+   <xs:element name="tid1"  type="bitValueType" minOccurs="1" maxOccurs="1"/>
+   <xs:element name="tid2"  type="bitValueType" minOccurs="1" maxOccurs="1"/>
+   <xs:element name="tid3"  type="bitValueType" minOccurs="1" maxOccurs="1"/>
+   <xs:element name="tsc"   type="bitValueType" minOccurs="1" maxOccurs="1"/>
+   <xs:element name="tidcp" type="bitValueType" minOccurs="1" maxOccurs="1"/>
+   <xs:element name="tacr"  type="bitValueType" minOccurs="1" maxOccurs="1"/>
+   <xs:element name="tsw"   type="bitValueType" minOccurs="1" maxOccurs="1"/>
+   <xs:element name="tpc"   type="bitValueType" minOccurs="1" maxOccurs="1"/>
+   <xs:element name="tpu"   type="bitValueType" minOccurs="1" maxOccurs="1"/>
+   <xs:element name="ttlb"  type="bitValueType" minOccurs="1" maxOccurs="1"/>
+   <xs:element name="tvm"   type="bitValueType" minOccurs="1" maxOccurs="1"/>
+   <xs:element name="tge"   type="bitValueType" minOccurs="1" maxOccurs="1"/>
+   <xs:element name="tdz"   type="bitValueType" minOccurs="1" maxOccurs="1"/>
+   <xs:element name="hcd"   type="bitValueType" minOccurs="1" maxOccurs="1"/>
+   <xs:element name="trvm"  type="bitValueType" minOccurs="1" maxOccurs="1"/>
+   <xs:element name="rw"    type="bitValueType" minOccurs="1" maxOccurs="1"/>
+   <xs:element name="cd"    type="bitValueType" minOccurs="1" maxOccurs="1"/>
+   <xs:element name="id"    type="bitValueType" minOccurs="1" maxOccurs="1"/>
   </xs:sequence>
  </xs:complexType>
 
