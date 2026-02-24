@@ -128,22 +128,24 @@
    </depends>
    <requires>
     <vcpu>
-     <vmx>
-      <controls>
-       <proc>
-        <RDTSCExiting>0</RDTSCExiting>
-       </proc>
-      </controls>
-     </vmx>
-     <registers>
-      <gpr>
-       <rsp>16#eff8#</rsp>
-       <rbp>16#f000#</rbp>
-      </gpr>
-      <segments>
-       <es access="16#0001_0000#" base="16#0000#" limit="16#0000#" selector="16#0000#"/>
-      </segments>
-     </registers>
+     <x86_64>
+      <vmx>
+       <controls>
+        <proc>
+         <RDTSCExiting>0</RDTSCExiting>
+        </proc>
+       </controls>
+      </vmx>
+      <registers>
+       <gpr>
+        <rsp>16#eff8#</rsp>
+        <rbp>16#f000#</rbp>
+       </gpr>
+       <segments>
+        <es access="16#0001_0000#" base="16#0000#" limit="16#0000#" selector="16#0000#"/>
+       </segments>
+      </registers>
+     </x86_64>
     </vcpu>
     <memory>
      <memory executable="false" logical="data" size="16#1000#" virtualAddress="16#0001_0000#" writable="true"/>

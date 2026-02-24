@@ -977,6 +977,12 @@
       <xs:element name="scheduling" type="schedulingType" minOccurs="1" maxOccurs="1"/>
     </xs:sequence>
   </xs:complexType>
+  <xs:complexType name="vcpuType">
+    <xs:choice minOccurs="0" maxOccurs="1">
+      <xs:element name="x86_64" type="x86_64VcpuType"/>
+      <xs:element name="arm64" type="arm64VcpuType"/>
+    </xs:choice>
+  </xs:complexType>
   <xs:complexType name="pinCtrlType">
     <xs:sequence>
       <xs:element name="ExternalInterruptExiting" type="bitValueType" minOccurs="0" maxOccurs="1"/>
@@ -1145,11 +1151,11 @@
       <xs:element name="ProtectionKeyEnable" type="bitValueType" minOccurs="0" maxOccurs="1"/>
     </xs:sequence>
   </xs:complexType>
-  <xs:complexType name="vcpuType">
+  <xs:complexType name="x86_64VcpuType">
     <xs:sequence>
       <xs:element name="vmx" type="vmxType" minOccurs="0" maxOccurs="1"/>
       <xs:element name="msrs" type="msrsType" minOccurs="0" maxOccurs="1"/>
-      <xs:element name="registers" type="registersType" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="registers" type="x86_64RegistersType" minOccurs="0" maxOccurs="1"/>
     </xs:sequence>
   </xs:complexType>
   <xs:complexType name="vcpuTypeRestricted">
@@ -1183,9 +1189,9 @@
       <xs:element name="cr4" type="cr4Type" minOccurs="0" maxOccurs="1"/>
     </xs:sequence>
   </xs:complexType>
-  <xs:complexType name="registersType">
+  <xs:complexType name="x86_64RegistersType">
     <xs:sequence>
-      <xs:element name="gpr" type="gprType" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="gpr" type="x86_64GprType" minOccurs="0" maxOccurs="1"/>
       <xs:element name="cr0" type="cr0Type" minOccurs="0" maxOccurs="1"/>
       <xs:element name="cr0Shadow" type="cr0ShadowType" minOccurs="0" maxOccurs="1"/>
       <xs:element name="cr4" type="cr4Type" minOccurs="0" maxOccurs="1"/>
@@ -1193,7 +1199,7 @@
       <xs:element name="segments" type="segmentsType" minOccurs="0" maxOccurs="1"/>
     </xs:sequence>
   </xs:complexType>
-  <xs:complexType name="gprType">
+  <xs:complexType name="x86_64GprType">
     <xs:sequence>
       <xs:element name="rip" type="word64Type" minOccurs="0" maxOccurs="1"/>
       <xs:element name="rsp" type="word64Type" minOccurs="0" maxOccurs="1"/>
@@ -1224,6 +1230,60 @@
       <xs:element name="ss" type="segmentType" minOccurs="0" maxOccurs="1"/>
       <xs:element name="tr" type="segmentType" minOccurs="0" maxOccurs="1"/>
       <xs:element name="ldtr" type="segmentType" minOccurs="0" maxOccurs="1"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="arm64VcpuType">
+    <xs:sequence>
+      <xs:element name="registers" type="arm64RegistersType" minOccurs="1" maxOccurs="1"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="arm64RegistersType">
+    <xs:sequence>
+      <xs:element name="gpr" type="arm64GprType" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="elr_el2" type="word64Type" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="hcr_el2" type="hcrType" minOccurs="0" maxOccurs="1"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="arm64GprType">
+    <xs:sequence>
+      <xs:element name="x0" type="word64Type" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="x1" type="word64Type" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="x2" type="word64Type" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="x3" type="word64Type" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="x4" type="word64Type" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="x5" type="word64Type" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="x6" type="word64Type" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="x7" type="word64Type" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="x8" type="word64Type" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="x9" type="word64Type" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="x10" type="word64Type" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="x11" type="word64Type" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="x12" type="word64Type" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="x13" type="word64Type" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="x14" type="word64Type" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="x15" type="word64Type" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="x16" type="word64Type" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="x17" type="word64Type" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="x18" type="word64Type" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="x19" type="word64Type" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="x20" type="word64Type" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="x21" type="word64Type" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="x22" type="word64Type" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="x23" type="word64Type" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="x24" type="word64Type" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="x25" type="word64Type" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="x26" type="word64Type" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="x27" type="word64Type" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="x28" type="word64Type" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="x29" type="word64Type" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="x30" type="word64Type" minOccurs="0" maxOccurs="1"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="hcrType">
+    <xs:sequence>
+      <xs:element name="dc" type="bitValueType" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="twi" type="bitValueType" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="twe" type="bitValueType" minOccurs="0" maxOccurs="1"/>
     </xs:sequence>
   </xs:complexType>
   <xs:complexType name="physicalMemoryType">

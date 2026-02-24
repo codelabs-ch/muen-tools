@@ -10,21 +10,23 @@
  </depends>
  <requires>
   <vcpu>
-   <vmx>
-    <controls>
-     <proc>
-      <RDTSCExiting>0</RDTSCExiting>
-     </proc>
-    </controls>
-   </vmx>
-   <registers>
-    <gpr>
-     <rax>16#cafe#</rax>
-    </gpr>
-    <segments>
-     <ss access="16#c093#" base="16#0000#" limit="16#ffff#" selector="16#0010#"/>
-    </segments>
-   </registers>
+   <x86_64>
+    <vmx>
+     <controls>
+      <proc>
+       <RDTSCExiting>0</RDTSCExiting>
+      </proc>
+     </controls>
+    </vmx>
+    <registers>
+     <gpr>
+      <rax>16#cafe#</rax>
+     </gpr>
+     <segments>
+      <ss access="16#c093#" base="16#0000#" limit="16#ffff#" selector="16#0010#"/>
+     </segments>
+    </registers>
+   </x86_64>
   </vcpu>
   <memory>
    <memory executable="false" logical="data" size="16#1000#" virtualAddress="16#0001_0000#" writable="true"/>

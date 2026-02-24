@@ -1250,11 +1250,13 @@ package body Muxml.Utils.Test_Data.Tests is
 
          --  Construct the following XML structure:
          --  <vcpu>
-         --   <registers>
-         --    <segments>
-         --     <cs selector="16#ffff# access="16#cafe#">text</cs>
-         --    </segments>
-         --   </registers>
+         --   <x86_64>
+         --    <registers>
+         --     <segments>
+         --      <cs selector="16#ffff# access="16#cafe#">text</cs>
+         --     </segments>
+         --    </registers>
+         --   <x86_64>
          --  </vcpu>
 
          Node := DOM.Core.Documents.Create_Element
@@ -1285,17 +1287,23 @@ package body Muxml.Utils.Test_Data.Tests is
                        New_Child => Tmp);
          Tmp := DOM.Core.Documents.Create_Element
            (Doc      => Doc,
-            Tag_Name => "vcpu");
+            Tag_Name => "x86_64");
          Append_Child (Node      => Tmp,
                        New_Child => Node);
+         Node := DOM.Core.Documents.Create_Element
+           (Doc      => Doc,
+            Tag_Name => "vcpu");
+         Append_Child (Node      => Node,
+                       New_Child => Tmp);
+
          Append_Child
            (Node      => Doc,
-            New_Child => Tmp);
+            New_Child => Node);
 
          Assert
            (Condition => Get_Attribute
               (Doc   => Data.Doc,
-               XPath => "/vcpu/registers/segments/cs",
+               XPath => "/vcpu/x86_64/registers/segments/cs",
                Name  => "selector") = "16#0008#",
             Message   => "Unexpected cs selector attribute in vcpu policy");
 
@@ -1304,12 +1312,12 @@ package body Muxml.Utils.Test_Data.Tests is
 
          Assert (Condition => Get_Attribute
                  (Doc   => Data.Doc,
-                  XPath => "/vcpu/registers/segments/cs",
+                  XPath => "/vcpu/x86_64/registers/segments/cs",
                   Name  => "access") = "16#cafe#",
                  Message   => "Error merging XML nodes: cs access");
          Assert (Condition => Get_Attribute
                  (Doc   => Data.Doc,
-                  XPath => "/vcpu/registers/segments/cs",
+                  XPath => "/vcpu/x86_64/registers/segments/cs",
                   Name  => "selector") = "16#ffff#",
                  Message   => "Error merging XML nodes: cs selector");
       end Positive;
@@ -1369,7 +1377,7 @@ package body Muxml.Utils.Test_Data.Tests is
          MSRs_Node := DOM.Core.Nodes.Item
            (List  => McKae.XML.XPath.XIA.XPath_Query
               (N     => Data.Doc,
-               XPath => "/vcpu/msrs"),
+               XPath => "/vcpu/x86_64/msrs"),
             Index => 0);
 
          --  Construct the following XML structure:
@@ -1414,12 +1422,12 @@ package body Muxml.Utils.Test_Data.Tests is
             MSR_Count : constant Natural := DOM.Core.Nodes.Length
               (List => McKae.XML.XPath.XIA.XPath_Query
                  (N     => Data.Doc,
-                  XPath => "/vcpu/msrs/msr"));
+                  XPath => "/vcpu/x86_64/msrs/msr"));
             Last_Child : constant DOM.Core.Node
               := DOM.Core.Nodes.Last_Child
                 (N => Get_Element
                    (Doc   => Data.Doc,
-                    XPath => "/vcpu/msrs"));
+                    XPath => "/vcpu/x86_64/msrs"));
          begin
             Assert (Condition => MSR_Count = 4,
                     Message   => "Error merging child element list");

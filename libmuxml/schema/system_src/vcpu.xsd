@@ -1,6 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
 
+ <xs:complexType name="vcpuType">
+  <xs:annotation>
+   <xs:documentation>
+    The \texttt{vcpu} element controls the execution behavior of the virtual CPU
+    (vCPU). The vCPU definition is architecture-specific and can be used to
+    declare the execution environment for \texttt{x86\_64} and/or
+    \texttt{arm64}. A default vCPU profile is selected by the component profile,
+    but CPU execution settings can be customized both at component and subject
+    level.
+
+    See line \ref{lst:af-lineref-vcpu} in listing \ref{lst:annotated-policy}
+    for an example on how to customize a vCPU profile.
+   </xs:documentation>
+  </xs:annotation>
+  <xs:choice  minOccurs="0" maxOccurs="1">
+   <xs:element name="x86_64" type="x86_64VcpuType"/>
+   <xs:element name="arm64"  type="arm64VcpuType"/>
+  </xs:choice>
+ </xs:complexType>
+
  <xs:complexType name="pinCtrlType">
   <xs:annotation>
    <xs:documentation>
@@ -326,22 +346,17 @@
   </xs:sequence>
  </xs:complexType>
 
-
- <xs:complexType name="vcpuType">
+ <xs:complexType name="x86_64VcpuType">
   <xs:annotation>
    <xs:documentation>
-    The \texttt{vcpu} element controls the execution behavior of the virtual CPU
-    (vCPU). A default vCPU profile is selected by the component profile, but CPU
-    execution settings can be customized both at component and subject level.
-
-    See line \ref{lst:af-lineref-vcpu} in listing \ref{lst:annotated-policy}
-    for an example on how to customize a vCPU profile.
+    The \texttt{x86\_64} element controls the execution behavior of the virtual
+    x86\_64 CPU (vCPU).
    </xs:documentation>
   </xs:annotation>
   <xs:sequence>
-   <xs:element name="vmx"       type="vmxType"       minOccurs="0" maxOccurs="1"/>
-   <xs:element name="msrs"      type="msrsType"      minOccurs="0" maxOccurs="1"/>
-   <xs:element name="registers" type="registersType" minOccurs="0" maxOccurs="1"/>
+   <xs:element name="vmx"       type="vmxType"             minOccurs="0" maxOccurs="1"/>
+   <xs:element name="msrs"      type="msrsType"            minOccurs="0" maxOccurs="1"/>
+   <xs:element name="registers" type="x86_64RegistersType" minOccurs="0" maxOccurs="1"/>
   </xs:sequence>
  </xs:complexType>
 
@@ -400,7 +415,7 @@
   </xs:sequence>
  </xs:complexType>
 
- <xs:complexType name="registersType">
+ <xs:complexType name="x86_64RegistersType">
   <xs:annotation>
    <xs:documentation>
     The \texttt{registers} element specifies the initial value of
@@ -408,7 +423,7 @@
    </xs:documentation>
   </xs:annotation>
   <xs:sequence>
-   <xs:element name="gpr"       type="gprType"       minOccurs="0" maxOccurs="1"/>
+   <xs:element name="gpr"       type="x86_64GprType" minOccurs="0" maxOccurs="1"/>
    <xs:element name="cr0"       type="cr0Type"       minOccurs="0" maxOccurs="1"/>
    <xs:element name="cr0Shadow" type="cr0ShadowType" minOccurs="0" maxOccurs="1"/>
    <xs:element name="cr4"       type="cr4Type"       minOccurs="0" maxOccurs="1"/>
@@ -417,7 +432,7 @@
   </xs:sequence>
  </xs:complexType>
 
- <xs:complexType name="gprType">
+ <xs:complexType name="x86_64GprType">
   <xs:annotation>
    <xs:documentation>
     The \texttt{gpr} element specifies the initial values of subject
@@ -461,6 +476,103 @@
    <xs:element name="ss" type="segmentType" minOccurs="0" maxOccurs="1"/>
    <xs:element name="tr" type="segmentType" minOccurs="0" maxOccurs="1"/>
    <xs:element name="ldtr" type="segmentType" minOccurs="0" maxOccurs="1"/>
+  </xs:sequence>
+ </xs:complexType>
+
+ <xs:complexType name="arm64VcpuType">
+  <xs:annotation>
+   <xs:documentation>
+    The \texttt{arm64} element controls the execution behavior of the virtual
+    ARM64 CPU (vCPU).
+   </xs:documentation>
+  </xs:annotation>
+  <xs:sequence>
+   <xs:element name="registers" type="arm64RegistersType" minOccurs="1" maxOccurs="1"/>
+  </xs:sequence>
+ </xs:complexType>
+
+ <xs:complexType name="arm64RegistersType">
+  <xs:annotation>
+   <xs:documentation>
+    The ARM64 \texttt{registers} element specifies the initial value of
+    general-purpose (GPR), ELR\_EL2 and the HCR\_EL2 registers.
+   </xs:documentation>
+  </xs:annotation>
+  <xs:sequence>
+   <xs:element name="gpr"     type="arm64GprType" minOccurs="0" maxOccurs="1"/>
+   <xs:element name="elr_el2" type="word64Type"   minOccurs="0" maxOccurs="1"/>
+   <xs:element name="hcr_el2" type="hcrType"      minOccurs="0" maxOccurs="1"/>
+  </xs:sequence>
+ </xs:complexType>
+
+ <xs:complexType name="arm64GprType">
+  <xs:annotation>
+   <xs:documentation>
+    The \texttt{gpr} element specifies the initial values of a subject's
+    general-purpose registers (GPRs).
+   </xs:documentation>
+  </xs:annotation>
+  <xs:sequence>
+   <xs:element name="x0" type="word64Type" minOccurs="0" maxOccurs="1"/>
+   <xs:element name="x1" type="word64Type" minOccurs="0" maxOccurs="1"/>
+   <xs:element name="x2" type="word64Type" minOccurs="0" maxOccurs="1"/>
+   <xs:element name="x3" type="word64Type" minOccurs="0" maxOccurs="1"/>
+   <xs:element name="x4" type="word64Type" minOccurs="0" maxOccurs="1"/>
+   <xs:element name="x5" type="word64Type" minOccurs="0" maxOccurs="1"/>
+   <xs:element name="x6" type="word64Type" minOccurs="0" maxOccurs="1"/>
+   <xs:element name="x7" type="word64Type" minOccurs="0" maxOccurs="1"/>
+   <xs:element name="x8" type="word64Type" minOccurs="0" maxOccurs="1"/>
+   <xs:element name="x9" type="word64Type" minOccurs="0" maxOccurs="1"/>
+   <xs:element name="x10" type="word64Type" minOccurs="0" maxOccurs="1"/>
+   <xs:element name="x11" type="word64Type" minOccurs="0" maxOccurs="1"/>
+   <xs:element name="x12" type="word64Type" minOccurs="0" maxOccurs="1"/>
+   <xs:element name="x13" type="word64Type" minOccurs="0" maxOccurs="1"/>
+   <xs:element name="x14" type="word64Type" minOccurs="0" maxOccurs="1"/>
+   <xs:element name="x15" type="word64Type" minOccurs="0" maxOccurs="1"/>
+   <xs:element name="x16" type="word64Type" minOccurs="0" maxOccurs="1"/>
+   <xs:element name="x17" type="word64Type" minOccurs="0" maxOccurs="1"/>
+   <xs:element name="x18" type="word64Type" minOccurs="0" maxOccurs="1"/>
+   <xs:element name="x19" type="word64Type" minOccurs="0" maxOccurs="1"/>
+   <xs:element name="x20" type="word64Type" minOccurs="0" maxOccurs="1"/>
+   <xs:element name="x21" type="word64Type" minOccurs="0" maxOccurs="1"/>
+   <xs:element name="x22" type="word64Type" minOccurs="0" maxOccurs="1"/>
+   <xs:element name="x23" type="word64Type" minOccurs="0" maxOccurs="1"/>
+   <xs:element name="x24" type="word64Type" minOccurs="0" maxOccurs="1"/>
+   <xs:element name="x25" type="word64Type" minOccurs="0" maxOccurs="1"/>
+   <xs:element name="x26" type="word64Type" minOccurs="0" maxOccurs="1"/>
+   <xs:element name="x27" type="word64Type" minOccurs="0" maxOccurs="1"/>
+   <xs:element name="x28" type="word64Type" minOccurs="0" maxOccurs="1"/>
+   <xs:element name="x29" type="word64Type" minOccurs="0" maxOccurs="1"/>
+   <xs:element name="x30" type="word64Type" minOccurs="0" maxOccurs="1"/>
+  </xs:sequence>
+ </xs:complexType>
+
+ <xs:complexType name="hcrType">
+  <xs:annotation>
+   <xs:documentation>
+    The Hypervisor Configuration Register \texttt{hcr\_el2} contains controls
+    to configure virtualization for subject. It can be used to specify which
+    instructions and operations trap to EL2.
+
+    The \texttt{hcr\_el2} element configures the HCR_EL2 register, see ARM
+    Architecture Reference Manual, ARM DDI 0487, M.a.a, chapter D24.2.62, page
+    D24-8806 "HCR_EL2, hypervisor Configuration Register".
+
+    \begin{warning}
+    Deviating from the settings provided by the component vCPU profile might
+    result in unexpected system behavior. A system integrator changing any of
+    these values must have a thorough understanding of both the runtime behavior
+    of the Muen SK and the ARM64 architecture as well as the virtualization
+    extensions. The \texttt{mucfgvalidate} tool checks that requirements for
+    safe execution of Muen are met, i.e. invalid settings are detected and a
+    meaningful error message is presented.
+    \end{warning}
+   </xs:documentation>
+  </xs:annotation>
+  <xs:sequence>
+   <xs:element name="dc"  type="bitValueType" minOccurs="0" maxOccurs="1"/>
+   <xs:element name="twi" type="bitValueType" minOccurs="0" maxOccurs="1"/>
+   <xs:element name="twe" type="bitValueType" minOccurs="0" maxOccurs="1"/>
   </xs:sequence>
  </xs:complexType>
 
