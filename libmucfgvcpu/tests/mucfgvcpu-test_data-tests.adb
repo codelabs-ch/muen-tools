@@ -14,7 +14,7 @@ with System.Assertions;
 --  This section can be used to add with clauses if necessary.
 --
 --  end read only
-
+with Ada.Characters.Handling;
 --  begin read only
 --  end read only
 package body Mucfgvcpu.Test_Data.Tests is
@@ -40,34 +40,41 @@ package body Mucfgvcpu.Test_Data.Tests is
 
       ----------------------------------------------------------------------
 
-      procedure Merge_User_VCPU_Profile
+      procedure Merge_User_VCPU_Profile (Arch : Mutools.Types.Arch_Type)
       is
+         Arch_Str : constant String
+           := Ada.Characters.Handling.To_Lower (Item => Arch'Img);
          Data : Muxml.XML_Data_Type;
          Node : DOM.Core.Node;
       begin
          Muxml.Parse (Data => Data,
                       Kind => Muxml.None,
-                      File => "data/user_profile.xml");
+                      File => "data/user_profile_" & Arch_Str & ".xml");
          Node := DOM.Core.Documents.Get_Element (Doc => Data.Doc);
          Set_VCPU_Profile
-           (Profile => VM,
-            Node    => Node);
+           (Architecture => Arch,
+            Profile       => VM,
+            Node          => Node);
 
          Muxml.Write (Data => Data,
                       Kind => Muxml.VCPU_Profile,
-                      File => "obj/merged_user_profile.xml");
+                      File => "obj/merged_user_profile_" & Arch_Str & ".xml");
 
          Assert (Condition => Test_Utils.Equal_Files
-                 (Filename1 => "data/merged_user_profile.xml",
-                  Filename2 => "obj/merged_user_profile.xml"),
-                 Message   => "Merged VCPU profile differs");
-         Ada.Directories.Delete_File (Name => "obj/merged_user_profile.xml");
+                 (Filename1 => "data/merged_user_profile_" & Arch_Str & ".xml",
+                  Filename2 => "obj/merged_user_profile_" & Arch_Str & ".xml"),
+                 Message   => "Merged VCPU profile differs (" & Arch_Str
+                 & ")");
+         Ada.Directories.Delete_File
+            (Name => "obj/merged_user_profile_" & Arch_Str & ".xml");
       end Merge_User_VCPU_Profile;
 
       ----------------------------------------------------------------------
 
-      procedure Set_VCPU_Profile
+      procedure Set_VCPU_Profile (Arch : Mutools.Types.Arch_Type)
       is
+        Arch_Str : constant String
+          := Ada.Characters.Handling.To_Lower (Item => Arch'Img);
       begin
          for Profile in Profile_Type loop
             declare
@@ -76,11 +83,9 @@ package body Mucfgvcpu.Test_Data.Tests is
                Node : DOM.Core.Node;
 
                Profile_Str : constant String
-                 := Ada.Strings.Fixed.Translate
-                   (Source  => Profile'Img,
-                    Mapping => Ada.Strings.Maps.Constants.Lower_Case_Map);
+                 := Ada.Characters.Handling.To_Lower (Item => Profile'Img);
                Filename    : constant String
-                 := "vcpu_profile_" & Profile_Str & ".xml";
+                 := "vcpu_profile_" & Profile_Str & "_" & Arch_Str & ".xml";
             begin
                Data.Doc := DOM.Core.Create_Document
                  (Implementation => Impl);
@@ -91,8 +96,9 @@ package body Mucfgvcpu.Test_Data.Tests is
                  (Node      => Data.Doc,
                   New_Child => Node);
                Set_VCPU_Profile
-                 (Profile => Profile,
-                  Node    => Node);
+                 (Architecture => Arch,
+                  Profile      => Profile,
+                  Node         => Node);
 
                Muxml.Write (Data => Data,
                             Kind => Muxml.VCPU_Profile,
@@ -107,8 +113,10 @@ package body Mucfgvcpu.Test_Data.Tests is
          end loop;
       end Set_VCPU_Profile;
    begin
-      Set_VCPU_Profile;
-      Merge_User_VCPU_Profile;
+      Set_VCPU_Profile (Arch => Mutools.Types.X86_64);
+      Set_VCPU_Profile (Arch => Mutools.Types.Arm64);
+      Merge_User_VCPU_Profile (Arch => Mutools.Types.X86_64);
+      Merge_User_VCPU_Profile (Arch => Mutools.Types.Arm64);
 --  begin read only
    end Test_Set_VCPU_Profile;
 --  end read only

@@ -23,11 +23,15 @@ with DOM.Core.Documents.Local;
 
 with Muxml.Utils;
 
-with Mucfgvcpu.Profile_native;
-with Mucfgvcpu.Profile_vm;
+with Mucfgvcpu.Profile_native_arm64;
+with Mucfgvcpu.Profile_native_x86_64;
+with Mucfgvcpu.Profile_vm_arm64;
+with Mucfgvcpu.Profile_vm_x86_64;
 
 package body Mucfgvcpu
 is
+
+   use Mutools.Types;
 
    function U
      (Source : String)
@@ -40,15 +44,18 @@ is
       XML : String_Access;
    end record;
 
-   Profile_Map : constant array (Profile_Type) of VCPU_Info_Type
-     := (Native => (XML => Profile_native.Data'Access),
-         VM     => (XML => Profile_vm.Data'Access));
+   Profile_Map : constant array (Profile_Type, Arch_Type) of VCPU_Info_Type
+     := (Native => (X86_64 => (XML => Profile_native_x86_64.Data'Access),
+                    Arm64  => (XML => Profile_native_arm64.Data'Access)),
+         VM     => (X86_64 => (XML => Profile_vm_x86_64.Data'Access),
+                    Arm64  => (XML => Profile_vm_arm64.Data'Access)));
 
    -------------------------------------------------------------------------
 
    procedure Set_VCPU_Profile
-     (Profile :        Profile_Type;
-      Node    : in out DOM.Core.Node)
+     (Architecture :        Mutools.Types.Arch_Type;
+      Profile      :        Profile_Type;
+      Node         : in out DOM.Core.Node)
    is
       Doc_Node  : constant DOM.Core.Document
         := DOM.Core.Nodes.Owner_Document (N => Node);
@@ -58,7 +65,7 @@ is
    begin
       Muxml.Parse_String (Data => Data,
                           Kind => Muxml.VCPU_Profile,
-                          XML  => Profile_Map (Profile).XML.all);
+                          XML  => Profile_Map (Profile, Architecture).XML.all);
       VCPU_Node := DOM.Core.Documents.Local.Adopt_Node
         (Doc    => Doc_Node,
          Source => DOM.Core.Documents.Local.Clone_Node
