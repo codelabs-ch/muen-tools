@@ -18,15 +18,18 @@
 
 with DOM.Core;
 
+with Mutools.Types;
+
 package Mucfgvcpu
 is
 
    type Profile_Type is (Native, VM);
 
-   --  Set given vcpu node to values of specified profile and return adjusted
-   --  node.
+   --  Set given vcpu node to values of specified architecture as well as
+   --  profile and return adjusted node.
    procedure Set_VCPU_Profile
-     (Profile :        Profile_Type;
-      Node    : in out DOM.Core.Node);
+     (Architecture :        Mutools.Types.Arch_Type;
+      Profile      :        Profile_Type;
+      Node         : in out DOM.Core.Node);
 
 end Mucfgvcpu;
