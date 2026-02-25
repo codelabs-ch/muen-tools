@@ -11,13 +11,8 @@
     #address-cells = <0x2>;
     #size-cells = <0x2>;
 
-    aliases {
-        serial = &serial_0;
-    };
-
     chosen {
         bootargs = "hostname=lnx1 console=ttyPS0,115200 root=/dev/ram0 earlycon muen_sinfo=0xe00000000 muennet.name=net0 muennet.reader_protocol=2 muennet.writer_protocol=2 muennet.in=net_in muennet.out=net_out muennet.flags=net_hdr initrd=0x2b000000,0x5000000";
-        stdout-path = "serial:115200n8";
     };
 
     memory@0 {

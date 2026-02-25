@@ -36,21 +36,6 @@ is
 
    -------------------------------------------------------------------------
 
-   procedure Add_Aliases_Node
-     (Template : in out Mutools.Templates.Template_Type;
-      Policy   :        Muxml.XML_Data_Type;
-      Subject  :        DOM.Core.Node)
-   is
-      pragma Unreferenced (Policy, Subject);
-   begin
-      Mutools.Templates.Replace
-        (Template => Template,
-         Pattern  => "__serial_alias__",
-         Content  => "serial_0");
-   end Add_Aliases_Node;
-
-   -------------------------------------------------------------------------
-
    procedure Add_Chosen_Node
      (Template : in out Mutools.Templates.Template_Type;
       Policy   :        Muxml.XML_Data_Type;
@@ -222,10 +207,6 @@ is
         := Mutools.Templates.Create
           (Content => String_Templates.devicetree_dsl);
    begin
-      Add_Aliases_Node (Template => Template,
-                        Policy   => Policy,
-                        Subject  => Subject);
-
       Add_Chosen_Node (Template => Template,
                        Policy   => Policy,
                        Subject  => Subject);

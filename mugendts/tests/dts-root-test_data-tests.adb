@@ -142,7 +142,6 @@ package body DTS.Root.Test_Data.Tests is
         := "    chosen {" & ASCII.LF &
         "        bootargs = ""hostname=lnx1 console=ttyPS0,115200 " &
         "root=/dev/ram0 earlycon initrd=0x1b000000,0x5000000"";" & ASCII.LF &
-        "        stdout-path = ""serial:115200n8"";" & ASCII.LF &
         "    };";
 
       Template : Mutools.Templates.Template_Type
@@ -150,7 +149,6 @@ package body DTS.Root.Test_Data.Tests is
           (Content =>
              "    chosen {" & ASCII.LF &
              "        bootargs = ""__chosen_bootparams__"";" & ASCII.LF &
-             "        stdout-path = ""serial:115200n8"";" & ASCII.LF &
              "    };");
 
       Policy : Muxml.XML_Data_Type;
