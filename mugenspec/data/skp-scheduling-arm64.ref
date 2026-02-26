@@ -74,23 +74,23 @@ is
           Minor_Frames => Minor_Frame_Array'(
              1 => Minor_Frame_Type'(Partition_ID => 1,
                                     Barrier      => No_Barrier,
-                                    Deadline     => 1210291187897088000),
+                                    Deadline     => 100857),
              2 => Minor_Frame_Type'(Partition_ID => 2,
                                     Barrier      => No_Barrier,
-                                    Deadline     => 1288934387110656000),
+                                    Deadline     => 107410),
              3 => Minor_Frame_Type'(Partition_ID => 1,
                                     Barrier      => No_Barrier,
-                                    Deadline     => 1293734387062656000)))),
+                                    Deadline     => 107810)))),
      1 => Major_Frame_Array'(
        0 => Major_Frame_Type'
          (Length       => 2,
           Minor_Frames => Minor_Frame_Array'(
              1 => Minor_Frame_Type'(Partition_ID => 3,
                                     Barrier      => No_Barrier,
-                                    Deadline     => 1258291187417088000),
+                                    Deadline     => 104857),
              2 => Minor_Frame_Type'(Partition_ID => 4,
                                     Barrier      => No_Barrier,
-                                    Deadline     => 1336934386630656000),
+                                    Deadline     => 111410),
              others => Null_Minor_Frame))));
 
    subtype Barrier_Size_Type is
@@ -108,7 +108,7 @@ is
 
    Major_Frames : constant Major_Frame_Info_Array := Major_Frame_Info_Array'(
        0 => Major_Frame_Info_Type'
-         (Period         => 1293734387062656000,
+         (Period         => 107811,
           Barrier_Config => Barrier_Config_Array'(
             others => Barrier_Size_Type'First)));
 

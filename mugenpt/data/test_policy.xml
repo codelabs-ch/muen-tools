@@ -5,7 +5,7 @@
 
  <hardware>
   <processor cpuCores="2">
-   <x86_64 tscFrequency="2900" vmxTimerRate="5">
+   <x86_64 tscFrequency="2900000" vmxTimerRate="5">
     <cpu apicId="0" cpuId="0"/>
     <cpu apicId="2" cpuId="1"/>
    </x86_64>

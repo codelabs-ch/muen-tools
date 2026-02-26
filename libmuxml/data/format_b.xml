@@ -6,7 +6,7 @@
  </config>
  <hardware>
   <processor cpuCores="1">
-   <x86_64 tscFrequency="2900" vmxTimerRate="5">
+   <x86_64 tscFrequency="2900000" vmxTimerRate="5">
     <cpu apicId="0" cpuId="0"/>
    </x86_64>
   </processor>

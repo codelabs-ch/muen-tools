@@ -5,7 +5,7 @@
  </config>
  <hardware originOfNode="format_src.xml:6:12">
   <processor cpuCores="3" originOfNode="format_src.xml:7:27">
-   <x86_64 originOfNode="format_src.xml:8:49" tscFrequency="2900" vmxTimerRate="5">
+   <x86_64 originOfNode="format_src.xml:8:52" tscFrequency="2900000" vmxTimerRate="5">
     <cpu apicId="0" originOfNode="format_src.xml:9:22"/>
     <cpu apicId="2" cpuId="1" originOfNode="format_src.xml:10:32"/>
     <cpuid eax="16#0000_000d#" ebx="16#756e_6547#" ecx="16#6c65_746e#" edx="16#4965_6e69#" leaf="16#0000_0000#" originOfNode="format_src.xml:11:131" subleaf="16#00#"/>

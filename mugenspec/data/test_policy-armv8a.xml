@@ -7,7 +7,7 @@
 </config>
 <hardware>
  <processor cpuCores="4">
-  <arm64 timerFrequency="1199999988">
+  <arm64 timerFrequency="100000">
    <cpu cpuId="0"/>
    <cpu cpuId="1"/>
    <cpu cpuId="2"/>
@@ -2048,7 +2048,7 @@
   </events>
  </subject>
 </subjects>
-<scheduling tickRate="1">
+<scheduling tickRate="1000000000">
  <partitions>
   <partition cpu="0" id="1" name="linux1">
    <group id="1">

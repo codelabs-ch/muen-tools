@@ -5,7 +5,7 @@
  </config>
  <hardware>
   <processor cpuCores="1">
-   <arm64 timerFrequency="2900">
+   <arm64 timerFrequency="100000">
     <cpu cpuId="0"/>
    </arm64>
   </processor>
