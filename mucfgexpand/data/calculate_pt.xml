@@ -3,9 +3,11 @@
  <config>
  </config>
  <hardware>
-  <processor cpuCores="2" speed="2900" vmxTimerRate="5">
-   <cpu apicId="0" cpuId="0"/>
-   <cpu apicId="2" cpuId="1"/>
+  <processor cpuCores="2">
+   <x86_64 tscFrequency="2900000" vmxTimerRate="5">
+    <cpu apicId="0" cpuId="0"/>
+    <cpu apicId="2" cpuId="1"/>
+   </x86_64>
   </processor>
   <memory>
    <memoryBlock allocatable="true" name="ram_1" physicalAddress="16#0000#" size="16#8000_0000#"/>

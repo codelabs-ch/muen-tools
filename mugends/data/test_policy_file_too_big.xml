@@ -6,11 +6,13 @@
  <string name="debug_level" value="Level_3"/>
 </config>
 <hardware>
- <processor cpuCores="4" speed="1199999988" vmxTimerRate="1">
-  <cpu apicId="0" cpuId="0"/>
-  <cpu apicId="2" cpuId="1"/>
-  <cpu apicId="4" cpuId="2"/>
-  <cpu apicId="6" cpuId="3"/>
+ <processor cpuCores="4">
+  <arm64 timerFrequency="1199999988">
+   <cpu cpuId="0"/>
+   <cpu cpuId="1"/>
+   <cpu cpuId="2"/>
+   <cpu cpuId="3"/>
+  </arm64>
  </processor>
  <memory>
   <memoryBlock allocatable="true" name="System RAM" physicalAddress="16#0000_0000#" size="16#8000_0000#"/>

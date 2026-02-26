@@ -177,14 +177,26 @@
     <xs:attribute name="pciConfigSize" type="word64Type" use="optional"/>
   </xs:complexType>
   <xs:complexType name="processorType">
+    <xs:choice minOccurs="1" maxOccurs="1">
+      <xs:element name="x86_64" type="x86_64CpuArchitectureType"/>
+      <xs:element name="arm64" type="arm64CpuArchitectureType"/>
+    </xs:choice>
+    <xs:attribute name="cpuCores" type="xs:positiveInteger" use="required"/>
+  </xs:complexType>
+  <xs:complexType name="x86_64CpuArchitectureType">
     <xs:sequence>
-      <xs:element name="cpu" type="cpuCoreType" minOccurs="1" maxOccurs="unbounded"/>
+      <xs:element name="cpu" type="x86_64CpuCoreType" minOccurs="1" maxOccurs="unbounded"/>
       <xs:element name="cpuid" type="cpuIDValueType" minOccurs="0" maxOccurs="unbounded"/>
       <xs:element name="msr" type="msrValueType" minOccurs="0" maxOccurs="unbounded"/>
     </xs:sequence>
-    <xs:attribute name="cpuCores" type="xs:positiveInteger" use="required"/>
-    <xs:attribute name="speed" type="xs:positiveInteger" use="required"/>
+    <xs:attribute name="tscFrequency" type="xs:positiveInteger" use="required"/>
     <xs:attribute name="vmxTimerRate" type="vmxTimerRateType" use="required"/>
+  </xs:complexType>
+  <xs:complexType name="arm64CpuArchitectureType">
+    <xs:sequence>
+      <xs:element name="cpu" type="arm64CpuCoreType" minOccurs="1" maxOccurs="unbounded"/>
+    </xs:sequence>
+    <xs:attribute name="timerFrequency" type="xs:positiveInteger" use="required"/>
   </xs:complexType>
   <xs:simpleType name="vmxTimerRateType">
     <xs:restriction base="xs:nonNegativeInteger">
@@ -266,6 +278,7 @@
       <xs:enumeration value="kernel_binary"/>
       <xs:enumeration value="kernel_fpu"/>
       <xs:enumeration value="kernel_interface"/>
+      <xs:enumeration value="kernel_microcode"/>
       <xs:enumeration value="kernel_msrstore"/>
       <xs:enumeration value="kernel_vmcs"/>
       <xs:enumeration value="subject"/>
@@ -601,7 +614,7 @@
   <xs:complexType name="memoryType">
     <xs:complexContent>
       <xs:extension base="physicalMemBaseType">
-        <xs:attribute name="type" type="subjectMemoryKindType" use="optional"/>
+        <xs:attribute name="type" type="srcMemoryKindType" use="optional"/>
         <xs:attribute name="alignment" type="alignmentType" use="optional"/>
         <xs:attribute name="physicalAddress" type="word64Type" use="optional"/>
       </xs:extension>
@@ -623,6 +636,28 @@
     <xs:attribute name="filename" type="xs:string" use="required"/>
     <xs:attribute name="offset" type="optionalOffsetType" use="required"/>
   </xs:complexType>
+  <xs:simpleType name="srcMemoryKindType">
+    <xs:restriction base="memoryKindType">
+      <xs:enumeration value="kernel_microcode"/>
+      <xs:enumeration value="subject"/>
+      <xs:enumeration value="subject_info"/>
+      <xs:enumeration value="subject_state"/>
+      <xs:enumeration value="subject_binary"/>
+      <xs:enumeration value="subject_channel"/>
+      <xs:enumeration value="subject_crash_audit"/>
+      <xs:enumeration value="subject_initrd"/>
+      <xs:enumeration value="subject_bios"/>
+      <xs:enumeration value="subject_acpi_rsdp"/>
+      <xs:enumeration value="subject_acpi_xsdt"/>
+      <xs:enumeration value="subject_acpi_fadt"/>
+      <xs:enumeration value="subject_acpi_dsdt"/>
+      <xs:enumeration value="subject_zeropage"/>
+      <xs:enumeration value="subject_solo5_boot_info"/>
+      <xs:enumeration value="subject_device"/>
+      <xs:enumeration value="subject_timed_event"/>
+      <xs:enumeration value="subject_devicetree"/>
+    </xs:restriction>
+  </xs:simpleType>
   <xs:simpleType name="subjectMemoryKindType">
     <xs:restriction base="memoryKindType">
       <xs:enumeration value="subject"/>
@@ -1216,8 +1251,11 @@
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
-  <xs:complexType name="cpuCoreType">
+  <xs:complexType name="x86_64CpuCoreType">
     <xs:attribute name="apicId" type="xs:unsignedByte" use="required"/>
+    <xs:attribute name="cpuId" type="xs:unsignedByte" use="optional"/>
+  </xs:complexType>
+  <xs:complexType name="arm64CpuCoreType">
     <xs:attribute name="cpuId" type="xs:unsignedByte" use="optional"/>
   </xs:complexType>
   <xs:complexType name="hardwareType">

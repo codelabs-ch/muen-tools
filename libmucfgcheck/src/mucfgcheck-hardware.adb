@@ -117,6 +117,69 @@ is
 
    -------------------------------------------------------------------------
 
+   procedure CPU_APIC_IDs (XML_Data : Muxml.XML_Data_Type)
+   is
+      Sub_Nodes : constant DOM.Core.Node_List
+        := McKae.XML.XPath.XIA.XPath_Query
+          (N     => XML_Data.Doc,
+           XPath => "/system/hardware/processor/x86_64/cpu");
+      Sub_Node_Count : constant Natural
+        := DOM.Core.Nodes.Length (List => Sub_Nodes);
+   begin
+      Mulog.Log (Msg => "Checking CPU APIC IDs and BSP presence");
+      --D @Item(List => cpu_apic_id_checks).
+      --D A node with \texttt{apicId} value \texttt{0} must exist and, if
+      --D specified, it must have a \texttt{cpuId} value within the active CPU
+      --D range, i.e. the BSP is part of the system scheduling plan
+
+      BSP_Presence :
+      declare
+         use type DOM.Core.Node;
+
+         Active_CPUs : constant Positive
+           := Mutools.XML_Utils.Get_Active_CPU_Count (Data => XML_Data);
+         BSP : constant DOM.Core.Node
+           := Muxml.Utils.Get_Element
+             (Doc   => XML_Data.Doc,
+              XPath => "/system/hardware/processor/x86_64/cpu[@apicId='0' and "
+              & "@cpuId <" & Active_CPUs'Img & "]");
+      begin
+         if BSP = null then
+            Validation_Errors.Insert
+              (Msg => "CPU with APIC ID 0 not present in active CPU set");
+         end if;
+      end BSP_Presence;
+
+      --D @Item(List => cpu_apic_id_checks).
+      --D All \texttt{apicId} attributes must have even numbers
+
+      Even_APIC_ID :
+      for I in 0 .. Sub_Node_Count - 1 loop
+         declare
+            Node : constant DOM.Core.Node
+              := DOM.Core.Nodes.Item
+                (List  => Sub_Nodes,
+                 Index => I);
+            CPU_ID : constant String
+              := DOM.Core.Elements.Get_Attribute
+                (Elem => Node,
+                 Name => "cpuId");
+            APIC_ID : constant String
+              := DOM.Core.Elements.Get_Attribute
+                   (Elem => Node,
+                    Name => "apicId");
+         begin
+            if Natural'Value (APIC_ID) mod 2 /= 0 then
+               Validation_Errors.Insert
+                 (Msg => "Processor CPU sub-element with "
+                  & "CPU ID " & CPU_ID & " has uneven APIC ID " & APIC_ID);
+            end if;
+         end;
+      end loop Even_APIC_ID;
+   end CPU_APIC_IDs;
+
+   -------------------------------------------------------------------------
+
    procedure CPU_Count (XML_Data : Muxml.XML_Data_Type)
    is
       Active_CPUs   : constant Positive
@@ -151,7 +214,7 @@ is
       Sub_Nodes : constant DOM.Core.Node_List
         := McKae.XML.XPath.XIA.XPath_Query
           (N     => XML_Data.Doc,
-           XPath => "/system/hardware/processor/cpu");
+           XPath => "/system/hardware/processor/*/cpu");
       Sub_Node_Count : constant Natural
         := DOM.Core.Nodes.Length (List => Sub_Nodes);
    begin
@@ -236,64 +299,15 @@ is
 
          Node : constant DOM.Core.Node
            := Muxml.Utils.Get_Element
-             (Doc   => XML_Data.Doc,
-              XPath => "/system/hardware/processor/cpu[@cpuId='0']");
+             (Nodes     => Sub_Nodes,
+              Ref_Attr  => "cpuId",
+              Ref_Value => "0");
       begin
          if Node = null then
             Validation_Errors.Insert
               (Msg => "CPU sub-element with CPU ID 0 not found");
          end if;
       end CPU_ID_0;
-
-      --D @Item(List => cpu_subs_checks).
-      --D A node with \texttt{apicId} value \texttt{0} must exist and, if
-      --D specified, it must have a \texttt{cpuId} value within the active CPU
-      --D range, i.e. the BSP is part of the system scheduling plan
-
-      BSP_Presence :
-      declare
-         use type DOM.Core.Node;
-
-         Active_CPUs : constant Positive
-           := Mutools.XML_Utils.Get_Active_CPU_Count (Data => XML_Data);
-         BSP : constant DOM.Core.Node
-           := Muxml.Utils.Get_Element
-             (Doc   => XML_Data.Doc,
-              XPath => "/system/hardware/processor/cpu[@apicId='0' and "
-              & "@cpuId <" & Active_CPUs'Img & "]");
-      begin
-         if BSP = null then
-            Validation_Errors.Insert
-              (Msg => "CPU with APIC ID 0 not present in active CPU set");
-         end if;
-      end BSP_Presence;
-
-      --D @Item(List => cpu_subs_checks).
-      --D All \texttt{apicId} attributes must have even numbers
-
-      Even_APIC_ID :
-      for I in 0 .. Sub_Node_Count - 1 loop
-         declare
-            Node : constant DOM.Core.Node
-              := DOM.Core.Nodes.Item
-                (List  => Sub_Nodes,
-                 Index => I);
-            CPU_ID : constant String
-              := DOM.Core.Elements.Get_Attribute
-                (Elem => Node,
-                 Name => "cpuId");
-            APIC_ID : constant String
-              := DOM.Core.Elements.Get_Attribute
-                   (Elem => Node,
-                    Name => "apicId");
-         begin
-            if Natural'Value (APIC_ID) mod 2 /= 0 then
-               Validation_Errors.Insert
-                 (Msg => "Processor CPU sub-element with "
-                  & "CPU ID " & CPU_ID & " has uneven APIC ID " & APIC_ID);
-            end if;
-         end;
-      end loop Even_APIC_ID;
    end CPU_Sub_Elements;
 
    -------------------------------------------------------------------------

@@ -326,13 +326,13 @@ is
       Already_Set : constant DOM.Core.Node_List
         := McKae.XML.XPath.XIA.XPath_Query
           (N     => Data.Doc,
-           XPath => "/system/hardware/processor/cpu[@cpuId]");
+           XPath => "/system/hardware/processor/*/cpu[@cpuId]");
       Already_Count : constant Natural
         := DOM.Core.Nodes.Length (List => Already_Set);
       To_Set : constant DOM.Core.Node_List
         := McKae.XML.XPath.XIA.XPath_Query
           (N     => Data.Doc,
-           XPath => "/system/hardware/processor/cpu[not(@cpuId)]");
+           XPath => "/system/hardware/processor/*/cpu[not(@cpuId)]");
       To_Set_Count : constant Natural
         := DOM.Core.Nodes.Length (List => To_Set);
       Num_Alloc : Utils.Number_Allocator_Type

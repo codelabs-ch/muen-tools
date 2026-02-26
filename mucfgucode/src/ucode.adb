@@ -120,7 +120,7 @@ is
       declare
          Sig : constant String := Muxml.Utils.Get_Attribute
              (Doc   => Data.Doc,
-              XPath => "/system/hardware/processor/cpuid"
+              XPath => "/system/hardware/processor/x86_64/cpuid"
               & "[@leaf='16#0000_0001#']",
               Name  => "eax");
          Sig_C : constant String := Mutools.Utils.To_Hex

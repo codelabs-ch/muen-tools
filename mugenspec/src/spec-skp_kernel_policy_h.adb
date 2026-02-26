@@ -526,7 +526,7 @@ is
            := Utils.Get_APIC_CPU_ID_Map
              (CPU_Nodes => McKae.XML.XPath.XIA.XPath_Query
                 (N     => Policy.Doc,
-                 XPath => "/system/hardware/processor/cpu[@cpuId <"
+                 XPath => "/system/hardware/processor/x86_64/cpu[@cpuId <"
                  & CPU_Count'Img & "]"));
          CPU_ID_Str : Unbounded_String;
 
@@ -673,8 +673,8 @@ is
          TSC_Khz : constant String
            := Muxml.Utils.Get_Attribute
              (Doc   => Policy.Doc,
-              XPath => "/system/hardware/processor",
-              Name  => "speed");
+              XPath => "/system/hardware/processor/x86_64",
+              Name  => "tscFrequency");
 
          Tmpl : Mutools.Templates.Template_Type;
       begin

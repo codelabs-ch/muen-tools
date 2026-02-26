@@ -30,6 +30,7 @@ with Muxml.Utils;
 with Mutools.PCI;
 with Mutools.Utils;
 with Mutools.Match;
+with Mutools.XML_Utils;
 
 with Musinfo;
 
@@ -338,12 +339,16 @@ is
      (Output_Dir : String;
       Policy     : Muxml.XML_Data_Type)
    is
+      Attr_Str : constant String
+      := (if Mutools.XML_Utils.Is_Arm64 (Policy => Policy)
+          then "timerFrequency"
+          else "tscFrequency");
       TSC_Khz  : constant Interfaces.Unsigned_64
         := Interfaces.Unsigned_64'Value
           (Muxml.Utils.Get_Attribute
-             (Doc   => Policy.Doc,
-              XPath => "/system/hardware/processor",
-              Name  => "speed"));
+            (Doc   => Policy.Doc,
+             XPath => "/system/hardware/processor/*",
+             Name  => Attr_Str));
       Phys_Mem : constant DOM.Core.Node_List
         := McKae.XML.XPath.XIA.XPath_Query
           (N     => Policy.Doc,

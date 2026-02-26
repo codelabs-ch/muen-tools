@@ -3,8 +3,10 @@
  <config>
  </config>
  <hardware>
-  <processor cpuCores="1" speed="1" vmxTimerRate="0">
-   <cpu apicId="0" cpuId="0"/>
+  <processor cpuCores="1">
+   <x86_64 tscFrequency="1" vmxTimerRate="0">
+    <cpu apicId="0" cpuId="0"/>
+   </x86_64>
   </processor>
   <memory>
    <memoryBlock allocatable="true" name="ram_2" physicalAddress="16#0000#" size="16#0020_0000#"/>

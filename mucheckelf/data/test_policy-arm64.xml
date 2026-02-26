@@ -4,8 +4,10 @@
   <boolean name="armv8" value="true"/>
  </config>
  <hardware>
-  <processor cpuCores="1" speed="2900" vmxTimerRate="5">
-   <cpu apicId="0" cpuId="0"/>
+  <processor cpuCores="1">
+   <arm64 timerFrequency="100000">
+    <cpu cpuId="0"/>
+   </arm64>
   </processor>
   <memory>
    <memoryBlock allocatable="true" name="ram_1" physicalAddress="16#0000#" size="16#8000_0000#"/>

@@ -212,7 +212,7 @@ package body Sinfo.Utils.Test_Data.Tests is
    begin
       Muxml.Parse (Data => Policy,
                    Kind => Muxml.Format_B,
-                   File => "data/test_policy.xml");
+                   File => "data/test_policy_x86_64.xml");
 
       Assert (Condition => Get_Memory_Info
               (Virt_Mem_Node => Muxml.Utils.Get_Element

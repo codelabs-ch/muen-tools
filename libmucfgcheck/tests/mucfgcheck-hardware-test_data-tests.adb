@@ -224,22 +224,6 @@ package body Mucfgcheck.Hardware.Test_Data.Tests is
 
       Muxml.Utils.Set_Attribute
         (Doc   => Data.Doc,
-         XPath => "/system/hardware/processor/cpu[@apicId='0']",
-         Name  => "apicId",
-         Value => "23");
-
-      CPU_Sub_Elements (XML_Data => Data);
-      Assert (Condition => Validation_Errors.Contains
-              (Msg => "CPU with APIC ID 0 not present in active CPU set"),
-              Message   => "Exception mismatch (1)");
-
-      Muxml.Utils.Set_Attribute
-        (Doc   => Data.Doc,
-         XPath => "/system/hardware/processor/cpu[@apicId='23']",
-         Name  => "apicId",
-         Value => "0");
-      Muxml.Utils.Set_Attribute
-        (Doc   => Data.Doc,
          XPath => "/system/hardware/processor",
          Name  => "cpuCores",
          Value => "5");
@@ -248,7 +232,7 @@ package body Mucfgcheck.Hardware.Test_Data.Tests is
       Assert (Condition => Validation_Errors.Contains
               (Msg => "Hardware processor element requires 5 CPU sub-elements, "
                & "but 4 given"),
-              Message   => "Exception mismatch (2)");
+              Message   => "Exception mismatch (1)");
 
       Muxml.Utils.Set_Attribute
         (Doc   => Data.Doc,
@@ -257,49 +241,80 @@ package body Mucfgcheck.Hardware.Test_Data.Tests is
          Value => "4");
       Muxml.Utils.Set_Attribute
         (Doc   => Data.Doc,
-         XPath => "/system/hardware/processor/cpu[@apicId='6']",
+         XPath => "/system/hardware/processor/x86_64/cpu[@apicId='6']",
          Name  => "cpuId",
          Value => "22");
 
       CPU_Sub_Elements (XML_Data => Data);
       Assert (Condition => Validation_Errors.Contains
               (Msg => "Processor CPU IDs not consecutive"),
-              Message   => "Exception mismatch (3)");
+              Message   => "Exception mismatch (2)");
 
       Muxml.Utils.Set_Attribute
         (Doc   => Data.Doc,
-         XPath => "/system/hardware/processor/cpu[@apicId='6']",
-         Name  => "cpuId",
-         Value => "3");
-      Muxml.Utils.Set_Attribute
-        (Doc   => Data.Doc,
-         XPath => "/system/hardware/processor/cpu[@apicId='4']",
-         Name  => "apicId",
-         Value => "1");
-
-      CPU_Sub_Elements (XML_Data => Data);
-      Assert (Condition => Validation_Errors.Contains
-              (Msg => "Processor CPU sub-element with CPU ID 2 has uneven APIC"
-               & " ID 1"),
-              Message   => "Exception mismatch (4)");
-
-      Muxml.Utils.Set_Attribute
-        (Doc   => Data.Doc,
-         XPath => "/system/hardware/processor/cpu[@apicId='1']",
-         Name  => "apicId",
-         Value => "0");
-      Muxml.Utils.Set_Attribute
-        (Doc   => Data.Doc,
-         XPath => "/system/hardware/processor/cpu[@cpuId='0']",
+         XPath => "/system/hardware/processor/x86_64/cpu[@cpuId='0']",
          Name  => "cpuId",
          Value => "4");
 
       CPU_Sub_Elements (XML_Data => Data);
       Assert (Condition => Validation_Errors.Contains
               (Msg => "CPU sub-element with CPU ID 0 not found"),
-              Message   => "Exception mismatch (5)");
+              Message   => "Exception mismatch (3)");
 --  begin read only
    end Test_CPU_Sub_Elements;
+--  end read only
+
+
+--  begin read only
+   procedure Test_CPU_APIC_IDs (Gnattest_T : in out Test);
+   procedure Test_CPU_APIC_IDs_02d30b (Gnattest_T : in out Test) renames Test_CPU_APIC_IDs;
+--  id:2.2/02d30b0661e9724d/CPU_APIC_IDs/1/0/
+   procedure Test_CPU_APIC_IDs (Gnattest_T : in out Test) is
+--  end read only
+
+      pragma Unreferenced (Gnattest_T);
+
+      Data : Muxml.XML_Data_Type;
+   begin
+      Muxml.Parse (Data => Data,
+                   Kind => Muxml.Format_B,
+                   File => "data/test_policy.xml");
+
+      --  Positive test, must not raise an exception.
+
+      CPU_APIC_IDs (XML_Data => Data);
+      Assert (Condition => Validation_Errors.Is_Empty,
+              Message   => "Unexpected error in positive test");
+
+      Muxml.Utils.Set_Attribute
+        (Doc   => Data.Doc,
+         XPath => "/system/hardware/processor/x86_64/cpu[@apicId='6']",
+         Name  => "cpuId",
+         Value => "3");
+      Muxml.Utils.Set_Attribute
+        (Doc   => Data.Doc,
+         XPath => "/system/hardware/processor/x86_64/cpu[@apicId='4']",
+         Name  => "apicId",
+         Value => "1");
+
+      CPU_APIC_IDs (XML_Data => Data);
+      Assert (Condition => Validation_Errors.Contains
+              (Msg => "Processor CPU sub-element with CPU ID 2 has uneven APIC"
+               & " ID 1"),
+              Message   => "Exception mismatch (1)");
+
+      Muxml.Utils.Set_Attribute
+        (Doc   => Data.Doc,
+         XPath => "/system/hardware/processor/x86_64/cpu[@cpuId='0']",
+         Name  => "cpuId",
+         Value => "4");
+
+      CPU_APIC_IDs (XML_Data => Data);
+      Assert (Condition => Validation_Errors.Contains
+              (Msg => "CPU with APIC ID 0 not present in active CPU set"),
+              Message   => "Exception mismatch (2) ");
+--  begin read only
+   end Test_CPU_APIC_IDs;
 --  end read only
 
 

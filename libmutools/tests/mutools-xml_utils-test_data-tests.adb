@@ -2372,7 +2372,7 @@ package body Mutools.XML_Utils.Test_Data.Tests is
                    File => "data/test_policy.xml");
       Muxml.Utils.Set_Attribute
         (Doc   => Policy.Doc,
-         XPath => "/system/hardware/processor/cpu[@apicId='0']",
+         XPath => "/system/hardware/processor/x86_64/cpu[@apicId='0']",
          Name  => "cpuId",
          Value => "12");
 

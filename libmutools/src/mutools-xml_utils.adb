@@ -1499,7 +1499,7 @@ is
       Node : constant DOM.Core.Node
         := Muxml.Utils.Get_Element
           (Doc   => Policy.Doc,
-           XPath => "/system/hardware/processor/cpu[@cpuId='" & ID_Str & "']");
+           XPath => "/system/hardware/processor/x86_64/cpu[@cpuId='" & ID_Str & "']");
    begin
       if Node = null then
          raise APIC_ID_Not_Found with "APIC ID for CPU ID " & ID_Str

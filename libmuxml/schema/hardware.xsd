@@ -170,25 +170,17 @@
  <xs:complexType name="processorType">
   <xs:annotation>
    <xs:documentation>
-    The \texttt{processor} element specifies the number of CPU cores, the
-    processor speed in kHz and the Intel VMX preemption timer rate.
-
-    Since Intel CPUs can have arbitrary APIC identifiers, the APIC IDs of all
-    physical CPUs are enumerated here. The APIC ID is required for interrupt and
-    IPI routing.
-
-    The \texttt{processor} element also lists register values for all CPUID
-    leaves of the hardware target, and some MSR values of interest.
+    The \texttt{processor} element contains architecture-specific CPU
+    information. Currently supported architectures are x86_64 and arm64.
 
     See line \ref{lst:af-lineref-processor} in listing \ref{lst:annotated-policy}
     for an example processor element.
    </xs:documentation>
   </xs:annotation>
-  <xs:sequence>
-   <xs:element name="cpu" type="cpuCoreType" minOccurs="1" maxOccurs="unbounded"/>
-   <xs:element name="cpuid" type="cpuIDValueType" minOccurs="0" maxOccurs="unbounded"/>
-   <xs:element name="msr" type="msrValueType" minOccurs="0" maxOccurs="unbounded"/>
-  </xs:sequence>
+  <xs:choice  minOccurs="1" maxOccurs="1">
+   <xs:element name="x86_64" type="x86_64CpuArchitectureType"/>
+   <xs:element name="arm64"  type="arm64CpuArchitectureType"/>
+  </xs:choice>
   <xs:attribute name="cpuCores" type="xs:positiveInteger" use="required">
   <xs:annotation>
    <xs:documentation>
@@ -198,10 +190,35 @@
    </xs:documentation>
   </xs:annotation>
   </xs:attribute>
-  <xs:attribute name="speed" type="xs:positiveInteger" use="required">
+ </xs:complexType>
+
+ <xs:complexType name="x86_64CpuArchitectureType">
+  <xs:annotation>
+   <xs:documentation>
+    The \texttt{x64_64} element specifies the number of CPU cores, the
+    Time-Stamp Counter (TSC) frequency in kHz and the Intel VMX preemption
+    timer rate.
+
+    Since Intel CPUs can have arbitrary APIC identifiers, the APIC IDs of all
+    physical CPUs are enumerated here. The APIC ID is required for interrupt and
+    IPI routing.
+
+    The \texttt{x86\_64} element also lists register values for all CPUID
+    leaves of the hardware target, and some MSR values of interest.
+
+    See line \ref{lst:af-lineref-processor} in listing \ref{lst:annotated-policy}
+    for an example processor element.
+   </xs:documentation>
+  </xs:annotation>
+  <xs:sequence>
+   <xs:element name="cpu" type="x86_64CpuCoreType" minOccurs="1" maxOccurs="unbounded"/>
+   <xs:element name="cpuid" type="cpuIDValueType" minOccurs="0" maxOccurs="unbounded"/>
+   <xs:element name="msr" type="msrValueType" minOccurs="0" maxOccurs="unbounded"/>
+  </xs:sequence>
+  <xs:attribute name="tscFrequency" type="xs:positiveInteger" use="required">
    <xs:annotation>
     <xs:documentation>
-     Tick rate of CPU cores in kHz.
+     Times-Stamp Counter frequency in kHz.
     </xs:documentation>
    </xs:annotation>
   </xs:attribute>
@@ -211,6 +228,25 @@
      The VMX-premption timer counts down at a rate proportional to that of the
      timestamp counter (TSC). This value specifies this proportion, see Intel
      SDM Vol. 3C, "25.5.1 VMX-Preemption Timer" for more details.
+    </xs:documentation>
+   </xs:annotation>
+  </xs:attribute>
+ </xs:complexType>
+
+ <xs:complexType name="arm64CpuArchitectureType">
+  <xs:annotation>
+   <xs:documentation>
+    The \texttt{arm64} element specifies the number of CPU cores and the timer
+    frequency in kHz.
+   </xs:documentation>
+  </xs:annotation>
+  <xs:sequence>
+   <xs:element name="cpu" type="arm64CpuCoreType" minOccurs="1" maxOccurs="unbounded"/>
+  </xs:sequence>
+  <xs:attribute name="timerFrequency" type="xs:positiveInteger" use="required">
+   <xs:annotation>
+    <xs:documentation>
+     Tick rate of the CPU timer in kHz.
     </xs:documentation>
    </xs:annotation>
   </xs:attribute>

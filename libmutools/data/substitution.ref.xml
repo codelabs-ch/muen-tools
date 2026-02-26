@@ -8,7 +8,9 @@
   <string name="options" value="video=true, color='grey'"/>
  </config>
  <hardware>
-  <processor cpuCores="4" speed="50" vmxTimerRate="0"/>
+  <processor cpuCores="4">
+   <x86_64 tscFrequency="50" vmxTimerRate="0"/>
+  </processor>
   <memory>
    <memoryBlock allocatable="false" name="base_mem1" physicalAddress="16#1000#" size="16#1000#"/>
   </memory>
