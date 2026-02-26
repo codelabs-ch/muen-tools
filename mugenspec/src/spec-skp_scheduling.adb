@@ -114,8 +114,8 @@ is
         else Natural'Value (DOM.Core.Elements.Get_Attribute
           (Elem => CPU_Arch,
            Name => "vmxTimerRate")));
-      Timer_Factor : constant Interfaces.Unsigned_64
-        := Timer_Hz / Interfaces.Unsigned_64'Value
+      Sched_Hz     : constant Interfaces.Unsigned_64
+        := Interfaces.Unsigned_64'Value
           (DOM.Core.Elements.Get_Attribute
              (Elem => Scheduling,
               Name => "tickRate"));
@@ -364,7 +364,7 @@ is
                          (N     => Major_Frame,
                           XPath => "cpu[@id='0']/minorFrame"));
          Cycles_Period : constant Interfaces.Unsigned_64
-           := Ticks_Period * Timer_Factor;
+           := Ticks_Period * Timer_Hz / Sched_Hz;
       begin
          TMPL.Write
           (Template => Template,
@@ -423,10 +423,10 @@ is
          Cycles_Count : in out Interfaces.Unsigned_64)
       is
          Ticks   : constant Interfaces.Unsigned_64
-           := Timer_Factor * Interfaces.Unsigned_64'Value
+           := Timer_Hz * Interfaces.Unsigned_64'Value
              (DOM.Core.Elements.Get_Attribute
                 (Elem => Minor,
-                 Name => "ticks"));
+                 Name => "ticks")) / Sched_Hz;
          Barrier : constant String
            := DOM.Core.Elements.Get_Attribute
              (Elem => Minor,
