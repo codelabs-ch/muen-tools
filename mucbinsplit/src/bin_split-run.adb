@@ -279,6 +279,8 @@ is
       end loop;
 
       declare
+         Arch : constant Mutools.Types.Arch_Type
+           := Get_Arch (Descriptor => Descriptor);
          Entry_Point_Str : constant String
            := Muxml.Utils.Get_Element_Value
              (Doc   => Spec.Doc,
@@ -293,6 +295,7 @@ is
             Mulog.Log (Msg => "Setting entry point to " & Mutools.Utils.To_Hex
                        (Number => Entry_Point));
             Bin_Split.Spec.Set_RIP (Spec        => Spec,
+                                    Arch        => Arch,
                                     Entry_Point => Entry_Point);
          end if;
       end;

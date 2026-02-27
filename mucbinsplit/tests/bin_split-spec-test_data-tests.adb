@@ -192,34 +192,73 @@ package body Bin_Split.Spec.Test_Data.Tests is
 
       use type Interfaces.Unsigned_64;
 
-      Ref_1 : constant Interfaces.Unsigned_64 := 16#cafe_beef#;
-      Ref_2 : constant Interfaces.Unsigned_64 := 16#9090_4242#;
-      Spec    : Muxml.XML_Data_Type;
+      ----------------------------------------------------------------------
+
+      procedure Check_Set_RIP_ARM64
+      is
+         XPath : constant String
+           := "/component/requires/vcpu/arm64/registers/elr_el2";
+         Ref_1 : constant Interfaces.Unsigned_64 := 16#beef_cafe#;
+         Ref_2 : constant Interfaces.Unsigned_64 := 16#2323_4000#;
+         Spec  : Muxml.XML_Data_Type;
+      begin
+         Muxml.Parse (Data => Spec,
+                      Kind => Muxml.Component,
+                      File => "data/test_cspec.xml");
+         Set_RIP (Spec        => Spec,
+                  Arch        => Mutools.Types.ARM64,
+                  Entry_Point => Ref_1);
+         Assert (Condition => Interfaces.Unsigned_64'Value
+                 (Muxml.Utils.Get_Element_Value (Doc   => Spec.Doc,
+                                                 XPath => XPath)) = Ref_1,
+                 Message   => "RIP value mismatch (ARM64: 1)");
+
+         --  Test setting RIP with existing XML elements.
+
+         Set_RIP (Spec        => Spec,
+                  Arch        => Mutools.Types.ARM64,
+                  Entry_Point => Ref_2);
+         Assert (Condition => Interfaces.Unsigned_64'Value
+                 (Muxml.Utils.Get_Element_Value (Doc   => Spec.Doc,
+                                                 XPath => XPath)) = Ref_2,
+                 Message   => "RIP value mismatch (ARM64: 2)");
+      end Check_Set_RIP_ARM64;
+
+      ----------------------------------------------------------------------
+
+      procedure Check_Set_RIP_X86_64
+      is
+        XPath : constant String
+           := "/component/requires/vcpu/x86_64/registers/gpr/rip";
+
+         Ref_1 : constant Interfaces.Unsigned_64 := 16#cafe_beef#;
+         Ref_2 : constant Interfaces.Unsigned_64 := 16#9090_4242#;
+         Spec  : Muxml.XML_Data_Type;
+      begin
+         Muxml.Parse (Data => Spec,
+                      Kind => Muxml.Component,
+                      File => "data/test_cspec.xml");
+         Set_RIP (Spec        => Spec,
+                  Arch        => Mutools.Types.X86_64,
+                  Entry_Point => Ref_1);
+         Assert (Condition => Interfaces.Unsigned_64'Value
+                 (Muxml.Utils.Get_Element_Value (Doc   => Spec.Doc,
+                                                 XPath => XPath)) = Ref_1,
+                 Message   => "RIP value mismatch (x86_64: 1)");
+
+         --  Test setting RIP with existing XML elements.
+
+         Set_RIP (Spec        => Spec,
+                  Arch        => Mutools.Types.X86_64,
+                  Entry_Point => Ref_2);
+         Assert (Condition => Interfaces.Unsigned_64'Value
+                 (Muxml.Utils.Get_Element_Value (Doc   => Spec.Doc,
+                                                 XPath => XPath)) = Ref_2,
+                 Message   => "RIP value mismatch (x86_64: 2)");
+      end Check_Set_RIP_X86_64;
    begin
-      Muxml.Parse (Data => Spec,
-                   Kind => Muxml.Component,
-                   File => "data/test_cspec.xml");
-      Set_RIP (Spec        => Spec,
-               Entry_Point => Ref_1);
-      Assert (Condition => Interfaces.Unsigned_64'Value
-              (Muxml.Utils.Get_Element_Value
-                 (Doc   => Spec.Doc,
-                  XPath => "/component/requires/vcpu/x86_64/registers/gpr/"
-                  & "rip"))
-              = Ref_1,
-              Message   => "RIP value mismatch (1)");
-
-      --  Test setting RIP with existing XML elements.
-
-      Set_RIP (Spec        => Spec,
-               Entry_Point => Ref_2);
-      Assert (Condition => Interfaces.Unsigned_64'Value
-              (Muxml.Utils.Get_Element_Value
-                 (Doc   => Spec.Doc,
-                  XPath => "/component/requires/vcpu/x86_64/registers/gpr/"
-                  & "rip"))
-              = Ref_2,
-              Message   => "RIP value mismatch (2)");
+      Check_Set_RIP_X86_64;
+      Check_Set_RIP_ARM64;
 --  begin read only
    end Test_Set_RIP;
 --  end read only
