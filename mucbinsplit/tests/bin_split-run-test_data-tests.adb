@@ -41,23 +41,24 @@ package body Bin_Split.Run.Test_Data.Tests is
       Out_Spec : constant String := Out_Dir & "cspec.xml";
    begin
       Run (Spec_File   => "data/test_cspec.xml",
-           Binary_File => "data/test_binary",
+           Binary_File => "data/test_binary_x86_64",
            Output_Spec => Out_Spec,
            Output_Dir  => Out_Dir);
 
       Assert (Condition => Ada.Directories.Exists (Name => Out_Spec),
               Message   => "Output component specification not created");
       Assert (Condition => Test_Utils.Equal_Files
-              (Filename1 => "data/test_cspec.xml.ref",
+              (Filename1 => "data/test_cspec-x86_64.xml.ref",
                Filename2 => Out_Spec),
               Message   => "Generated component XML spec mismatch (1)");
+      Ada.Directories.Delete_Tree (Directory => Out_Dir);
 
-      Run (Spec_File   => "data/test_cspec_rip.xml",
-           Binary_File => "data/test_binary",
+      Run (Spec_File   => "data/test_cspec_rip-x86_64.xml",
+           Binary_File => "data/test_binary_x86_64",
            Output_Spec => Out_Spec,
            Output_Dir  => Out_Dir);
       Assert (Condition => Test_Utils.Equal_Files
-              (Filename1 => "data/test_cspec_rip.xml.ref",
+              (Filename1 => "data/test_cspec_rip-x86_64.xml.ref",
                Filename2 => Out_Spec),
               Message   => "Generated component XML spec mismatch (2)");
 --  begin read only
@@ -165,7 +166,7 @@ package body Bin_Split.Run.Test_Data.Tests is
       is
          Fd : Bfd.Files.File_Type;
       begin
-         Mutools.Bfd.Open (Filename   => "data/test_binary",
+         Mutools.Bfd.Open (Filename   => "data/test_binary_x86_64",
                            Descriptor => Fd);
 
          Check_Section_Names (Descriptor => Fd);
@@ -218,7 +219,7 @@ package body Bin_Split.Run.Test_Data.Tests is
 
          Fd : Bfd.Files.File_Type;
       begin
-         Mutools.Bfd.Open (Filename   => "data/test_binary",
+         Mutools.Bfd.Open (Filename   => "data/test_binary_x86_64",
                            Descriptor => Fd);
 
          Check_Flags
@@ -322,7 +323,7 @@ package body Bin_Split.Run.Test_Data.Tests is
       Dummy_Sec  : Bfd.Sections.Section;
       Dummy_Bool : Boolean;
    begin
-      Mutools.Bfd.Open (Filename   => "data/test_binary",
+      Mutools.Bfd.Open (Filename   => "data/test_binary_x86_64",
                         Descriptor => Fd);
 
       Assert (Condition => Get_Binary_Section
@@ -399,7 +400,7 @@ package body Bin_Split.Run.Test_Data.Tests is
 
       Fd : Bfd.Files.File_Type;
    begin
-      Mutools.Bfd.Open (Filename   => "data/test_binary",
+      Mutools.Bfd.Open (Filename   => "data/test_binary_x86_64",
                         Descriptor => Fd);
       Assert (Condition => Get_Start_Address (Descriptor => Fd) = 16#5000#,
               Message   => "Start address mismatch (1)");
