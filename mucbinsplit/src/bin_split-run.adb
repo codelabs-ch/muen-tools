@@ -25,8 +25,6 @@ with GNAT.SHA256;
 
 with Mulog;
 
-with Muxml;
-with Muxml.Utils;
 with Muxml.Grammar;
 with Muxml.Grammar_Tools;
 
@@ -288,9 +286,8 @@ is
          Arch : constant Mutools.Types.Arch_Type
            := Get_Arch (Descriptor => Descriptor);
          Entry_Point_Str : constant String
-           := Muxml.Utils.Get_Element_Value
-             (Doc   => Spec.Doc,
-              XPath => "/component/requires/vcpu/x86_64/registers/gpr/rip");
+           := Bin_Split.Spec.Get_Entry_Point (Spec => Spec,
+                                              Arch => Arch);
          Entry_Point : Interfaces.Unsigned_64;
       begin
          if Entry_Point_Str'Length > 0 then
