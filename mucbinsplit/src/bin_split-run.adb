@@ -300,9 +300,9 @@ is
             Entry_Point := Get_Start_Address (Descriptor => Descriptor);
             Mulog.Log (Msg => "Setting entry point to " & Mutools.Utils.To_Hex
                        (Number => Entry_Point));
-            Bin_Split.Spec.Set_RIP (Spec        => Spec,
-                                    Arch        => Arch,
-                                    Entry_Point => Entry_Point);
+            Bin_Split.Spec.Set_Entry_Point (Spec        => Spec,
+                                            Arch        => Arch,
+                                            Entry_Point => Entry_Point);
          end if;
       end;
 
