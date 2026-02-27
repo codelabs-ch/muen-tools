@@ -56,9 +56,11 @@ is
       Arch : Mutools.Types.Arch_Type)
       return String;
 
-   --  Set RIP of component to given entry point value.
+   --  Set RIP of component with the specified architecture to given entry
+   --  point value.
    procedure Set_RIP
      (Spec        : in out Muxml.XML_Data_Type;
+      Arch        :        Mutools.Types.Arch_Type;
       Entry_Point :        Interfaces.Unsigned_64);
 
 private
