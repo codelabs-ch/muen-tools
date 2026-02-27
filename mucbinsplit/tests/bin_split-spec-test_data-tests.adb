@@ -14,7 +14,7 @@ with System.Assertions;
 --  This section can be used to add with clauses if necessary.
 --
 --  end read only
-
+with Ada.Characters.Handling;
 --  begin read only
 --  end read only
 package body Bin_Split.Spec.Test_Data.Tests is
@@ -128,6 +128,56 @@ package body Bin_Split.Spec.Test_Data.Tests is
       end;
 --  begin read only
    end Test_Add_File_Entry;
+--  end read only
+
+
+--  begin read only
+   procedure Test_Get_Entry_Point (Gnattest_T : in out Test);
+   procedure Test_Get_Entry_Point_60d283 (Gnattest_T : in out Test) renames Test_Get_Entry_Point;
+--  id:2.2/60d2838faba0d333/Get_Entry_Point/1/0/
+   procedure Test_Get_Entry_Point (Gnattest_T : in out Test) is
+--  end read only
+
+      pragma Unreferenced (Gnattest_T);
+
+      use Ada.Strings.Unbounded;
+
+      Ref : array (Mutools.Types.Arch_Type) of Unbounded_String
+        := (Mutools.Types.ARM64  => To_Unbounded_String ("16#0042_4000#"),
+            Mutools.Types.X86_64 => To_Unbounded_String ("16#cafe_0000#"));
+
+      ----------------------------------------------------------------------
+
+      procedure Check_Get_Entry_Point (Arch : Mutools.Types.Arch_Type)
+      is
+         Arch_Str : constant String
+           := Ada.Characters.Handling.To_Lower (Item => Arch'Img);
+
+         Spec : Muxml.XML_Data_Type;
+      begin
+         Muxml.Parse (Data => Spec,
+                      Kind => Muxml.Component,
+                      File => "data/test_cspec_rip-" & Arch_Str & ".xml");
+         declare
+            RIP_Str : constant String := Get_Entry_Point (Spec => Spec,
+                                                          Arch => Arch);
+         begin
+            Assert (Condition => RIP_Str = To_String (Ref (Arch)),
+                    Message   => "RIP value mismatch (" & Arch_Str & ")");
+         end;
+
+         Muxml.Utils.Remove_Elements (Doc   => Spec.Doc,
+                                      XPath => "/component/requires/vcpu");
+         Assert (Condition => Get_Entry_Point
+                  (Spec => Spec, Arch => Arch)'Length = 0,
+                 Message   => "Non-present RIP mismatch (" & Arch_Str & ")");
+      end Check_Get_Entry_Point;
+   begin
+      for A in Mutools.Types.Arch_Type loop
+         Check_Get_Entry_Point (Arch => A);
+      end loop;
+--  begin read only
+   end Test_Get_Entry_Point;
 --  end read only
 
 
