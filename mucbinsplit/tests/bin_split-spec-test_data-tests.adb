@@ -182,10 +182,10 @@ package body Bin_Split.Spec.Test_Data.Tests is
 
 
 --  begin read only
-   procedure Test_Set_RIP (Gnattest_T : in out Test);
-   procedure Test_Set_RIP_e793c2 (Gnattest_T : in out Test) renames Test_Set_RIP;
---  id:2.2/e793c22e421e5ffd/Set_RIP/1/0/
-   procedure Test_Set_RIP (Gnattest_T : in out Test) is
+   procedure Test_Set_Entry_Point (Gnattest_T : in out Test);
+   procedure Test_Set_Entry_Point_22478f (Gnattest_T : in out Test) renames Test_Set_Entry_Point;
+--  id:2.2/22478f27dbe26dbc/Set_Entry_Point/1/0/
+   procedure Test_Set_Entry_Point (Gnattest_T : in out Test) is
 --  end read only
 
       pragma Unreferenced (Gnattest_T);
@@ -194,7 +194,7 @@ package body Bin_Split.Spec.Test_Data.Tests is
 
       ----------------------------------------------------------------------
 
-      procedure Check_Set_RIP_ARM64
+      procedure Check_Set_Entry_Point_ARM64
       is
          XPath : constant String
            := "/component/requires/vcpu/arm64/registers/elr_el2";
@@ -205,9 +205,9 @@ package body Bin_Split.Spec.Test_Data.Tests is
          Muxml.Parse (Data => Spec,
                       Kind => Muxml.Component,
                       File => "data/test_cspec.xml");
-         Set_RIP (Spec        => Spec,
-                  Arch        => Mutools.Types.ARM64,
-                  Entry_Point => Ref_1);
+         Set_Entry_Point (Spec        => Spec,
+                          Arch        => Mutools.Types.ARM64,
+                          Entry_Point => Ref_1);
          Assert (Condition => Interfaces.Unsigned_64'Value
                  (Muxml.Utils.Get_Element_Value (Doc   => Spec.Doc,
                                                  XPath => XPath)) = Ref_1,
@@ -215,18 +215,18 @@ package body Bin_Split.Spec.Test_Data.Tests is
 
          --  Test setting RIP with existing XML elements.
 
-         Set_RIP (Spec        => Spec,
-                  Arch        => Mutools.Types.ARM64,
-                  Entry_Point => Ref_2);
+         Set_Entry_Point (Spec        => Spec,
+                          Arch        => Mutools.Types.ARM64,
+                          Entry_Point => Ref_2);
          Assert (Condition => Interfaces.Unsigned_64'Value
                  (Muxml.Utils.Get_Element_Value (Doc   => Spec.Doc,
                                                  XPath => XPath)) = Ref_2,
                  Message   => "RIP value mismatch (ARM64: 2)");
-      end Check_Set_RIP_ARM64;
+      end Check_Set_Entry_Point_ARM64;
 
       ----------------------------------------------------------------------
 
-      procedure Check_Set_RIP_X86_64
+      procedure Check_Set_Entry_Point_X86_64
       is
         XPath : constant String
            := "/component/requires/vcpu/x86_64/registers/gpr/rip";
@@ -238,9 +238,9 @@ package body Bin_Split.Spec.Test_Data.Tests is
          Muxml.Parse (Data => Spec,
                       Kind => Muxml.Component,
                       File => "data/test_cspec.xml");
-         Set_RIP (Spec        => Spec,
-                  Arch        => Mutools.Types.X86_64,
-                  Entry_Point => Ref_1);
+         Set_Entry_Point (Spec        => Spec,
+                          Arch        => Mutools.Types.X86_64,
+                          Entry_Point => Ref_1);
          Assert (Condition => Interfaces.Unsigned_64'Value
                  (Muxml.Utils.Get_Element_Value (Doc   => Spec.Doc,
                                                  XPath => XPath)) = Ref_1,
@@ -248,19 +248,19 @@ package body Bin_Split.Spec.Test_Data.Tests is
 
          --  Test setting RIP with existing XML elements.
 
-         Set_RIP (Spec        => Spec,
-                  Arch        => Mutools.Types.X86_64,
-                  Entry_Point => Ref_2);
+         Set_Entry_Point (Spec        => Spec,
+                          Arch        => Mutools.Types.X86_64,
+                          Entry_Point => Ref_2);
          Assert (Condition => Interfaces.Unsigned_64'Value
                  (Muxml.Utils.Get_Element_Value (Doc   => Spec.Doc,
                                                  XPath => XPath)) = Ref_2,
                  Message   => "RIP value mismatch (x86_64: 2)");
-      end Check_Set_RIP_X86_64;
+      end Check_Set_Entry_Point_X86_64;
    begin
-      Check_Set_RIP_X86_64;
-      Check_Set_RIP_ARM64;
+      Check_Set_Entry_Point_X86_64;
+      Check_Set_Entry_Point_ARM64;
 --  begin read only
-   end Test_Set_RIP;
+   end Test_Set_Entry_Point;
 --  end read only
 
 

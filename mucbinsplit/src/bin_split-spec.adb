@@ -193,7 +193,7 @@ is
 
    -------------------------------------------------------------------------
 
-   procedure Set_RIP
+   procedure Set_Entry_Point
      (Spec        : in out Muxml.XML_Data_Type;
       Arch        :        Mutools.Types.Arch_Type;
       Entry_Point :        Interfaces.Unsigned_64)
@@ -288,6 +288,6 @@ is
         (Doc   => Node,
          XPath => ".",
          Value => Mutools.Utils.To_Hex (Number => Entry_Point));
-   end Set_RIP;
+   end Set_Entry_Point;
 
 end Bin_Split.Spec;
