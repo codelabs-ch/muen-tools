@@ -62,6 +62,17 @@ package body Bin_Split.Run.Test_Data.Tests is
               (Filename1 => "data/test_cspec_rip-x86_64.xml.ref",
                Filename2 => Out_Spec),
               Message   => "Generated component XML spec mismatch (2)");
+      Ada.Directories.Delete_Tree (Directory => Out_Dir);
+
+      Run (Spec_File   => "data/test_cspec.xml",
+           Binary_File => "data/test_binary_arm64",
+           Output_Spec => Out_Spec,
+           Output_Dir  => Out_Dir);
+      Assert (Condition => Test_Utils.Equal_Files
+              (Filename1 => "data/test_cspec-arm64.xml.ref",
+               Filename2 => Out_Spec),
+              Message   => "Generated component XML spec mismatch (3)");
+      Ada.Directories.Delete_Tree (Directory => Out_Dir);
 --  begin read only
    end Test_Run;
 --  end read only
@@ -445,6 +456,13 @@ package body Bin_Split.Run.Test_Data.Tests is
                         Descriptor => Fd);
       Assert (Condition => Get_Start_Address (Descriptor => Fd) = 16#53a6#,
               Message   => "Start address mismatch (2)");
+      Bfd.Files.Close (File => Fd);
+
+      Mutools.Bfd.Open (Filename   => "data/test_binary_arm64",
+                        Descriptor => Fd);
+      Assert (Condition => Get_Start_Address (Descriptor => Fd) = 16#0000#,
+              Message   => "Start address mismatch (3)");
+      Bfd.Files.Close (File => Fd);
 --  begin read only
    end Test_Get_Start_Address;
 --  end read only
