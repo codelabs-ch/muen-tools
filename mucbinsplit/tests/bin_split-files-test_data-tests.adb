@@ -42,7 +42,7 @@ package body Bin_Split.Files.Test_Data.Tests is
       Infos : constant SI_Array := Run.Section_Infos;
       Dir   : constant String   := "obj/test-out-dir";
    begin
-      Mutools.Bfd.Open (Filename   => "data/test_binary",
+      Mutools.Bfd.Open (Filename   => "data/test_binary_x86_64",
                         Descriptor => Fd);
 
       Ada.Directories.Create_Directory (New_Directory => Dir);
