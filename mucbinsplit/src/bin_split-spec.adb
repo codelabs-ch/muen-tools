@@ -26,6 +26,8 @@ with DOM.Core.Elements;
 package body Bin_Split.Spec
 is
 
+   -------------------------------------------------------------------------
+
    procedure Add_File_Entry
      (Spec            : in out Muxml.XML_Data_Type;
       Logical         :        String;
@@ -167,6 +169,25 @@ is
 
       return Memory_Node;
    end Create_Memory_Node;
+
+   -------------------------------------------------------------------------
+
+   function Get_Entry_Point
+     (Spec  : Muxml.XML_Data_Type;
+      Arch  : Mutools.Types.Arch_Type)
+     return String
+   is
+      use type Mutools.Types.Arch_Type;
+
+      RIP_Path : constant String :=
+        (if Arch = Mutools.Types.X86_64
+         then "x86_64/registers/gpr/rip"
+         else "arm64/registers/elr_el2");
+   begin
+      return Muxml.Utils.Get_Element_Value
+        (Doc   => Spec.Doc,
+         XPath => "/component/requires/vcpu/" & RIP_Path);
+   end Get_Entry_Point;
 
    -------------------------------------------------------------------------
 

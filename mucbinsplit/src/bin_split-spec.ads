@@ -18,6 +18,7 @@
 with DOM.Core;
 
 with Muxml;
+with Mutools.Types;
 
 package Bin_Split.Spec
 is
@@ -46,6 +47,14 @@ is
       Hash            :        String := "";
       Size            :        Interfaces.Unsigned_64;
       Virtual_Address :        Interfaces.Unsigned_64);
+
+   --  Returns the entry point as string from the given component spec with the
+   --  specified architecture. If no entry point is present in the spec, then
+   --  an empty string is returned.
+   function Get_Entry_Point
+     (Spec : Muxml.XML_Data_Type;
+      Arch : Mutools.Types.Arch_Type)
+      return String;
 
    --  Set RIP of component to given entry point value.
    procedure Set_RIP
