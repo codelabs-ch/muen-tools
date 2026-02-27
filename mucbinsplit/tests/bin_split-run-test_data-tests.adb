@@ -15,6 +15,7 @@ with System.Assertions;
 --
 --  end read only
 with Test_Utils;
+with Ada.Characters.Handling;
 --  begin read only
 --  end read only
 package body Bin_Split.Run.Test_Data.Tests is
@@ -384,6 +385,40 @@ package body Bin_Split.Run.Test_Data.Tests is
               Message   => "Optional present");
 --  begin read only
    end Test_Get_Binary_Section;
+--  end read only
+
+
+--  begin read only
+   procedure Test_Get_Arch (Gnattest_T : in out Test);
+   procedure Test_Get_Arch_a70d09 (Gnattest_T : in out Test) renames Test_Get_Arch;
+--  id:2.2/a70d090d54e1072d/Get_Arch/1/0/
+   procedure Test_Get_Arch (Gnattest_T : in out Test) is
+--  end read only
+
+      pragma Unreferenced (Gnattest_T);
+
+      ----------------------------------------------------------------------
+
+      procedure Check_Get_Arch (Arch : Mutools.Types.Arch_Type)
+      is
+         use type Mutools.Types.Arch_Type;
+
+         Arch_Str : constant String := Ada.Characters.Handling.To_Lower
+            (Item => Arch'Img);
+         Fd : Bfd.Files.File_Type;
+      begin
+         Mutools.Bfd.Open (Filename   => "data/test_binary_" & Arch_Str,
+                           Descriptor => Fd);
+         Assert (Condition => Get_Arch (Descriptor => Fd) = Arch,
+                 Message   => "Unexpected Architecture (" & Arch_Str & ")");
+         Bfd.Files.Close (File => Fd);
+      end Check_Get_Arch;
+   begin
+      for A in Mutools.Types.Arch_Type loop
+         Check_Get_Arch (Arch => A);
+      end loop;
+--  begin read only
+   end Test_Get_Arch;
 --  end read only
 
 

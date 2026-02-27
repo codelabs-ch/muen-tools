@@ -1,7 +1,7 @@
 --
---  Copyright (C) 2017  secunet Security Networks AG
---  Copyright (C) 2014  Reto Buerki <reet@codelabs.ch>
---  Copyright (C) 2014  Adrian-Ken Rueegsegger <ken@codelabs.ch>
+--  Copyright (C) 2017       secunet Security Networks AG
+--  Copyright (C) 2014-2026  Reto Buerki <reet@codelabs.ch>
+--  Copyright (C) 2014-2026  Adrian-Ken Rueegsegger <ken@codelabs.ch>
 --
 --  This program is free software: you can redistribute it and/or modify
 --  it under the terms of the GNU General Public License as published by
@@ -118,6 +118,21 @@ is
          BS.Next (Sect_It);
       end loop;
    end Check_Section_Names;
+
+   --------------------------------------------------------------------------
+
+   function Get_Arch
+     (Descriptor : Bfd.Files.File_Type)
+      return Mutools.Types.Arch_Type
+   is
+      use type Bfd.Architecture_Type;
+
+      Arch : constant Bfd.Architecture_Type
+        := Bfd.Files.Get_Architecture (File => Descriptor);
+   begin
+      return (if Arch = Bfd.Constants.BFD_ARCH_I386 then Mutools.Types.X86_64
+              else Mutools.Types.Arm64);
+   end Get_Arch;
 
    --------------------------------------------------------------------------
 
