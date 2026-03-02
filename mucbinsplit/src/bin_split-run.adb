@@ -267,7 +267,7 @@ is
          Entry_Point_Str : constant String
            := Muxml.Utils.Get_Element_Value
              (Doc   => Spec.Doc,
-              XPath => "/component/requires/vcpu/registers/gpr/rip");
+              XPath => "/component/requires/vcpu/x86_64/registers/gpr/rip");
          Entry_Point : Interfaces.Unsigned_64;
       begin
          if Entry_Point_Str'Length > 0 then
