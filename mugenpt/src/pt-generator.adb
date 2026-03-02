@@ -452,7 +452,7 @@ is
             elsif Muxml.Utils.Get_Element_Value
               (Doc   => DOM.Core.Nodes.Item (List  => Subjects,
                                              Index => I),
-               XPath => "vcpu/vmx/controls/proc2/EnableEPT") = "1"
+               XPath => "vcpu/x86_64/vmx/controls/proc2/EnableEPT") = "1"
             then
                Paging_Mode := Paging.EPT_Mode;
             else
