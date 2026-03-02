@@ -154,7 +154,8 @@ package body Bin_Split.Spec.Test_Data.Tests is
       Assert (Condition => Interfaces.Unsigned_64'Value
               (Muxml.Utils.Get_Element_Value
                  (Doc   => Spec.Doc,
-                  XPath => "/component/requires/vcpu/registers/gpr/rip"))
+                  XPath => "/component/requires/vcpu/x86_64/registers/gpr/"
+                  & "rip"))
               = Ref_1,
               Message   => "RIP value mismatch (1)");
 
@@ -165,7 +166,8 @@ package body Bin_Split.Spec.Test_Data.Tests is
       Assert (Condition => Interfaces.Unsigned_64'Value
               (Muxml.Utils.Get_Element_Value
                  (Doc   => Spec.Doc,
-                  XPath => "/component/requires/vcpu/registers/gpr/rip"))
+                  XPath => "/component/requires/vcpu/x86_64/registers/gpr/"
+                  & "rip"))
               = Ref_2,
               Message   => "RIP value mismatch (2)");
 --  begin read only

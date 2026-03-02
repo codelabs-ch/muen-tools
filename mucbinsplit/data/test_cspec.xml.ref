@@ -6,11 +6,13 @@
  </depends>
  <requires>
   <vcpu>
-   <registers>
-    <gpr>
-     <rip>16#5000#</rip>
-    </gpr>
-   </registers>
+   <x86_64>
+    <registers>
+     <gpr>
+      <rip>16#5000#</rip>
+     </gpr>
+    </registers>
+   </x86_64>
   </vcpu>
  </requires>
  <provides>
