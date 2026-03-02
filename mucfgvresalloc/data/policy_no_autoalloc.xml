@@ -408,9 +408,11 @@
   </subject>
   <subject name="subject2">
    <vcpu>
-    <msrs>
-     <msr end="16#00ce#" mode="r" start="16#00ce#"/>
-    </msrs>
+    <x86_64>
+     <msrs>
+      <msr end="16#00ce#" mode="r" start="16#00ce#"/>
+     </msrs>
+    </x86_64>
    </vcpu>
    <memory>
     <memory executable="false" logical="dummy" physical="dummy" virtualAddress="16#1000#" writable="true"/>
@@ -454,19 +456,21 @@
   </subject>
   <subject name="lnx_core_1">
    <vcpu>
-    <registers>
-     <gpr>
-      <rip>16#0009_a000#</rip>
-      <rsp>16#0000#</rsp>
-     </gpr>
-     <cr0>
-      <ProtectionEnable>0</ProtectionEnable>
-     </cr0>
-     <segments>
-      <cs access="16#809b#" base="16#0000#" limit="16#ffff#" selector="16#0008#"/>
-      <ds access="16#8093#" base="16#0000#" limit="16#ffff#" selector="16#0010#"/>
-     </segments>
-    </registers>
+    <x86_64>
+     <registers>
+      <gpr>
+       <rip>16#0009_a000#</rip>
+       <rsp>16#0000#</rsp>
+      </gpr>
+      <cr0>
+       <ProtectionEnable>0</ProtectionEnable>
+      </cr0>
+      <segments>
+       <cs access="16#809b#" base="16#0000#" limit="16#ffff#" selector="16#0008#"/>
+       <ds access="16#8093#" base="16#0000#" limit="16#ffff#" selector="16#0010#"/>
+      </segments>
+     </registers>
+    </x86_64>
    </vcpu>
    <events>
     <source>
