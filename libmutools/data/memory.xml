@@ -93,23 +93,25 @@
  <subjects>
   <subject name="lnx">
    <vcpu>
-    <vmx>
-     <controls>
-      <entry>
-       <LoadDebugControls>0</LoadDebugControls>
-       <LoadIA32PERFGLOBALCTRL>0</LoadIA32PERFGLOBALCTRL>
-       <LoadIA32PAT>0</LoadIA32PAT>
-       <LoadIA32EFER>0</LoadIA32EFER>
-      </entry>
-      <exit>
-       <SaveDebugControls>0</SaveDebugControls>
-       <SaveIA32PAT>0</SaveIA32PAT>
-       <LoadIA32PAT>0</LoadIA32PAT>
-       <SaveIA32EFER>0</SaveIA32EFER>
-       <LoadIA32EFER>0</LoadIA32EFER>
-      </exit>
-     </controls>
-    </vmx>
+    <x86_64>
+     <vmx>
+      <controls>
+       <entry>
+        <LoadDebugControls>0</LoadDebugControls>
+        <LoadIA32PERFGLOBALCTRL>0</LoadIA32PERFGLOBALCTRL>
+        <LoadIA32PAT>0</LoadIA32PAT>
+        <LoadIA32EFER>0</LoadIA32EFER>
+       </entry>
+       <exit>
+        <SaveDebugControls>0</SaveDebugControls>
+        <SaveIA32PAT>0</SaveIA32PAT>
+        <LoadIA32PAT>0</LoadIA32PAT>
+        <SaveIA32EFER>0</SaveIA32EFER>
+        <LoadIA32EFER>0</LoadIA32EFER>
+       </exit>
+      </controls>
+     </vmx>
+    </x86_64>
    </vcpu>
    <memory>
     <memory executable="false" logical="dummy" physical="dummy" virtualAddress="16#1000#" writable="true"/>
