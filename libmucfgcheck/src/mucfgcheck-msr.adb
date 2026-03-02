@@ -95,7 +95,7 @@ is
               := DOM.Core.Elements.Get_Attribute
                 (Elem => Muxml.Utils.Ancestor_Node
                    (Node  => Node,
-                    Level => 3),
+                    Level => 4),
                  Name => "name");
             S_Addr_Str : constant String
               := DOM.Core.Elements.Get_Attribute
@@ -151,7 +151,7 @@ is
             Name     : constant String := DOM.Core.Elements.Get_Attribute
               (Elem => Muxml.Utils.Ancestor_Node
                  (Node  => Node,
-                  Level => 3),
+                  Level => 4),
                Name => "name");
             S_Addr_Str : constant String := DOM.Core.Elements.Get_Attribute
               (Elem => Node,
