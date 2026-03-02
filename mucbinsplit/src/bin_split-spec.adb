@@ -205,6 +205,19 @@ is
       Parent_Node := Node;
       Node := Muxml.Utils.Get_Element
         (Doc   => Parent_Node,
+         XPath => "x86_64");
+      if Node = null then
+         Node := DOM.Core.Documents.Create_Element
+           (Doc      => Spec.Doc,
+            Tag_Name => "x86_64");
+         Muxml.Utils.Insert_Child
+           (Parent    => Parent_Node,
+            New_Child => Node);
+      end if;
+
+      Parent_Node := Node;
+      Node := Muxml.Utils.Get_Element
+        (Doc   => Parent_Node,
          XPath => "registers");
       if Node = null then
          Node := DOM.Core.Documents.Create_Element
