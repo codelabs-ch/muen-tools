@@ -45,7 +45,7 @@ package body Mucfgcheck.MSR.Test_Data.Tests is
                    File => "data/test_policy.xml");
       Muxml.Utils.Set_Attribute
         (Doc   => Data.Doc,
-         XPath => "/system/subjects/subject/vcpu/msrs/"
+         XPath => "/system/subjects/subject/vcpu/x86_64/msrs/"
          & "msr[@end='16#0176#']",
          Name  => "end",
          Value => "16#0170#");
@@ -83,7 +83,7 @@ package body Mucfgcheck.MSR.Test_Data.Tests is
 
       Muxml.Utils.Set_Attribute
         (Doc   => Data.Doc,
-         XPath => "/system/subjects/subject/vcpu/msrs/"
+         XPath => "/system/subjects/subject/vcpu/x86_64/msrs/"
          & "msr[@end='16#0176#']",
          Name  => "end",
          Value => "16#0177#");
@@ -96,13 +96,13 @@ package body Mucfgcheck.MSR.Test_Data.Tests is
 
       Muxml.Utils.Set_Attribute
         (Doc   => Data.Doc,
-         XPath => "/system/subjects/subject/vcpu/msrs/"
+         XPath => "/system/subjects/subject/vcpu/x86_64/msrs/"
          & "msr[@end='16#0177#']",
          Name  => "end",
          Value => "16#0176#");
       Muxml.Utils.Set_Attribute
         (Doc   => Data.Doc,
-         XPath => "/system/subjects/subject/vcpu/msrs/"
+         XPath => "/system/subjects/subject/vcpu/x86_64/msrs/"
          & "msr[@start='16#0174#']",
          Name  => "start",
          Value => "16#0173#");
@@ -117,13 +117,13 @@ package body Mucfgcheck.MSR.Test_Data.Tests is
 
       Muxml.Utils.Set_Attribute
         (Doc   => Data.Doc,
-         XPath => "/system/subjects/subject/vcpu/msrs/"
+         XPath => "/system/subjects/subject/vcpu/x86_64/msrs/"
          & "msr[@start='16#0173#']",
          Name  => "start",
          Value => "16#0174#");
       Muxml.Utils.Set_Attribute
         (Doc   => Data.Doc,
-         XPath => "/system/subjects/subject/vcpu/msrs/"
+         XPath => "/system/subjects/subject/vcpu/x86_64/msrs/"
          & "msr[@end='16#0176#']",
          Name  => "end",
          Value => "16#01d9#");
