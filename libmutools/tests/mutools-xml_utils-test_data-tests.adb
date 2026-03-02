@@ -898,7 +898,7 @@ package body Mutools.XML_Utils.Test_Data.Tests is
 
       Ctrls := Muxml.Utils.Get_Element
         (Doc   => Policy.Doc,
-         XPath => "/system/subjects/subject/vcpu/vmx/controls");
+         XPath => "/system/subjects/subject/vcpu/x86_64/vmx/controls");
 
       Assert (Condition => not Has_Managed_DEBUGCTL (Controls => Ctrls),
               Message   => "DEBUGCTL is managed");
@@ -940,7 +940,7 @@ package body Mutools.XML_Utils.Test_Data.Tests is
 
       Ctrls := Muxml.Utils.Get_Element
         (Doc   => Policy.Doc,
-         XPath => "/system/subjects/subject/vcpu/vmx/controls");
+         XPath => "/system/subjects/subject/vcpu/x86_64/vmx/controls");
 
       Assert (Condition => not Has_Managed_PERFGLOBALCTRL (Controls => Ctrls),
               Message   => "PERFGLOBALCTL is managed");
@@ -976,7 +976,7 @@ package body Mutools.XML_Utils.Test_Data.Tests is
 
       Ctrls := Muxml.Utils.Get_Element
         (Doc   => Policy.Doc,
-         XPath => "/system/subjects/subject/vcpu/vmx/controls");
+         XPath => "/system/subjects/subject/vcpu/x86_64/vmx/controls");
 
       Assert (Condition => not Has_Managed_PAT (Controls => Ctrls),
               Message   => "PAT is managed");
@@ -1018,7 +1018,7 @@ package body Mutools.XML_Utils.Test_Data.Tests is
 
       Ctrls := Muxml.Utils.Get_Element
         (Doc   => Policy.Doc,
-         XPath => "/system/subjects/subject/vcpu/vmx/controls");
+         XPath => "/system/subjects/subject/vcpu/x86_64/vmx/controls");
 
       Assert (Condition => not Has_Managed_EFER (Controls => Ctrls),
               Message   => "EFER is managed");
