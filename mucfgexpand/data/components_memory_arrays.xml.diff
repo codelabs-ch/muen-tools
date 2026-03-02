@@ -24,13 +24,13 @@
    <memory>                                                                                                                                                <memory>
     <memory executable="false" logical="dummy" physical="dummy" virtualAddress="16#1000#" writable="true"/>                                                 <memory executable="false" logical="dummy" physical="dummy" virtualAddress="16#1000#" writable="true"/>
 --
-    </msrs>                                                                                                                                                 </msrs>
+    </x86_64>                                                                                                                                               </x86_64>
    </vcpu>                                                                                                                                                 </vcpu>
                                                                                                                                                      >     <bootparams/>
    <memory>                                                                                                                                                <memory>
     <memory executable="false" logical="dummy" physical="dummy" virtualAddress="16#1000#" writable="true"/>                                                 <memory executable="false" logical="dummy" physical="dummy" virtualAddress="16#1000#" writable="true"/>
 --
-    </registers>                                                                                                                                            </registers>
+    </x86_64>                                                                                                                                               </x86_64>
    </vcpu>                                                                                                                                                 </vcpu>
                                                                                                                                                      >     <bootparams/>
                                                                                                                                                      >     <memory/>

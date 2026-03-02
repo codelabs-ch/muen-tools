@@ -60,11 +60,13 @@
    </depends>                                                                                                                                              </depends>
                                                                                                                                                      >     <requires>
                                                                                                                                                      >      <vcpu>
-                                                                                                                                                     >       <registers>
-                                                                                                                                                     >        <gpr>
-                                                                                                                                                     >         <rip>16#0010_0000#</rip>
-                                                                                                                                                     >        </gpr>
-                                                                                                                                                     >       </registers>
+                                                                                                                                                     >       <x86_64>
+                                                                                                                                                     >        <registers>
+                                                                                                                                                     >         <gpr>
+                                                                                                                                                     >          <rip>16#0010_0000#</rip>
+                                                                                                                                                     >         </gpr>
+                                                                                                                                                     >        </registers>
+                                                                                                                                                     >       </x86_64>
                                                                                                                                                      >      </vcpu>
                                                                                                                                                      >     </requires>
    <provides>                                                                                                                                              <provides>
@@ -116,7 +118,7 @@
     </target>                                                                                                                                               </target>
    </events>                                                                                                                                               </events>
 --
-    </msrs>                                                                                                                                                 </msrs>
+    </x86_64>                                                                                                                                               </x86_64>
    </vcpu>                                                                                                                                                 </vcpu>
                                                                                                                                                      >     <bootparams/>
    <memory>                                                                                                                                                <memory>
@@ -132,7 +134,7 @@
     </source>                                                                                                                                               </source>
     <target>                                                                                                                                                <target>
 --
-    </registers>                                                                                                                                            </registers>
+    </x86_64>                                                                                                                                               </x86_64>
    </vcpu>                                                                                                                                                 </vcpu>
                                                                                                                                                      >     <bootparams/>
                                                                                                                                                      >     <memory/>
