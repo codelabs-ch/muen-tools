@@ -444,11 +444,11 @@ is
          GPR_Node : constant DOM.Core.Node
            := Muxml.Utils.Get_Element
              (Doc   => Subject,
-              XPath => "vcpu/registers/gpr");
+              XPath => "vcpu/x86_64/registers/gpr");
          Segments_Node : constant DOM.Core.Node
            := Muxml.Utils.Get_Element
              (Doc   => Subject,
-              XPath => "vcpu/registers/segments");
+              XPath => "vcpu/x86_64/registers/segments");
          Entry_Addr : constant Unsigned_64 := Unsigned_64'Value
            (Muxml.Utils.Get_Element_Value
               (Doc   => GPR_Node,
@@ -495,51 +495,51 @@ is
          Pin_Ctrls   : constant DOM.Core.Node_List
            := McKae.XML.XPath.XIA.XPath_Query
              (N     => Subject,
-              XPath => "vcpu/vmx/controls/pin/*");
+              XPath => "vcpu/x86_64/vmx/controls/pin/*");
          Proc_Ctrls  : constant DOM.Core.Node_List
            := McKae.XML.XPath.XIA.XPath_Query
              (N     => Subject,
-              XPath => "vcpu/vmx/controls/proc/*");
+              XPath => "vcpu/x86_64/vmx/controls/proc/*");
          Proc2_Ctrls : constant DOM.Core.Node_List
            := McKae.XML.XPath.XIA.XPath_Query
              (N     => Subject,
-              XPath => "vcpu/vmx/controls/proc2/*");
+              XPath => "vcpu/x86_64/vmx/controls/proc2/*");
          Entry_Ctrls : constant DOM.Core.Node_List
            := McKae.XML.XPath.XIA.XPath_Query
              (N     => Subject,
-              XPath => "vcpu/vmx/controls/entry/*");
+              XPath => "vcpu/x86_64/vmx/controls/entry/*");
          Exit_Ctrls  : constant DOM.Core.Node_List
            := McKae.XML.XPath.XIA.XPath_Query
              (N     => Subject,
-              XPath => "vcpu/vmx/controls/exit/*");
+              XPath => "vcpu/x86_64/vmx/controls/exit/*");
          CR0_Value   : constant DOM.Core.Node_List
            := McKae.XML.XPath.XIA.XPath_Query
              (N     => Subject,
-              XPath => "vcpu/registers/cr0/*");
+              XPath => "vcpu/x86_64/registers/cr0/*");
          CR0_Mask    : constant DOM.Core.Node_List
            := McKae.XML.XPath.XIA.XPath_Query
              (N     => Subject,
-              XPath => "vcpu/vmx/masks/cr0/*");
+              XPath => "vcpu/x86_64/vmx/masks/cr0/*");
          CR0_Shadow   : constant DOM.Core.Node_List
            := McKae.XML.XPath.XIA.XPath_Query
              (N     => Subject,
-              XPath => "vcpu/registers/cr0Shadow/*");
+              XPath => "vcpu/x86_64/registers/cr0Shadow/*");
          CR4_Value   : constant DOM.Core.Node_List
            := McKae.XML.XPath.XIA.XPath_Query
              (N     => Subject,
-              XPath => "vcpu/registers/cr4/*");
+              XPath => "vcpu/x86_64/registers/cr4/*");
          CR4_Mask    : constant DOM.Core.Node_List
            := McKae.XML.XPath.XIA.XPath_Query
              (N     => Subject,
-              XPath => "vcpu/vmx/masks/cr4/*");
+              XPath => "vcpu/x86_64/vmx/masks/cr4/*");
          CR4_Shadow   : constant DOM.Core.Node_List
            := McKae.XML.XPath.XIA.XPath_Query
              (N     => Subject,
-              XPath => "vcpu/registers/cr4Shadow/*");
+              XPath => "vcpu/x86_64/registers/cr4Shadow/*");
          Exceptions  : constant DOM.Core.Node_List
            := McKae.XML.XPath.XIA.XPath_Query
              (N     => Subject,
-              XPath => "vcpu/vmx/masks/exception/*");
+              XPath => "vcpu/x86_64/vmx/masks/exception/*");
       begin
          if MSR_Store_Node /= null then
             MSR_Store_Addr := Unsigned_64'Value
@@ -550,7 +550,7 @@ is
                Ctrls_Node : constant DOM.Core.Node
                  := Muxml.Utils.Get_Element
                    (Doc   => Subject,
-                    XPath => "vcpu/vmx/controls");
+                    XPath => "vcpu/x86_64/vmx/controls");
                Debug_Ctrl : constant Boolean
                  := Mutools.XML_Utils.Has_Managed_DEBUGCTL
                    (Controls => Ctrls_Node);
@@ -566,7 +566,7 @@ is
                MSR_Count := Mutools.XML_Utils.Calculate_MSR_Count
                  (MSRs                   => McKae.XML.XPath.XIA.XPath_Query
                     (N     => Subject,
-                     XPath => "vcpu/msrs/msr[@mode='w' or @mode='rw']"),
+                     XPath => "vcpu/x86_64/msrs/msr[@mode='w' or @mode='rw']"),
                   DEBUGCTL_Control       => Debug_Ctrl,
                   PAT_Control            => PAT_Ctrl,
                   PERFGLOBALCTRL_Control => PERF_Ctrl,
@@ -582,7 +582,7 @@ is
 
          if Muxml.Utils.Get_Element_Value
            (Doc   => Subject,
-            XPath => "vcpu/vmx/controls/proc2/EnableEPT") = "1"
+            XPath => "vcpu/x86_64/vmx/controls/proc2/EnableEPT") = "1"
          then
             Subj_Buf := Subj_Buf
               & Indent & "    PML4_Address       => 0,"
