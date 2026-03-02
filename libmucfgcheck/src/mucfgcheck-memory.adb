@@ -1249,7 +1249,7 @@ is
       Subjects    : constant DOM.Core.Node_List
         := XPath_Query
           (N     => XML_Data.Doc,
-           XPath => "/system/subjects/subject[vcpu/msrs/msr]");
+           XPath => "/system/subjects/subject[vcpu/x86_64/msrs/msr]");
       Subj_Count  : constant Natural
         := DOM.Core.Nodes.Length (List => Subjects);
    begin
@@ -1272,11 +1272,11 @@ is
             MSRs       : constant DOM.Core.Node_List
               := XPath_Query
                 (N     => Cur_Subj,
-                 XPath => "vcpu/msrs/msr[@mode='rw' or @mode='w']");
+                 XPath => "vcpu/x86_64/msrs/msr[@mode='rw' or @mode='w']");
             Controls   : constant DOM.Core.Node
               := Muxml.Utils.Get_Element
                 (Doc   => Cur_Subj,
-                 XPath => "vcpu/vmx/controls");
+                 XPath => "vcpu/x86_64/vmx/controls");
             Debug_Ctrl : constant Boolean
               := Mutools.XML_Utils.Has_Managed_DEBUGCTL
                 (Controls => Controls);

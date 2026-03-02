@@ -758,7 +758,7 @@ package body Mucfgcheck.Subject.Test_Data.Tests is
                       File => "data/test_policy.xml");
          Muxml.Utils.Set_Element_Value
            (Doc   => Data.Doc,
-            XPath => "/system/subjects/subject[@name='linux']/vcpu/vmx/"
+            XPath => "/system/subjects/subject[@name='linux']/vcpu/x86_64/vmx/"
             & "controls/entry/DeactiveDualMonitorTreatment",
             Value => "1");
          VMX_Controls_Entry_Checks (XML_Data => Data);
@@ -779,7 +779,7 @@ package body Mucfgcheck.Subject.Test_Data.Tests is
                       File => "data/test_policy.xml");
          Muxml.Utils.Set_Element_Value
            (Doc   => Data.Doc,
-            XPath => "/system/subjects/subject[@name='linux']/vcpu/vmx/"
+            XPath => "/system/subjects/subject[@name='linux']/vcpu/x86_64/vmx/"
             & "controls/entry/EntryToSMM",
             Value => "1");
          VMX_Controls_Entry_Checks (XML_Data => Data);
@@ -865,12 +865,12 @@ package body Mucfgcheck.Subject.Test_Data.Tests is
                       File => "data/test_policy.xml");
          Muxml.Utils.Set_Element_Value
            (Doc   => Data.Doc,
-            XPath => "/system/subjects/subject[@name='linux']/vcpu/vmx/"
+            XPath => "/system/subjects/subject[@name='linux']/vcpu/x86_64/vmx/"
             & "controls/pin/NMIExiting",
             Value => "0");
          Muxml.Utils.Set_Element_Value
            (Doc   => Data.Doc,
-            XPath => "/system/subjects/subject[@name='linux']/vcpu/vmx/"
+            XPath => "/system/subjects/subject[@name='linux']/vcpu/x86_64/vmx/"
             & "controls/pin/VirtualNMIs",
             Value => "1");
 
@@ -911,7 +911,7 @@ package body Mucfgcheck.Subject.Test_Data.Tests is
                       File => "data/test_policy.xml");
          Muxml.Utils.Set_Element_Value
            (Doc   => Data.Doc,
-            XPath => "/system/subjects/subject[@name='linux']/vcpu/vmx/"
+            XPath => "/system/subjects/subject[@name='linux']/vcpu/x86_64/vmx/"
             & "controls/pin/ProcessPostedInterrupts",
             Value => "1");
 
@@ -924,22 +924,22 @@ package body Mucfgcheck.Subject.Test_Data.Tests is
 
          Muxml.Utils.Set_Element_Value
            (Doc   => Data.Doc,
-            XPath => "/system/subjects/subject[@name='linux']/vcpu/vmx/"
+            XPath => "/system/subjects/subject[@name='linux']/vcpu/x86_64/vmx/"
             & "controls/proc2/VirtualInterruptDelivery",
             Value => "1");
          Muxml.Utils.Set_Element_Value
            (Doc   => Data.Doc,
-            XPath => "/system/subjects/subject[@name='linux']/vcpu/vmx/"
+            XPath => "/system/subjects/subject[@name='linux']/vcpu/x86_64/vmx/"
             & "controls/proc/UseTPRShadow",
             Value => "1");
          Muxml.Utils.Set_Element_Value
            (Doc   => Data.Doc,
-            XPath => "/system/subjects/subject[@name='linux']/vcpu/vmx/"
+            XPath => "/system/subjects/subject[@name='linux']/vcpu/x86_64/vmx/"
             & "controls/pin/ExternalInterruptExiting",
             Value => "1");
          Muxml.Utils.Set_Element_Value
            (Doc   => Data.Doc,
-            XPath => "/system/subjects/subject[@name='linux']/vcpu/vmx/"
+            XPath => "/system/subjects/subject[@name='linux']/vcpu/x86_64/vmx/"
             & "controls/exit/AckInterruptOnExit",
             Value => "0");
 
@@ -962,12 +962,12 @@ package body Mucfgcheck.Subject.Test_Data.Tests is
                       File => "data/test_policy.xml");
          Muxml.Utils.Set_Element_Value
            (Doc   => Data.Doc,
-            XPath => "/system/subjects/subject[@name='linux']/vcpu/vmx/"
+            XPath => "/system/subjects/subject[@name='linux']/vcpu/x86_64/vmx/"
             & "controls/pin/ActivateVMXTimer",
             Value => "0");
          Muxml.Utils.Set_Element_Value
            (Doc   => Data.Doc,
-            XPath => "/system/subjects/subject[@name='linux']/vcpu/vmx/"
+            XPath => "/system/subjects/subject[@name='linux']/vcpu/x86_64/vmx/"
             & "controls/exit/SaveVMXTimerValue",
             Value => "1");
 
@@ -990,7 +990,7 @@ package body Mucfgcheck.Subject.Test_Data.Tests is
                       File => "data/test_policy.xml");
          Muxml.Utils.Set_Element_Value
            (Doc   => Data.Doc,
-            XPath => "/system/subjects/subject[@name='linux']/vcpu/vmx/"
+            XPath => "/system/subjects/subject[@name='linux']/vcpu/x86_64/vmx/"
             & "controls/proc2/VirtualInterruptDelivery",
             Value => "1");
 
@@ -1002,7 +1002,7 @@ package body Mucfgcheck.Subject.Test_Data.Tests is
 
          Muxml.Utils.Set_Element_Value
            (Doc   => Data.Doc,
-            XPath => "/system/subjects/subject[@name='linux']/vcpu/vmx/"
+            XPath => "/system/subjects/subject[@name='linux']/vcpu/x86_64/vmx/"
             & "controls/proc2/APICRegisterVirtualization",
             Value => "1");
 
@@ -1014,7 +1014,7 @@ package body Mucfgcheck.Subject.Test_Data.Tests is
 
          Muxml.Utils.Set_Element_Value
            (Doc   => Data.Doc,
-            XPath => "/system/subjects/subject[@name='linux']/vcpu/vmx/"
+            XPath => "/system/subjects/subject[@name='linux']/vcpu/x86_64/vmx/"
             & "controls/proc2/Virtualizex2APICMode",
             Value => "1");
 
@@ -1036,12 +1036,12 @@ package body Mucfgcheck.Subject.Test_Data.Tests is
                       File => "data/test_policy.xml");
          Muxml.Utils.Set_Element_Value
            (Doc   => Data.Doc,
-            XPath => "/system/subjects/subject[@name='linux']/vcpu/vmx/"
+            XPath => "/system/subjects/subject[@name='linux']/vcpu/x86_64/vmx/"
             & "controls/proc2/UnrestrictedGuest",
             Value => "1");
          Muxml.Utils.Set_Element_Value
            (Doc   => Data.Doc,
-            XPath => "/system/subjects/subject[@name='linux']/vcpu/vmx/"
+            XPath => "/system/subjects/subject[@name='linux']/vcpu/x86_64/vmx/"
             & "controls/proc2/EnableEPT",
             Value => "0");
 
@@ -1063,17 +1063,17 @@ package body Mucfgcheck.Subject.Test_Data.Tests is
                       File => "data/test_policy.xml");
          Muxml.Utils.Set_Element_Value
            (Doc   => Data.Doc,
-            XPath => "/system/subjects/subject[@name='linux']/vcpu/vmx/"
+            XPath => "/system/subjects/subject[@name='linux']/vcpu/x86_64/vmx/"
             & "controls/proc/UseTPRShadow",
             Value => "1");
          Muxml.Utils.Set_Element_Value
            (Doc   => Data.Doc,
-            XPath => "/system/subjects/subject[@name='linux']/vcpu/vmx/"
+            XPath => "/system/subjects/subject[@name='linux']/vcpu/x86_64/vmx/"
             & "controls/proc2/VirtualInterruptDelivery",
             Value => "1");
          Muxml.Utils.Set_Element_Value
            (Doc   => Data.Doc,
-            XPath => "/system/subjects/subject[@name='linux']/vcpu/vmx/"
+            XPath => "/system/subjects/subject[@name='linux']/vcpu/x86_64/vmx/"
             & "controls/pin/ExternalInterruptExiting",
             Value => "0");
 
@@ -1095,19 +1095,19 @@ package body Mucfgcheck.Subject.Test_Data.Tests is
                       File => "data/test_policy.xml");
          Muxml.Utils.Set_Element_Value
            (Doc   => Data.Doc,
-            XPath => "/system/subjects/subject[@name='linux']/vcpu/vmx/"
+            XPath => "/system/subjects/subject[@name='linux']/vcpu/x86_64/vmx/"
             & "controls/pin/VirtualNMIs",
             Value => "0");
          Muxml.Utils.Set_Element_Value
            (Doc   => Data.Doc,
-            XPath => "/system/subjects/subject[@name='linux']/vcpu/vmx/"
+            XPath => "/system/subjects/subject[@name='linux']/vcpu/x86_64/vmx/"
             & "controls/proc/NMIWindowExiting",
             Value => "1");
 
          VMX_Controls_Entry_Checks (XML_Data => Data);
          Assert (Condition => Validation_Errors.Contains
-                 (Msg => "VMX control 'Virtual NMIs' is 0 for subject 'linux' but"
-                  & " 'NMI-window exiting' is 1"),
+                 (Msg => "VMX control 'Virtual NMIs' is 0 for subject 'linux' "
+                 & "but 'NMI-window exiting' is 1"),
                  Message   => "Exception mismatch (Virtual NMIs)");
       end Virtual_NMIs;
 
@@ -1122,17 +1122,17 @@ package body Mucfgcheck.Subject.Test_Data.Tests is
                       File => "data/test_policy.xml");
          Muxml.Utils.Set_Element_Value
            (Doc   => Data.Doc,
-            XPath => "/system/subjects/subject[@name='linux']/vcpu/vmx/"
+            XPath => "/system/subjects/subject[@name='linux']/vcpu/x86_64/vmx/"
             & "controls/proc/UseTPRShadow",
             Value => "1");
          Muxml.Utils.Set_Element_Value
            (Doc   => Data.Doc,
-            XPath => "/system/subjects/subject[@name='linux']/vcpu/vmx/"
+            XPath => "/system/subjects/subject[@name='linux']/vcpu/x86_64/vmx/"
             & "controls/proc2/Virtualizex2APICMode",
             Value => "1");
          Muxml.Utils.Set_Element_Value
            (Doc   => Data.Doc,
-            XPath => "/system/subjects/subject[@name='linux']/vcpu/vmx/"
+            XPath => "/system/subjects/subject[@name='linux']/vcpu/x86_64/vmx/"
             & "controls/proc2/VirtualAPICAccesses",
             Value => "1");
 
@@ -1187,7 +1187,7 @@ package body Mucfgcheck.Subject.Test_Data.Tests is
 
       Muxml.Utils.Set_Element_Value
         (Doc   => Data.Doc,
-         XPath => "/system/subjects/subject[@name='linux']/vcpu/vmx/"
+         XPath => "/system/subjects/subject[@name='linux']/vcpu/x86_64/vmx/"
          & "controls/pin/ProcessPostedInterrupts",
          Value => "1");
 
@@ -1201,7 +1201,7 @@ package body Mucfgcheck.Subject.Test_Data.Tests is
 
       Muxml.Utils.Set_Element_Value
         (Doc   => Data.Doc,
-         XPath => "/system/subjects/subject[@name='linux']/vcpu/vmx/"
+         XPath => "/system/subjects/subject[@name='linux']/vcpu/x86_64/vmx/"
          & "controls/pin/ActivateVMXTimer",
          Value => "0");
 
@@ -1215,7 +1215,7 @@ package body Mucfgcheck.Subject.Test_Data.Tests is
 
       Muxml.Utils.Set_Element_Value
         (Doc   => Data.Doc,
-         XPath => "/system/subjects/subject[@name='linux']/vcpu/vmx/"
+         XPath => "/system/subjects/subject[@name='linux']/vcpu/x86_64/vmx/"
          & "controls/pin/VirtualNMIs",
          Value => "1");
 
@@ -1229,7 +1229,7 @@ package body Mucfgcheck.Subject.Test_Data.Tests is
 
       Muxml.Utils.Set_Element_Value
         (Doc   => Data.Doc,
-         XPath => "/system/subjects/subject[@name='linux']/vcpu/vmx/"
+         XPath => "/system/subjects/subject[@name='linux']/vcpu/x86_64/vmx/"
          & "controls/pin/NMIExiting",
          Value => "0");
 
@@ -1243,7 +1243,7 @@ package body Mucfgcheck.Subject.Test_Data.Tests is
 
       Muxml.Utils.Set_Element_Value
         (Doc   => Data.Doc,
-         XPath => "/system/subjects/subject[@name='linux']/vcpu/vmx/"
+         XPath => "/system/subjects/subject[@name='linux']/vcpu/x86_64/vmx/"
          & "controls/pin/ExternalInterruptExiting",
          Value => "0");
 
@@ -1282,7 +1282,7 @@ package body Mucfgcheck.Subject.Test_Data.Tests is
 
       Muxml.Utils.Set_Element_Value
         (Doc   => Data.Doc,
-         XPath => "/system/subjects/subject[@name='linux']/vcpu/vmx/"
+         XPath => "/system/subjects/subject[@name='linux']/vcpu/x86_64/vmx/"
          & "controls/proc/Activate2ndaryControls",
          Value => "0");
 
@@ -1296,7 +1296,7 @@ package body Mucfgcheck.Subject.Test_Data.Tests is
 
       Muxml.Utils.Set_Element_Value
         (Doc   => Data.Doc,
-         XPath => "/system/subjects/subject[@name='linux']/vcpu/vmx/"
+         XPath => "/system/subjects/subject[@name='linux']/vcpu/x86_64/vmx/"
          & "controls/proc/UseMSRBitmaps",
          Value => "0");
 
@@ -1310,7 +1310,7 @@ package body Mucfgcheck.Subject.Test_Data.Tests is
 
       Muxml.Utils.Set_Element_Value
         (Doc   => Data.Doc,
-         XPath => "/system/subjects/subject[@name='linux']/vcpu/vmx/"
+         XPath => "/system/subjects/subject[@name='linux']/vcpu/x86_64/vmx/"
          & "controls/proc/UseIOBitmaps",
          Value => "0");
 
@@ -1324,7 +1324,7 @@ package body Mucfgcheck.Subject.Test_Data.Tests is
 
       Muxml.Utils.Set_Element_Value
         (Doc   => Data.Doc,
-         XPath => "/system/subjects/subject[@name='linux']/vcpu/vmx/"
+         XPath => "/system/subjects/subject[@name='linux']/vcpu/x86_64/vmx/"
          & "controls/proc/MOVDRExiting",
          Value => "0");
 
@@ -1338,7 +1338,7 @@ package body Mucfgcheck.Subject.Test_Data.Tests is
 
       Muxml.Utils.Set_Element_Value
         (Doc   => Data.Doc,
-         XPath => "/system/subjects/subject[@name='linux']/vcpu/vmx/"
+         XPath => "/system/subjects/subject[@name='linux']/vcpu/x86_64/vmx/"
          & "controls/proc/NMIWindowExiting",
          Value => "1");
 
@@ -1352,7 +1352,7 @@ package body Mucfgcheck.Subject.Test_Data.Tests is
 
       Muxml.Utils.Set_Element_Value
         (Doc   => Data.Doc,
-         XPath => "/system/subjects/subject[@name='linux']/vcpu/vmx/"
+         XPath => "/system/subjects/subject[@name='linux']/vcpu/x86_64/vmx/"
          & "controls/proc/UseTPRShadow",
          Value => "1");
 
@@ -1366,7 +1366,7 @@ package body Mucfgcheck.Subject.Test_Data.Tests is
 
       Muxml.Utils.Set_Element_Value
         (Doc   => Data.Doc,
-         XPath => "/system/subjects/subject[@name='linux']/vcpu/vmx/"
+         XPath => "/system/subjects/subject[@name='linux']/vcpu/x86_64/vmx/"
          & "controls/proc/CR8StoreExiting",
          Value => "0");
 
@@ -1380,7 +1380,7 @@ package body Mucfgcheck.Subject.Test_Data.Tests is
 
       Muxml.Utils.Set_Element_Value
         (Doc   => Data.Doc,
-         XPath => "/system/subjects/subject[@name='linux']/vcpu/vmx/"
+         XPath => "/system/subjects/subject[@name='linux']/vcpu/x86_64/vmx/"
          & "controls/proc/CR8LoadExiting",
          Value => "0");
 
@@ -1394,7 +1394,7 @@ package body Mucfgcheck.Subject.Test_Data.Tests is
 
       Muxml.Utils.Set_Element_Value
         (Doc   => Data.Doc,
-         XPath => "/system/subjects/subject[@name='sm']/vcpu/vmx/"
+         XPath => "/system/subjects/subject[@name='sm']/vcpu/x86_64/vmx/"
          & "controls/proc/CR3LoadExiting",
          Value => "0");
 
@@ -1405,7 +1405,7 @@ package body Mucfgcheck.Subject.Test_Data.Tests is
                Message   => "Exception mismatch (CR3-load exiting)");
       Muxml.Utils.Set_Element_Value
         (Doc   => Data.Doc,
-         XPath => "/system/subjects/subject[@name='sm']/vcpu/vmx/"
+         XPath => "/system/subjects/subject[@name='sm']/vcpu/x86_64/vmx/"
          & "controls/proc/CR3LoadExiting",
          Value => "1");
 
@@ -1413,7 +1413,7 @@ package body Mucfgcheck.Subject.Test_Data.Tests is
 
       Muxml.Utils.Set_Element_Value
         (Doc   => Data.Doc,
-         XPath => "/system/subjects/subject[@name='linux']/vcpu/vmx/"
+         XPath => "/system/subjects/subject[@name='linux']/vcpu/x86_64/vmx/"
          & "controls/proc/MWAITExiting",
          Value => "0");
 
@@ -1427,7 +1427,7 @@ package body Mucfgcheck.Subject.Test_Data.Tests is
 
       Muxml.Utils.Set_Element_Value
         (Doc   => Data.Doc,
-         XPath => "/system/subjects/subject[@name='linux']/vcpu/vmx/"
+         XPath => "/system/subjects/subject[@name='linux']/vcpu/x86_64/vmx/"
          & "controls/proc/INVLPGExiting",
          Value => "0");
 
@@ -1441,7 +1441,7 @@ package body Mucfgcheck.Subject.Test_Data.Tests is
 
       Muxml.Utils.Set_Element_Value
         (Doc   => Data.Doc,
-         XPath => "/system/subjects/subject[@name='linux']/vcpu/vmx/"
+         XPath => "/system/subjects/subject[@name='linux']/vcpu/x86_64/vmx/"
          & "controls/proc/UseTSCOffsetting",
          Value => "1");
 
@@ -1455,7 +1455,7 @@ package body Mucfgcheck.Subject.Test_Data.Tests is
 
       Muxml.Utils.Set_Element_Value
         (Doc   => Data.Doc,
-         XPath => "/system/subjects/subject[@name='linux']/vcpu/vmx/"
+         XPath => "/system/subjects/subject[@name='linux']/vcpu/x86_64/vmx/"
          & "controls/proc/InterruptWindowExiting",
          Value => "1");
 
@@ -1494,7 +1494,7 @@ package body Mucfgcheck.Subject.Test_Data.Tests is
 
       Muxml.Utils.Set_Element_Value
         (Doc   => Data.Doc,
-         XPath => "/system/subjects/subject[@name='linux']/vcpu/vmx/"
+         XPath => "/system/subjects/subject[@name='linux']/vcpu/x86_64/vmx/"
          & "controls/proc2/EnableVMFunctions",
          Value => "1");
 
@@ -1509,7 +1509,7 @@ package body Mucfgcheck.Subject.Test_Data.Tests is
 
       Muxml.Utils.Set_Element_Value
         (Doc   => Data.Doc,
-         XPath => "/system/subjects/subject[@name='linux']/vcpu/vmx/"
+         XPath => "/system/subjects/subject[@name='linux']/vcpu/x86_64/vmx/"
          & "controls/proc2/EnableINVPCID",
          Value => "1");
 
@@ -1524,7 +1524,7 @@ package body Mucfgcheck.Subject.Test_Data.Tests is
 
       Muxml.Utils.Set_Element_Value
         (Doc   => Data.Doc,
-         XPath => "/system/subjects/subject[@name='linux']/vcpu/vmx/"
+         XPath => "/system/subjects/subject[@name='linux']/vcpu/x86_64/vmx/"
          & "controls/proc2/VirtualInterruptDelivery",
          Value => "1");
 
@@ -1539,7 +1539,7 @@ package body Mucfgcheck.Subject.Test_Data.Tests is
 
       Muxml.Utils.Set_Element_Value
         (Doc   => Data.Doc,
-         XPath => "/system/subjects/subject[@name='linux']/vcpu/vmx/"
+         XPath => "/system/subjects/subject[@name='linux']/vcpu/x86_64/vmx/"
          & "controls/proc2/APICRegisterVirtualization",
          Value => "1");
 
@@ -1554,7 +1554,7 @@ package body Mucfgcheck.Subject.Test_Data.Tests is
 
       Muxml.Utils.Set_Element_Value
         (Doc   => Data.Doc,
-         XPath => "/system/subjects/subject[@name='linux']/vcpu/vmx/"
+         XPath => "/system/subjects/subject[@name='linux']/vcpu/x86_64/vmx/"
          & "controls/proc2/WBINVDExiting",
          Value => "0");
 
@@ -1569,7 +1569,7 @@ package body Mucfgcheck.Subject.Test_Data.Tests is
 
       Muxml.Utils.Set_Element_Value
         (Doc   => Data.Doc,
-         XPath => "/system/subjects/subject[@name='linux']/vcpu/vmx/"
+         XPath => "/system/subjects/subject[@name='linux']/vcpu/x86_64/vmx/"
          & "controls/proc2/EnableVPID",
          Value => "1");
 
@@ -1584,7 +1584,7 @@ package body Mucfgcheck.Subject.Test_Data.Tests is
 
       Muxml.Utils.Set_Element_Value
         (Doc   => Data.Doc,
-         XPath => "/system/subjects/subject[@name='linux']/vcpu/vmx/"
+         XPath => "/system/subjects/subject[@name='linux']/vcpu/x86_64/vmx/"
          & "controls/proc2/Virtualizex2APICMode",
          Value => "1");
 
@@ -1599,7 +1599,7 @@ package body Mucfgcheck.Subject.Test_Data.Tests is
 
       Muxml.Utils.Set_Element_Value
         (Doc   => Data.Doc,
-         XPath => "/system/subjects/subject[@name='linux']/vcpu/vmx/"
+         XPath => "/system/subjects/subject[@name='linux']/vcpu/x86_64/vmx/"
          & "controls/proc2/VirtualAPICAccesses",
          Value => "1");
 
@@ -1639,7 +1639,7 @@ package body Mucfgcheck.Subject.Test_Data.Tests is
 
       Muxml.Utils.Set_Element_Value
         (Doc   => Data.Doc,
-         XPath => "/system/subjects/subject[@name='linux']/vcpu/vmx/"
+         XPath => "/system/subjects/subject[@name='linux']/vcpu/x86_64/vmx/"
          & "controls/exit/SaveVMXTimerValue",
          Value => "1");
 
@@ -1667,7 +1667,8 @@ package body Mucfgcheck.Subject.Test_Data.Tests is
          Muxml.Utils.Append_Child
            (Node      => Muxml.Utils.Get_Element
               (Doc   => Data.Doc,
-               XPath => "/system/subjects/subject[@name='linux']/vcpu/msrs"),
+               XPath => "/system/subjects/subject[@name='linux']/vcpu/x86_64/"
+               &"msrs"),
             New_Child => Node);
       end;
 
@@ -1675,7 +1676,7 @@ package body Mucfgcheck.Subject.Test_Data.Tests is
 
       Muxml.Utils.Set_Element_Value
         (Doc   => Data.Doc,
-         XPath => "/system/subjects/subject[@name='linux']/vcpu/vmx/"
+         XPath => "/system/subjects/subject[@name='linux']/vcpu/x86_64/vmx/"
          & "controls/exit/LoadIA32EFER",
          Value => "0");
 
@@ -1689,7 +1690,7 @@ package body Mucfgcheck.Subject.Test_Data.Tests is
 
       Muxml.Utils.Set_Element_Value
         (Doc   => Data.Doc,
-         XPath => "/system/subjects/subject[@name='linux']/vcpu/vmx/"
+         XPath => "/system/subjects/subject[@name='linux']/vcpu/x86_64/vmx/"
          & "controls/exit/SaveIA32EFER",
          Value => "0");
 
@@ -1703,7 +1704,7 @@ package body Mucfgcheck.Subject.Test_Data.Tests is
 
       Muxml.Utils.Set_Element_Value
         (Doc   => Data.Doc,
-         XPath => "/system/subjects/subject[@name='linux']/vcpu/vmx/"
+         XPath => "/system/subjects/subject[@name='linux']/vcpu/x86_64/vmx/"
          & "controls/exit/LoadIA32PAT",
          Value => "1");
 
@@ -1717,7 +1718,7 @@ package body Mucfgcheck.Subject.Test_Data.Tests is
 
       Muxml.Utils.Set_Element_Value
         (Doc   => Data.Doc,
-         XPath => "/system/subjects/subject[@name='linux']/vcpu/vmx/"
+         XPath => "/system/subjects/subject[@name='linux']/vcpu/x86_64/vmx/"
          & "controls/exit/SaveIA32PAT",
          Value => "1");
 
@@ -1731,7 +1732,7 @@ package body Mucfgcheck.Subject.Test_Data.Tests is
 
       Muxml.Utils.Set_Element_Value
         (Doc   => Data.Doc,
-         XPath => "/system/subjects/subject[@name='linux']/vcpu/vmx/"
+         XPath => "/system/subjects/subject[@name='linux']/vcpu/x86_64/vmx/"
          & "controls/exit/AckInterruptOnExit",
          Value => "0");
 
@@ -1745,7 +1746,7 @@ package body Mucfgcheck.Subject.Test_Data.Tests is
 
       Muxml.Utils.Set_Element_Value
         (Doc   => Data.Doc,
-         XPath => "/system/subjects/subject[@name='linux']/vcpu/vmx/"
+         XPath => "/system/subjects/subject[@name='linux']/vcpu/x86_64/vmx/"
          & "controls/exit/LoadIA32PERFGLOBALCTRL",
          Value => "1");
 
@@ -1759,7 +1760,7 @@ package body Mucfgcheck.Subject.Test_Data.Tests is
 
       Muxml.Utils.Set_Element_Value
         (Doc   => Data.Doc,
-         XPath => "/system/subjects/subject[@name='linux']/vcpu/vmx/"
+         XPath => "/system/subjects/subject[@name='linux']/vcpu/x86_64/vmx/"
          & "controls/exit/HostAddressspaceSize",
          Value => "0");
 
@@ -1789,7 +1790,8 @@ package body Mucfgcheck.Subject.Test_Data.Tests is
          Muxml.Utils.Append_Child
            (Node      => Muxml.Utils.Get_Element
               (Doc   => Data.Doc,
-               XPath => "/system/subjects/subject[@name='linux']/vcpu/msrs"),
+               XPath => "/system/subjects/subject[@name='linux']/vcpu/x86_64/"
+               & "msrs"),
             New_Child => Node);
 
          VM_Exit_Controls_Requirements (XML_Data => Data);
@@ -1844,11 +1846,12 @@ package body Mucfgcheck.Subject.Test_Data.Tests is
          Muxml.Utils.Append_Child
            (Node      => Muxml.Utils.Get_Element
               (Doc   => Data.Doc,
-               XPath => "/system/subjects/subject[@name='linux']/vcpu/msrs"),
+               XPath => "/system/subjects/subject[@name='linux']/vcpu/x86_64/"&
+               "msrs"),
             New_Child => Node);
          Muxml.Utils.Set_Element_Value
            (Doc   => Data.Doc,
-            XPath => "/system/subjects/subject[@name='linux']/vcpu/vmx/"
+            XPath => "/system/subjects/subject[@name='linux']/vcpu/x86_64/vmx/"
             & "controls/entry/LoadIA32EFER",
             Value => "0");
 
@@ -1863,7 +1866,7 @@ package body Mucfgcheck.Subject.Test_Data.Tests is
 
       Muxml.Utils.Set_Element_Value
         (Doc   => Data.Doc,
-         XPath => "/system/subjects/subject[@name='linux']/vcpu/vmx/"
+         XPath => "/system/subjects/subject[@name='linux']/vcpu/x86_64/vmx/"
          & "controls/entry/LoadIA32PAT",
          Value => "1");
 
@@ -1877,7 +1880,7 @@ package body Mucfgcheck.Subject.Test_Data.Tests is
 
       Muxml.Utils.Set_Element_Value
         (Doc   => Data.Doc,
-         XPath => "/system/subjects/subject[@name='linux']/vcpu/vmx/"
+         XPath => "/system/subjects/subject[@name='linux']/vcpu/x86_64/vmx/"
          & "controls/entry/LoadIA32PERFGLOBALCTRL",
          Value => "1");
 
@@ -1891,7 +1894,7 @@ package body Mucfgcheck.Subject.Test_Data.Tests is
 
       Muxml.Utils.Set_Element_Value
         (Doc   => Data.Doc,
-         XPath => "/system/subjects/subject[@name='linux']/vcpu/vmx/"
+         XPath => "/system/subjects/subject[@name='linux']/vcpu/x86_64/vmx/"
          & "controls/entry/DeactiveDualMonitorTreatment",
          Value => "1");
 
@@ -1905,7 +1908,7 @@ package body Mucfgcheck.Subject.Test_Data.Tests is
 
       Muxml.Utils.Set_Element_Value
         (Doc   => Data.Doc,
-         XPath => "/system/subjects/subject[@name='linux']/vcpu/vmx/"
+         XPath => "/system/subjects/subject[@name='linux']/vcpu/x86_64/vmx/"
          & "controls/entry/EntryToSMM",
          Value => "1");
 
@@ -1919,7 +1922,7 @@ package body Mucfgcheck.Subject.Test_Data.Tests is
 
       Muxml.Utils.Set_Element_Value
         (Doc   => Data.Doc,
-         XPath => "/system/subjects/subject[@name='vt']/vcpu/vmx/"
+         XPath => "/system/subjects/subject[@name='vt']/vcpu/x86_64/vmx/"
          & "controls/entry/IA32eModeGuest",
          Value => "0");
 
@@ -1930,7 +1933,7 @@ package body Mucfgcheck.Subject.Test_Data.Tests is
               Message   => "Exception mismatch (IA-32e guest)");
       Muxml.Utils.Set_Element_Value
         (Doc   => Data.Doc,
-         XPath => "/system/subjects/subject[@name='vt']/vcpu/vmx/"
+         XPath => "/system/subjects/subject[@name='vt']/vcpu/x86_64/vmx/"
          & "controls/entry/IA32eModeGuest",
          Value => "1");
 
@@ -1954,7 +1957,8 @@ package body Mucfgcheck.Subject.Test_Data.Tests is
          Muxml.Utils.Append_Child
            (Node      => Muxml.Utils.Get_Element
               (Doc   => Data.Doc,
-               XPath => "/system/subjects/subject[@name='linux']/vcpu/msrs"),
+               XPath => "/system/subjects/subject[@name='linux']/vcpu/x86_64/"
+               & "msrs"),
             New_Child => Node);
 
          VM_Entry_Controls_Requirements (XML_Data => Data);
@@ -1993,7 +1997,7 @@ package body Mucfgcheck.Subject.Test_Data.Tests is
 
       Muxml.Utils.Set_Element_Value
         (Doc   => Data.Doc,
-         XPath => "/system/subjects/subject[@name='linux']/vcpu/vmx/"
+         XPath => "/system/subjects/subject[@name='linux']/vcpu/x86_64/vmx/"
          & "masks/cr0/CacheDisable",
          Value => "0");
 
@@ -2008,7 +2012,7 @@ package body Mucfgcheck.Subject.Test_Data.Tests is
 
       Muxml.Utils.Set_Element_Value
         (Doc   => Data.Doc,
-         XPath => "/system/subjects/subject[@name='linux']/vcpu/vmx/"
+         XPath => "/system/subjects/subject[@name='linux']/vcpu/x86_64/vmx/"
          & "masks/cr0/NotWritethrough",
          Value => "0");
 
@@ -2048,7 +2052,7 @@ package body Mucfgcheck.Subject.Test_Data.Tests is
 
       Muxml.Utils.Set_Element_Value
         (Doc   => Data.Doc,
-         XPath => "/system/subjects/subject[@name='vt']/vcpu/vmx/"
+         XPath => "/system/subjects/subject[@name='vt']/vcpu/x86_64/vmx/"
          & "masks/cr4/MachineCheckEnable",
          Value => "0");
 
@@ -2063,7 +2067,7 @@ package body Mucfgcheck.Subject.Test_Data.Tests is
 
       Muxml.Utils.Set_Element_Value
         (Doc   => Data.Doc,
-         XPath => "/system/subjects/subject[@name='vt']/vcpu/vmx/"
+         XPath => "/system/subjects/subject[@name='vt']/vcpu/x86_64/vmx/"
          & "masks/cr4/PhysicalAddressExtension",
          Value => "0");
 
@@ -2103,7 +2107,7 @@ package body Mucfgcheck.Subject.Test_Data.Tests is
 
       Muxml.Utils.Set_Element_Value
         (Doc   => Data.Doc,
-         XPath => "/system/subjects/subject[@name='vt']/vcpu/vmx/"
+         XPath => "/system/subjects/subject[@name='vt']/vcpu/x86_64/vmx/"
          & "masks/exception/MachineCheck",
          Value => "0");
 
