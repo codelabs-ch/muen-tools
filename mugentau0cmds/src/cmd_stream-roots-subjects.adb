@@ -228,7 +228,7 @@ is
       MSRs : constant DOM.Core.Node_List
         := McKae.XML.XPath.XIA.XPath_Query
           (N     => Subj_Node,
-           XPath => "vcpu/msrs/msr");
+           XPath => "vcpu/x86_64/msrs/msr");
    begin
       for I in 0 .. DOM.Core.Nodes.Length (List => MSRs) - 1 loop
          declare
@@ -320,7 +320,7 @@ is
             Paging : constant String
               := (if Muxml.Utils.Get_Element_Value
                   (Doc   => Subj,
-                   XPath => "vcpu/vmx/controls/proc2/EnableEPT") = "1"
+                   XPath => "vcpu/x86_64/vmx/controls/proc2/EnableEPT") = "1"
                   then "EPT" else "IA32e");
             Subj_Attr : constant CU.Attribute_Type
               := (Attr  => U ("subject"),
