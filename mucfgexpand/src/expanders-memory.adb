@@ -579,7 +579,7 @@ is
       Nodes : constant DOM.Core.Node_List
         := McKae.XML.XPath.XIA.XPath_Query
           (N     => Data.Doc,
-           XPath => "/system/subjects/subject[vcpu/msrs/msr]");
+           XPath => "/system/subjects/subject[vcpu/x86_64/msrs/msr]");
    begin
       for I in 0 .. DOM.Core.Nodes.Length (List => Nodes) - 1 loop
          declare
@@ -597,11 +597,11 @@ is
             Registers  : constant DOM.Core.Node_List
               := McKae.XML.XPath.XIA.XPath_Query
                 (N     => Subj_Node,
-                 XPath => "vcpu/msrs/msr[@mode='rw' or @mode='w']");
+                 XPath => "vcpu/x86_64/msrs/msr[@mode='rw' or @mode='w']");
             Ctrls_Node : constant DOM.Core.Node
               := Muxml.Utils.Get_Element
                 (Doc   => Subj_Node,
-                 XPath => "vcpu/vmx/controls");
+                 XPath => "vcpu/x86_64/vmx/controls");
             MSR_Count  : constant Interfaces.Unsigned_64
               := Interfaces.Unsigned_64
                 (MXU.Calculate_MSR_Count

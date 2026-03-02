@@ -96,11 +96,13 @@
    </depends>                                                                                                                                              </depends>
                                                                                                                                                      >     <requires>
                                                                                                                                                      >      <vcpu>
-                                                                                                                                                     >       <registers>
-                                                                                                                                                     >        <gpr>
-                                                                                                                                                     >         <rip>16#0010_0000#</rip>
-                                                                                                                                                     >        </gpr>
-                                                                                                                                                     >       </registers>
+                                                                                                                                                     >       <x86_64>
+                                                                                                                                                     >        <registers>
+                                                                                                                                                     >         <gpr>
+                                                                                                                                                     >          <rip>16#0010_0000#</rip>
+                                                                                                                                                     >         </gpr>
+                                                                                                                                                     >        </registers>
+                                                                                                                                                     >       </x86_64>
                                                                                                                                                      >      </vcpu>
                                                                                                                                                      >     </requires>
    <provides>                                                                                                                                              <provides>
@@ -171,9 +173,9 @@
   </subject>                                                                                                                                              </subject>
   <subject name="subject2">                                                                                                                          |    <subject cpu="1" name="subject2">
    <vcpu>                                                                                                                                                  <vcpu>
-    <msrs>                                                                                                                                                  <msrs>
+    <x86_64>                                                                                                                                                <x86_64>
 --
-    </msrs>                                                                                                                                                 </msrs>
+    </x86_64>                                                                                                                                               </x86_64>
    </vcpu>                                                                                                                                                 </vcpu>
                                                                                                                                                      >     <bootparams/>
    <memory>                                                                                                                                                <memory>
@@ -211,9 +213,9 @@
   </subject>                                                                                                                                              </subject>
   <subject name="lnx_core_1">                                                                                                                        |    <subject cpu="1" name="lnx_core_1">
    <vcpu>                                                                                                                                                  <vcpu>
-    <registers>                                                                                                                                             <registers>
+    <x86_64>                                                                                                                                                <x86_64>
 --
-    </registers>                                                                                                                                            </registers>
+    </x86_64>                                                                                                                                               </x86_64>
    </vcpu>                                                                                                                                                 </vcpu>
                                                                                                                                                      >     <bootparams/>
                                                                                                                                                      >     <memory/>
