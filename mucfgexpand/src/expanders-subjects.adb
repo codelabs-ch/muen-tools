@@ -1403,6 +1403,8 @@ is
 
       Processed : Unbounded_Set_Package.Set;
 
+      Arch      : constant Mutools.Types.Arch_Type
+        := Mutools.XML_Utils.Get_Arch (Policy => Data);
       Auto_Idle : constant DOM.Core.Node_List
         := McKae.XML.XPath.XIA.XPath_Query
           (N     => Data.Doc,
@@ -1456,8 +1458,9 @@ is
                     (Node      => N1,
                      New_Child => N2);
                   Mucfgvcpu.Set_VCPU_Profile
-                    (Profile => Mucfgvcpu.Native,
-                     Node    => N2);
+                    (Architecture => Arch,
+                     Profile      => Mucfgvcpu.Native,
+                     Node         => N2);
 
                   Muxml.Utils.Add_Child
                     (Parent     => N1,
@@ -2004,6 +2007,8 @@ is
       Mulog.Log (Msg => "Adding tau0 subject");
 
       declare
+         Arch          : constant Mutools.Types.Arch_Type
+           := Mutools.XML_Utils.Get_Arch (Policy => Data);
          Sched_Tau0    : constant DOM.Core.Node
            := Muxml.Utils.Get_Element
              (Doc   => Data.Doc,
@@ -2059,8 +2064,9 @@ is
               (Node      => Tau0_Node,
                New_Child => VCPU_Node);
             Mucfgvcpu.Set_VCPU_Profile
-              (Profile => Mucfgvcpu.Native,
-               Node    => VCPU_Node);
+              (Architecture => Arch,
+               Profile      => Mucfgvcpu.Native,
+               Node         => VCPU_Node);
          end;
 
          Muxml.Utils.Append_Child
@@ -2497,7 +2503,8 @@ is
                            VMXE_Node : constant DOM.Core.Node
                              := Muxml.Utils.Get_Element
                                (Doc   => Loadee_Subj,
-                                XPath => "vcpu/registers/cr4/VMXEnable");
+                                XPath => "vcpu/x86_64/registers/cr4/"
+                                & "VMXEnable");
                         begin
                            DCN.Normalize (N => VMXE_Node);
                            DCN.Set_Node_Value

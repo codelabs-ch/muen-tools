@@ -32,6 +32,7 @@ with McKae.XML.XPath.XIA;
 with Mulog;
 with Mucfgvcpu;
 with Muxml.Utils;
+with Mutools.Types;
 with Mutools.Utils;
 with Mutools.XML_Utils;
 
@@ -1112,6 +1113,8 @@ is
 
    procedure Add_Subject_Profile_VCPU (Data : in out Muxml.XML_Data_Type)
    is
+      Arch       : constant Mutools.Types.Arch_Type
+        := Mutools.XML_Utils.Get_Arch (Policy => Data);
       Components : constant DOM.Core.Node_List
         := McKae.XML.XPath.XIA.XPath_Query
           (N     => Data.Doc,
@@ -1171,8 +1174,9 @@ is
 
             if Comp_VCPU_Node = null then
                Mucfgvcpu.Set_VCPU_Profile
-                 (Profile => Types.Subj_VCPU_Profile_Map (Profile),
-                  Node    => Subj_VCPU_Node);
+                 (Architecture => Arch,
+                  Profile      => Types.Subj_VCPU_Profile_Map (Profile),
+                  Node         => Subj_VCPU_Node);
             else
                declare
                   VCPU_Node : DOM.Core.Node
@@ -1185,8 +1189,9 @@ is
                      New_Child => VCPU_Node,
                      Ref_Child => Subj_VCPU_Node);
                   Mucfgvcpu.Set_VCPU_Profile
-                    (Profile => Types.Subj_VCPU_Profile_Map (Profile),
-                     Node    => VCPU_Node);
+                    (Architecture => Arch,
+                     Profile      => Types.Subj_VCPU_Profile_Map (Profile),
+                     Node         => VCPU_Node);
                   Muxml.Utils.Merge
                     (Left      => VCPU_Node,
                      Right     => Subj_VCPU_Node,

@@ -20,7 +20,7 @@
    </memory>                                                                                                                                               </memory>
    <devices>                                                                                                                                               <devices>
 --
-    </msrs>                                                                                                                                                 </msrs>
+    </x86_64>                                                                                                                                               </x86_64>
    </vcpu>                                                                                                                                                 </vcpu>
                                                                                                                                                      >     <bootparams/>
    <memory>                                                                                                                                                <memory>
@@ -29,7 +29,7 @@
    </memory>                                                                                                                                               </memory>
    <devices>                                                                                                                                               <devices>
 --
-    </registers>                                                                                                                                            </registers>
+    </x86_64>                                                                                                                                               </x86_64>
    </vcpu>                                                                                                                                                 </vcpu>
                                                                                                                                                      >     <bootparams/>
                                                                                                                                                      >     <memory>
