@@ -2410,6 +2410,8 @@ package body Mutools.XML_Utils.Test_Data.Tests is
 
       pragma Unreferenced (Gnattest_T);
 
+      use type Types.Arch_Type;
+
       Policy : Muxml.XML_Data_Type;
    begin
       Muxml.Parse (Data => Policy,
@@ -2418,10 +2420,13 @@ package body Mutools.XML_Utils.Test_Data.Tests is
       Assert (Condition => not Is_Arm64 (Policy => Policy),
               Message   => "Unexpected arch (1)");
 
-      System_Config.Set_Value
-        (Data  => Policy,
-         Name  => "armv8",
-         Value => True);
+      Muxml.Utils.Remove_Elements (Doc   => Policy.Doc,
+                                   XPath => "/system/hardware/processor/*");
+      Muxml.Utils.Add_Child
+         (Parent     => Muxml.Utils.Get_Element
+            (Doc   => Policy.Doc,
+             XPath => "/system/hardware/processor"),
+          Child_Name => "arm64");
       Assert (Condition => Is_Arm64 (Policy => Policy),
               Message   => "Unexpected arch (2)");
 --  begin read only
@@ -2446,14 +2451,17 @@ package body Mutools.XML_Utils.Test_Data.Tests is
                    Kind => Muxml.Format_Src,
                    File => "data/test_policy.xml");
       Assert (Condition => Get_Arch (Policy => Policy) = Types.X86_64,
-              Message   => "Unexpected arch (1)");
+              Message   => "Unexpected arch (x86_64)");
 
-      System_Config.Set_Value
-        (Data  => Policy,
-         Name  => "armv8",
-         Value => True);
+      Muxml.Utils.Remove_Elements (Doc   => Policy.Doc,
+                                   XPath => "/system/hardware/processor/*");
+      Muxml.Utils.Add_Child
+         (Parent     => Muxml.Utils.Get_Element
+            (Doc   => Policy.Doc,
+             XPath => "/system/hardware/processor"),
+          Child_Name => "arm64");
       Assert (Condition => Get_Arch (Policy => Policy) = Types.Arm64,
-              Message   => "Unexpected arch (2)");
+              Message   => "Unexpected arch (arm64)");
 --  begin read only
    end Test_Get_Arch;
 --  end read only
