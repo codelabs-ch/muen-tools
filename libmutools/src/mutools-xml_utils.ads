@@ -26,8 +26,6 @@ with Muxml;
 with Mutools.Strings;
 with Mutools.Types;
 
-private with Mutools.System_Config;
-
 package Mutools.XML_Utils
 is
 
@@ -356,12 +354,9 @@ is
 
 private
 
-   function Get_Arch (Policy : Muxml.XML_Data_Type) return Types.Arch_Type
-   is (if Mutools.XML_Utils.Is_Arm64
-         (Policy => Policy) then Types.Arm64 else Types.X86_64);
+   use type Types.Arch_Type;
 
-   function Is_Arm64 (Policy : Muxml.XML_Data_Type) return Boolean is
-     (System_Config.Has_Boolean (Data => Policy, Name => "armv8")
-      and then System_Config.Get_Value (Data => Policy, Name => "armv8"));
+   function Is_Arm64 (Policy : Muxml.XML_Data_Type) return Boolean
+   is (Get_Arch (Policy => Policy) = Types.Arm64);
 
 end Mutools.XML_Utils;
