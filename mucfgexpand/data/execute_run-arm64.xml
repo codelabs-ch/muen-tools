@@ -1,7 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <system>
  <config>
-  <boolean name="armv8" value="true"/>
   <boolean name="debug_enabled" value="true"/>
   <string name="debug_level" value="Level_3"/>
  </config>
