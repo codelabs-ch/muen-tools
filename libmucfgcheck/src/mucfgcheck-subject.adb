@@ -16,6 +16,7 @@
 --  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --
 
+with Ada.Characters.Handling;
 with Ada.Exceptions;
 with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded;
@@ -1117,6 +1118,53 @@ is
          end;
       end loop;
    end Scheduling_Group_IDs;
+
+   -------------------------------------------------------------------------
+
+   procedure VCPU_Architecture_Consistency (XML_Data : Muxml.XML_Data_Type)
+   is
+      HW_Arch     : constant Mutools.Types.Arch_Type
+        := Mutools.XML_Utils.Get_Arch (Policy => XML_Data);
+      HW_Arch_Str : constant String := Ada.Characters.Handling.To_Lower
+        (Item => HW_Arch'Img);
+      VCPU_Archs  : constant DOM.Core.Node_List := XPath_Query
+        (N     => XML_Data.Doc,
+         XPath => "//vcpu/*");
+      VCPU_Count  : constant Natural := DOM.Core.Nodes.Length (VCPU_Archs);
+   begin
+      if VCPU_Count = 0 then
+         return;
+      end if;
+
+      Mulog.Log (Msg => "Checking" & VCPU_Count'Img & " vCPU architecture(s)");
+      for I in 0 .. VCPU_Count - 1 loop
+         declare
+            Cur_VCPU_Arch : constant DOM.Core.Node := DOM.Core.Nodes.Item
+              (List  => VCPU_Archs,
+               Index => I);
+            VCPU_Arch_Str : constant String := DOM.Core.Elements.Get_Tag_Name
+              (Elem => Cur_VCPU_Arch);
+         begin
+            if VCPU_Arch_Str /= HW_Arch_Str then
+               declare
+                  Node : constant DOM.Core.Node := Muxml.Utils.Ancestor_Node
+                     (Node  => Cur_VCPU_Arch,
+                      Level => 2);
+                  Node_Kind : constant String := DOM.Core.Elements.Get_Tag_Name
+                     (Elem => Node);
+                  Node_Name : constant String := DOM.Core.Elements.Get_Attribute
+                     (Elem => Node,
+                      Name => "name");
+               begin
+                  Validation_Errors.Insert
+                    (Msg => "Mismatching architecture " & VCPU_Arch_Str
+                     & " in vCPU of " & Node_Kind & " '" & Node_Name
+                     & "', expected " & HW_Arch_Str);
+               end;
+            end if;
+         end;
+      end loop;
+   end VCPU_Architecture_Consistency;
 
    -------------------------------------------------------------------------
 

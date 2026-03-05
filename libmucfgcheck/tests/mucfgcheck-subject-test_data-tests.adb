@@ -739,6 +739,75 @@ package body Mucfgcheck.Subject.Test_Data.Tests is
 
 
 --  begin read only
+   procedure Test_VCPU_Architecture_Consistency (Gnattest_T : in out Test);
+   procedure Test_VCPU_Architecture_Consistency_53f4f9 (Gnattest_T : in out Test) renames Test_VCPU_Architecture_Consistency;
+--  id:2.2/53f4f9c3a524c04e/VCPU_Architecture_Consistency/1/0/
+   procedure Test_VCPU_Architecture_Consistency (Gnattest_T : in out Test) is
+--  end read only
+
+      pragma Unreferenced (Gnattest_T);
+
+      Data : Muxml.XML_Data_Type;
+      CPU_Node, VCPU_Node : DOM.Core.Node;
+   begin
+      Muxml.Parse (Data => Data,
+                   Kind => Muxml.Format_B,
+                   File => "data/test_policy.xml");
+
+      --  Positive test x86_64, must not raise an exception.
+
+      VCPU_Architecture_Consistency (XML_Data => Data);
+      Assert (Condition => Validation_Errors.Is_Empty,
+              Message   => "Unexpected error in positive test (x86_64)");
+
+      --  HW: x86_64, vCPU: arm64
+      VCPU_Node := Muxml.Utils.Get_Element
+        (Doc   => Data.Doc,
+         XPath => "/system/subjects/subject[@name='tau0']/vcpu");
+      Muxml.Utils.Remove_Child
+         (Node       => VCPU_Node,
+          Child_Name => "x86_64");
+      Muxml.Utils.Add_Child
+         (Parent     => VCPU_Node,
+          Child_Name => "arm64");
+      VCPU_Architecture_Consistency (XML_Data => Data);
+      Assert (Condition => Validation_Errors.Contains
+              (Msg => "Mismatching architecture arm64 in vCPU of subject 'tau0'"
+               & ", expected x86_64"),
+              Message   => "Exception mismatch (vCPU arm64)");
+      Validation_Errors.Clear;
+
+      --  HW: arm64, vCPU: x86_64
+      CPU_Node := Muxml.Utils.Get_Element
+        (Doc   => Data.Doc,
+         XPath => "/system/hardware/processor");
+      Muxml.Utils.Remove_Child
+         (Node       => CPU_Node,
+          Child_Name => "x86_64");
+      Muxml.Utils.Add_Child
+         (Parent     => CPU_Node,
+          Child_Name => "arm64");
+      VCPU_Architecture_Consistency (XML_Data => Data);
+      Assert (Condition => Validation_Errors.Contains
+              (Msg => "Mismatching architecture x86_64 in vCPU of subject 'vt'"
+               & ", expected arm64"),
+              Message   => "Exception mismatch (vCPU x86_64)");
+      Validation_Errors.Clear;
+
+      --  Positive test arm64, must not raise an exception.
+
+      Muxml.Utils.Remove_Elements
+        (Doc   => Data.Doc,
+         XPath => "/system/subjects/subject/vcpu/x86_64");
+      VCPU_Architecture_Consistency (XML_Data => Data);
+      Assert (Condition => Validation_Errors.Is_Empty,
+              Message   => "Unexpected error in positive test (arm64)");
+--  begin read only
+   end Test_VCPU_Architecture_Consistency;
+--  end read only
+
+
+--  begin read only
    procedure Test_VMX_Controls_Entry_Checks (Gnattest_T : in out Test);
    procedure Test_VMX_Controls_Entry_Checks_6dde9d (Gnattest_T : in out Test) renames Test_VMX_Controls_Entry_Checks;
 --  id:2.2/6dde9d8234a9c19e/VMX_Controls_Entry_Checks/1/0/
