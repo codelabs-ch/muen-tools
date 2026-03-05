@@ -1,9 +1,6 @@
 <?xml version="1.0"?>
 <system>
- <config>
-  <boolean name="armv8" value="true"/>
- </config>
-
+ <config/>
  <hardware>
   <processor cpuCores="1">
    <arm64 timerFrequency="2900123">
