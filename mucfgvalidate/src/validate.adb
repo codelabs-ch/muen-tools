@@ -487,6 +487,9 @@ is
       --  memory mapped. Therefore 'Device_Mmconf_Mappings' seems to
       --  be unnecessary for ARM.
 
+      XML_Processors.Register
+        (Process => Subject.VCPU_Architecture_Consistency'Access);
+
       --  Arch Dependent: All VMX controls etc. are x86/64 specific.
       --  For ARMv8-A similar checks have to be added (c.f. above,
       --  HCR_EL2 etc.).
@@ -847,6 +850,8 @@ is
         (Process => Subject.Crash_Audit_Write_Access'Access);
       XML_Processors.Register
         (Process => Subject.Device_Mmconf_Mappings'Access);
+      XML_Processors.Register
+        (Process => Subject.VCPU_Architecture_Consistency'Access);
       XML_Processors.Register
         (Process => Subject.VMX_Controls_Entry_Checks'Access);
       XML_Processors.Register
