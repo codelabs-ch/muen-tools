@@ -5,7 +5,7 @@ is
 
    type Subject_Spec_Type is record
       CPU_ID               : CPU_Range;
-      GPR_0                : SK.Bit_64_Type;
+      GPRs                 : ARMv8.Register.General_Purpose_Register_X_Type;
       ELR_EL2              : SK.Bit_64_Type;
       VTTBR_Address        : SK.Bit_48_Type;
       Default_Cacheability : Boolean;
@@ -29,11 +29,10 @@ is
 
    -------------------------------------------------------------------------
 
-   function Get_General_Purpose_Register
-     (Subject_ID : Global_Subject_ID_Type;
-      Idx        : Natural)
-      return SK.Bit_64_Type
-   is (if Idx = 0 then Subject_Specs (Subject_ID).GPR_0 else 0);
+   function Get_General_Purpose_Registers
+     (Subject_ID : Global_Subject_ID_Type)
+      return ARMv8.Register.General_Purpose_Register_X_Type
+   is (Subject_Specs (Subject_ID).GPRs);
 
    -------------------------------------------------------------------------
 
