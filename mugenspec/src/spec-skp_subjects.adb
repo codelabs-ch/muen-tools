@@ -18,6 +18,7 @@
 
 with Ada.Characters.Handling;
 with Ada.Strings.Unbounded;
+with Ada.Strings.Fixed;
 
 with Interfaces;
 
@@ -198,6 +199,11 @@ is
       Buffer : Unbounded_String;
       Tmpl   : Mutools.Templates.Template_Type;
 
+      --  Add subject GPR values to buffer.
+      procedure Add_GPRs_ARM64
+        (Buffer : in out Unbounded_String;
+         GPRs   :        DOM.Core.Node);
+
       --  Check if given subject is Linux VM and determine register values.
       function Is_Linux_VM
         (Subject :        DOM.Core.Node;
@@ -207,6 +213,43 @@ is
 
       --  Append SPARK specification of given subject to template buffer.
       procedure Write_Subject_Spec (Subject : DOM.Core.Node);
+
+      ----------------------------------------------------------------------
+
+      procedure Add_GPRs_ARM64
+        (Buffer : in out Unbounded_String;
+         GPRs   :        DOM.Core.Node)
+      is
+         Regs : constant DOM.Core.Node_List
+           := McKae.XML.XPath.XIA.XPath_Query (N     => GPRs,
+                                               XPath => "*");
+         Regs_Count : constant Natural
+           := DOM.Core.Nodes.Length (List => Regs);
+      begin
+         Buffer := Buffer & Indent (N => 4) & "GPRs                 => (" &
+           ASCII.LF;
+         for I in 0 .. Regs_Count - 1 loop
+            declare
+               Reg       : constant DOM.Core.Node := DOM.Core.Nodes.Item
+                 (List  => Regs,
+                  Index => I);
+               Reg_Value : constant Interfaces.Unsigned_64
+                 := Interfaces.Unsigned_64'Value
+                   (DOM.Core.Nodes.Node_Value
+                      (N => DOM.Core.Nodes.First_Child (N => Reg)));
+               Idx_Str   : constant String := Ada.Strings.Fixed.Trim
+                 (Source => I'Img,
+                  Side   => Ada.Strings.Left);
+            begin
+               Buffer := Buffer & Indent (N => 5) & Idx_Str & " => "
+                 & Mutools.Utils.To_Hex (Number => Reg_Value);
+               if I < Regs_Count - 1 then
+                  Buffer := Buffer & "," & ASCII.LF;
+               end if;
+            end;
+         end loop;
+         Buffer := Buffer & ")," & ASCII.LF;
+      end Add_GPRs_ARM64;
 
       ----------------------------------------------------------------------
 
@@ -274,6 +317,11 @@ is
          CPU_ID  : constant String
            := DOM.Core.Elements.Get_Attribute (Elem => Subject,
                                                Name => "cpu");
+         GPR_Node : constant DOM.Core.Node
+           := Muxml.Utils.Get_Element
+             (Doc   => Subject,
+              XPath => "vcpu/arm64/registers/gpr");
+
          --  (b) determine register values in case of Linux subjects and set
          --  default cacheability and trapped instructions accordingly
          GPR_0                : Unbounded_String
@@ -317,10 +365,12 @@ is
       begin
          Buffer := Buffer & Subj_ID & " =>" &
            ASCII.LF & Indent (N => 3) &
-           "  (CPU_ID               => " & CPU_ID & "," &
-           ASCII.LF & Indent (N => 3) &
-           "   GPR_0                => " & To_String (GPR_0) & "," &
-           ASCII.LF & Indent (N => 3) &
+           "  (CPU_ID               => " & CPU_ID & "," & ASCII.LF;
+
+         Add_GPRs_ARM64 (Buffer => Buffer,
+                         GPRs   => GPR_Node);
+
+         Buffer := Buffer & Indent (N => 3) &
            "   ELR_EL2              => " & To_String (ELR_EL2) & "," &
            ASCII.LF & Indent (N => 3) &
            "   VTTBR_Address        => " &
