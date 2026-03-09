@@ -48,7 +48,7 @@ def set_rip(xml_spec, binary):
     """
     Set RIP in XML spec to entry point of given ELF binary.
     """
-    rip = xml_spec.xpath("/component/requires/vcpu/registers/gpr/rip")[0]
+    rip = xml_spec.xpath("/component/requires/vcpu/x86_64/registers/gpr/rip")[0]
     rip.text = muutils.int_to_ada_hex(binary.header.entrypoint)
     print("* Setting RIP to " + rip.text)
 
@@ -182,7 +182,7 @@ def add_ram_memory(xml_spec, binary_end, ram_size_mb):
         type="subject",
     )
 
-    rsp = xml_spec.xpath("/component/requires/vcpu/registers/gpr/rsp")[0]
+    rsp = xml_spec.xpath("/component/requires/vcpu/x86_64/registers/gpr/rsp")[0]
     rsp.text = muutils.int_to_ada_hex(binary_end + ram_size - 8)
     print("* Setting RSP to " + rsp.text)
 
