@@ -200,15 +200,18 @@ is
 
       --  Check if given subject is Linux VM and determine register values.
       function Is_Linux_VM
-        (Subject     :        DOM.Core.Node;
+        (Subject :        DOM.Core.Node;
          GPR_0   : in out Unbounded_String;
          ELR_EL2 : in out Unbounded_String)
         return Boolean;
 
+      --  Append SPARK specification of given subject to template buffer.
+      procedure Write_Subject_Spec (Subject : DOM.Core.Node);
+
       ----------------------------------------------------------------------
 
       function Is_Linux_VM
-        (Subject     :        DOM.Core.Node;
+        (Subject :        DOM.Core.Node;
          GPR_0   : in out Unbounded_String;
          ELR_EL2 : in out Unbounded_String)
         return Boolean
@@ -250,11 +253,6 @@ is
 
          return False;
       end Is_Linux_VM;
-
-      ----------------------------------------------------------------------
-
-      --  Append SPARK specification of given subject to template buffer.
-      procedure Write_Subject_Spec (Subject : DOM.Core.Node);
 
       ----------------------------------------------------------------------
 
