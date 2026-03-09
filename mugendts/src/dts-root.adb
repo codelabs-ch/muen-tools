@@ -30,6 +30,7 @@ with String_Templates;
 
 with DTS.APU_Devices;
 with DTS.SoC_Devices;
+with DTS.XML_Utils;
 
 package body DTS.Root
 is
@@ -41,12 +42,15 @@ is
       Policy   :        Muxml.XML_Data_Type;
       Subject  :        DOM.Core.Node)
    is
-      pragma Unreferenced (Policy, Subject);
+      Has_UART : constant Boolean
+        := DTS.XML_Utils.Get_UART_Count
+             (Policy  => Policy,
+              Subject => Subject) > 0;
    begin
       Mutools.Templates.Replace
         (Template => Template,
          Pattern  => "__serial_alias__",
-         Content  => "serial_0");
+         Content  => (if Has_UART then "serial = &serial_0;" else ""));
    end Add_Aliases_Node;
 
    -------------------------------------------------------------------------
@@ -67,6 +71,11 @@ is
            XPath => "memory/memory");
 
       Initrd_Address, Initrd_Size : Interfaces.Unsigned_64 := 0;
+
+      Has_UART : constant Boolean
+        := DTS.XML_Utils.Get_UART_Count
+             (Policy  => Policy,
+              Subject => Subject) > 0;
    begin
       Mutools.XML_Utils.Get_Addr_And_Size
         (Virtual_Mappings => Subject_Memory,
@@ -86,6 +95,12 @@ is
             & ",0x" & Mutools.Utils.To_Hex
               (Number => Initrd_Size,
                Normalize  => False));
+
+      Mutools.Templates.Replace
+        (Template => Template,
+         Pattern  => "__stdout_path__",
+         Content  => (if Has_UART then "stdout-path = ""serial:115200n8"";"
+                      else ""));
    end Add_Chosen_Node;
 
    -------------------------------------------------------------------------

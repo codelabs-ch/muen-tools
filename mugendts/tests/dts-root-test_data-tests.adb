@@ -19,6 +19,7 @@ with McKae.XML.XPath.XIA;
 
 with DOM.Core.Nodes;
 
+with Muxml.Utils;
 with Mutools.Templates;
 
 with Test_Utils;
@@ -88,42 +89,77 @@ package body DTS.Root.Test_Data.Tests is
 
       pragma Unreferenced (Gnattest_T);
 
-      Expected_Entry : constant String
-        := "    aliases {" & ASCII.LF &
-        "        serial = &serial_0;" & ASCII.LF & "    };";
+      ----------------------------------------------------------------------
 
-      Template : Mutools.Templates.Template_Type
-        := Mutools.Templates.Create
-          (Content =>
-             "    aliases {"  & ASCII.LF &
-             "        serial = &__serial_alias__;"  & ASCII.LF &
-             "    };");
+      procedure UART_Present
+      is
+         Expected_Entry : constant String
+           := "    aliases {" & ASCII.LF &
+           "        serial = &serial_0;" & ASCII.LF & "    };";
 
-      Policy : Muxml.XML_Data_Type;
+         Template : Mutools.Templates.Template_Type
+           := Mutools.Templates.Create
+             (Content =>
+                "    aliases {"  & ASCII.LF &
+                "        __serial_alias__"  & ASCII.LF &
+                "    };");
 
-      Subject : DOM.Core.Node_List;
+         Policy  : Muxml.XML_Data_Type;
+         Subject : DOM.Core.Node;
+      begin
+         Muxml.Parse (Data => Policy,
+                      Kind => Muxml.Format_B,
+                      File => "data/test_policy_light.xml");
+         Subject := Muxml.Utils.Get_Element
+           (Doc   => Policy.Doc,
+            XPath => "/system/subjects/subject[@globalId='0']");
+
+         Add_Aliases_Node (Template  => Template,
+                           Policy    => Policy,
+                           Subject   => Subject);
+         Assert (Actual   => Mutools.Templates.To_String (Template => Template),
+                 Expected => Expected_Entry,
+                 Message  => "Wrong aliases node (with UART)");
+      end UART_Present;
+
+      ----------------------------------------------------------------------
+
+      procedure UART_Not_Present
+      is
+         Expected_Entry : constant String
+           := "    aliases {" & ASCII.LF &
+           "        " & ASCII.LF & "    };";
+
+         Template : Mutools.Templates.Template_Type
+           := Mutools.Templates.Create
+             (Content =>
+                "    aliases {"  & ASCII.LF &
+                "        __serial_alias__"  & ASCII.LF &
+                "    };");
+
+         Policy  : Muxml.XML_Data_Type;
+         Subject : DOM.Core.Node;
+      begin
+         Muxml.Parse (Data => Policy,
+                      Kind => Muxml.Format_B,
+                      File => "data/test_policy_light.xml");
+         Subject := Muxml.Utils.Get_Element
+           (Doc   => Policy.Doc,
+            XPath => "/system/subjects/subject[@globalId='0']");
+         Muxml.Utils.Remove_Child
+           (Node       => Subject,
+            Child_Name => "devices");
+
+         Add_Aliases_Node (Template  => Template,
+                           Policy    => Policy,
+                           Subject   => Subject);
+         Assert (Actual   => Mutools.Templates.To_String (Template => Template),
+                 Expected => Expected_Entry,
+                 Message  => "Wrong aliases node (no UART)");
+      end UART_Not_Present;
    begin
-      --  (1) parse test policy
-      Muxml.Parse (Data => Policy,
-                   Kind => Muxml.Format_B,
-                   File => "data/test_policy_light.xml");
-
-      --  (2) extract linux subject directly
-      Subject := McKae.XML.XPath.XIA.XPath_Query
-        (N     => Policy.Doc,
-         XPath => "/system/subjects/subject[@globalId='0']");
-
-      --  (3) test the aliases node entry according to template
-      Add_Aliases_Node (Template  => Template,
-                        Policy    => Policy,
-                        Subject   => DOM.Core.Nodes.Item
-                          (List  => Subject,
-                           Index => 0));
-
-      Assert (Actual   => Mutools.Templates.To_String (Template => Template),
-              Expected => Expected_Entry,
-              Message  => "wrong root entry for aliases node test data");
-
+      UART_Present;
+      UART_Not_Present;
 --  begin read only
    end Test_Add_Aliases_Node;
 --  end read only
@@ -138,46 +174,85 @@ package body DTS.Root.Test_Data.Tests is
 
       pragma Unreferenced (Gnattest_T);
 
-      Expected_Entry : constant String
-        := "    chosen {" & ASCII.LF &
-        "        bootargs = ""hostname=lnx1 console=ttyPS0,115200 " &
-        "root=/dev/ram0 earlycon initrd=0x1b000000,0x5000000"";" & ASCII.LF &
-        "        stdout-path = ""serial:115200n8"";" & ASCII.LF &
-        "    };";
+      ----------------------------------------------------------------------
 
-      Template : Mutools.Templates.Template_Type
-        := Mutools.Templates.Create
-          (Content =>
-             "    chosen {" & ASCII.LF &
-             "        bootargs = ""__chosen_bootparams__"";" & ASCII.LF &
-             "        stdout-path = ""serial:115200n8"";" & ASCII.LF &
-             "    };");
+      procedure UART_Present
+      is
+         Expected_Entry : constant String
+           := "    chosen {" & ASCII.LF &
+           "        bootargs = ""hostname=lnx1 console=ttyPS0,115200 " &
+           "root=/dev/ram0 earlycon initrd=0x1b000000,0x5000000"";" & ASCII.LF &
+           "        stdout-path = ""serial:115200n8"";" & ASCII.LF &
+           "    };";
 
-      Policy : Muxml.XML_Data_Type;
+         Template : Mutools.Templates.Template_Type
+           := Mutools.Templates.Create
+             (Content =>
+                "    chosen {" & ASCII.LF &
+                "        bootargs = ""__chosen_bootparams__"";" & ASCII.LF &
+                "        __stdout_path__" & ASCII.LF &
+                "    };");
 
-      Subject : DOM.Core.Node_List;
+         Policy  : Muxml.XML_Data_Type;
+         Subject : DOM.Core.Node;
+      begin
+         Muxml.Parse (Data => Policy,
+                      Kind => Muxml.Format_B,
+                      File => "data/test_policy_light.xml");
+         Subject := Muxml.Utils.Get_Element
+           (Doc   => Policy.Doc,
+            XPath => "/system/subjects/subject[@globalId='0']");
+
+         Add_Chosen_Node (Template  => Template,
+                          Policy    => Policy,
+                          Subject   => Subject);
+         Assert (Actual   => Mutools.Templates.To_String (Template => Template),
+                 Expected => Expected_Entry,
+                 Message  => "Wrong chosen node (with UART)");
+      end UART_Present;
+
+      ----------------------------------------------------------------------
+
+      procedure UART_Not_Present
+      is
+         Expected_Entry : constant String
+           := "    chosen {" & ASCII.LF &
+           "        bootargs = ""hostname=lnx1 console=ttyPS0,115200 " &
+           "root=/dev/ram0 earlycon initrd=0x1b000000,0x5000000"";" & ASCII.LF &
+           "        " & ASCII.LF &
+           "    };";
+
+         Template : Mutools.Templates.Template_Type
+           := Mutools.Templates.Create
+             (Content =>
+                "    chosen {" & ASCII.LF &
+                "        bootargs = ""__chosen_bootparams__"";" & ASCII.LF &
+                "        __stdout_path__" & ASCII.LF &
+                "    };");
+
+         Policy  : Muxml.XML_Data_Type;
+         Subject : DOM.Core.Node;
+      begin
+         Muxml.Parse (Data => Policy,
+                      Kind => Muxml.Format_B,
+                      File => "data/test_policy_light.xml");
+         Subject := Muxml.Utils.Get_Element
+           (Doc   => Policy.Doc,
+            XPath => "/system/subjects/subject[@globalId='0']");
+         Muxml.Utils.Remove_Child
+           (Node       => Subject,
+            Child_Name => "devices");
+
+         Add_Chosen_Node (Template  => Template,
+                          Policy    => Policy,
+                          Subject   => Subject);
+         Assert (Actual   => Mutools.Templates.To_String (Template => Template),
+                 Expected => Expected_Entry,
+                 Message  => "Wrong chosen node (no UART)");
+      end UART_Not_Present;
    begin
-      --  (1) parse test policy
-      Muxml.Parse (Data => Policy,
-                   Kind => Muxml.Format_B,
-                   File => "data/test_policy_light.xml");
-
-      --  (2) extract linux subject directly
-      Subject := McKae.XML.XPath.XIA.XPath_Query
-        (N     => Policy.Doc,
-         XPath => "/system/subjects/subject[@globalId='0']");
-
-      --  (3) test the chosen node entry according to template
-      Add_Chosen_Node (Template  => Template,
-                       Policy    => Policy,
-                       Subject   => DOM.Core.Nodes.Item
-                         (List  => Subject,
-                          Index => 0));
-
-      Assert (Actual   => Mutools.Templates.To_String (Template => Template),
-              Expected => Expected_Entry,
-              Message  => "wrong root entry for chosen node test data");
-
+      UART_Present;
+      UART_Not_Present;
 --  begin read only
    end Test_Add_Chosen_Node;
 --  end read only
