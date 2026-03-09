@@ -12,12 +12,12 @@
     #size-cells = <0x2>;
 
     aliases {
-        serial = &__serial_alias__;
+        __serial_alias__
     };
 
     chosen {
         bootargs = "__chosen_bootparams__";
-        stdout-path = "serial:115200n8";
+        __stdout_path__
     };
 
     memory@__memory_base__ {
