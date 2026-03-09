@@ -204,12 +204,8 @@ is
         (Buffer : in out Unbounded_String;
          GPRs   :        DOM.Core.Node);
 
-      --  Check if given subject is Linux VM and determine register values.
-      function Is_Linux_VM
-        (Subject :        DOM.Core.Node;
-         GPR_0   : in out Unbounded_String;
-         ELR_EL2 : in out Unbounded_String)
-        return Boolean;
+      --  Returns True if the given subject is a Linux VM.
+      function Is_Linux_VM (Subject : DOM.Core.Node) return Boolean;
 
       --  Append SPARK specification of given subject to template buffer.
       procedure Write_Subject_Spec (Subject : DOM.Core.Node);
@@ -253,11 +249,7 @@ is
 
       ----------------------------------------------------------------------
 
-      function Is_Linux_VM
-        (Subject :        DOM.Core.Node;
-         GPR_0   : in out Unbounded_String;
-         ELR_EL2 : in out Unbounded_String)
-        return Boolean
+      function Is_Linux_VM (Subject : DOM.Core.Node) return Boolean
       is
          Subj_Mem : constant DOM.Core.Node_List
            := McKae.XML.XPath.XIA.XPath_Query
@@ -278,23 +270,8 @@ is
       begin
          --  Identify Linux VM subjects by their associated device tree and
          --  subject binary memory nodes.
-         if DOM.Core.Nodes.Length (List => DT_Nodes.Left) = 1 and then
-            DOM.Core.Nodes.Length (List => SB_Nodes.Left) = 1
-         then
-            GPR_0   := To_Unbounded_String
-              (DOM.Core.Elements.Get_Attribute
-                (Elem => DOM.Core.Nodes.Item (List  => DT_Nodes.Left,
-                                              Index => 0),
-                 Name => "virtualAddress"));
-            ELR_EL2 := To_Unbounded_String
-              (DOM.Core.Elements.Get_Attribute
-                (Elem => DOM.Core.Nodes.Item (List  => SB_Nodes.Left,
-                                              Index => 0),
-                 Name => "virtualAddress"));
-            return True;
-         end if;
-
-         return False;
+         return DOM.Core.Nodes.Length (List => DT_Nodes.Left) = 1 and then
+            DOM.Core.Nodes.Length (List => SB_Nodes.Left) = 1;
       end Is_Linux_VM;
 
       ----------------------------------------------------------------------
@@ -321,17 +298,15 @@ is
            := Muxml.Utils.Get_Element
              (Doc   => Subject,
               XPath => "vcpu/arm64/registers/gpr");
+         ELR_EL2 : constant Unsigned_64 := Unsigned_64'Value
+           (Muxml.Utils.Get_Element_Value
+              (Doc   => GPR_Node,
+               XPath => "../elr_el2"));
 
          --  (b) determine register values in case of Linux subjects and set
          --  default cacheability and trapped instructions accordingly
-         GPR_0                : Unbounded_String
-           := U ("16#0#");
-         ELR_EL2              : Unbounded_String
-           := U ("16#0#");
          Linux_VM             : constant Boolean
-           := Is_Linux_VM (Subject     => Subject,
-                           GPR_0       => GPR_0,
-                           ELR_EL2     => ELR_EL2);
+           := Is_Linux_VM (Subject => Subject);
          Default_Cacheability : constant String
            := (if Linux_VM then "False" else "True");
          Trap_WFI_Instruction : constant String
@@ -371,7 +346,8 @@ is
                          GPRs   => GPR_Node);
 
          Buffer := Buffer & Indent (N => 3) &
-           "   ELR_EL2              => " & To_String (ELR_EL2) & "," &
+           "   ELR_EL2              => " &
+           Mutools.Utils.To_Hex (Number => ELR_EL2) & "," &
            ASCII.LF & Indent (N => 3) &
            "   VTTBR_Address        => " &
            Mutools.Utils.To_Hex (Number => VTTBR_Address) & "," &
