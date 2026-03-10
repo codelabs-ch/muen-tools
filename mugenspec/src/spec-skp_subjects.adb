@@ -33,6 +33,7 @@ with Mutools.Match;
 with Mutools.XML_Utils;
 with Mutools.Templates;
 
+with Spec.ARM64_Types;
 with Spec.VMX_Types;
 
 with String_Templates;
@@ -204,6 +205,11 @@ is
         (Buffer : in out Unbounded_String;
          GPRs   :        DOM.Core.Node);
 
+      --  Add subject HCR_EL2 register to buffer.
+      procedure Add_HCR_EL2
+        (Buffer : in out Unbounded_String;
+         Fields :        DOM.Core.Node_List);
+
       --  Returns True if the given subject is a Linux VM.
       function Is_Linux_VM (Subject : DOM.Core.Node) return Boolean;
 
@@ -246,6 +252,37 @@ is
          end loop;
          Buffer := Buffer & ")," & ASCII.LF;
       end Add_GPRs_ARM64;
+
+      ----------------------------------------------------------------------
+
+      procedure Add_HCR_EL2
+        (Buffer : in out Unbounded_String;
+         Fields :        DOM.Core.Node_List)
+      is
+         Field_Count : constant Natural := DOM.Core.Nodes.Length
+           (List => Fields);
+      begin
+         Buffer := Buffer & Indent (N => 4)
+           & "HCR_EL2              => (" & ASCII.LF;
+         for I in 0 .. Field_Count - 1 loop
+            declare
+               Field       : constant DOM.Core.Node := DOM.Core.Nodes.Item
+                 (List  => Fields,
+                  Index => I);
+               Field_Name  : constant ARM64_Types.HCR_EL2_Field_Type
+                 := ARM64_Types.HCR_EL2_Field_Type'Value
+                   (DOM.Core.Elements.Get_Tag_Name (Elem => Field));
+               Field_Value : constant String := DOM.Core.Nodes.Node_Value
+                 (N => DOM.Core.Nodes.First_Child (N => Field));
+            begin
+               Buffer := Buffer & Indent (N => 5)
+                 & ARM64_Types.To_Field_Name (Field_Name) & " => "
+                 & Field_Value & "," & ASCII.LF;
+            end;
+         end loop;
+         Buffer := Buffer & Indent (N => 5)
+           & "Reserved_34_63                  => 0)," & ASCII.LF;
+      end Add_HCR_EL2;
 
       ----------------------------------------------------------------------
 
@@ -302,6 +339,10 @@ is
            (Muxml.Utils.Get_Element_Value
               (Doc   => GPR_Node,
                XPath => "../elr_el2"));
+         HCR_EL2_Fields : constant DOM.Core.Node_List
+           := McKae.XML.XPath.XIA.XPath_Query
+             (N     => Subject,
+              XPath => "vcpu/arm64/registers/hcr_el2/*");
 
          --  (b) determine register values in case of Linux subjects and set
          --  default cacheability and trapped instructions accordingly
@@ -344,6 +385,8 @@ is
 
          Add_GPRs_ARM64 (Buffer => Buffer,
                          GPRs   => GPR_Node);
+         Add_HCR_EL2 (Buffer => Buffer,
+                      Fields => HCR_EL2_Fields);
 
          Buffer := Buffer & Indent (N => 3) &
            "   ELR_EL2              => " &

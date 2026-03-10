@@ -3,9 +3,12 @@ package body Skp.Subjects
     SPARK_Mode => On
 is
 
+   package HV renames ARMv8.Cortex_A53.Hypervisor;
+
    type Subject_Spec_Type is record
       CPU_ID               : CPU_Range;
       GPRs                 : ARMv8.Register.General_Purpose_Register_X_Type;
+      HCR_EL2              : HV.Hypervisor_Configuration_Register_EL2_Type;
       ELR_EL2              : SK.Bit_64_Type;
       VTTBR_Address        : SK.Bit_48_Type;
       Default_Cacheability : Boolean;
@@ -40,6 +43,14 @@ is
      (Subject_ID : Global_Subject_ID_Type)
       return SK.Bit_64_Type
    is (Subject_Specs (Subject_ID).ELR_EL2);
+
+   -------------------------------------------------------------------------
+
+   function Get_Hypervisor_Configuration_Register_EL2
+     (Subject_ID : Global_Subject_ID_Type)
+      return
+      ARMv8.Cortex_A53.Hypervisor.Hypervisor_Configuration_Register_EL2_Type
+   is (Subject_Specs (Subject_ID).HCR_EL2);
 
    -------------------------------------------------------------------------
 
