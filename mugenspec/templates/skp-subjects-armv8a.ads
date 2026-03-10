@@ -34,18 +34,6 @@ is
      (Subject_ID : Global_Subject_ID_Type)
       return SK.Bit_48_Type;
 
-   function Has_Default_Cacheability
-     (Subject_ID : Global_Subject_ID_Type)
-      return Boolean;
-
-   function Traps_WFI_Instruction
-     (Subject_ID : Global_Subject_ID_Type)
-      return Boolean;
-
-   function Traps_WFE_Instruction
-     (Subject_ID : Global_Subject_ID_Type)
-      return Boolean;
-
    function Accepts_Interrupts
      (Subject_ID : Global_Subject_ID_Type)
       return Boolean;

@@ -6,15 +6,12 @@ is
    package HV renames ARMv8.Cortex_A53.Hypervisor;
 
    type Subject_Spec_Type is record
-      CPU_ID               : CPU_Range;
-      GPRs                 : ARMv8.Register.General_Purpose_Register_X_Type;
-      HCR_EL2              : HV.Hypervisor_Configuration_Register_EL2_Type;
-      ELR_EL2              : SK.Bit_64_Type;
-      VTTBR_Address        : SK.Bit_48_Type;
-      Default_Cacheability : Boolean;
-      Trap_WFI_Instruction : Boolean;
-      Trap_WFE_Instruction : Boolean;
-      Interrupt_Support    : Boolean;
+      CPU_ID            : CPU_Range;
+      GPRs              : ARMv8.Register.General_Purpose_Register_X_Type;
+      HCR_EL2           : HV.Hypervisor_Configuration_Register_EL2_Type;
+      ELR_EL2           : SK.Bit_64_Type;
+      VTTBR_Address     : SK.Bit_48_Type;
+      Interrupt_Support : Boolean;
    end record;
 
    type Subject_Spec_Array is array (Global_Subject_ID_Type)
@@ -22,8 +19,8 @@ is
 
    Subject_Specs : constant Subject_Spec_Array
      := (0 =>
-           (CPU_ID               => 0,
-            GPRs                 => (
+           (CPU_ID            => 0,
+            GPRs              => (
                0 => 16#0000#,
                1 => 16#0000#,
                2 => 16#0000#,
@@ -55,7 +52,7 @@ is
                28 => 16#0000#,
                29 => 16#2900_2900#,
                30 => 16#0000#),
-            HCR_EL2              => (
+            HCR_EL2           => (
                Virtualization                  => 1,
                SW_Invalidation                 => 1,
                Protected_Table_Walk            => 0,
@@ -90,15 +87,12 @@ is
                SLAT_Data_Cacheability          => 0,
                SLAT_Instruction_Cacheability   => 0,
                Reserved_34_63                  => 0),
-            ELR_EL2              => 16#2985_7000#,
-            VTTBR_Address        => 16#0020_0000#,
-            Default_Cacheability => False,
-            Trap_WFI_Instruction => False,
-            Trap_WFE_Instruction => False,
-            Interrupt_Support    => True),
+            ELR_EL2           => 16#2985_7000#,
+            VTTBR_Address     => 16#0020_0000#,
+            Interrupt_Support => True),
          1 =>
-           (CPU_ID               => 0,
-            GPRs                 => (
+           (CPU_ID            => 0,
+            GPRs              => (
                0 => 16#0000#,
                1 => 16#1111#,
                2 => 16#2222#,
@@ -130,7 +124,7 @@ is
                28 => 16#0000#,
                29 => 16#0000#,
                30 => 16#3030#),
-            HCR_EL2              => (
+            HCR_EL2           => (
                Virtualization                  => 1,
                SW_Invalidation                 => 1,
                Protected_Table_Walk            => 0,
@@ -165,15 +159,12 @@ is
                SLAT_Data_Cacheability          => 0,
                SLAT_Instruction_Cacheability   => 0,
                Reserved_34_63                  => 0),
-            ELR_EL2              => 16#0000#,
-            VTTBR_Address        => 16#0021_0000#,
-            Default_Cacheability => True,
-            Trap_WFI_Instruction => True,
-            Trap_WFE_Instruction => True,
-            Interrupt_Support    => False),
+            ELR_EL2           => 16#0000#,
+            VTTBR_Address     => 16#0021_0000#,
+            Interrupt_Support => False),
          2 =>
-           (CPU_ID               => 1,
-            GPRs                 => (
+           (CPU_ID            => 1,
+            GPRs              => (
                0 => 16#0000#,
                1 => 16#0000#,
                2 => 16#0000#,
@@ -205,7 +196,7 @@ is
                28 => 16#0000#,
                29 => 16#0000#,
                30 => 16#0000#),
-            HCR_EL2              => (
+            HCR_EL2           => (
                Virtualization                  => 1,
                SW_Invalidation                 => 1,
                Protected_Table_Walk            => 0,
@@ -240,15 +231,12 @@ is
                SLAT_Data_Cacheability          => 0,
                SLAT_Instruction_Cacheability   => 0,
                Reserved_34_63                  => 0),
-            ELR_EL2              => 16#0008_0000#,
-            VTTBR_Address        => 16#0022_0000#,
-            Default_Cacheability => False,
-            Trap_WFI_Instruction => False,
-            Trap_WFE_Instruction => False,
-            Interrupt_Support    => True),
+            ELR_EL2           => 16#0008_0000#,
+            VTTBR_Address     => 16#0022_0000#,
+            Interrupt_Support => True),
          3 =>
-           (CPU_ID               => 1,
-            GPRs                 => (
+           (CPU_ID            => 1,
+            GPRs              => (
                0 => 16#0000#,
                1 => 16#0000#,
                2 => 16#0000#,
@@ -280,7 +268,7 @@ is
                28 => 16#0000#,
                29 => 16#0000#,
                30 => 16#0000#),
-            HCR_EL2              => (
+            HCR_EL2           => (
                Virtualization                  => 1,
                SW_Invalidation                 => 1,
                Protected_Table_Walk            => 0,
@@ -315,12 +303,9 @@ is
                SLAT_Data_Cacheability          => 0,
                SLAT_Instruction_Cacheability   => 0,
                Reserved_34_63                  => 0),
-            ELR_EL2              => 16#0000#,
-            VTTBR_Address        => 16#0023_0000#,
-            Default_Cacheability => True,
-            Trap_WFI_Instruction => True,
-            Trap_WFE_Instruction => True,
-            Interrupt_Support    => False));
+            ELR_EL2           => 16#0000#,
+            VTTBR_Address     => 16#0023_0000#,
+            Interrupt_Support => False));
 
    -------------------------------------------------------------------------
 
@@ -357,27 +342,6 @@ is
      (Subject_ID : Global_Subject_ID_Type)
       return SK.Bit_48_Type
    is (Subject_Specs (Subject_ID).VTTBR_Address);
-
-   -------------------------------------------------------------------------
-
-   function Has_Default_Cacheability
-     (Subject_ID : Global_Subject_ID_Type)
-      return Boolean
-   is (Subject_Specs (Subject_ID).Default_Cacheability);
-
-   -------------------------------------------------------------------------
-
-   function Traps_WFI_Instruction
-     (Subject_ID : Global_Subject_ID_Type)
-      return Boolean
-   is (Subject_Specs (Subject_ID).Trap_WFI_Instruction);
-
-   -------------------------------------------------------------------------
-
-   function Traps_WFE_Instruction
-     (Subject_ID : Global_Subject_ID_Type)
-      return Boolean
-   is (Subject_Specs (Subject_ID).Trap_WFE_Instruction);
 
    -------------------------------------------------------------------------
 
