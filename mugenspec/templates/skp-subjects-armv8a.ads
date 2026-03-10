@@ -1,6 +1,7 @@
 with SK;
 
 with ARMv8.Register;
+with ARMv8.Cortex_A53.Hypervisor;
 
 --D @Interface
 --D This package contains subject specifications as defined by the system
@@ -23,6 +24,11 @@ is
    function Get_Exception_Link_Register_EL2
      (Subject_ID : Global_Subject_ID_Type)
       return SK.Bit_64_Type;
+
+   function Get_Hypervisor_Configuration_Register_EL2
+     (Subject_ID : Global_Subject_ID_Type)
+      return
+      ARMv8.Cortex_A53.Hypervisor.Hypervisor_Configuration_Register_EL2_Type;
 
    function Get_VTTBR_Address
      (Subject_ID : Global_Subject_ID_Type)
