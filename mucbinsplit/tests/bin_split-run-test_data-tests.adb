@@ -15,6 +15,7 @@ with System.Assertions;
 --
 --  end read only
 with Test_Utils;
+with Ada.Characters.Handling;
 --  begin read only
 --  end read only
 package body Bin_Split.Run.Test_Data.Tests is
@@ -41,25 +42,37 @@ package body Bin_Split.Run.Test_Data.Tests is
       Out_Spec : constant String := Out_Dir & "cspec.xml";
    begin
       Run (Spec_File   => "data/test_cspec.xml",
-           Binary_File => "data/test_binary",
+           Binary_File => "data/test_binary_x86_64",
            Output_Spec => Out_Spec,
            Output_Dir  => Out_Dir);
 
       Assert (Condition => Ada.Directories.Exists (Name => Out_Spec),
               Message   => "Output component specification not created");
       Assert (Condition => Test_Utils.Equal_Files
-              (Filename1 => "data/test_cspec.xml.ref",
+              (Filename1 => "data/test_cspec-x86_64.xml.ref",
                Filename2 => Out_Spec),
               Message   => "Generated component XML spec mismatch (1)");
+      Ada.Directories.Delete_Tree (Directory => Out_Dir);
 
-      Run (Spec_File   => "data/test_cspec_rip.xml",
-           Binary_File => "data/test_binary",
+      Run (Spec_File   => "data/test_cspec_rip-x86_64.xml",
+           Binary_File => "data/test_binary_x86_64",
            Output_Spec => Out_Spec,
            Output_Dir  => Out_Dir);
       Assert (Condition => Test_Utils.Equal_Files
-              (Filename1 => "data/test_cspec_rip.xml.ref",
+              (Filename1 => "data/test_cspec_rip-x86_64.xml.ref",
                Filename2 => Out_Spec),
               Message   => "Generated component XML spec mismatch (2)");
+      Ada.Directories.Delete_Tree (Directory => Out_Dir);
+
+      Run (Spec_File   => "data/test_cspec.xml",
+           Binary_File => "data/test_binary_arm64",
+           Output_Spec => Out_Spec,
+           Output_Dir  => Out_Dir);
+      Assert (Condition => Test_Utils.Equal_Files
+              (Filename1 => "data/test_cspec-arm64.xml.ref",
+               Filename2 => Out_Spec),
+              Message   => "Generated component XML spec mismatch (3)");
+      Ada.Directories.Delete_Tree (Directory => Out_Dir);
 --  begin read only
    end Test_Run;
 --  end read only
@@ -165,7 +178,7 @@ package body Bin_Split.Run.Test_Data.Tests is
       is
          Fd : Bfd.Files.File_Type;
       begin
-         Mutools.Bfd.Open (Filename   => "data/test_binary",
+         Mutools.Bfd.Open (Filename   => "data/test_binary_x86_64",
                            Descriptor => Fd);
 
          Check_Section_Names (Descriptor => Fd);
@@ -218,7 +231,7 @@ package body Bin_Split.Run.Test_Data.Tests is
 
          Fd : Bfd.Files.File_Type;
       begin
-         Mutools.Bfd.Open (Filename   => "data/test_binary",
+         Mutools.Bfd.Open (Filename   => "data/test_binary_x86_64",
                            Descriptor => Fd);
 
          Check_Flags
@@ -322,7 +335,7 @@ package body Bin_Split.Run.Test_Data.Tests is
       Dummy_Sec  : Bfd.Sections.Section;
       Dummy_Bool : Boolean;
    begin
-      Mutools.Bfd.Open (Filename   => "data/test_binary",
+      Mutools.Bfd.Open (Filename   => "data/test_binary_x86_64",
                         Descriptor => Fd);
 
       Assert (Condition => Get_Binary_Section
@@ -387,6 +400,40 @@ package body Bin_Split.Run.Test_Data.Tests is
 
 
 --  begin read only
+   procedure Test_Get_Arch (Gnattest_T : in out Test);
+   procedure Test_Get_Arch_a70d09 (Gnattest_T : in out Test) renames Test_Get_Arch;
+--  id:2.2/a70d090d54e1072d/Get_Arch/1/0/
+   procedure Test_Get_Arch (Gnattest_T : in out Test) is
+--  end read only
+
+      pragma Unreferenced (Gnattest_T);
+
+      ----------------------------------------------------------------------
+
+      procedure Check_Get_Arch (Arch : Mutools.Types.Arch_Type)
+      is
+         use type Mutools.Types.Arch_Type;
+
+         Arch_Str : constant String := Ada.Characters.Handling.To_Lower
+            (Item => Arch'Img);
+         Fd : Bfd.Files.File_Type;
+      begin
+         Mutools.Bfd.Open (Filename   => "data/test_binary_" & Arch_Str,
+                           Descriptor => Fd);
+         Assert (Condition => Get_Arch (Descriptor => Fd) = Arch,
+                 Message   => "Unexpected Architecture (" & Arch_Str & ")");
+         Bfd.Files.Close (File => Fd);
+      end Check_Get_Arch;
+   begin
+      for A in Mutools.Types.Arch_Type loop
+         Check_Get_Arch (Arch => A);
+      end loop;
+--  begin read only
+   end Test_Get_Arch;
+--  end read only
+
+
+--  begin read only
    procedure Test_Get_Start_Address (Gnattest_T : in out Test);
    procedure Test_Get_Start_Address_311e84 (Gnattest_T : in out Test) renames Test_Get_Start_Address;
 --  id:2.2/311e848b86235bb2/Get_Start_Address/1/0/
@@ -399,7 +446,7 @@ package body Bin_Split.Run.Test_Data.Tests is
 
       Fd : Bfd.Files.File_Type;
    begin
-      Mutools.Bfd.Open (Filename   => "data/test_binary",
+      Mutools.Bfd.Open (Filename   => "data/test_binary_x86_64",
                         Descriptor => Fd);
       Assert (Condition => Get_Start_Address (Descriptor => Fd) = 16#5000#,
               Message   => "Start address mismatch (1)");
@@ -409,6 +456,13 @@ package body Bin_Split.Run.Test_Data.Tests is
                         Descriptor => Fd);
       Assert (Condition => Get_Start_Address (Descriptor => Fd) = 16#53a6#,
               Message   => "Start address mismatch (2)");
+      Bfd.Files.Close (File => Fd);
+
+      Mutools.Bfd.Open (Filename   => "data/test_binary_arm64",
+                        Descriptor => Fd);
+      Assert (Condition => Get_Start_Address (Descriptor => Fd) = 16#0000#,
+              Message   => "Start address mismatch (3)");
+      Bfd.Files.Close (File => Fd);
 --  begin read only
    end Test_Get_Start_Address;
 --  end read only

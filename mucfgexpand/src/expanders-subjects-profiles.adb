@@ -644,7 +644,7 @@ is
             VMXE_Node : constant DOM.Core.Node
               := Muxml.Utils.Get_Element
                 (Doc   => Subject,
-                 XPath => "vcpu/registers/cr4/VMXEnable");
+                 XPath => "vcpu/x86_64/registers/cr4/VMXEnable");
          begin
             --D @Item(List     => 'linux_profile_actions',
             --D       Priority => 0).

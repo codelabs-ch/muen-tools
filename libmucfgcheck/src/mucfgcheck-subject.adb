@@ -16,6 +16,7 @@
 --  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --
 
+with Ada.Characters.Handling;
 with Ada.Exceptions;
 with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded;
@@ -1120,6 +1121,53 @@ is
 
    -------------------------------------------------------------------------
 
+   procedure VCPU_Architecture_Consistency (XML_Data : Muxml.XML_Data_Type)
+   is
+      HW_Arch     : constant Mutools.Types.Arch_Type
+        := Mutools.XML_Utils.Get_Arch (Policy => XML_Data);
+      HW_Arch_Str : constant String := Ada.Characters.Handling.To_Lower
+        (Item => HW_Arch'Img);
+      VCPU_Archs  : constant DOM.Core.Node_List := XPath_Query
+        (N     => XML_Data.Doc,
+         XPath => "//vcpu/*");
+      VCPU_Count  : constant Natural := DOM.Core.Nodes.Length (VCPU_Archs);
+   begin
+      if VCPU_Count = 0 then
+         return;
+      end if;
+
+      Mulog.Log (Msg => "Checking" & VCPU_Count'Img & " vCPU architecture(s)");
+      for I in 0 .. VCPU_Count - 1 loop
+         declare
+            Cur_VCPU_Arch : constant DOM.Core.Node := DOM.Core.Nodes.Item
+              (List  => VCPU_Archs,
+               Index => I);
+            VCPU_Arch_Str : constant String := DOM.Core.Elements.Get_Tag_Name
+              (Elem => Cur_VCPU_Arch);
+         begin
+            if VCPU_Arch_Str /= HW_Arch_Str then
+               declare
+                  Node : constant DOM.Core.Node := Muxml.Utils.Ancestor_Node
+                     (Node  => Cur_VCPU_Arch,
+                      Level => 2);
+                  Node_Kind : constant String := DOM.Core.Elements.Get_Tag_Name
+                     (Elem => Node);
+                  Node_Name : constant String := DOM.Core.Elements.Get_Attribute
+                     (Elem => Node,
+                      Name => "name");
+               begin
+                  Validation_Errors.Insert
+                    (Msg => "Mismatching architecture " & VCPU_Arch_Str
+                     & " in vCPU of " & Node_Kind & " '" & Node_Name
+                     & "', expected " & HW_Arch_Str);
+               end;
+            end if;
+         end;
+      end loop;
+   end VCPU_Architecture_Consistency;
+
+   -------------------------------------------------------------------------
+
    procedure Virtual_Memory_Overlap (XML_Data : Muxml.XML_Data_Type)
    is
       Physical_Mem  : constant DOM.Core.Node_List := XPath_Query
@@ -1234,7 +1282,7 @@ is
    is
       VMEntry_Ctrls : constant DOM.Core.Node_List := XPath_Query
         (N     => XML_Data.Doc,
-         XPath => "/system/subjects/subject/vcpu/vmx/controls/entry");
+         XPath => "/system/subjects/subject/vcpu/x86_64/vmx/controls/entry");
       Count : constant Natural
         := DOM.Core.Nodes.Length (List => VMEntry_Ctrls);
    begin
@@ -1246,7 +1294,7 @@ is
             Subj_Name : constant String
               := DOM.Core.Elements.Get_Attribute
                 (Elem => Muxml.Utils.Ancestor_Node (Node  => VMEntry_Ctrl,
-                                                    Level => 4),
+                                                    Level => 5),
                  Name => "name");
             MSRs : constant DOM.Core.Node_List
               := XPath_Query (N     => VMEntry_Ctrl,
@@ -1357,7 +1405,7 @@ is
    is
       VMExit_Ctrls : constant DOM.Core.Node_List := XPath_Query
         (N     => XML_Data.Doc,
-         XPath => "/system/subjects/subject/vcpu/vmx/controls/exit");
+         XPath => "/system/subjects/subject/vcpu/x86_64/vmx/controls/exit");
       Count : constant Natural := DOM.Core.Nodes.Length (List => VMExit_Ctrls);
    begin
       for I in 0 .. Count - 1 loop
@@ -1368,7 +1416,7 @@ is
             Subj_Name : constant String
               := DOM.Core.Elements.Get_Attribute
                 (Elem => Muxml.Utils.Ancestor_Node (Node  => VMExit_Ctrl,
-                                                    Level => 4),
+                                                    Level => 5),
                  Name => "name");
             MSRs : constant DOM.Core.Node_List
               := XPath_Query (N     => VMExit_Ctrl,
@@ -1799,7 +1847,7 @@ is
                  Name => "name");
             VMX_Ctrls : constant DOM.Core.Node := Muxml.Utils.Get_Element
               (Doc   => Subject,
-               XPath => "vcpu/vmx/controls");
+               XPath => "vcpu/x86_64/vmx/controls");
          begin
             Mulog.Log (Msg => "Checking VMX controls of subject '" & Subj_Name
                        & "'");
@@ -1819,7 +1867,7 @@ is
    is
       Pin_Ctrls : constant DOM.Core.Node_List := XPath_Query
         (N     => XML_Data.Doc,
-         XPath => "/system/subjects/subject/vcpu/vmx/controls/pin");
+         XPath => "/system/subjects/subject/vcpu/x86_64/vmx/controls/pin");
       Count : constant Natural := DOM.Core.Nodes.Length (List => Pin_Ctrls);
    begin
       for I in 0 .. Count - 1 loop
@@ -1830,7 +1878,7 @@ is
             Subj_Name : constant String
               := DOM.Core.Elements.Get_Attribute
                 (Elem => Muxml.Utils.Ancestor_Node (Node  => Pin_Ctrl,
-                                                    Level => 4),
+                                                    Level => 5),
                  Name => "name");
          begin
             Mulog.Log (Msg => "Checking requirements for Pin-Based "
@@ -1904,7 +1952,7 @@ is
    is
       Proc2_Ctrls : constant DOM.Core.Node_List := XPath_Query
         (N     => XML_Data.Doc,
-         XPath => "/system/subjects/subject/vcpu/vmx/controls/proc2");
+         XPath => "/system/subjects/subject/vcpu/x86_64/vmx/controls/proc2");
       Count : constant Natural := DOM.Core.Nodes.Length (List => Proc2_Ctrls);
    begin
       for I in 0 .. Count - 1 loop
@@ -1915,7 +1963,7 @@ is
             Subj_Name : constant String
               := DOM.Core.Elements.Get_Attribute
                 (Elem => Muxml.Utils.Ancestor_Node (Node  => Proc2_Ctrl,
-                                                    Level => 4),
+                                                    Level => 5),
                  Name => "name");
          begin
             Mulog.Log (Msg => "Checking requirements for Secondary "
@@ -2027,7 +2075,7 @@ is
    is
       Proc_Ctrls : constant DOM.Core.Node_List := XPath_Query
         (N     => XML_Data.Doc,
-         XPath => "/system/subjects/subject/vcpu/vmx/controls/proc");
+         XPath => "/system/subjects/subject/vcpu/x86_64/vmx/controls/proc");
       Count : constant Natural := DOM.Core.Nodes.Length (List => Proc_Ctrls);
    begin
       for I in 0 .. Count - 1 loop
@@ -2038,7 +2086,7 @@ is
             Subj_Name : constant String
               := DOM.Core.Elements.Get_Attribute
                 (Elem => Muxml.Utils.Ancestor_Node (Node  => Proc_Ctrl,
-                                                    Level => 4),
+                                                    Level => 5),
                  Name => "name");
          begin
             Mulog.Log (Msg => "Checking requirements for Processor-Based "
@@ -2212,7 +2260,7 @@ is
    is
       CR0_Masks : constant DOM.Core.Node_List := XPath_Query
         (N     => XML_Data.Doc,
-         XPath => "/system/subjects/subject/vcpu/vmx/masks/cr0");
+         XPath => "/system/subjects/subject/vcpu/x86_64/vmx/masks/cr0");
       Count : constant Natural := DOM.Core.Nodes.Length (List => CR0_Masks);
    begin
       for I in 0 .. Count - 1 loop
@@ -2223,7 +2271,7 @@ is
             Subj_Name : constant String
               := DOM.Core.Elements.Get_Attribute
                 (Elem => Muxml.Utils.Ancestor_Node (Node  => CR0_Mask,
-                                                    Level => 4),
+                                                    Level => 5),
                  Name => "name");
          begin
             Mulog.Log (Msg => "Checking requirements for VMX CR0 guest/host "
@@ -2261,7 +2309,7 @@ is
    is
       CR4_Masks : constant DOM.Core.Node_List := XPath_Query
         (N     => XML_Data.Doc,
-         XPath => "/system/subjects/subject/vcpu/vmx/masks/cr4");
+         XPath => "/system/subjects/subject/vcpu/x86_64/vmx/masks/cr4");
       Count : constant Natural := DOM.Core.Nodes.Length (List => CR4_Masks);
    begin
       for I in 0 .. Count - 1 loop
@@ -2272,7 +2320,7 @@ is
             Subj_Name : constant String
               := DOM.Core.Elements.Get_Attribute
                 (Elem => Muxml.Utils.Ancestor_Node (Node  => CR4_Mask,
-                                                    Level => 4),
+                                                    Level => 5),
                  Name => "name");
          begin
             Mulog.Log (Msg => "Checking requirements for VMX CR4 guest/host "
@@ -2314,7 +2362,7 @@ is
    is
       Exc_Bitmaps : constant DOM.Core.Node_List := XPath_Query
         (N     => XML_Data.Doc,
-         XPath => "/system/subjects/subject/vcpu/vmx/masks/exception");
+         XPath => "/system/subjects/subject/vcpu/x86_64/vmx/masks/exception");
       Count : constant Natural := DOM.Core.Nodes.Length (List => Exc_Bitmaps);
    begin
       for I in 0 .. Count - 1 loop
@@ -2325,7 +2373,7 @@ is
             Subj_Name : constant String
               := DOM.Core.Elements.Get_Attribute
                 (Elem => Muxml.Utils.Ancestor_Node (Node  => Exc_Bitmap,
-                                                    Level => 4),
+                                                    Level => 5),
                  Name => "name");
          begin
             Mulog.Log (Msg => "Checking requirements for VMX Exception bitmap "

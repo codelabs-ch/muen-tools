@@ -66,7 +66,7 @@ is
       Subjects : constant DOM.Core.Node_List
         := McKae.XML.XPath.XIA.XPath_Query
           (N     => Policy.Doc,
-           XPath => "/system/subjects/subject[vcpu/msrs/msr]");
+           XPath => "/system/subjects/subject[vcpu/x86_64//msrs/msr]");
    begin
       for I in 0 .. DOM.Core.Nodes.Length (List => Subjects) - 1 loop
          declare
@@ -81,11 +81,11 @@ is
             Registers  : constant DOM.Core.Node_List
               := McKae.XML.XPath.XIA.XPath_Query
                 (N     => Cur_Subj,
-                 XPath => "vcpu/msrs/msr[@mode='w' or @mode='rw']");
+                 XPath => "vcpu/x86_64/msrs/msr[@mode='w' or @mode='rw']");
             Ctrls_Node : constant DOM.Core.Node
               := Muxml.Utils.Get_Element
                 (Doc   => Cur_Subj,
-                 XPath => "vcpu/vmx/controls");
+                 XPath => "vcpu/x86_64/vmx/controls");
             Debug_Ctrl : constant Boolean
               := Mutools.XML_Utils.Has_Managed_DEBUGCTL
                 (Controls => Ctrls_Node);

@@ -1,7 +1,7 @@
 --
---  Copyright (C) 2017  secunet Security Networks AG
---  Copyright (C) 2014  Reto Buerki <reet@codelabs.ch>
---  Copyright (C) 2014  Adrian-Ken Rueegsegger <ken@codelabs.ch>
+--  Copyright (C) 2017       secunet Security Networks AG
+--  Copyright (C) 2014-2026  Reto Buerki <reet@codelabs.ch>
+--  Copyright (C) 2014-2026  Adrian-Ken Rueegsegger <ken@codelabs.ch>
 --
 --  This program is free software: you can redistribute it and/or modify
 --  it under the terms of the GNU General Public License as published by
@@ -25,8 +25,6 @@ with GNAT.SHA256;
 
 with Mulog;
 
-with Muxml;
-with Muxml.Utils;
 with Muxml.Grammar;
 with Muxml.Grammar_Tools;
 
@@ -118,6 +116,27 @@ is
          BS.Next (Sect_It);
       end loop;
    end Check_Section_Names;
+
+   --------------------------------------------------------------------------
+
+   function Get_Arch
+     (Descriptor : Bfd.Files.File_Type)
+      return Mutools.Types.Arch_Type
+   is
+      use type Bfd.Architecture_Type;
+
+      Arch : constant Bfd.Architecture_Type
+        := Bfd.Files.Get_Architecture (File => Descriptor);
+   begin
+      if Arch = Bfd.Constants.BFD_ARCH_I386 then
+         return Mutools.Types.X86_64;
+      elsif Arch = Bfd.Constants.BFD_ARCH_AARCH64 then
+         return Mutools.Types.Arm64;
+      end if;
+
+      raise Bin_Split_Error with "Binary with unsupported architecture '"
+        & Bfd.Files.Get_Architecture_Name (File => Descriptor) & "'";
+   end Get_Arch;
 
    --------------------------------------------------------------------------
 
@@ -264,10 +283,11 @@ is
       end loop;
 
       declare
+         Arch : constant Mutools.Types.Arch_Type
+           := Get_Arch (Descriptor => Descriptor);
          Entry_Point_Str : constant String
-           := Muxml.Utils.Get_Element_Value
-             (Doc   => Spec.Doc,
-              XPath => "/component/requires/vcpu/registers/gpr/rip");
+           := Bin_Split.Spec.Get_Entry_Point (Spec => Spec,
+                                              Arch => Arch);
          Entry_Point : Interfaces.Unsigned_64;
       begin
          if Entry_Point_Str'Length > 0 then
@@ -277,8 +297,9 @@ is
             Entry_Point := Get_Start_Address (Descriptor => Descriptor);
             Mulog.Log (Msg => "Setting entry point to " & Mutools.Utils.To_Hex
                        (Number => Entry_Point));
-            Bin_Split.Spec.Set_RIP (Spec        => Spec,
-                                    Entry_Point => Entry_Point);
+            Bin_Split.Spec.Set_Entry_Point (Spec        => Spec,
+                                            Arch        => Arch,
+                                            Entry_Point => Entry_Point);
          end if;
       end;
 

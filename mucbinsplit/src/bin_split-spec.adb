@@ -15,6 +15,8 @@
 --  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --
 
+with Ada.Characters.Handling;
+
 with Mutools.Utils;
 with Mutools.XML_Utils;
 
@@ -25,6 +27,8 @@ with DOM.Core.Elements;
 
 package body Bin_Split.Spec
 is
+
+   -------------------------------------------------------------------------
 
    procedure Add_File_Entry
      (Spec            : in out Muxml.XML_Data_Type;
@@ -170,12 +174,37 @@ is
 
    -------------------------------------------------------------------------
 
-   procedure Set_RIP
+   function Get_Entry_Point
+     (Spec  : Muxml.XML_Data_Type;
+      Arch  : Mutools.Types.Arch_Type)
+      return String
+   is
+      use type Mutools.Types.Arch_Type;
+
+      RIP_Path : constant String :=
+        (if Arch = Mutools.Types.X86_64
+         then "x86_64/registers/gpr/rip"
+         else "arm64/registers/elr_el2");
+   begin
+      return Muxml.Utils.Get_Element_Value
+        (Doc   => Spec.Doc,
+         XPath => "/component/requires/vcpu/" & RIP_Path);
+   end Get_Entry_Point;
+
+   -------------------------------------------------------------------------
+
+   procedure Set_Entry_Point
      (Spec        : in out Muxml.XML_Data_Type;
+      Arch        :        Mutools.Types.Arch_Type;
       Entry_Point :        Interfaces.Unsigned_64)
    is
       use type DOM.Core.Node;
+      use type Mutools.Types.Arch_Type;
 
+      Arch_Str : constant String
+        := Ada.Characters.Handling.To_Lower (Arch'Img);
+      Entry_Point_Name : constant String
+      := (if Arch = Mutools.Types.X86_64 then "rip" else "elr_el2");
       Parent_Node : DOM.Core.Node := Muxml.Utils.Get_Element
         (Doc   => Spec.Doc,
          XPath => "/component/requires");
@@ -205,6 +234,19 @@ is
       Parent_Node := Node;
       Node := Muxml.Utils.Get_Element
         (Doc   => Parent_Node,
+         XPath => Arch_Str);
+      if Node = null then
+         Node := DOM.Core.Documents.Create_Element
+           (Doc      => Spec.Doc,
+            Tag_Name => Arch_Str);
+         Muxml.Utils.Insert_Child
+           (Parent    => Parent_Node,
+            New_Child => Node);
+      end if;
+
+      Parent_Node := Node;
+      Node := Muxml.Utils.Get_Element
+        (Doc   => Parent_Node,
          XPath => "registers");
       if Node = null then
          Node := DOM.Core.Documents.Create_Element
@@ -215,26 +257,29 @@ is
             New_Child => Node);
       end if;
 
-      Parent_Node := Node;
-      Node := Muxml.Utils.Get_Element
-        (Doc   => Parent_Node,
-         XPath => "gpr");
-      if Node = null then
-         Node := DOM.Core.Documents.Create_Element
-           (Doc      => Spec.Doc,
-            Tag_Name => "gpr");
-         Muxml.Utils.Insert_Child
-           (Parent    => Parent_Node,
-            New_Child => Node);
+      if Arch = Mutools.Types.X86_64 then
+         Parent_Node := Node;
+         Node := Muxml.Utils.Get_Element
+           (Doc   => Parent_Node,
+            XPath => "gpr");
+         if Node = null then
+            Node := DOM.Core.Documents.Create_Element
+              (Doc      => Spec.Doc,
+               Tag_Name => "gpr");
+            Muxml.Utils.Insert_Child
+              (Parent    => Parent_Node,
+               New_Child => Node);
+         end if;
       end if;
+
       Parent_Node := Node;
       Node := Muxml.Utils.Get_Element
         (Doc   => Parent_Node,
-         XPath => "rip");
+         XPath => Entry_Point_Name);
       if Node = null then
          Node := DOM.Core.Documents.Create_Element
            (Doc      => Spec.Doc,
-            Tag_Name => "rip");
+            Tag_Name => Entry_Point_Name);
          Muxml.Utils.Insert_Child
            (Parent    => Parent_Node,
             New_Child => Node);
@@ -243,6 +288,6 @@ is
         (Doc   => Node,
          XPath => ".",
          Value => Mutools.Utils.To_Hex (Number => Entry_Point));
-   end Set_RIP;
+   end Set_Entry_Point;
 
 end Bin_Split.Spec;

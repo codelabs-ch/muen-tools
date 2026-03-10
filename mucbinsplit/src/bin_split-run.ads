@@ -23,6 +23,8 @@ with Bfd.Files;
 with Bfd.Sections;
 with Bfd.Constants;
 
+private with Mutools.Types;
+
 package Bin_Split.Run
 is
 
@@ -138,6 +140,11 @@ private
       Sec_Info   :     Section_Info;
       Sec        : out Bfd.Sections.Section)
       return Boolean;
+
+   --  Get the architecture of the binary given by descriptor.
+   function Get_Arch
+     (Descriptor : Bfd.Files.File_Type)
+      return Mutools.Types.Arch_Type;
 
    --  Get start address (ELF entry point) of given binary.
    function Get_Start_Address

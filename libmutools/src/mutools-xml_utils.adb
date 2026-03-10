@@ -576,6 +576,19 @@ is
 
    -------------------------------------------------------------------------
 
+   function Get_Arch (Policy : Muxml.XML_Data_Type) return Types.Arch_Type
+   is
+      Arch_Node : constant DOM.Core.Node := Muxml.Utils.Get_Element
+        (Doc   => Policy.Doc,
+         XPath => "/system/hardware/processor/*");
+      Arch_Str : constant String
+      := DOM.Core.Elements.Get_Tag_Name (Elem => Arch_Node);
+   begin
+      return Types.Arch_Type'Value (Arch_Str);
+   end Get_Arch;
+
+   -------------------------------------------------------------------------
+
    function Get_Enclosing_Virtual_Region
      (Virtual_Address : Interfaces.Unsigned_64;
       Physical_Memory : DOM.Core.Node_List;

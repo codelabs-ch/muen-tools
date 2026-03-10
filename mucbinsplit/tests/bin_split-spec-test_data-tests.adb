@@ -14,7 +14,7 @@ with System.Assertions;
 --  This section can be used to add with clauses if necessary.
 --
 --  end read only
-
+with Ada.Characters.Handling;
 --  begin read only
 --  end read only
 package body Bin_Split.Spec.Test_Data.Tests is
@@ -132,44 +132,135 @@ package body Bin_Split.Spec.Test_Data.Tests is
 
 
 --  begin read only
-   procedure Test_Set_RIP (Gnattest_T : in out Test);
-   procedure Test_Set_RIP_e793c2 (Gnattest_T : in out Test) renames Test_Set_RIP;
---  id:2.2/e793c22e421e5ffd/Set_RIP/1/0/
-   procedure Test_Set_RIP (Gnattest_T : in out Test) is
+   procedure Test_Get_Entry_Point (Gnattest_T : in out Test);
+   procedure Test_Get_Entry_Point_60d283 (Gnattest_T : in out Test) renames Test_Get_Entry_Point;
+--  id:2.2/60d2838faba0d333/Get_Entry_Point/1/0/
+   procedure Test_Get_Entry_Point (Gnattest_T : in out Test) is
+--  end read only
+
+      pragma Unreferenced (Gnattest_T);
+
+      use Ada.Strings.Unbounded;
+
+      Ref : array (Mutools.Types.Arch_Type) of Unbounded_String
+        := (Mutools.Types.ARM64  => To_Unbounded_String ("16#0042_4000#"),
+            Mutools.Types.X86_64 => To_Unbounded_String ("16#cafe_0000#"));
+
+      ----------------------------------------------------------------------
+
+      procedure Check_Get_Entry_Point (Arch : Mutools.Types.Arch_Type)
+      is
+         Arch_Str : constant String
+           := Ada.Characters.Handling.To_Lower (Item => Arch'Img);
+
+         Spec : Muxml.XML_Data_Type;
+      begin
+         Muxml.Parse (Data => Spec,
+                      Kind => Muxml.Component,
+                      File => "data/test_cspec_rip-" & Arch_Str & ".xml");
+         declare
+            RIP_Str : constant String := Get_Entry_Point (Spec => Spec,
+                                                          Arch => Arch);
+         begin
+            Assert (Condition => RIP_Str = To_String (Ref (Arch)),
+                    Message   => "RIP value mismatch (" & Arch_Str & ")");
+         end;
+
+         Muxml.Utils.Remove_Elements (Doc   => Spec.Doc,
+                                      XPath => "/component/requires/vcpu");
+         Assert (Condition => Get_Entry_Point
+                  (Spec => Spec, Arch => Arch)'Length = 0,
+                 Message   => "Non-present RIP mismatch (" & Arch_Str & ")");
+      end Check_Get_Entry_Point;
+   begin
+      for A in Mutools.Types.Arch_Type loop
+         Check_Get_Entry_Point (Arch => A);
+      end loop;
+--  begin read only
+   end Test_Get_Entry_Point;
+--  end read only
+
+
+--  begin read only
+   procedure Test_Set_Entry_Point (Gnattest_T : in out Test);
+   procedure Test_Set_Entry_Point_22478f (Gnattest_T : in out Test) renames Test_Set_Entry_Point;
+--  id:2.2/22478f27dbe26dbc/Set_Entry_Point/1/0/
+   procedure Test_Set_Entry_Point (Gnattest_T : in out Test) is
 --  end read only
 
       pragma Unreferenced (Gnattest_T);
 
       use type Interfaces.Unsigned_64;
 
-      Ref_1 : constant Interfaces.Unsigned_64 := 16#cafe_beef#;
-      Ref_2 : constant Interfaces.Unsigned_64 := 16#9090_4242#;
-      Spec    : Muxml.XML_Data_Type;
+      ----------------------------------------------------------------------
+
+      procedure Check_Set_Entry_Point_ARM64
+      is
+         XPath : constant String
+           := "/component/requires/vcpu/arm64/registers/elr_el2";
+         Ref_1 : constant Interfaces.Unsigned_64 := 16#beef_cafe#;
+         Ref_2 : constant Interfaces.Unsigned_64 := 16#2323_4000#;
+         Spec  : Muxml.XML_Data_Type;
+      begin
+         Muxml.Parse (Data => Spec,
+                      Kind => Muxml.Component,
+                      File => "data/test_cspec.xml");
+         Set_Entry_Point (Spec        => Spec,
+                          Arch        => Mutools.Types.ARM64,
+                          Entry_Point => Ref_1);
+         Assert (Condition => Interfaces.Unsigned_64'Value
+                 (Muxml.Utils.Get_Element_Value (Doc   => Spec.Doc,
+                                                 XPath => XPath)) = Ref_1,
+                 Message   => "RIP value mismatch (ARM64: 1)");
+
+         --  Test setting RIP with existing XML elements.
+
+         Set_Entry_Point (Spec        => Spec,
+                          Arch        => Mutools.Types.ARM64,
+                          Entry_Point => Ref_2);
+         Assert (Condition => Interfaces.Unsigned_64'Value
+                 (Muxml.Utils.Get_Element_Value (Doc   => Spec.Doc,
+                                                 XPath => XPath)) = Ref_2,
+                 Message   => "RIP value mismatch (ARM64: 2)");
+      end Check_Set_Entry_Point_ARM64;
+
+      ----------------------------------------------------------------------
+
+      procedure Check_Set_Entry_Point_X86_64
+      is
+        XPath : constant String
+           := "/component/requires/vcpu/x86_64/registers/gpr/rip";
+
+         Ref_1 : constant Interfaces.Unsigned_64 := 16#cafe_beef#;
+         Ref_2 : constant Interfaces.Unsigned_64 := 16#9090_4242#;
+         Spec  : Muxml.XML_Data_Type;
+      begin
+         Muxml.Parse (Data => Spec,
+                      Kind => Muxml.Component,
+                      File => "data/test_cspec.xml");
+         Set_Entry_Point (Spec        => Spec,
+                          Arch        => Mutools.Types.X86_64,
+                          Entry_Point => Ref_1);
+         Assert (Condition => Interfaces.Unsigned_64'Value
+                 (Muxml.Utils.Get_Element_Value (Doc   => Spec.Doc,
+                                                 XPath => XPath)) = Ref_1,
+                 Message   => "RIP value mismatch (x86_64: 1)");
+
+         --  Test setting RIP with existing XML elements.
+
+         Set_Entry_Point (Spec        => Spec,
+                          Arch        => Mutools.Types.X86_64,
+                          Entry_Point => Ref_2);
+         Assert (Condition => Interfaces.Unsigned_64'Value
+                 (Muxml.Utils.Get_Element_Value (Doc   => Spec.Doc,
+                                                 XPath => XPath)) = Ref_2,
+                 Message   => "RIP value mismatch (x86_64: 2)");
+      end Check_Set_Entry_Point_X86_64;
    begin
-      Muxml.Parse (Data => Spec,
-                   Kind => Muxml.Component,
-                   File => "data/test_cspec.xml");
-      Set_RIP (Spec        => Spec,
-               Entry_Point => Ref_1);
-      Assert (Condition => Interfaces.Unsigned_64'Value
-              (Muxml.Utils.Get_Element_Value
-                 (Doc   => Spec.Doc,
-                  XPath => "/component/requires/vcpu/registers/gpr/rip"))
-              = Ref_1,
-              Message   => "RIP value mismatch (1)");
-
-      --  Test setting RIP with existing XML elements.
-
-      Set_RIP (Spec        => Spec,
-               Entry_Point => Ref_2);
-      Assert (Condition => Interfaces.Unsigned_64'Value
-              (Muxml.Utils.Get_Element_Value
-                 (Doc   => Spec.Doc,
-                  XPath => "/component/requires/vcpu/registers/gpr/rip"))
-              = Ref_2,
-              Message   => "RIP value mismatch (2)");
+      Check_Set_Entry_Point_X86_64;
+      Check_Set_Entry_Point_ARM64;
 --  begin read only
-   end Test_Set_RIP;
+   end Test_Set_Entry_Point;
 --  end read only
 
 

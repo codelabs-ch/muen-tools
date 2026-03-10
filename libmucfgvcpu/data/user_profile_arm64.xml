@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<vcpu>
+ <arm64>
+  <registers>
+   <gpr>
+    <x7>16#4242#</x7>
+    <x23>16#0010#</x23>
+    <x30>16#0000#</x30>
+   </gpr>
+   <hcr_el2>
+    <twi>1</twi>
+   </hcr_el2>
+  </registers>
+ </arm64>
+</vcpu>

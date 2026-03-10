@@ -18,6 +18,7 @@
 
 with Ada.Characters.Handling;
 with Ada.Strings.Unbounded;
+with Ada.Strings.Fixed;
 
 with Interfaces;
 
@@ -28,10 +29,10 @@ with McKae.XML.XPath.XIA;
 
 with Mulog;
 with Muxml.Utils;
-with Mutools.Match;
 with Mutools.XML_Utils;
 with Mutools.Templates;
 
+with Spec.ARM64_Types;
 with Spec.VMX_Types;
 
 with String_Templates;
@@ -163,8 +164,7 @@ is
    is
       use Interfaces;
 
-      --  (1) extract all subjects and physical memory nodes
-      Subjects        : constant DOM.Core.Node_List
+      Subjects : constant DOM.Core.Node_List
         := McKae.XML.XPath.XIA.XPath_Query
           (N     => Policy.Doc,
            XPath => "/system/subjects/subject");
@@ -172,128 +172,128 @@ is
         := McKae.XML.XPath.XIA.XPath_Query
           (N     => Policy.Doc,
            XPath => "/system/memory/memory");
-
-      --  (2) extract all physical devices with GIC capability
       Physical_GIC_Dev : constant DOM.Core.Node_List
         := McKae.XML.XPath.XIA.XPath_Query
           (N     => Policy.Doc,
            XPath => "/system/hardware/devices/device" &
              "[capabilities/capability/@name='gic']");
-
-      --  (3) extract all physical memory regions that contain a linux
-      --  device tree (i.e. type of 'subject_devicetree') or a subject binary
-      Physical_DTS : constant DOM.Core.Node_List
-        := McKae.XML.XPath.XIA.XPath_Query
-          (N     => Policy.Doc,
-           XPath => "/system/memory/memory[@type='subject_devicetree']");
-      Physical_SB  : constant DOM.Core.Node_List
-        := McKae.XML.XPath.XIA.XPath_Query
-          (N     => Policy.Doc,
-           XPath => "/system/memory/memory[@type='subject_binary']");
-
-      --  (4) calculate number of subjects
-      Subj_Count  : constant Natural
+      Subj_Count : constant Natural
         := DOM.Core.Nodes.Length (List => Subjects);
 
       Buffer : Unbounded_String;
       Tmpl   : Mutools.Templates.Template_Type;
 
-      --  Check if given subject is Linux VM and determine register values.
-      function Is_Linux_VM
-        (Subject     :        DOM.Core.Node;
-         GPR_0   : in out Unbounded_String;
-         ELR_EL2 : in out Unbounded_String)
-        return Boolean;
+      --  Add subject GPR values to buffer.
+      procedure Add_GPRs_ARM64
+        (Buffer : in out Unbounded_String;
+         GPRs   :        DOM.Core.Node);
 
-      ----------------------------------------------------------------------
-
-      function Is_Linux_VM
-        (Subject     :        DOM.Core.Node;
-         GPR_0   : in out Unbounded_String;
-         ELR_EL2 : in out Unbounded_String)
-        return Boolean
-      is
-         Subj_Mem : constant DOM.Core.Node_List
-           := McKae.XML.XPath.XIA.XPath_Query
-             (N     => Subject,
-              XPath => "memory/memory");
-         DT_Nodes : constant Muxml.Utils.Matching_Pairs_Type
-           := Muxml.Utils.Get_Matching
-             (Left_Nodes     => Subj_Mem,
-              Right_Nodes    => Physical_DTS,
-              Match_Multiple => True,
-              Match          => Mutools.Match.Is_Valid_Reference'Access);
-         SB_Nodes : constant Muxml.Utils.Matching_Pairs_Type
-           := Muxml.Utils.Get_Matching
-             (Left_Nodes     => Subj_Mem,
-              Right_Nodes    => Physical_SB,
-              Match_Multiple => True,
-              Match          => Mutools.Match.Is_Valid_Reference'Access);
-      begin
-         --  Identify Linux VM subjects by their associated device tree and
-         --  subject binary memory nodes.
-         if DOM.Core.Nodes.Length (List => DT_Nodes.Left) = 1 and then
-            DOM.Core.Nodes.Length (List => SB_Nodes.Left) = 1
-         then
-            GPR_0   := To_Unbounded_String
-              (DOM.Core.Elements.Get_Attribute
-                (Elem => DOM.Core.Nodes.Item (List  => DT_Nodes.Left,
-                                              Index => 0),
-                 Name => "virtualAddress"));
-            ELR_EL2 := To_Unbounded_String
-              (DOM.Core.Elements.Get_Attribute
-                (Elem => DOM.Core.Nodes.Item (List  => SB_Nodes.Left,
-                                              Index => 0),
-                 Name => "virtualAddress"));
-            return True;
-         end if;
-
-         return False;
-      end Is_Linux_VM;
-
-      ----------------------------------------------------------------------
+      --  Add subject HCR_EL2 register to buffer.
+      procedure Add_HCR_EL2
+        (Buffer : in out Unbounded_String;
+         Fields :        DOM.Core.Node_List);
 
       --  Append SPARK specification of given subject to template buffer.
       procedure Write_Subject_Spec (Subject : DOM.Core.Node);
 
       ----------------------------------------------------------------------
 
+      procedure Add_GPRs_ARM64
+        (Buffer : in out Unbounded_String;
+         GPRs   :        DOM.Core.Node)
+      is
+         Regs : constant DOM.Core.Node_List
+           := McKae.XML.XPath.XIA.XPath_Query (N     => GPRs,
+                                               XPath => "*");
+         Regs_Count : constant Natural
+           := DOM.Core.Nodes.Length (List => Regs);
+      begin
+         Buffer := Buffer & Indent (N => 4) & "GPRs              => (" &
+           ASCII.LF;
+         for I in 0 .. Regs_Count - 1 loop
+            declare
+               Reg       : constant DOM.Core.Node := DOM.Core.Nodes.Item
+                 (List  => Regs,
+                  Index => I);
+               Reg_Value : constant Interfaces.Unsigned_64
+                 := Interfaces.Unsigned_64'Value
+                   (DOM.Core.Nodes.Node_Value
+                      (N => DOM.Core.Nodes.First_Child (N => Reg)));
+               Idx_Str   : constant String := Ada.Strings.Fixed.Trim
+                 (Source => I'Img,
+                  Side   => Ada.Strings.Left);
+            begin
+               Buffer := Buffer & Indent (N => 5) & Idx_Str & " => "
+                 & Mutools.Utils.To_Hex (Number => Reg_Value);
+               if I < Regs_Count - 1 then
+                  Buffer := Buffer & "," & ASCII.LF;
+               end if;
+            end;
+         end loop;
+         Buffer := Buffer & ")," & ASCII.LF;
+      end Add_GPRs_ARM64;
+
+      ----------------------------------------------------------------------
+
+      procedure Add_HCR_EL2
+        (Buffer : in out Unbounded_String;
+         Fields :        DOM.Core.Node_List)
+      is
+         Field_Count : constant Natural := DOM.Core.Nodes.Length
+           (List => Fields);
+      begin
+         Buffer := Buffer & Indent (N => 4)
+           & "HCR_EL2           => (" & ASCII.LF;
+         for I in 0 .. Field_Count - 1 loop
+            declare
+               Field       : constant DOM.Core.Node := DOM.Core.Nodes.Item
+                 (List  => Fields,
+                  Index => I);
+               Field_Name  : constant ARM64_Types.HCR_EL2_Field_Type
+                 := ARM64_Types.HCR_EL2_Field_Type'Value
+                   (DOM.Core.Elements.Get_Tag_Name (Elem => Field));
+               Field_Value : constant String := DOM.Core.Nodes.Node_Value
+                 (N => DOM.Core.Nodes.First_Child (N => Field));
+            begin
+               Buffer := Buffer & Indent (N => 5)
+                 & ARM64_Types.To_Field_Name (Field_Name) & " => "
+                 & Field_Value & "," & ASCII.LF;
+            end;
+         end loop;
+         Buffer := Buffer & Indent (N => 5)
+           & "Reserved_34_63                  => 0)," & ASCII.LF;
+      end Add_HCR_EL2;
+
+      ----------------------------------------------------------------------
+
       procedure Write_Subject_Spec (Subject : DOM.Core.Node)
       is
-
          function U
            (Source : String)
             return Unbounded_String
             renames To_Unbounded_String;
 
-         --  (a) extract basic configuration values
-         Name    : constant String
+         Name : constant String
            := DOM.Core.Elements.Get_Attribute (Elem => Subject,
                                                Name => "name");
          Subj_ID : constant String
            := DOM.Core.Elements.Get_Attribute (Elem => Subject,
                                                Name => "globalId");
-         CPU_ID  : constant String
+         CPU_ID : constant String
            := DOM.Core.Elements.Get_Attribute (Elem => Subject,
                                                Name => "cpu");
-         --  (b) determine register values in case of Linux subjects and set
-         --  default cacheability and trapped instructions accordingly
-         GPR_0                : Unbounded_String
-           := U ("16#0#");
-         ELR_EL2              : Unbounded_String
-           := U ("16#0#");
-         Linux_VM             : constant Boolean
-           := Is_Linux_VM (Subject     => Subject,
-                           GPR_0       => GPR_0,
-                           ELR_EL2     => ELR_EL2);
-         Default_Cacheability : constant String
-           := (if Linux_VM then "False" else "True");
-         Trap_WFI_Instruction : constant String
-           := (if Linux_VM then "False" else "True");
-         Trap_WFE_Instruction : constant String
-           := (if Linux_VM then "False" else "True");
-
-         --  (c) extract virtual translation table base address
+         GPR_Node : constant DOM.Core.Node
+           := Muxml.Utils.Get_Element
+             (Doc   => Subject,
+              XPath => "vcpu/arm64/registers/gpr");
+         ELR_EL2 : constant Unsigned_64 := Unsigned_64'Value
+           (Muxml.Utils.Get_Element_Value
+              (Doc   => GPR_Node,
+               XPath => "../elr_el2"));
+         HCR_EL2_Fields : constant DOM.Core.Node_List
+           := McKae.XML.XPath.XIA.XPath_Query
+             (N     => Subject,
+              XPath => "vcpu/arm64/registers/hcr_el2/*");
          VTTBR_Address : constant Unsigned_64
            := Unsigned_64'Value (Muxml.Utils.Get_Attribute
                                  (Nodes     => Physical_Memory,
@@ -303,7 +303,7 @@ is
                                                  Value => U (Name & "|pt"))),
                                   Attr_Name => "physicalAddress"));
 
-         --  (d) check if GIC device is used by subject (NOTE - currently
+         --  Check if GIC device is used by subject (NOTE - currently
          --  only one GIC device supported)
          Virtual_GIC_Dev   : constant DOM.Core.Node_List
            := McKae.XML.XPath.XIA.XPath_Query
@@ -319,22 +319,21 @@ is
       begin
          Buffer := Buffer & Subj_ID & " =>" &
            ASCII.LF & Indent (N => 3) &
-           "  (CPU_ID               => " & CPU_ID & "," &
+           "  (CPU_ID            => " & CPU_ID & "," & ASCII.LF;
+
+         Add_GPRs_ARM64 (Buffer => Buffer,
+                         GPRs   => GPR_Node);
+         Add_HCR_EL2 (Buffer => Buffer,
+                      Fields => HCR_EL2_Fields);
+
+         Buffer := Buffer & Indent (N => 3) &
+           "   ELR_EL2           => " &
+           Mutools.Utils.To_Hex (Number => ELR_EL2) & "," &
            ASCII.LF & Indent (N => 3) &
-           "   GPR_0                => " & To_String (GPR_0) & "," &
-           ASCII.LF & Indent (N => 3) &
-           "   ELR_EL2              => " & To_String (ELR_EL2) & "," &
-           ASCII.LF & Indent (N => 3) &
-           "   VTTBR_Address        => " &
+           "   VTTBR_Address     => " &
            Mutools.Utils.To_Hex (Number => VTTBR_Address) & "," &
            ASCII.LF & Indent (N => 3) &
-           "   Default_Cacheability => " & Default_Cacheability & "," &
-           ASCII.LF & Indent (N => 3) &
-           "   Trap_WFI_Instruction => " & Trap_WFI_Instruction & "," &
-           ASCII.LF & Indent (N => 3) &
-           "   Trap_WFE_Instruction => " & Trap_WFE_Instruction & "," &
-           ASCII.LF & Indent (N => 3) &
-           "   Interrupt_Support    => " & Interrupt_Support & ")";
+           "   Interrupt_Support => " & Interrupt_Support & ")";
       end Write_Subject_Spec;
    begin
       Mulog.Log (Msg => "Writing subject spec to '"
@@ -444,11 +443,11 @@ is
          GPR_Node : constant DOM.Core.Node
            := Muxml.Utils.Get_Element
              (Doc   => Subject,
-              XPath => "vcpu/registers/gpr");
+              XPath => "vcpu/x86_64/registers/gpr");
          Segments_Node : constant DOM.Core.Node
            := Muxml.Utils.Get_Element
              (Doc   => Subject,
-              XPath => "vcpu/registers/segments");
+              XPath => "vcpu/x86_64/registers/segments");
          Entry_Addr : constant Unsigned_64 := Unsigned_64'Value
            (Muxml.Utils.Get_Element_Value
               (Doc   => GPR_Node,
@@ -495,51 +494,51 @@ is
          Pin_Ctrls   : constant DOM.Core.Node_List
            := McKae.XML.XPath.XIA.XPath_Query
              (N     => Subject,
-              XPath => "vcpu/vmx/controls/pin/*");
+              XPath => "vcpu/x86_64/vmx/controls/pin/*");
          Proc_Ctrls  : constant DOM.Core.Node_List
            := McKae.XML.XPath.XIA.XPath_Query
              (N     => Subject,
-              XPath => "vcpu/vmx/controls/proc/*");
+              XPath => "vcpu/x86_64/vmx/controls/proc/*");
          Proc2_Ctrls : constant DOM.Core.Node_List
            := McKae.XML.XPath.XIA.XPath_Query
              (N     => Subject,
-              XPath => "vcpu/vmx/controls/proc2/*");
+              XPath => "vcpu/x86_64/vmx/controls/proc2/*");
          Entry_Ctrls : constant DOM.Core.Node_List
            := McKae.XML.XPath.XIA.XPath_Query
              (N     => Subject,
-              XPath => "vcpu/vmx/controls/entry/*");
+              XPath => "vcpu/x86_64/vmx/controls/entry/*");
          Exit_Ctrls  : constant DOM.Core.Node_List
            := McKae.XML.XPath.XIA.XPath_Query
              (N     => Subject,
-              XPath => "vcpu/vmx/controls/exit/*");
+              XPath => "vcpu/x86_64/vmx/controls/exit/*");
          CR0_Value   : constant DOM.Core.Node_List
            := McKae.XML.XPath.XIA.XPath_Query
              (N     => Subject,
-              XPath => "vcpu/registers/cr0/*");
+              XPath => "vcpu/x86_64/registers/cr0/*");
          CR0_Mask    : constant DOM.Core.Node_List
            := McKae.XML.XPath.XIA.XPath_Query
              (N     => Subject,
-              XPath => "vcpu/vmx/masks/cr0/*");
+              XPath => "vcpu/x86_64/vmx/masks/cr0/*");
          CR0_Shadow   : constant DOM.Core.Node_List
            := McKae.XML.XPath.XIA.XPath_Query
              (N     => Subject,
-              XPath => "vcpu/registers/cr0Shadow/*");
+              XPath => "vcpu/x86_64/registers/cr0Shadow/*");
          CR4_Value   : constant DOM.Core.Node_List
            := McKae.XML.XPath.XIA.XPath_Query
              (N     => Subject,
-              XPath => "vcpu/registers/cr4/*");
+              XPath => "vcpu/x86_64/registers/cr4/*");
          CR4_Mask    : constant DOM.Core.Node_List
            := McKae.XML.XPath.XIA.XPath_Query
              (N     => Subject,
-              XPath => "vcpu/vmx/masks/cr4/*");
+              XPath => "vcpu/x86_64/vmx/masks/cr4/*");
          CR4_Shadow   : constant DOM.Core.Node_List
            := McKae.XML.XPath.XIA.XPath_Query
              (N     => Subject,
-              XPath => "vcpu/registers/cr4Shadow/*");
+              XPath => "vcpu/x86_64/registers/cr4Shadow/*");
          Exceptions  : constant DOM.Core.Node_List
            := McKae.XML.XPath.XIA.XPath_Query
              (N     => Subject,
-              XPath => "vcpu/vmx/masks/exception/*");
+              XPath => "vcpu/x86_64/vmx/masks/exception/*");
       begin
          if MSR_Store_Node /= null then
             MSR_Store_Addr := Unsigned_64'Value
@@ -550,7 +549,7 @@ is
                Ctrls_Node : constant DOM.Core.Node
                  := Muxml.Utils.Get_Element
                    (Doc   => Subject,
-                    XPath => "vcpu/vmx/controls");
+                    XPath => "vcpu/x86_64/vmx/controls");
                Debug_Ctrl : constant Boolean
                  := Mutools.XML_Utils.Has_Managed_DEBUGCTL
                    (Controls => Ctrls_Node);
@@ -566,7 +565,7 @@ is
                MSR_Count := Mutools.XML_Utils.Calculate_MSR_Count
                  (MSRs                   => McKae.XML.XPath.XIA.XPath_Query
                     (N     => Subject,
-                     XPath => "vcpu/msrs/msr[@mode='w' or @mode='rw']"),
+                     XPath => "vcpu/x86_64/msrs/msr[@mode='w' or @mode='rw']"),
                   DEBUGCTL_Control       => Debug_Ctrl,
                   PAT_Control            => PAT_Ctrl,
                   PERFGLOBALCTRL_Control => PERF_Ctrl,
@@ -582,7 +581,7 @@ is
 
          if Muxml.Utils.Get_Element_Value
            (Doc   => Subject,
-            XPath => "vcpu/vmx/controls/proc2/EnableEPT") = "1"
+            XPath => "vcpu/x86_64/vmx/controls/proc2/EnableEPT") = "1"
          then
             Subj_Buf := Subj_Buf
               & Indent & "    PML4_Address       => 0,"
