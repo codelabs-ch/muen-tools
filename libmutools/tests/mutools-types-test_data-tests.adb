@@ -45,6 +45,9 @@ package body Mutools.Types.Test_Data.Tests is
       Assert (Condition => Get_Max_ID (Group => Vmcall)
               = Constants.Max_Valid_Vmcall_ID,
               Message   => "Invalid Vmcall max ID");
+      Assert (Condition => Get_Max_ID (Group => Arm64_Exception)
+              = Constants.Max_Valid_Exception_Class_ID,
+              Message   => "Invalid Exception Class max ID");
 --  begin read only
    end Test_Get_Max_ID;
 --  end read only
@@ -111,6 +114,18 @@ package body Mutools.Types.Test_Data.Tests is
              ID    => 63,
              Valid => True),
             (Group => Vmcall,
+             ID    => 64,
+             Valid => False),
+            (Group => Arm64_Exception,
+             ID    => 0,
+             Valid => True),
+            (Group => Arm64_Exception,
+             ID    => 23,
+             Valid => True),
+            (Group => Arm64_Exception,
+             ID    => 63,
+             Valid => True),
+            (Group => Arm64_Exception,
              ID    => 64,
              Valid => False));
    begin

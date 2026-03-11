@@ -22,7 +22,7 @@ package Mutools.Types
 is
 
    --  Subject event groups.
-   type Event_Group_Type is (Vmx_Exit, Vmcall);
+   type Event_Group_Type is (Vmx_Exit, Vmcall, Arm64_Exception);
 
    --  Returns the maximum valid ID for a given event group.
    function Get_Max_ID (Group : Event_Group_Type) return Natural;
@@ -100,7 +100,8 @@ private
 
    function Get_Max_ID (Group : Event_Group_Type) return Natural
    is (case Group is
-          when Vmx_Exit => Constants.Max_Valid_VMX_Exit_ID,
-          when Vmcall   => Constants.Max_Valid_Vmcall_ID);
+          when Vmx_Exit        => Constants.Max_Valid_VMX_Exit_ID,
+          when Vmcall          => Constants.Max_Valid_Vmcall_ID,
+          when Arm64_Exception => Constants.Max_Valid_Exception_Class_ID);
 
 end Mutools.Types;

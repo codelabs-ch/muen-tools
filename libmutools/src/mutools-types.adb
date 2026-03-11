@@ -41,7 +41,8 @@ is
         (case Group is
             when Vmx_Exit => not (ID in Reserved_VMX_Exit_IDs_Type
                                   or else ID in Reserved_Kernel_IDs_Type),
-            when Vmcall   => True);
+            when Vmcall
+               | Arm64_Exception => True);
    end Is_Valid_Event_ID;
 
 end Mutools.Types;
