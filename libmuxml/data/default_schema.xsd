@@ -103,6 +103,7 @@
   </xs:complexType>
   <xs:simpleType name="eventGroupNameType">
     <xs:restriction base="xs:string">
+      <xs:enumeration value="arm64_exception"/>
       <xs:enumeration value="vmx_exit"/>
       <xs:enumeration value="vmcall"/>
     </xs:restriction>

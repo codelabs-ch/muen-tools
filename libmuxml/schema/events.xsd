@@ -43,16 +43,22 @@
     The event \texttt{source} element specifies events that are allowed to be
     triggered by the associated subject.
 
-    Source events are divided into two groups: \texttt{vmx\_exit} and
-    \texttt{vmcall}.  For event group \texttt{vmx\_exit} the id attribute
+    Source events are divided into different groups: \texttt{vmx\_exit} for
+    x86\_64, \texttt{arm64\_exception} for arm64 and \texttt{vmcall} for all
+    supported architectures. For event group \texttt{vmx\_exit} the id attribute
     specifies the trap number while in the \texttt{vmcall} group it designates
-    the hypercall number. For the valid range of IDs for each group see section
-    \ref{system_src.xsd:sourceEventEntryType}.
+    the hypercall number. For the \texttt{arm64\_exception} group the id
+    specifies the ARM64 exception class. For the valid range of IDs for each
+    group see section \ref{system_src.xsd:sourceEventEntryType}.
 
     The \texttt{vmx\_exit} group is translated to a lookup table for handling
     VMX exit traps as defined by Intel SDM Vol. 3D, "Appendix C VMX Basic Exit
     Reasons".  The \texttt{vmcall} group on the other hand is translated into a
     lookup table to handle hypercalls.
+
+    The \texttt{arm64\_exception} group is translated into a lookup table for
+    handling ARM64 exception classes as specified by ARM Architecture Reference
+    Manual, ARM DDI 0487, M.a.a, chapter D24.2.46, page D24-8601 "ESR_EL2.EC".
 
     See line \ref{lst:af-lineref-subj-events-source} in listing
     \ref{lst:annotated-policy} for an example event source section.
@@ -83,12 +89,14 @@
    <xs:documentation>
     A source \texttt{event} entry specifies a source event node, i.e. it
     registers a handler for the given event \texttt{id}. These IDs, depending on
-    the event group, are either hypercall numbers or VMX basic exit reasons. The
-    valid ID ranges of the respective groups are:
+    the event group, are either hypercall numbers, x86\_64 VMX basic exit
+    reasons or ARM64 exception classes. The valid ID ranges of the respective
+    groups are:
 
     \begin{description}
     \item[vmx\_exit] 0 .. 59
     \item[vmcall] 0 .. 63
+    \item[arm64\_exception] 0 .. 63
     \end{description}
 
     Additionally, the following IDs in \texttt{vmx\_exit} group are reserved and
@@ -159,6 +167,7 @@
    </xs:documentation>
   </xs:annotation>
   <xs:restriction base="xs:string">
+   <xs:enumeration value="arm64_exception"/>
    <xs:enumeration value="vmx_exit"/>
    <xs:enumeration value="vmcall"/>
   </xs:restriction>

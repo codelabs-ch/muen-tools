@@ -208,56 +208,62 @@
        <system_panic originOfNode="format_src.xml:208:23"/>
       </event>
      </group>
+     <group name="arm64_exception" originOfNode="format_src.xml:211:36">
+      <default originOfNode="format_src.xml:212:33" physical="trap"/>
+      <event id="1" logical="sleep" originOfNode="format_src.xml:213:54" physical="sleep">
+       <subject_sleep originOfNode="format_src.xml:214:24"/>
+      </event>
+     </group>
     </source>
-    <target originOfNode="format_src.xml:212:13">
-     <event id="0" logical="reset" originOfNode="format_src.xml:213:61" physical="reset_subject">
-      <reset originOfNode="format_src.xml:214:15"/>
+    <target originOfNode="format_src.xml:218:13">
+     <event id="0" logical="reset" originOfNode="format_src.xml:219:61" physical="reset_subject">
+      <reset originOfNode="format_src.xml:220:15"/>
      </event>
     </target>
    </events>
-   <channels originOfNode="format_src.xml:218:14">
-    <writer event="1" logical="channel" originOfNode="format_src.xml:219:92" physical="data_channel" virtualAddress="16#2000#"/>
+   <channels originOfNode="format_src.xml:224:14">
+    <writer event="1" logical="channel" originOfNode="format_src.xml:225:92" physical="data_channel" virtualAddress="16#2000#"/>
    </channels>
-   <monitor originOfNode="format_src.xml:221:13">
-    <loader logical="lnx_memory" originOfNode="format_src.xml:222:82" subject="linux" virtualAddress="16#cafe_feed#"/>
+   <monitor originOfNode="format_src.xml:227:13">
+    <loader logical="lnx_memory" originOfNode="format_src.xml:228:82" subject="linux" virtualAddress="16#cafe_feed#"/>
    </monitor>
-   <component originOfNode="format_src.xml:224:26" ref="tau0">
-    <map logical="logical_channel" originOfNode="format_src.xml:225:65" physical="physical_channel"/>
-    <map logical="test_device" originOfNode="format_src.xml:226:59" physical="physical_device">
-     <map logical="device_resource" originOfNode="format_src.xml:227:74" physical="physical_device_resource"/>
+   <component originOfNode="format_src.xml:230:26" ref="tau0">
+    <map logical="logical_channel" originOfNode="format_src.xml:231:65" physical="physical_channel"/>
+    <map logical="test_device" originOfNode="format_src.xml:232:59" physical="physical_device">
+     <map logical="device_resource" originOfNode="format_src.xml:233:74" physical="physical_device_resource"/>
     </map>
    </component>
   </subject>
-  <subject name="sibling" originOfNode="format_src.xml:231:27">
-   <events originOfNode="format_src.xml:232:12">
-    <source originOfNode="format_src.xml:233:13">
-     <group name="vmx_exit" originOfNode="format_src.xml:234:29">
-      <default originOfNode="format_src.xml:235:33" physical="panic">
-       <system_panic originOfNode="format_src.xml:236:23"/>
+  <subject name="sibling" originOfNode="format_src.xml:237:27">
+   <events originOfNode="format_src.xml:238:12">
+    <source originOfNode="format_src.xml:239:13">
+     <group name="vmx_exit" originOfNode="format_src.xml:240:29">
+      <default originOfNode="format_src.xml:241:33" physical="panic">
+       <system_panic originOfNode="format_src.xml:242:23"/>
       </default>
      </group>
     </source>
    </events>
-   <sibling originOfNode="format_src.xml:241:25" ref="tau0"/>
+   <sibling originOfNode="format_src.xml:247:25" ref="tau0"/>
   </subject>
  </subjects>
- <scheduling originOfNode="format_src.xml:244:31" tickRate="10000">
-  <partitions originOfNode="format_src.xml:245:15">
-   <partition name="tau0" originOfNode="format_src.xml:246:27">
-    <group originOfNode="format_src.xml:247:12">
-     <subject name="tau0" originOfNode="format_src.xml:248:28"/>
+ <scheduling originOfNode="format_src.xml:250:31" tickRate="10000">
+  <partitions originOfNode="format_src.xml:251:15">
+   <partition name="tau0" originOfNode="format_src.xml:252:27">
+    <group originOfNode="format_src.xml:253:12">
+     <subject name="tau0" originOfNode="format_src.xml:254:28"/>
     </group>
    </partition>
   </partitions>
-  <majorFrame originOfNode="format_src.xml:252:15">
-   <cpu id="0" originOfNode="format_src.xml:253:16">
-    <minorFrame originOfNode="format_src.xml:254:46" partition="tau0" ticks="40"/>
-    <minorFrame originOfNode="format_src.xml:255:46" partition="tau0" ticks="40"/>
-   </cpu>
-  </majorFrame>
   <majorFrame originOfNode="format_src.xml:258:15">
    <cpu id="0" originOfNode="format_src.xml:259:16">
-    <minorFrame originOfNode="format_src.xml:260:46" partition="tau0" ticks="80"/>
+    <minorFrame originOfNode="format_src.xml:260:46" partition="tau0" ticks="40"/>
+    <minorFrame originOfNode="format_src.xml:261:46" partition="tau0" ticks="40"/>
+   </cpu>
+  </majorFrame>
+  <majorFrame originOfNode="format_src.xml:264:15">
+   <cpu id="0" originOfNode="format_src.xml:265:16">
+    <minorFrame originOfNode="format_src.xml:266:46" partition="tau0" ticks="80"/>
    </cpu>
   </majorFrame>
  </scheduling>
