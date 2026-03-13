@@ -78,8 +78,6 @@ is
       Check_Procs.Register
         (Process => MC.Events.Self_References'Access);
       Check_Procs.Register
-        (Process => MC.Events.Source_VMX_Exit_Event_Completeness'Access);
-      Check_Procs.Register
         (Process => MC.Scheduling.Subject_Scheduling_Group_Assignment'Access);
       Check_Procs.Register
         (Process => MC.Scheduling.Minor_Frame_Partition_References'Access);
@@ -131,6 +129,8 @@ is
         (Process => MC.Hardware.IOAPIC_Presence'Access);
       Check_Procs.Register
         (Process => MC.Device.IOMMU_Region_Size'Access);
+      Check_Procs.Register
+        (Process => MC.Events.Source_VMX_Exit_Event_Completeness'Access);
    end Register_X86_64;
 
    -------------------------------------------------------------------------
