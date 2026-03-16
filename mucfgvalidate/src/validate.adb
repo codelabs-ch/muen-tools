@@ -532,10 +532,10 @@ is
       XML_Processors.Register
         (Process => Events.Source_Group_Event_ID_Name_Uniqueness'Access);
 
-      --  Arch Independent: Check that source event IDs of the VMX Exit
+      --  Arch Dependent: Check that source event IDs of the ARM64 exception
       --  group are all given or a default is specified.
       XML_Processors.Register
-        (Process => Events.Source_VMX_Exit_Event_Completeness'Access);
+        (Process => Events.Source_ARM64_Exception_Event_Completeness'Access);
 
       --  Arch Independent: Check that self events provide a target action.
       XML_Processors.Register
