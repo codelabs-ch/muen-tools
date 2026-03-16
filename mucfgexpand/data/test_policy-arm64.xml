@@ -186,7 +186,7 @@
    </devices>
    <events>
     <source>
-     <group name="vmx_exit">
+     <group name="arm64_exception">
       <default physical="trap_to_subject1"/>
      </group>
     </source>
@@ -211,7 +211,7 @@
    </devices>
    <events>
     <source>
-     <group name="vmx_exit">
+     <group name="arm64_exception">
       <default physical="system_panic">
        <system_panic/>
       </default>
