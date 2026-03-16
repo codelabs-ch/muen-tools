@@ -733,6 +733,17 @@ is
 
    -------------------------------------------------------------------------
 
+   procedure Source_ARM64_Exception_Event_Completeness
+     (XML_Data : Muxml.XML_Data_Type)
+   is
+   begin
+      Check_Source_Group_Event_Completeness
+        (XML_Data => XML_Data,
+         Group    => Mutools.Types.Arm64_Exception);
+   end Source_ARM64_Exception_Event_Completeness;
+
+   -------------------------------------------------------------------------
+
    procedure Source_Group_Event_ID_Name_Uniqueness
      (XML_Data : Muxml.XML_Data_Type)
    is

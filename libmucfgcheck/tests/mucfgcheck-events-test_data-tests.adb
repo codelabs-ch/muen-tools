@@ -650,6 +650,67 @@ package body Mucfgcheck.Events.Test_Data.Tests is
 
 
 --  begin read only
+   procedure Test_Source_ARM64_Exception_Event_Completeness (Gnattest_T : in out Test);
+   procedure Test_Source_ARM64_Exception_Event_Completeness_e5fa0a (Gnattest_T : in out Test) renames Test_Source_ARM64_Exception_Event_Completeness;
+--  id:2.2/e5fa0a026a755518/Source_ARM64_Exception_Event_Completeness/1/0/
+   procedure Test_Source_ARM64_Exception_Event_Completeness (Gnattest_T : in out Test) is
+--  end read only
+
+      pragma Unreferenced (Gnattest_T);
+
+      Data : Muxml.XML_Data_Type;
+   begin
+      Muxml.Parse (Data => Data,
+                   Kind => Muxml.Format_B,
+                   File => "data/test_policy-arm64.xml");
+
+      --  Positive test, must not raise an exception.
+
+      Source_ARM64_Exception_Event_Completeness (XML_Data => Data);
+      Assert (Condition => Validation_Errors.Is_Empty,
+              Message   => "Unexpected error in positive test (1)");
+
+      Muxml.Utils.Remove_Elements
+        (Doc   => Data.Doc,
+         XPath => "/system/subjects/subject[@name='linux']/events/source/"
+         & "group[@name='arm64_exception']/event[@id='42']");
+
+      Source_ARM64_Exception_Event_Completeness (XML_Data => Data);
+      Assert (Condition => Validation_Errors.Contains
+              (Msg => "Subject 'linux' does not specify 'arm64_exception' "
+               & "group source event with ID 42"),
+              Message   => "Exception mismatch (1)");
+
+      Muxml.Utils.Add_Child
+        (Parent     => Muxml.Utils.Get_Element
+           (Doc   => Data.Doc,
+            XPath => "/system/subjects/subject[@name='linux']/events/source/"
+            & "group[@name='arm64_exception']"),
+         Child_Name => "default");
+
+      --  Must not raise an exception because of <default/> presence.
+
+      Validation_Errors.Clear;
+      Source_ARM64_Exception_Event_Completeness (XML_Data => Data);
+      Assert (Condition => Validation_Errors.Is_Empty,
+              Message   => "Unexpected error in positive test (2)");
+
+      Muxml.Utils.Remove_Elements
+        (Doc   => Data.Doc,
+         XPath => "/system/subjects/subject[@name='linux']/events/source/"
+         & "group[@name='arm64_exception']");
+
+      Source_ARM64_Exception_Event_Completeness (XML_Data => Data);
+      Assert (Condition => Validation_Errors.Contains
+              (Msg => "Subject 'linux' does not specify source event group "
+               & "'arm64_exception'"),
+              Message   => "Exception mismatch (2)");
+--  begin read only
+   end Test_Source_ARM64_Exception_Event_Completeness;
+--  end read only
+
+
+--  begin read only
    procedure Test_Self_Event_Action (Gnattest_T : in out Test);
    procedure Test_Self_Event_Action_e649a6 (Gnattest_T : in out Test) renames Test_Self_Event_Action;
 --  id:2.2/e649a6f8cf4efeb5/Self_Event_Action/1/0/
