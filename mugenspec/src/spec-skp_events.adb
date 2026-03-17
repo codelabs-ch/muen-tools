@@ -16,6 +16,7 @@
 --  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --
 
+with Ada.Characters.Handling;
 with Ada.Containers.Ordered_Sets;
 with Ada.Containers.Hashed_Maps;
 with Ada.Strings.Fixed;
@@ -293,6 +294,15 @@ is
    is
       use Ada.Strings.Unbounded;
 
+      Is_ARM_System : constant Boolean
+        := Mutools.XML_Utils.Is_Arm64 (Policy => Policy);
+      Trap_Group : constant Mutools.Types.Event_Group_Type
+        := (if Is_ARM_System then Mutools.Types.Arm64_Exception
+            else Mutools.Types.Vmx_Exit);
+      Trap_Group_Name : constant String
+        := Ada.Characters.Handling.To_Lower (Trap_Group'Img);
+      Max_Trap_ID : constant Natural
+        := Mutools.Types.Get_Max_ID (Group => Trap_Group);
       Max_Event_Count : constant Natural
         := 2 ** Mutools.Constants.Event_Bits;
       Event_Bits_Str : constant String
@@ -301,7 +311,7 @@ is
            Side   => Ada.Strings.Left);
       Max_Trap_ID_Str : constant String
         := Ada.Strings.Fixed.Trim
-          (Source => Mutools.Constants.Max_Valid_VMX_Exit_ID'Img,
+          (Source => Max_Trap_ID'Img,
            Side   => Ada.Strings.Left);
       Subjects       : constant DOM.Core.Node_List
         := McKae.XML.XPath.XIA.XPath_Query
@@ -317,9 +327,6 @@ is
         := McKae.XML.XPath.XIA.XPath_Query
           (N     => Policy.Doc,
            XPath => "/system/subjects/subject/events/target/event");
-
-      Is_ARM_System : constant Boolean
-        := Mutools.XML_Utils.Is_Arm64 (Policy => Policy);
 
       Ev_Buf : Unbounded_String;
       Buffer : Unbounded_String;
@@ -459,7 +466,7 @@ is
 
          Trap_Map : constant SEM.Map
            := To_Source_Event_Map (Events          => Traps,
-                                   Event_Group     => Mutools.Types.Vmx_Exit,
+                                   Event_Group     => Trap_Group,
                                    Physical_Events => Phys_Events,
                                    Target_Events   => Target_Events);
 
@@ -528,7 +535,8 @@ is
          Traps : constant DOM.Core.Node_List
            := McKae.XML.XPath.XIA.XPath_Query
              (N     => Subject,
-              XPath => "events/source/group[@name='vmx_exit']/*");
+              XPath => "events/source/group[@name='" & Trap_Group_Name
+              & "']/*");
          Src_Events : constant DOM.Core.Node_List
            := McKae.XML.XPath.XIA.XPath_Query
              (N     => Subject,

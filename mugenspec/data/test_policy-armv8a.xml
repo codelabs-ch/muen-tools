@@ -489,8 +489,11 @@
   </devices>
   <events>
    <source>
-    <group name="vmx_exit">
+    <group name="arm64_exception">
      <event id="0" logical="default_event_0" physical="system_panic">
+      <system_panic/>
+     </event>
+     <event id="1" logical="default_event_1" physical="system_panic">
       <system_panic/>
      </event>
      <event id="2" logical="default_event_2" physical="system_panic">
@@ -506,6 +509,9 @@
       <system_panic/>
      </event>
      <event id="6" logical="default_event_6" physical="system_panic">
+      <system_panic/>
+     </event>
+     <event id="7" logical="default_event_7" physical="system_panic">
       <system_panic/>
      </event>
      <event id="8" logical="default_event_8" physical="system_panic">
@@ -589,16 +595,28 @@
      <event id="34" logical="default_event_34" physical="system_panic">
       <system_panic/>
      </event>
+     <event id="35" logical="default_event_35" physical="system_panic">
+      <system_panic/>
+     </event>
      <event id="36" logical="default_event_36" physical="system_panic">
       <system_panic/>
      </event>
      <event id="37" logical="default_event_37" physical="system_panic">
       <system_panic/>
      </event>
+     <event id="38" logical="default_event_38" physical="system_panic">
+      <system_panic/>
+     </event>
      <event id="39" logical="default_event_39" physical="system_panic">
       <system_panic/>
      </event>
      <event id="40" logical="default_event_40" physical="system_panic">
+      <system_panic/>
+     </event>
+     <event id="41" logical="default_event_41" physical="system_panic">
+      <system_panic/>
+     </event>
+     <event id="42" logical="default_event_42" physical="system_panic">
       <system_panic/>
      </event>
      <event id="43" logical="default_event_43" physical="system_panic">
@@ -628,10 +646,16 @@
      <event id="51" logical="default_event_51" physical="system_panic">
       <system_panic/>
      </event>
+     <event id="52" logical="default_event_52" physical="system_panic">
+      <system_panic/>
+     </event>
      <event id="53" logical="default_event_53" physical="system_panic">
       <system_panic/>
      </event>
      <event id="54" logical="default_event_54" physical="system_panic">
+      <system_panic/>
+     </event>
+     <event id="55" logical="default_event_55" physical="system_panic">
       <system_panic/>
      </event>
      <event id="56" logical="default_event_56" physical="system_panic">
@@ -644,6 +668,18 @@
       <system_panic/>
      </event>
      <event id="59" logical="default_event_59" physical="system_panic">
+      <system_panic/>
+     </event>
+     <event id="60" logical="default_event_60" physical="system_panic">
+      <system_panic/>
+     </event>
+     <event id="61" logical="default_event_61" physical="system_panic">
+      <system_panic/>
+     </event>
+     <event id="62" logical="default_event_62" physical="system_panic">
+      <system_panic/>
+     </event>
+     <event id="63" logical="default_event_63" physical="system_panic">
       <system_panic/>
      </event>
     </group>
@@ -737,8 +773,11 @@
   <devices/>
   <events>
    <source>
-    <group name="vmx_exit">
+    <group name="arm64_exception">
      <event id="0" logical="default_event_0" physical="system_panic">
+      <system_panic/>
+     </event>
+     <event id="1" logical="default_event_1" physical="system_panic">
       <system_panic/>
      </event>
      <event id="2" logical="default_event_2" physical="system_panic">
@@ -754,6 +793,9 @@
       <system_panic/>
      </event>
      <event id="6" logical="default_event_6" physical="system_panic">
+      <system_panic/>
+     </event>
+     <event id="7" logical="default_event_7" physical="system_panic">
       <system_panic/>
      </event>
      <event id="8" logical="default_event_8" physical="system_panic">
@@ -837,16 +879,28 @@
      <event id="34" logical="default_event_34" physical="system_panic">
       <system_panic/>
      </event>
+     <event id="35" logical="default_event_35" physical="system_panic">
+      <system_panic/>
+     </event>
      <event id="36" logical="default_event_36" physical="system_panic">
       <system_panic/>
      </event>
      <event id="37" logical="default_event_37" physical="system_panic">
       <system_panic/>
      </event>
+     <event id="38" logical="default_event_38" physical="system_panic">
+      <system_panic/>
+     </event>
      <event id="39" logical="default_event_39" physical="system_panic">
       <system_panic/>
      </event>
      <event id="40" logical="default_event_40" physical="system_panic">
+      <system_panic/>
+     </event>
+     <event id="41" logical="default_event_41" physical="system_panic">
+      <system_panic/>
+     </event>
+     <event id="42" logical="default_event_42" physical="system_panic">
       <system_panic/>
      </event>
      <event id="43" logical="default_event_43" physical="system_panic">
@@ -876,10 +930,16 @@
      <event id="51" logical="default_event_51" physical="system_panic">
       <system_panic/>
      </event>
+     <event id="52" logical="default_event_52" physical="system_panic">
+      <system_panic/>
+     </event>
      <event id="53" logical="default_event_53" physical="system_panic">
       <system_panic/>
      </event>
      <event id="54" logical="default_event_54" physical="system_panic">
+      <system_panic/>
+     </event>
+     <event id="55" logical="default_event_55" physical="system_panic">
       <system_panic/>
      </event>
      <event id="56" logical="default_event_56" physical="system_panic">
@@ -892,6 +952,18 @@
       <system_panic/>
      </event>
      <event id="59" logical="default_event_59" physical="system_panic">
+      <system_panic/>
+     </event>
+     <event id="60" logical="default_event_60" physical="system_panic">
+      <system_panic/>
+     </event>
+     <event id="61" logical="default_event_61" physical="system_panic">
+      <system_panic/>
+     </event>
+     <event id="62" logical="default_event_62" physical="system_panic">
+      <system_panic/>
+     </event>
+     <event id="63" logical="default_event_63" physical="system_panic">
       <system_panic/>
      </event>
     </group>
@@ -1012,8 +1084,11 @@
   </devices>
   <events>
    <source>
-    <group name="vmx_exit">
+    <group name="arm64_exception">
      <event id="0" logical="default_event_0" physical="system_panic">
+      <system_panic/>
+     </event>
+     <event id="1" logical="default_event_1" physical="system_panic">
       <system_panic/>
      </event>
      <event id="2" logical="default_event_2" physical="system_panic">
@@ -1029,6 +1104,9 @@
       <system_panic/>
      </event>
      <event id="6" logical="default_event_6" physical="system_panic">
+      <system_panic/>
+     </event>
+     <event id="7" logical="default_event_7" physical="system_panic">
       <system_panic/>
      </event>
      <event id="8" logical="default_event_8" physical="system_panic">
@@ -1112,16 +1190,28 @@
      <event id="34" logical="default_event_34" physical="system_panic">
       <system_panic/>
      </event>
+     <event id="35" logical="default_event_35" physical="system_panic">
+      <system_panic/>
+     </event>
      <event id="36" logical="default_event_36" physical="system_panic">
       <system_panic/>
      </event>
      <event id="37" logical="default_event_37" physical="system_panic">
       <system_panic/>
      </event>
+     <event id="38" logical="default_event_38" physical="system_panic">
+      <system_panic/>
+     </event>
      <event id="39" logical="default_event_39" physical="system_panic">
       <system_panic/>
      </event>
      <event id="40" logical="default_event_40" physical="system_panic">
+      <system_panic/>
+     </event>
+     <event id="41" logical="default_event_41" physical="system_panic">
+      <system_panic/>
+     </event>
+     <event id="42" logical="default_event_42" physical="system_panic">
       <system_panic/>
      </event>
      <event id="43" logical="default_event_43" physical="system_panic">
@@ -1151,10 +1241,16 @@
      <event id="51" logical="default_event_51" physical="system_panic">
       <system_panic/>
      </event>
+     <event id="52" logical="default_event_52" physical="system_panic">
+      <system_panic/>
+     </event>
      <event id="53" logical="default_event_53" physical="system_panic">
       <system_panic/>
      </event>
      <event id="54" logical="default_event_54" physical="system_panic">
+      <system_panic/>
+     </event>
+     <event id="55" logical="default_event_55" physical="system_panic">
       <system_panic/>
      </event>
      <event id="56" logical="default_event_56" physical="system_panic">
@@ -1167,6 +1263,18 @@
       <system_panic/>
      </event>
      <event id="59" logical="default_event_59" physical="system_panic">
+      <system_panic/>
+     </event>
+     <event id="60" logical="default_event_60" physical="system_panic">
+      <system_panic/>
+     </event>
+     <event id="61" logical="default_event_61" physical="system_panic">
+      <system_panic/>
+     </event>
+     <event id="62" logical="default_event_62" physical="system_panic">
+      <system_panic/>
+     </event>
+     <event id="63" logical="default_event_63" physical="system_panic">
       <system_panic/>
      </event>
     </group>
@@ -1260,8 +1368,11 @@
   <devices/>
   <events>
    <source>
-    <group name="vmx_exit">
+    <group name="arm64_exception">
      <event id="0" logical="default_event_0" physical="system_panic">
+      <system_panic/>
+     </event>
+     <event id="1" logical="default_event_1" physical="system_panic">
       <system_panic/>
      </event>
      <event id="2" logical="default_event_2" physical="system_panic">
@@ -1277,6 +1388,9 @@
       <system_panic/>
      </event>
      <event id="6" logical="default_event_6" physical="system_panic">
+      <system_panic/>
+     </event>
+     <event id="7" logical="default_event_7" physical="system_panic">
       <system_panic/>
      </event>
      <event id="8" logical="default_event_8" physical="system_panic">
@@ -1360,16 +1474,28 @@
      <event id="34" logical="default_event_34" physical="system_panic">
       <system_panic/>
      </event>
+     <event id="35" logical="default_event_35" physical="system_panic">
+      <system_panic/>
+     </event>
      <event id="36" logical="default_event_36" physical="system_panic">
       <system_panic/>
      </event>
      <event id="37" logical="default_event_37" physical="system_panic">
       <system_panic/>
      </event>
+     <event id="38" logical="default_event_38" physical="system_panic">
+      <system_panic/>
+     </event>
      <event id="39" logical="default_event_39" physical="system_panic">
       <system_panic/>
      </event>
      <event id="40" logical="default_event_40" physical="system_panic">
+      <system_panic/>
+     </event>
+     <event id="41" logical="default_event_41" physical="system_panic">
+      <system_panic/>
+     </event>
+     <event id="42" logical="default_event_42" physical="system_panic">
       <system_panic/>
      </event>
      <event id="43" logical="default_event_43" physical="system_panic">
@@ -1399,10 +1525,16 @@
      <event id="51" logical="default_event_51" physical="system_panic">
       <system_panic/>
      </event>
+     <event id="52" logical="default_event_52" physical="system_panic">
+      <system_panic/>
+     </event>
      <event id="53" logical="default_event_53" physical="system_panic">
       <system_panic/>
      </event>
      <event id="54" logical="default_event_54" physical="system_panic">
+      <system_panic/>
+     </event>
+     <event id="55" logical="default_event_55" physical="system_panic">
       <system_panic/>
      </event>
      <event id="56" logical="default_event_56" physical="system_panic">
@@ -1415,6 +1547,18 @@
       <system_panic/>
      </event>
      <event id="59" logical="default_event_59" physical="system_panic">
+      <system_panic/>
+     </event>
+     <event id="60" logical="default_event_60" physical="system_panic">
+      <system_panic/>
+     </event>
+     <event id="61" logical="default_event_61" physical="system_panic">
+      <system_panic/>
+     </event>
+     <event id="62" logical="default_event_62" physical="system_panic">
+      <system_panic/>
+     </event>
+     <event id="63" logical="default_event_63" physical="system_panic">
       <system_panic/>
      </event>
     </group>
