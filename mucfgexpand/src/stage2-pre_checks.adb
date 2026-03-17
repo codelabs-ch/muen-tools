@@ -49,6 +49,15 @@ is
 
    -------------------------------------------------------------------------
 
+   procedure Register_ARM64
+   is
+   begin
+      Check_Procs.Register
+        (Process => MC.Events.Source_ARM64_Exception_Event_Completeness'Access);
+   end Register_ARM64;
+
+   -------------------------------------------------------------------------
+
    procedure Register_Common
    is
       use Cfgchecks;

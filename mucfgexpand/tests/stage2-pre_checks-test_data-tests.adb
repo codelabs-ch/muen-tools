@@ -43,7 +43,7 @@ package body Stage2.Pre_Checks.Test_Data.Tests is
        Assert (Condition => Check_Procs.Get_Count = 33,
                Message   => "Count mismatch:" & Get_Count'Img);
        Check_Procs.Clear;
- 
+
     exception
        when others =>
           Check_Procs.Clear;
@@ -67,13 +67,36 @@ package body Stage2.Pre_Checks.Test_Data.Tests is
       Assert (Condition => Check_Procs.Get_Count = 6,
               Message   => "Count mismatch:" & Get_Count'Img);
       Check_Procs.Clear;
- 
+
    exception
       when others =>
          Check_Procs.Clear;
          raise;
 --  begin read only
    end Test_Register_X86_64;
+--  end read only
+
+
+--  begin read only
+   procedure Test_Register_ARM64 (Gnattest_T : in out Test);
+   procedure Test_Register_ARM64_6909b5 (Gnattest_T : in out Test) renames Test_Register_ARM64;
+--  id:2.2/6909b5f7ef6d6f9f/Register_ARM64/1/0/
+   procedure Test_Register_ARM64 (Gnattest_T : in out Test) is
+--  end read only
+
+      pragma Unreferenced (Gnattest_T);
+
+   begin
+      Register_ARM64;
+      Assert (Condition => Check_Procs.Get_Count = 1,
+              Message   => "Count mismatch:" & Get_Count'Img);
+
+   exception
+      when others =>
+         Check_Procs.Clear;
+         raise;
+--  begin read only
+   end Test_Register_ARM64;
 --  end read only
 
 

@@ -66,9 +66,11 @@ is
       Stage1.Expansion.Run (Data => Policy);
 
       Stage2.Pre_Checks.Register_Common;
-      if Arch = Mutools.Types.X86_64 then
-         Stage2.Pre_Checks.Register_X86_64;
-      end if;
+      case Arch is
+         when Mutools.Types.X86_64 => Stage2.Pre_Checks.Register_X86_64;
+         when Mutools.Types.Arm64  => Stage2.Pre_Checks.Register_ARM64;
+      end case;
+
       Mulog.Log (Msg => "Registered stage 2 pre-checks"
                  & Stage2.Pre_Checks.Get_Count'Img);
       Stage2.Expansion.Register (Arch => Arch);
