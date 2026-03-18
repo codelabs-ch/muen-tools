@@ -17,15 +17,6 @@
   <memoryBlock allocatable="true" name="System RAM" physicalAddress="16#0000_0000#" size="16#8000_0000#"/>
  </memory>
  <devices>
-  <device name="ioapic_1">  <!-- TODO: Remove dummy I/O APIC  -->
-   <memory caching="UC" name="mem1" physicalAddress="16#fec0_0000#" size="16#1000#"/>
-   <capabilities>
-    <capability name="ioapic"/>
-    <capability name="gsi_base">0</capability>
-    <capability name="max_redirection_entry">23</capability>
-    <capability name="source_id">16#ff00#</capability>
-   </capabilities>
-  </device>
   <device name="APU_GIC">
    <irq name="sgi_0" number="0"/>
    <irq name="sgi_1" number="1"/>
@@ -63,7 +54,6 @@
   </device>
   <device name="SMMU_GPV">
    <irq name="irq" number="187"/>
-   <!-- TODO: Remove or replace mmio name for SMMU device (x86 related, compatibility mugenspec) -->
    <memory caching="UC" name="controller" physicalAddress="16#fd80_0000#" size="16#0001_0000#"/>
    <memory caching="UC" name="context" physicalAddress="16#fd81_0000#" size="16#0001_0000#"/>
    <capabilities>
@@ -197,46 +187,14 @@
  <memory alignment="16#1000#" caching="WB" name="caesar_cipher|pt" physicalAddress="16#0023_0000#" size="16#3000#" type="system_pt">
   <file filename="xilinxzcu104-caesar_cipher.pt" offset="none"/>
  </memory>
- <!-- TODO: Remove or replace VMXON kernel memory nodes (compatibility mugenspec) -->
- <memory alignment="16#1000#" caching="WB" name="kernel_0|vmxon" physicalAddress="16#0023_3000#" size="16#1000#" type="system_vmxon"/>
- <memory alignment="16#1000#" caching="WB" name="kernel_1|vmxon" physicalAddress="16#0023_4000#" size="16#1000#" type="system_vmxon"/>
- <!-- TODO: Remove or replace system interface memory node (compatibility mugenspec) -->
  <memory alignment="16#1000#" caching="UC" name="sys_interface" physicalAddress="16#0023_5000#" size="16#1000#" type="system"/>
- <!-- TODO: Remove or replace subject linux| memory nodes (compatibility mugenspec) -->
  <memory alignment="16#1000#" caching="WB" name="lnx1|state" physicalAddress="16#0023_6000#" size="16#1000#" type="kernel"/>
  <memory alignment="16#1000#" caching="WB" name="lnx1|timed_event" physicalAddress="16#0023_7000#" size="16#1000#" type="kernel"/>
- <memory alignment="16#1000#" caching="UC" name="lnx1|sinfo" physicalAddress="16#0023_8000#" size="16#7000#" type="subject_info"/>
  <memory alignment="16#1000#" caching="WB" name="lnx1|interrupts" physicalAddress="16#0023_f000#" size="16#1000#" type="kernel"/>
- <memory alignment="16#1000#" caching="WB" name="lnx1|msrstore" physicalAddress="16#0024_0000#" size="16#1000#" type="kernel_msrstore">
-  <file filename="lnx1_msrstore" offset="none"/>
- </memory>
- <memory alignment="16#1000#" caching="WB" name="lnx1|vmcs" physicalAddress="16#0024_1000#" size="16#1000#" type="kernel_vmcs"/>
  <memory alignment="16#1000#" caching="WB" name="lnx1|fpu" physicalAddress="16#0024_2000#" size="16#1000#" type="kernel"/>
- <!-- TODO: Remove or replace VMCS memory nodes (compatibility mugenspec) -->
- <memory alignment="16#1000#" caching="WB" name="lnx1|vmcs" physicalAddress="16#0023_6000#" size="16#1000#" type="kernel_vmcs"/>
- <memory alignment="16#1000#" caching="WB" name="string_reverser|vmcs" physicalAddress="16#0023_7000#" size="16#1000#" type="kernel_vmcs"/>
- <memory alignment="16#1000#" caching="WB" name="lnx2|vmcs" physicalAddress="16#0023_8000#" size="16#1000#" type="kernel_vmcs"/>
- <memory alignment="16#1000#" caching="WB" name="caesar_cipher|vmcs" physicalAddress="16#0023_9000#" size="16#1000#" type="kernel_vmcs"/>
- <!-- TODO: Remove or replace scheduling_info memory nodes (compatibility mugenspec) -->
  <memory alignment="16#1000#" caching="WB" name="scheduling_info_1" physicalAddress="16#0022_4000#" size="16#1000#" type="kernel"/>
- <!-- TODO: Remove or replace VTD root memory node (compatibility mugenspec) -->
- <memory alignment="16#1000#" caching="WB" name="vtd_root_table" physicalAddress="16#0023_a000#" size="16#1000#" type="system_vtd_root">
-  <file filename="vtd_root_table" offset="none"/>
- </memory>
- <!-- TODO: Remove or replace VTD ir memory node (compatibility mugenspec) -->
- <memory alignment="16#1000#" caching="WB" name="vtd_ir_table" physicalAddress="16#0023_b000#" size="16#1000#" type="system_vtd_ir">
-  <file filename="vtd_ir_table" offset="none"/>
- </memory>
- <!-- TODO: Remove or replace sinfo memory nodes (compatibility mugenspec) -->
  <memory alignment="16#1000#" caching="UC" name="lnx1|sinfo" physicalAddress="16#0024_0000#" size="16#7000#" type="subject_info"/>
  <memory alignment="16#1000#" caching="UC" name="lnx2|sinfo" physicalAddress="16#0024_0000#" size="16#7000#" type="subject_info"/>
- <!-- TODO: Remove or replace mrsstore memory nodes (compatibility mugenspec) -->
- <memory alignment="16#1000#" caching="WB" name="lnx1|msrstore" physicalAddress="16#0024_7000#" size="16#1000#" type="kernel_msrstore">
-  <file filename="lnx1_msrstore" offset="none"/>
- </memory>
- <memory alignment="16#1000#" caching="WB" name="lnx2|msrstore" physicalAddress="16#0024_7000#" size="16#1000#" type="kernel_msrstore">
-  <file filename="lnx2_msrstore" offset="none"/>
- </memory>
  <memory alignment="16#1000#" caching="WB" name="string_reverser|binary" physicalAddress="16#0400_0000#" size="16#0004_0000#" type="subject_binary">
   <file filename="subject_one.bin" offset="none"/>
  </memory>
@@ -321,6 +279,7 @@
 </deviceDomains>
 <events>
  <event name="system_panic" mode="kernel"/>
+ <event name="notify" mode="ipi"/>
 </events>
 <kernel>
  <memory>
@@ -333,17 +292,12 @@
    <memory logical="stack" physical="kernel_stack_0" virtualAddress="16#0009_0000#" writable="true" executable="false"/>
    <memory logical="interrupt_stack" physical="kernel_interrupt_stack_0" virtualAddress="16#003f_f000#" writable="true" executable="false"/>
    <memory logical="crash_audit" physical="crash_audit" virtualAddress="16#0040_0000#" writable="true" executable="false"/>
-   <!-- TODO: Remove or replace tau0 interface memory node (compatibility mugenspec) -->
    <memory logical="tau0_interface" physical="sys_interface" virtualAddress="16#0040_1000#" writable="false" executable="false"/>
-   <!-- TODO: Remove or replace lnx1| memory nodes (compatibility mugenspec) -->
    <memory logical="lnx1|state" physical="lnx1|state" virtualAddress="16#0040_2000#" writable="true" executable="false"/>
    <memory logical="lnx1|timed_event" physical="lnx1|timed_event" virtualAddress="16#0040_3000#" writable="true" executable="false"/>
    <memory logical="lnx1|sinfo" physical="lnx1|sinfo" virtualAddress="16#0040_4000#" writable="true" executable="false"/>
    <memory logical="lnx1|interrupts" physical="lnx1|interrupts" virtualAddress="16#0040_b000#" writable="true" executable="false"/>
-   <memory logical="lnx1|msrstore" physical="lnx1|msrstore" virtualAddress="16#0040_c000#" writable="true" executable="false"/>
-   <memory logical="lnx1|vmcs" physical="lnx1|vmcs" virtualAddress="16#0040_d000#" writable="true" executable="false"/>
    <memory logical="lnx1|fpu" physical="lnx1|fpu" virtualAddress="16#0040_e000#" writable="true" executable="false"/>
-   <!-- TODO: Remove or replace scheduling_info memory nodes (compatibility mugenspec) -->
    <memory logical="scheduling_info_1" physical="scheduling_info_1" virtualAddress="16#0041_0000#" writable="true" executable="false"/>
   </cpu>
   <cpu id="1">
@@ -374,8 +328,7 @@
   </device>
   <device logical="iommu" physical="SMMU_GPV">
    <irq logical="smmu_irq" physical="irq" vector="187"/>
-   <!-- TODO: Remove or replace mmio name for SMMU device (x86 related, compatibility mugenspec) -->
-   <memory virtualAddress="16#fd80_0000#" physical="mmio" logical="controller" writable="true" executable="false"/>
+   <memory virtualAddress="16#fd80_0000#" physical="controller" logical="controller" writable="true" executable="false"/>
    <memory virtualAddress="16#fd81_0000#" physical="context" logical="context" writable="true" executable="false"/>
   </device>
  </devices>
@@ -489,8 +442,11 @@
   </devices>
   <events>
    <source>
-    <group name="vmx_exit">
+    <group name="arm64_exception">
      <event id="0" logical="default_event_0" physical="system_panic">
+      <system_panic/>
+     </event>
+     <event id="1" logical="default_event_1" physical="system_panic">
       <system_panic/>
      </event>
      <event id="2" logical="default_event_2" physical="system_panic">
@@ -506,6 +462,9 @@
       <system_panic/>
      </event>
      <event id="6" logical="default_event_6" physical="system_panic">
+      <system_panic/>
+     </event>
+     <event id="7" logical="default_event_7" physical="system_panic">
       <system_panic/>
      </event>
      <event id="8" logical="default_event_8" physical="system_panic">
@@ -589,16 +548,28 @@
      <event id="34" logical="default_event_34" physical="system_panic">
       <system_panic/>
      </event>
+     <event id="35" logical="default_event_35" physical="system_panic">
+      <system_panic/>
+     </event>
      <event id="36" logical="default_event_36" physical="system_panic">
       <system_panic/>
      </event>
      <event id="37" logical="default_event_37" physical="system_panic">
       <system_panic/>
      </event>
+     <event id="38" logical="default_event_38" physical="system_panic">
+      <system_panic/>
+     </event>
      <event id="39" logical="default_event_39" physical="system_panic">
       <system_panic/>
      </event>
      <event id="40" logical="default_event_40" physical="system_panic">
+      <system_panic/>
+     </event>
+     <event id="41" logical="default_event_41" physical="system_panic">
+      <system_panic/>
+     </event>
+     <event id="42" logical="default_event_42" physical="system_panic">
       <system_panic/>
      </event>
      <event id="43" logical="default_event_43" physical="system_panic">
@@ -628,10 +599,16 @@
      <event id="51" logical="default_event_51" physical="system_panic">
       <system_panic/>
      </event>
+     <event id="52" logical="default_event_52" physical="system_panic">
+      <system_panic/>
+     </event>
      <event id="53" logical="default_event_53" physical="system_panic">
       <system_panic/>
      </event>
      <event id="54" logical="default_event_54" physical="system_panic">
+      <system_panic/>
+     </event>
+     <event id="55" logical="default_event_55" physical="system_panic">
       <system_panic/>
      </event>
      <event id="56" logical="default_event_56" physical="system_panic">
@@ -646,8 +623,22 @@
      <event id="59" logical="default_event_59" physical="system_panic">
       <system_panic/>
      </event>
+     <event id="60" logical="default_event_60" physical="system_panic">
+      <system_panic/>
+     </event>
+     <event id="61" logical="default_event_61" physical="system_panic">
+      <system_panic/>
+     </event>
+     <event id="62" logical="default_event_62" physical="system_panic">
+      <system_panic/>
+     </event>
+     <event id="63" logical="default_event_63" physical="system_panic">
+      <system_panic/>
+     </event>
     </group>
-    <group name="vmcall"/>
+    <group name="vmcall">
+     <event id="1" logical="ipi" physical="notify"/>
+    </group>
    </source>
   </events>
  </subject>
@@ -737,8 +728,11 @@
   <devices/>
   <events>
    <source>
-    <group name="vmx_exit">
+    <group name="arm64_exception">
      <event id="0" logical="default_event_0" physical="system_panic">
+      <system_panic/>
+     </event>
+     <event id="1" logical="default_event_1" physical="system_panic">
       <system_panic/>
      </event>
      <event id="2" logical="default_event_2" physical="system_panic">
@@ -754,6 +748,9 @@
       <system_panic/>
      </event>
      <event id="6" logical="default_event_6" physical="system_panic">
+      <system_panic/>
+     </event>
+     <event id="7" logical="default_event_7" physical="system_panic">
       <system_panic/>
      </event>
      <event id="8" logical="default_event_8" physical="system_panic">
@@ -837,16 +834,28 @@
      <event id="34" logical="default_event_34" physical="system_panic">
       <system_panic/>
      </event>
+     <event id="35" logical="default_event_35" physical="system_panic">
+      <system_panic/>
+     </event>
      <event id="36" logical="default_event_36" physical="system_panic">
       <system_panic/>
      </event>
      <event id="37" logical="default_event_37" physical="system_panic">
       <system_panic/>
      </event>
+     <event id="38" logical="default_event_38" physical="system_panic">
+      <system_panic/>
+     </event>
      <event id="39" logical="default_event_39" physical="system_panic">
       <system_panic/>
      </event>
      <event id="40" logical="default_event_40" physical="system_panic">
+      <system_panic/>
+     </event>
+     <event id="41" logical="default_event_41" physical="system_panic">
+      <system_panic/>
+     </event>
+     <event id="42" logical="default_event_42" physical="system_panic">
       <system_panic/>
      </event>
      <event id="43" logical="default_event_43" physical="system_panic">
@@ -876,10 +885,16 @@
      <event id="51" logical="default_event_51" physical="system_panic">
       <system_panic/>
      </event>
+     <event id="52" logical="default_event_52" physical="system_panic">
+      <system_panic/>
+     </event>
      <event id="53" logical="default_event_53" physical="system_panic">
       <system_panic/>
      </event>
      <event id="54" logical="default_event_54" physical="system_panic">
+      <system_panic/>
+     </event>
+     <event id="55" logical="default_event_55" physical="system_panic">
       <system_panic/>
      </event>
      <event id="56" logical="default_event_56" physical="system_panic">
@@ -892,6 +907,18 @@
       <system_panic/>
      </event>
      <event id="59" logical="default_event_59" physical="system_panic">
+      <system_panic/>
+     </event>
+     <event id="60" logical="default_event_60" physical="system_panic">
+      <system_panic/>
+     </event>
+     <event id="61" logical="default_event_61" physical="system_panic">
+      <system_panic/>
+     </event>
+     <event id="62" logical="default_event_62" physical="system_panic">
+      <system_panic/>
+     </event>
+     <event id="63" logical="default_event_63" physical="system_panic">
       <system_panic/>
      </event>
     </group>
@@ -1012,8 +1039,11 @@
   </devices>
   <events>
    <source>
-    <group name="vmx_exit">
+    <group name="arm64_exception">
      <event id="0" logical="default_event_0" physical="system_panic">
+      <system_panic/>
+     </event>
+     <event id="1" logical="default_event_1" physical="system_panic">
       <system_panic/>
      </event>
      <event id="2" logical="default_event_2" physical="system_panic">
@@ -1029,6 +1059,9 @@
       <system_panic/>
      </event>
      <event id="6" logical="default_event_6" physical="system_panic">
+      <system_panic/>
+     </event>
+     <event id="7" logical="default_event_7" physical="system_panic">
       <system_panic/>
      </event>
      <event id="8" logical="default_event_8" physical="system_panic">
@@ -1112,16 +1145,28 @@
      <event id="34" logical="default_event_34" physical="system_panic">
       <system_panic/>
      </event>
+     <event id="35" logical="default_event_35" physical="system_panic">
+      <system_panic/>
+     </event>
      <event id="36" logical="default_event_36" physical="system_panic">
       <system_panic/>
      </event>
      <event id="37" logical="default_event_37" physical="system_panic">
       <system_panic/>
      </event>
+     <event id="38" logical="default_event_38" physical="system_panic">
+      <system_panic/>
+     </event>
      <event id="39" logical="default_event_39" physical="system_panic">
       <system_panic/>
      </event>
      <event id="40" logical="default_event_40" physical="system_panic">
+      <system_panic/>
+     </event>
+     <event id="41" logical="default_event_41" physical="system_panic">
+      <system_panic/>
+     </event>
+     <event id="42" logical="default_event_42" physical="system_panic">
       <system_panic/>
      </event>
      <event id="43" logical="default_event_43" physical="system_panic">
@@ -1151,10 +1196,16 @@
      <event id="51" logical="default_event_51" physical="system_panic">
       <system_panic/>
      </event>
+     <event id="52" logical="default_event_52" physical="system_panic">
+      <system_panic/>
+     </event>
      <event id="53" logical="default_event_53" physical="system_panic">
       <system_panic/>
      </event>
      <event id="54" logical="default_event_54" physical="system_panic">
+      <system_panic/>
+     </event>
+     <event id="55" logical="default_event_55" physical="system_panic">
       <system_panic/>
      </event>
      <event id="56" logical="default_event_56" physical="system_panic">
@@ -1169,9 +1220,26 @@
      <event id="59" logical="default_event_59" physical="system_panic">
       <system_panic/>
      </event>
+     <event id="60" logical="default_event_60" physical="system_panic">
+      <system_panic/>
+     </event>
+     <event id="61" logical="default_event_61" physical="system_panic">
+      <system_panic/>
+     </event>
+     <event id="62" logical="default_event_62" physical="system_panic">
+      <system_panic/>
+     </event>
+     <event id="63" logical="default_event_63" physical="system_panic">
+      <system_panic/>
+     </event>
     </group>
     <group name="vmcall"/>
    </source>
+   <target>
+    <event id="0" logical="ipi" physical="notify">
+     <inject_interrupt vector="42"/>
+    </event>
+   </target>
   </events>
  </subject>
  <subject cpu="1" localId="2" globalId="3" name="caesar_cipher" schedGroupId="4">
@@ -1260,8 +1328,11 @@
   <devices/>
   <events>
    <source>
-    <group name="vmx_exit">
+    <group name="arm64_exception">
      <event id="0" logical="default_event_0" physical="system_panic">
+      <system_panic/>
+     </event>
+     <event id="1" logical="default_event_1" physical="system_panic">
       <system_panic/>
      </event>
      <event id="2" logical="default_event_2" physical="system_panic">
@@ -1277,6 +1348,9 @@
       <system_panic/>
      </event>
      <event id="6" logical="default_event_6" physical="system_panic">
+      <system_panic/>
+     </event>
+     <event id="7" logical="default_event_7" physical="system_panic">
       <system_panic/>
      </event>
      <event id="8" logical="default_event_8" physical="system_panic">
@@ -1360,16 +1434,28 @@
      <event id="34" logical="default_event_34" physical="system_panic">
       <system_panic/>
      </event>
+     <event id="35" logical="default_event_35" physical="system_panic">
+      <system_panic/>
+     </event>
      <event id="36" logical="default_event_36" physical="system_panic">
       <system_panic/>
      </event>
      <event id="37" logical="default_event_37" physical="system_panic">
       <system_panic/>
      </event>
+     <event id="38" logical="default_event_38" physical="system_panic">
+      <system_panic/>
+     </event>
      <event id="39" logical="default_event_39" physical="system_panic">
       <system_panic/>
      </event>
      <event id="40" logical="default_event_40" physical="system_panic">
+      <system_panic/>
+     </event>
+     <event id="41" logical="default_event_41" physical="system_panic">
+      <system_panic/>
+     </event>
+     <event id="42" logical="default_event_42" physical="system_panic">
       <system_panic/>
      </event>
      <event id="43" logical="default_event_43" physical="system_panic">
@@ -1399,10 +1485,16 @@
      <event id="51" logical="default_event_51" physical="system_panic">
       <system_panic/>
      </event>
+     <event id="52" logical="default_event_52" physical="system_panic">
+      <system_panic/>
+     </event>
      <event id="53" logical="default_event_53" physical="system_panic">
       <system_panic/>
      </event>
      <event id="54" logical="default_event_54" physical="system_panic">
+      <system_panic/>
+     </event>
+     <event id="55" logical="default_event_55" physical="system_panic">
       <system_panic/>
      </event>
      <event id="56" logical="default_event_56" physical="system_panic">
@@ -1415,6 +1507,18 @@
       <system_panic/>
      </event>
      <event id="59" logical="default_event_59" physical="system_panic">
+      <system_panic/>
+     </event>
+     <event id="60" logical="default_event_60" physical="system_panic">
+      <system_panic/>
+     </event>
+     <event id="61" logical="default_event_61" physical="system_panic">
+      <system_panic/>
+     </event>
+     <event id="62" logical="default_event_62" physical="system_panic">
+      <system_panic/>
+     </event>
+     <event id="63" logical="default_event_63" physical="system_panic">
       <system_panic/>
      </event>
     </group>

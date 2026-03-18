@@ -208,6 +208,12 @@
        <system_panic/>
       </event>
      </group>
+     <group name="arm64_exception">
+      <default physical="trap"/>
+      <event id="1" logical="sleep" physical="sleep">
+       <subject_sleep/>
+      </event>
+     </group>
     </source>
     <target>
      <event id="0" logical="reset" physical="reset_subject">

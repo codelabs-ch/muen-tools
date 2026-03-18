@@ -49,6 +49,15 @@ is
 
    -------------------------------------------------------------------------
 
+   procedure Register_ARM64
+   is
+   begin
+      Check_Procs.Register
+        (Process => MC.Events.Source_ARM64_Exception_Event_Completeness'Access);
+   end Register_ARM64;
+
+   -------------------------------------------------------------------------
+
    procedure Register_Common
    is
       use Cfgchecks;
@@ -77,8 +86,6 @@ is
         (Process => MC.Events.Source_Targets'Access);
       Check_Procs.Register
         (Process => MC.Events.Self_References'Access);
-      Check_Procs.Register
-        (Process => MC.Events.Source_VMX_Exit_Event_Completeness'Access);
       Check_Procs.Register
         (Process => MC.Scheduling.Subject_Scheduling_Group_Assignment'Access);
       Check_Procs.Register
@@ -131,6 +138,8 @@ is
         (Process => MC.Hardware.IOAPIC_Presence'Access);
       Check_Procs.Register
         (Process => MC.Device.IOMMU_Region_Size'Access);
+      Check_Procs.Register
+        (Process => MC.Events.Source_VMX_Exit_Event_Completeness'Access);
    end Register_X86_64;
 
    -------------------------------------------------------------------------

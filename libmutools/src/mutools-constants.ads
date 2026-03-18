@@ -73,8 +73,9 @@ is
 
    --  Number of bits for the subject event range. The total number of
    --  available events is given by 2 ** Event_Bits.
-   Event_Bits            : constant := 6;
-   Max_Valid_Vmcall_ID   : constant := 2 ** Event_Bits - 1;
-   Max_Valid_VMX_Exit_ID : constant := 59;
+   Event_Bits                   : constant := 6;
+   Max_Valid_Vmcall_ID          : constant := 2 ** Event_Bits - 1;
+   Max_Valid_VMX_Exit_ID        : constant := 59;
+   Max_Valid_Exception_Class_ID : constant := 2 ** 6 - 1;
 
 end Mutools.Constants;

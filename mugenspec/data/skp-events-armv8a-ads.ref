@@ -19,7 +19,7 @@ is
    Invalid_Target_Event : constant Target_Event_Range
      := Target_Event_Range'Last;
 
-   type Trap_Range is range 0 .. 59;
+   type Trap_Range is range 0 .. 63;
 
    type Event_Action_Kind is
      (Subject_Sleep,

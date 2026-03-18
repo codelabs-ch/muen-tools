@@ -74,6 +74,12 @@ is
      (XML_Data : Muxml.XML_Data_Type);
 
    --D @Item List => validators_evts
+   --D Check that the ARM64 exception source event group is present and that
+   --D either all source event IDs are given or a default is specified.
+   procedure Source_ARM64_Exception_Event_Completeness
+     (XML_Data : Muxml.XML_Data_Type);
+
+   --D @Item List => validators_evts
    --D Check that self events provide a target action.
    procedure Self_Event_Action (XML_Data : Muxml.XML_Data_Type);
 
