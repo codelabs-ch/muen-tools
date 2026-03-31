@@ -89,7 +89,7 @@
     Specification of one physical x86_64 CPU core.
    </xs:documentation>
   </xs:annotation>
-  <xs:attribute name="apicId" type="xs:unsignedByte" use="required">
+  <xs:attribute name="apicId" type="xs:unsignedInt" use="required">
    <xs:annotation>
     <xs:documentation>
      CPU local APIC ID, see Intel SDM Vol. 3A, "10.4.6 Local APIC ID".
