@@ -128,26 +128,52 @@ is
    begin
       Mulog.Log (Msg => "Checking CPU APIC IDs and BSP presence");
       --D @Item(List => cpu_apic_id_checks).
-      --D A node with \texttt{apicId} value \texttt{0} must exist and, if
-      --D specified, it must have a \texttt{cpuId} value within the active CPU
-      --D range, i.e. the BSP is part of the system scheduling plan
+      --D Exactly one node with \texttt{apicId} value specified by the
+      --D \texttt{bspApicId} attribute must exist and must have a \texttt{cpuId}
+      --D value of 0, i.e. the BSP is part of the system scheduling plan and the
+      --D first CPU.
 
       BSP_Presence :
       declare
          use type DOM.Core.Node;
 
-         Active_CPUs : constant Positive
-           := Mutools.XML_Utils.Get_Active_CPU_Count (Data => XML_Data);
-         BSP : constant DOM.Core.Node
-           := Muxml.Utils.Get_Element
-             (Doc   => XML_Data.Doc,
-              XPath => "/system/hardware/processor/x86_64/cpu[@apicId='0' and "
-              & "@cpuId <" & Active_CPUs'Img & "]");
+         BSP_APIC_ID : constant String := Muxml.Utils.Get_Attribute
+           (Doc   => XML_Data.Doc,
+            XPath => "/system/hardware/processor/x86_64",
+            Name  => "bspApicId");
+         Nodes : constant DOM.Core.Node_List
+           := McKae.XML.XPath.XIA.XPath_Query
+             (N     => XML_Data.Doc,
+              XPath => "/system/hardware/processor/x86_64/cpu[@apicId='"
+              & BSP_APIC_ID & "']");
+         Node_Count : constant Natural := DOM.Core.Nodes.Length (List => Nodes);
       begin
-         if BSP = null then
-            Validation_Errors.Insert
-              (Msg => "CPU with APIC ID 0 not present in active CPU set");
+         if Node_Count /= 1 then
+            if Node_Count < 1 then
+               Validation_Errors.Insert
+                 (Msg => "No BSP CPU with APIC ID " & BSP_APIC_ID & " present");
+               return;
+            else
+               Validation_Errors.Insert
+                 (Msg => "Multiple CPUs with BSP APIC ID " & BSP_APIC_ID
+                  & " present");
+            end if;
          end if;
+
+         declare
+            BSP : constant DOM.Core.Node
+              := DOM.Core.Nodes.Item (List  => Nodes,
+                                      Index => 0);
+            CPU_ID : constant String
+            := DOM.Core.Elements.Get_Attribute (Elem => BSP,
+                                                Name => "cpuId");
+         begin
+            if CPU_ID /= "0" then
+               Validation_Errors.Insert
+                 (Msg => "BSP CPU has unexpected CPU ID " & CPU_ID
+                  & ", must be 0");
+            end if;
+         end;
       end BSP_Presence;
 
       --D @Item(List => cpu_apic_id_checks).
