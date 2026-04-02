@@ -244,7 +244,7 @@ is
       Sub_Node_Count : constant Natural
         := DOM.Core.Nodes.Length (List => Sub_Nodes);
    begin
-      Mulog.Log (Msg => "Checking CPU configuration and BSP presence");
+      Mulog.Log (Msg => "Checking CPU configuration");
 
       --D @Text(Section  => 'system_src.xsd:processorType',
       --D       Priority => 0).
