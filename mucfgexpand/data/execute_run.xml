@@ -528,6 +528,7 @@
     <memory executable="false" logical="scheduling_info_4" physical="scheduling_info_4" virtualAddress="16#00b0_3000#" writable="true"/>
     <memory executable="false" logical="crash_audit" physical="crash_audit" virtualAddress="16#0040_0000#" writable="true"/>
     <memory executable="false" logical="microcode" physical="microcode" virtualAddress="16#00d0_0000#" writable="false"/>
+    <memory executable="false" logical="tau0_interface" physical="sys_interface" virtualAddress="16#003f_f000#" writable="false"/>
     <memory executable="false" logical="lnx|msrstore" physical="lnx|msrstore" virtualAddress="16#0090_1000#" writable="true"/>
    </cpu>
    <cpu id="1">
@@ -558,7 +559,6 @@
     <memory executable="false" logical="scheduling_info_5" physical="scheduling_info_5" virtualAddress="16#00b0_4000#" writable="true"/>
     <memory executable="false" logical="crash_audit" physical="crash_audit" virtualAddress="16#0040_0000#" writable="true"/>
     <memory executable="false" logical="microcode" physical="microcode" virtualAddress="16#00d0_0000#" writable="false"/>
-    <memory executable="false" logical="tau0_interface" physical="sys_interface" virtualAddress="16#003f_f000#" writable="false"/>
     <memory executable="false" logical="subject2|msrstore" physical="subject2|msrstore" virtualAddress="16#0090_3000#" writable="true"/>
     <memory executable="false" logical="lnx_core_1|msrstore" physical="lnx_core_1|msrstore" virtualAddress="16#0090_4000#" writable="true"/>
    </cpu>
