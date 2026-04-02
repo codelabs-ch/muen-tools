@@ -107,6 +107,25 @@ package body Expanders.Hardware.Test_Data.Tests is
 
 
 --  begin read only
+   procedure Test_Add_BSP_CPU_ID (Gnattest_T : in out Test);
+   procedure Test_Add_BSP_CPU_ID_a16866 (Gnattest_T : in out Test) renames Test_Add_BSP_CPU_ID;
+--  id:2.2/a168667a3dda933d/Add_BSP_CPU_ID/1/0/
+   procedure Test_Add_BSP_CPU_ID (Gnattest_T : in out Test) is
+--  end read only
+
+      pragma Unreferenced (Gnattest_T);
+
+   begin
+      Test_Utils.Expander.Run_Test
+        (Filename => "obj/processor_bsp_cpu_id.xml",
+         Ref_Diff => "data/processor_bsp_cpu_id.xml.diff",
+         Expander => Add_BSP_CPU_ID'Access);
+--  begin read only
+   end Test_Add_BSP_CPU_ID;
+--  end read only
+
+
+--  begin read only
    procedure Test_Add_Processor_CPU_IDs (Gnattest_T : in out Test);
    procedure Test_Add_Processor_CPU_IDs_d44965 (Gnattest_T : in out Test) renames Test_Add_Processor_CPU_IDs;
 --  id:2.2/d449658550ed6525/Add_Processor_CPU_IDs/1/0/

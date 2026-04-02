@@ -29,6 +29,7 @@ with McKae.XML.XPath.XIA;
 with Mulog;
 with Muxml.Utils;
 with Mutools.Constants;
+with Mutools.XML_Utils;
 
 with Expanders.Utils;
 
@@ -39,6 +40,27 @@ is
      (Source : String)
       return Ada.Strings.Unbounded.Unbounded_String
       renames Ada.Strings.Unbounded.To_Unbounded_String;
+
+   -------------------------------------------------------------------------
+
+   procedure Add_BSP_CPU_ID (Data : in out Muxml.XML_Data_Type)
+   is
+      BSP_APIC_ID : constant String := Muxml.Utils.Get_Attribute
+        (Doc   => Data.Doc,
+         XPath => "/system/hardware/processor/x86_64",
+         Name  => "bspApicId");
+   begin
+      if Mutools.XML_Utils.Is_Arm64 (Policy => Data) then
+         return;
+      end if;
+
+      Muxml.Utils.Set_Attribute
+        (Doc   => Data.Doc,
+         XPath => "/system/hardware/processor/x86_64/cpu[@apicId='"
+                  & BSP_APIC_ID & "']",
+         Name  => "cpuId",
+         Value => "0");
+   end Add_BSP_CPU_ID;
 
    -------------------------------------------------------------------------
 

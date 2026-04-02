@@ -33,6 +33,9 @@ is
    --  Add corresponding memory block for each reserved memory region.
    procedure Add_Reserved_Memory_Blocks (Data : in out Muxml.XML_Data_Type);
 
+   --  Add cpu ID attribute with value 0 to BSP processor cpu element.
+   procedure Add_BSP_CPU_ID (Data : in out Muxml.XML_Data_Type);
+
    --  Add cpu ID attributes to processor cpu elements.
    procedure Add_Processor_CPU_IDs (Data : in out Muxml.XML_Data_Type);
 
