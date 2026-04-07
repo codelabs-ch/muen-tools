@@ -16,8 +16,9 @@
 --  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --
 
+with Ada.Strings.Fixed;
+
 with DOM.Core.Nodes;
-with DOM.Core.Elements;
 
 with Muxml.Utils;
 
@@ -26,61 +27,31 @@ is
 
    -------------------------------------------------------------------------
 
-   function Get_APIC_CPU_ID_Map
+   function Get_CPU_APIC_ID_Map
      (CPU_Nodes : DOM.Core.Node_List)
-      return APIC_To_CPU_ID_Array
+      return CPU_To_APIC_ID_Array
    is
-
-      --  Return maximum APIC ID value in CPU_Nodes.
-      function Get_Max_APIC_ID return Natural;
-
-      ----------------------------------------------------------------------
-
-      function Get_Max_APIC_ID return Natural
-      is
-         Result : Natural := 0;
-      begin
-         for I in 0 .. DOM.Core.Nodes.Length (CPU_Nodes) - 1 loop
-            declare
-               ID : constant Natural
-                 := Natural'Value (DOM.Core.Elements.Get_Attribute
-                                   (Elem => DOM.Core.Nodes.Item
-                                    (List  => CPU_Nodes,
-                                     Index => I),
-                                    Name => "apicId"));
-            begin
-               if ID > Result then
-                  Result := ID;
-               end if;
-            end;
-         end loop;
-
-         return Result;
-      end Get_Max_APIC_ID;
-
-      Res : APIC_To_CPU_ID_Array (0 .. Get_Max_APIC_ID / 2)
-        := (others => 0);
+      Max_CPU_ID : constant Natural := DOM.Core.Nodes.Length (CPU_Nodes) - 1;
+      Res        : CPU_To_APIC_ID_Array (0 .. Max_CPU_ID) := (others => 0);
    begin
-      for I in 0 .. DOM.Core.Nodes.Length (List => CPU_Nodes) - 1 loop
+      for I in 0 .. Max_CPU_ID loop
          declare
-            Node : constant DOM.Core.Node
-              := DOM.Core.Nodes.Item (List  => CPU_Nodes,
-                                      Index => I);
-            Idx : constant Natural
-              := Natural'Value (DOM.Core.Elements.Get_Attribute
-                                (Elem => Node,
-                                 Name => "apicId"));
-            CPU_ID : constant Natural
-              := Natural'Value (DOM.Core.Elements.Get_Attribute
-                                (Elem => Node,
-                                 Name => "cpuId"));
+            CPU_ID_Str : constant String := Ada.Strings.Fixed.Trim
+              (Source => I'Img,
+               Side   => Ada.Strings.Left);
+            Cur_APIC_ID_Str : constant String
+              := Muxml.Utils.Get_Attribute
+                 (Nodes     => CPU_Nodes,
+                  Ref_Attr  => "cpuId",
+                  Ref_Value => CPU_ID_Str,
+                  Attr_Name => "apicId");
          begin
-            Res (Idx / 2) := CPU_ID;
+            Res (I) := Natural'Value (Cur_APIC_ID_Str);
          end;
       end loop;
 
       return Res;
-   end Get_APIC_CPU_ID_Map;
+   end Get_CPU_APIC_ID_Map;
 
    -------------------------------------------------------------------------
 
