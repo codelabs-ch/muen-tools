@@ -851,6 +851,8 @@ is
       XML_Processors.Register
         (Process => Subject.Device_Mmconf_Mappings'Access);
       XML_Processors.Register
+        (Process => Subject.No_IOMMU_Device_References'Access);
+      XML_Processors.Register
         (Process => Subject.VCPU_Architecture_Consistency'Access);
       XML_Processors.Register
         (Process => Subject.VMX_Controls_Entry_Checks'Access);
@@ -950,6 +952,8 @@ is
         (Process => Device_Domains.Domain_PT_Region_Presence'Access);
       XML_Processors.Register
         (Process => Device_Domains.PCI_Bus_Context_Region_Presence'Access);
+      XML_Processors.Register
+        (Process => Device_Domains.PCI_Device_References'Access);
    end Register_X86_64;
 
    -------------------------------------------------------------------------
