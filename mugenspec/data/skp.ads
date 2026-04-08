@@ -1,6 +1,8 @@
 --  Disable line length check
 pragma Style_Checks ("-m");
 
+with SK;
+
 --D @Interface
 --D The \texttt{Skp} package hierarchy is a codified static representation of
 --D the system policy. All the values are derived from the system policy and
@@ -15,7 +17,7 @@ is
 
    type CPU_Range is range 0 .. CPU_Count - 1;
 
-   subtype APIC_ID_Type is Natural
+   subtype APIC_ID_Type is SK.Word32
      with Static_Predicate => APIC_ID_Type in 0 | 2;
 
    CPU_To_APIC_ID : constant array (CPU_Range) of APIC_ID_Type := (
