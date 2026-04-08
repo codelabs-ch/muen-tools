@@ -21,6 +21,8 @@ is
    CPU_To_APIC_ID : constant array (CPU_Range) of APIC_ID_Type := (
 __cpu_to_apic_id__);
 
+   BSP_APIC_ID : constant APIC_ID_Type := __bsp_apic_id__;
+
    subtype Global_Subject_ID_Type is Natural range __subj_range__;
 
    Invalid_Subject : constant := Global_Subject_ID_Type'Last + 1;
