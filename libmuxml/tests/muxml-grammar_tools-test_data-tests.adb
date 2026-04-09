@@ -243,7 +243,7 @@ package body Muxml.Grammar_Tools.Test_Data.Tests is
       --  to original file
       procedure Positive_Test
       is
-         Output : constant String := "obj/output_format_src.xml";
+         Output : constant String := "obj/filter_xml_output.xml";
          Data   : Muxml.XML_Data_Type;
       begin
          Clear_Order_Info;
@@ -252,7 +252,7 @@ package body Muxml.Grammar_Tools.Test_Data.Tests is
          Muxml.Parse
            (Data => Data,
             Kind => Muxml.None,
-            File => "data/format_src.xml");
+            File => "data/filter_xml_input.xml");
          declare
             Root_Node         : constant DOM.Core.Node
               := DOM.Core.Documents.Get_Element (Doc => Data.Doc);
@@ -291,7 +291,7 @@ package body Muxml.Grammar_Tools.Test_Data.Tests is
                       Kind => Muxml.None,
                       File => Output);
          Assert (Condition => Test_Utils.Equal_Files
-                 (Filename1 => "data/format_src.xml",
+                 (Filename1 => "data/filter_xml_input.xml",
                   Filename2 => Output),
                  Message   => "Policy mismatch: " & Output);
 
