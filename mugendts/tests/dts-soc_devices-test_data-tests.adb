@@ -106,6 +106,194 @@ package body DTS.SoC_Devices.Test_Data.Tests is
 
 
 --  begin read only
+   procedure Test_Generate_I2C_Node (Gnattest_T : in out Test);
+   procedure Test_Generate_I2C_Node_1dda30 (Gnattest_T : in out Test) renames Test_Generate_I2C_Node;
+--  id:2.2/1dda305b2f1a70d3/Generate_I2C_Node/1/0/
+   procedure Test_Generate_I2C_Node (Gnattest_T : in out Test) is
+--  end read only
+
+      pragma Unreferenced (Gnattest_T);
+
+      Expected_Entry : constant String
+        := "i2c1@31001000 {" & ASCII.LF &
+        "    compatible = ""cdns,i2c-r1p14"";" & ASCII.LF &
+        "    reg = <0x00000000 0x31001000 0x00000000 0x00001000>;" & ASCII.LF &
+        "    interrupt-parent = <0x7>;" & ASCII.LF &
+        "    interrupts = <GIC_SPI 0x1 IRQ_TYPE_LEVEL_HIGH>;" & ASCII.LF &
+        "    clocks = <&clk100>;" & ASCII.LF &
+        "    clock-names = ""pclk"";" & ASCII.LF &
+        "    clock-frequency = <400000>;" & ASCII.LF &
+        "    status = ""okay"";" & ASCII.LF &
+        "" & ASCII.LF &
+        "    #address-cells = <1>;" & ASCII.LF &
+        "    #size-cells = <0>;" & ASCII.LF &
+        "" & ASCII.LF &
+        "    /*" & ASCII.LF &
+        "     * TI TCA6416 is an I2C / SMBus expander that provides 16-bits of" & ASCII.LF &
+        "     * general purpose parallel input/output (GPIO) expansion for the" & ASCII.LF &
+        "     * two-line bidirectional I2C bus." & ASCII.LF &
+        "     */" & ASCII.LF &
+        "    i2c-gpio@20 {" & ASCII.LF &
+        "        compatible = ""ti,tca6416"";" & ASCII.LF &
+        "        reg = <0x00000020>;" & ASCII.LF &
+        "        gpio-controller;" & ASCII.LF &
+        "        #gpio-cells = <2>;" & ASCII.LF &
+        "    };" & ASCII.LF &
+        "" & ASCII.LF &
+        "    /* The PCA9548A is an octal bidirectional translating multiplexer" & ASCII.LF &
+        "       controlled via the I2C-bus. The SCL / SDA upstream pair fans out" & ASCII.LF &
+        "       to eight downstream pairs.*/" & ASCII.LF &
+        "    i2c-mux@74 {" & ASCII.LF &
+        "        compatible = ""nxp,pca9548"";" & ASCII.LF &
+        "        reg = <0x00000074>;" & ASCII.LF &
+        "" & ASCII.LF &
+        "        #address-cells = <1>;" & ASCII.LF &
+        "        #size-cells = <0>;" & ASCII.LF &
+        "" & ASCII.LF &
+        "        i2c-ds@0 {" & ASCII.LF &
+        "            reg = <0>;" & ASCII.LF &
+        "" & ASCII.LF &
+        "            #address-cells = <1>;" & ASCII.LF &
+        "            #size-cells = <0>;" & ASCII.LF &
+        "" & ASCII.LF &
+        "            /*" & ASCII.LF &
+        "             * IIC EEPROM 1kB memory which uses 256B blocks" & ASCII.LF &
+        "             * where every block has different address." & ASCII.LF &
+        "             *        0 -  256B  address  0x54" & ASCII.LF &
+        "             *     256B -  512B  address  0x55" & ASCII.LF &
+        "             *     512B -  768B  address  0x56" & ASCII.LF &
+        "             *     768B - 1024B  address  0x57" & ASCII.LF &
+        "             */" & ASCII.LF &
+        "            i2c-eeprom@54 {" & ASCII.LF &
+        "                compatible = ""atmel,24c08"";" & ASCII.LF &
+        "                reg = <0x00000054>;" & ASCII.LF &
+        "            };" & ASCII.LF &
+        "        };" & ASCII.LF &
+        "" & ASCII.LF &
+        "        i2c-ds@1 {" & ASCII.LF &
+        "            reg = <1>;" & ASCII.LF &
+        "" & ASCII.LF &
+        "            #address-cells = <1>;" & ASCII.LF &
+        "            #size-cells = <0>;" & ASCII.LF &
+        "" & ASCII.LF &
+        "            /*" & ASCII.LF &
+        "             * IDT FemtoClock PLL is an octal universal frequency translator." & ASCII.LF &
+        "             * NOTE that the driver is not supported upstream - the Xilinx" & ASCII.LF &
+        "             * Linux fork has to be used, if required. In addition and in" & ASCII.LF &
+        "             * contradiction to the Xilinx ZCU104 manual, the IC is detected" & ASCII.LF &
+        "             * at address '6c' and not '7c'." & ASCII.LF &
+        "             * i2c-pll@6c {" & ASCII.LF &
+        "             *     compatible = ""idt,8t49n287"";" & ASCII.LF &
+        "             *     reg = <0x0000006c>;" & ASCII.LF &
+        "             * };" & ASCII.LF &
+        "             */" & ASCII.LF &
+        "        };" & ASCII.LF &
+        "" & ASCII.LF &
+        "        i2c-ds@2 {" & ASCII.LF &
+        "            reg = <2>;" & ASCII.LF &
+        "" & ASCII.LF &
+        "            #address-cells = <1>;" & ASCII.LF &
+        "            #size-cells = <0>;" & ASCII.LF &
+        "" & ASCII.LF &
+        "            /*" & ASCII.LF &
+        "             * Infineon IRPS5401 is a complete power management unit" & ASCII.LF &
+        "             * delivering up to 5 output voltages. NOTE that the PMBus" & ASCII.LF &
+        "             * addresses are required, not i2c." & ASCII.LF &
+        "             */" & ASCII.LF &
+        "            pmbus-pmic1@43 {" & ASCII.LF &
+        "                compatible = ""infineon,irps5401"";" & ASCII.LF &
+        "                reg = <0x00000043>;" & ASCII.LF &
+        "            };" & ASCII.LF &
+        "            pmbus-pmic2@44 {" & ASCII.LF &
+        "                compatible = ""infineon,irps5401"";" & ASCII.LF &
+        "                reg = <0x00000044>;" & ASCII.LF &
+        "            };" & ASCII.LF &
+        "        };" & ASCII.LF &
+        "" & ASCII.LF &
+        "        i2c-ds@3 {" & ASCII.LF &
+        "            reg = <3>;" & ASCII.LF &
+        "" & ASCII.LF &
+        "            #address-cells = <1>;" & ASCII.LF &
+        "            #size-cells = <0>;" & ASCII.LF &
+        "" & ASCII.LF &
+        "            /*" & ASCII.LF &
+        "             * TI INA226 is an ultra-precise current shunt and power monitor." & ASCII.LF &
+        "             */" & ASCII.LF &
+        "            i2c-vcc@40 {" & ASCII.LF &
+        "                compatible = ""ti,ina226"";" & ASCII.LF &
+        "                #io-channel-cells = <1>;" & ASCII.LF &
+        "                reg = <0x00000040>;" & ASCII.LF &
+        "                shunt-resistor = <5000>;" & ASCII.LF &
+        "            };" & ASCII.LF &
+        "        };" & ASCII.LF &
+        "" & ASCII.LF &
+        "        i2c-ds@5 {" & ASCII.LF &
+        "            reg = <5>;" & ASCII.LF &
+        "" & ASCII.LF &
+        "            #address-cells = <1>;" & ASCII.LF &
+        "            #size-cells = <0>;" & ASCII.LF &
+        "" & ASCII.LF &
+        "            /*" & ASCII.LF &
+        "             * FPGA mezzanine card FMC LPC Connector J5." & ASCII.LF &
+        "             */" & ASCII.LF &
+        "        };" & ASCII.LF &
+        "" & ASCII.LF &
+        "        i2c-ds@7 {" & ASCII.LF &
+        "            reg = <7>;" & ASCII.LF &
+        "" & ASCII.LF &
+        "            #address-cells = <1>;" & ASCII.LF &
+        "            #size-cells = <0>;" & ASCII.LF &
+        "" & ASCII.LF &
+        "            /*" & ASCII.LF &
+        "             * PL DDR4 SODIMM Connector J1 at 0x51." & ASCII.LF &
+        "             */" & ASCII.LF &
+        "        };" & ASCII.LF &
+        "    };" & ASCII.LF &
+        "};" & ASCII.LF;
+
+      Policy : Muxml.XML_Data_Type;
+
+      I2C_Dev : DOM.Core.Node_List;
+
+      Actual_Entry : Unbounded_String;
+      Actual_Range : DTS_Range_Type;
+   begin
+      --  (1) parse test policy
+      Muxml.Parse (Data => Policy,
+                   Kind => Muxml.Format_B,
+                   File => "data/test_policy_full.xml");
+
+      --  (2) extract I2C device node directly
+      I2C_Dev := McKae.XML.XPath.XIA.XPath_Query
+        (N     => Policy.Doc,
+         XPath => "/system/subjects/subject[@globalId='2']/" &
+           "devices/device[@physical='I2C1']");
+
+      --  (3) test the I2C device entry
+      Generate_I2C_Node (Policy    => Policy,
+                         Device    => DOM.Core.Nodes.Item
+                           (List  => I2C_Dev,
+                            Index => 0),
+                         DTS_Entry => Actual_Entry,
+                         DTS_Range => Actual_Range);
+
+      Assert (Actual   => To_String (Actual_Entry),
+              Expected => Expected_Entry,
+              Message  =>
+                "wrong node entry for I2C test data");
+      Assert (Condition => Actual_Range.Base = 16#0000_0000_3100_1000#,
+              Message   =>
+                "wrong register range base for I2C test data");
+      Assert (Condition => Actual_Range.Size = 16#0000_0000_0000_1000#,
+              Message   =>
+                "wrong register range size for I2C test data");
+
+--  begin read only
+   end Test_Generate_I2C_Node;
+--  end read only
+
+
+--  begin read only
    procedure Test_Generate_NIC_Node (Gnattest_T : in out Test);
    procedure Test_Generate_NIC_Node_c53706 (Gnattest_T : in out Test) renames Test_Generate_NIC_Node;
 --  id:2.2/c53706b31664d42e/Generate_NIC_Node/1/0/

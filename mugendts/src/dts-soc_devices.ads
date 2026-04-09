@@ -30,6 +30,12 @@ is
 
 private
 
+   procedure Generate_I2C_Node
+     (Policy    :     Muxml.XML_Data_Type;
+      Device    :     DOM.Core.Node;
+      DTS_Entry : out Unbounded_String;
+      DTS_Range : out DTS_Range_Type);
+
    procedure Generate_NIC_Node
      (Policy    :     Muxml.XML_Data_Type;
       Device    :     DOM.Core.Node;
@@ -48,6 +54,6 @@ private
       DTS_Entry : out Unbounded_String;
       DTS_Range : out DTS_Range_Type);
 
-   type SoC_Device_Type is (NIC, UART, USB);
+   type SoC_Device_Type is (I2C, NIC, UART, USB);
 
 end DTS.SoC_Devices;
