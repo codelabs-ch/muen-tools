@@ -1,5 +1,6 @@
 /dts-v1/;
 
+#include <dt-bindings/gpio/gpio.h>
 #include <dt-bindings/interrupt-controller/arm-gic.h>
 #include <dt-bindings/interrupt-controller/irq.h>
 
@@ -138,6 +139,22 @@
         #size-cells = <0x2>;
         ranges = <0x00000000 0x00000000 0x00000000 0x00000000 0x00000000 0x31011000>;
 
+        gpio: gpio@31002000 {
+            compatible = "xlnx,zynqmp-gpio-1.0";
+            reg = <0x00000000 0x31002000 0x00000000 0x00001000>;
+            clocks = <&clk100>;
+            gpio-controller;
+            #gpio-cells = <0x2>;
+            interrupt-parent = <0x7>;
+            interrupts = <GIC_SPI 0x4 IRQ_TYPE_LEVEL_HIGH>;
+            interrupt-controller;
+            #interrupt-cells = <0x2>;
+            emio-gpio-width = <0x20>;
+            gpio-mask-high = <0x0>;
+            gpio-mask-low = <0x5600>;
+            status = "okay";
+        };
+
         i2c1@31001000 {
             compatible = "cdns,i2c-r1p14";
             reg = <0x00000000 0x31001000 0x00000000 0x00001000>;
@@ -146,6 +163,8 @@
             clocks = <&clk100>;
             clock-names = "pclk";
             clock-frequency = <400000>;
+            scl-gpios = <&gpio 0x10 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
+            sda-gpios = <&gpio 0x11 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
             status = "okay";
 
             #address-cells = <1>;

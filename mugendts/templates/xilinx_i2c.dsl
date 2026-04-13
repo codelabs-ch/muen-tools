@@ -5,7 +5,7 @@ __i2c_bus_alias____i2c_bus_name__@__i2c_bus_base__ {
     interrupts = <GIC_SPI 0x__i2c_irq_irq__ IRQ_TYPE_LEVEL_HIGH>;
     clocks = <&clk100>;
     clock-names = "pclk";
-    clock-frequency = <400000>;
+    clock-frequency = <400000>;__i2c_gpio_scl_sda__
     status = "okay";
 
     #address-cells = <1>;

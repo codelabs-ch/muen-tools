@@ -106,6 +106,74 @@ package body DTS.SoC_Devices.Test_Data.Tests is
 
 
 --  begin read only
+   procedure Test_Generate_GPIO_Node (Gnattest_T : in out Test);
+   procedure Test_Generate_GPIO_Node_44fc19 (Gnattest_T : in out Test) renames Test_Generate_GPIO_Node;
+--  id:2.2/44fc196ea636eafd/Generate_GPIO_Node/1/0/
+   procedure Test_Generate_GPIO_Node (Gnattest_T : in out Test) is
+--  end read only
+
+      pragma Unreferenced (Gnattest_T);
+
+      Expected_Entry : constant String
+        := "gpio: gpio@31002000 {" & ASCII.LF &
+        "    compatible = ""xlnx,zynqmp-gpio-1.0"";" & ASCII.LF &
+        "    reg = <0x00000000 0x31002000 0x00000000 0x00001000>;" & ASCII.LF &
+        "    clocks = <&clk100>;" & ASCII.LF &
+        "    gpio-controller;" & ASCII.LF &
+        "    #gpio-cells = <0x2>;" & ASCII.LF &
+        "    interrupt-parent = <0x7>;" & ASCII.LF &
+        "    interrupts = <GIC_SPI 0x4 IRQ_TYPE_LEVEL_HIGH>;" & ASCII.LF &
+        "    interrupt-controller;" & ASCII.LF &
+        "    #interrupt-cells = <0x2>;" & ASCII.LF &
+        "    emio-gpio-width = <0x20>;" & ASCII.LF &
+        "    gpio-mask-high = <0x0>;" & ASCII.LF &
+        "    gpio-mask-low = <0x5600>;" & ASCII.LF &
+        "    status = ""okay"";" & ASCII.LF &
+        "};" & ASCII.LF;
+
+      Policy : Muxml.XML_Data_Type;
+
+      GPIO_Dev : DOM.Core.Node_List;
+
+      Actual_Entry : Unbounded_String;
+      Actual_Range : DTS_Range_Type;
+   begin
+      --  (1) parse test policy
+      Muxml.Parse (Data => Policy,
+                   Kind => Muxml.Format_B,
+                   File => "data/test_policy_full.xml");
+
+      --  (2) extract GPIO device node directly
+      GPIO_Dev := McKae.XML.XPath.XIA.XPath_Query
+        (N     => Policy.Doc,
+         XPath => "/system/subjects/subject[@globalId='2']/" &
+           "devices/device[@physical='GPIO']");
+
+      --  (3) test the GPIO device entry
+      Generate_GPIO_Node (Policy    => Policy,
+                          Device    => DOM.Core.Nodes.Item
+                            (List  => GPIO_Dev,
+                             Index => 0),
+                          DTS_Entry => Actual_Entry,
+                          DTS_Range => Actual_Range);
+
+      Assert (Actual   => To_String (Actual_Entry),
+              Expected => Expected_Entry,
+              Message  =>
+                "wrong node entry for GPIO test data");
+      Assert (Condition => Actual_Range.Base = 16#0000_0000_3100_2000#,
+              Message   =>
+                "wrong register range base for GPIO test data");
+      Assert (Condition => Actual_Range.Size = 16#0000_0000_0000_1000#,
+              Message   =>
+                "wrong register range size for GPIO test data");
+
+--  begin read only
+   end Test_Generate_GPIO_Node;
+--  end read only
+
+
+--  begin read only
    procedure Test_Generate_I2C_Node (Gnattest_T : in out Test);
    procedure Test_Generate_I2C_Node_1dda30 (Gnattest_T : in out Test) renames Test_Generate_I2C_Node;
 --  id:2.2/1dda305b2f1a70d3/Generate_I2C_Node/1/0/
