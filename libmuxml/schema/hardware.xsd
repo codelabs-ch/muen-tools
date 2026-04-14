@@ -197,7 +197,8 @@
    <xs:documentation>
     The \texttt{x64_64} element specifies the number of CPU cores, the
     Time-Stamp Counter (TSC) frequency in kHz and the Intel VMX preemption
-    timer rate.
+    timer rate. Additionally, the APIC ID of the Bootstrap Processor (BSP) is
+    given.
 
     Since Intel CPUs can have arbitrary APIC identifiers, the APIC IDs of all
     physical CPUs are enumerated here. The APIC ID is required for interrupt and
@@ -215,6 +216,13 @@
    <xs:element name="cpuid" type="cpuIDValueType" minOccurs="0" maxOccurs="unbounded"/>
    <xs:element name="msr" type="msrValueType" minOccurs="0" maxOccurs="unbounded"/>
   </xs:sequence>
+  <xs:attribute name="bspApicId" type="xs:unsignedInt" use="required">
+   <xs:annotation>
+    <xs:documentation>
+     APIC ID of bootstrap processor.
+    </xs:documentation>
+   </xs:annotation>
+  </xs:attribute>
   <xs:attribute name="tscFrequency" type="xs:positiveInteger" use="required">
    <xs:annotation>
     <xs:documentation>

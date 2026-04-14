@@ -26,7 +26,7 @@
  </xs:complexType>
 
  <xs:complexType name="x86_64CpuCoreType">
-  <xs:attribute name="apicId" type="xs:unsignedByte" use="required"/>
+  <xs:attribute name="apicId" type="xs:unsignedInt" use="required"/>
   <xs:attribute name="cpuId" type="xs:unsignedByte" use="required"/>
  </xs:complexType>
 

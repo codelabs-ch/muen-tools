@@ -69,10 +69,10 @@ package body Spec.Utils.Test_Data.Tests is
 
 
 --  begin read only
-   procedure Test_Get_APIC_CPU_ID_Map (Gnattest_T : in out Test);
-   procedure Test_Get_APIC_CPU_ID_Map_ec024a (Gnattest_T : in out Test) renames Test_Get_APIC_CPU_ID_Map;
---  id:2.2/ec024aad4bc486f6/Get_APIC_CPU_ID_Map/1/0/
-   procedure Test_Get_APIC_CPU_ID_Map (Gnattest_T : in out Test) is
+   procedure Test_Get_CPU_APIC_ID_Map (Gnattest_T : in out Test);
+   procedure Test_Get_CPU_APIC_ID_Map_bfa44b (Gnattest_T : in out Test) renames Test_Get_CPU_APIC_ID_Map;
+--  id:2.2/bfa44bc3a93fc7de/Get_CPU_APIC_ID_Map/1/0/
+   procedure Test_Get_CPU_APIC_ID_Map (Gnattest_T : in out Test) is
 --  end read only
 
       pragma Unreferenced (Gnattest_T);
@@ -81,8 +81,8 @@ package body Spec.Utils.Test_Data.Tests is
       Node   : DOM.Core.Node;
       Nodes  : DOM.Core.Node_List;
       Policy : Muxml.XML_Data_Type;
-      Ref    : Utils.APIC_To_CPU_ID_Array
-        := (0, 1, 0, 0, 0, 2);
+      Ref    : Utils.CPU_To_APIC_ID_Array
+        := (32, 2, 10, 0, 4);
    begin
       Policy.Doc := DOM.Core.Create_Document (Implementation => Impl);
       Node := DOM.Core.Documents.Create_Element
@@ -92,7 +92,7 @@ package body Spec.Utils.Test_Data.Tests is
       DOM.Core.Elements.Set_Attribute
         (Elem  => Node,
          Name  => "apicId",
-         Value => "0");
+         Value => "32");
       DOM.Core.Elements.Set_Attribute
         (Elem  => Node,
          Name  => "cpuId",
@@ -123,11 +123,33 @@ package body Spec.Utils.Test_Data.Tests is
          Value => "2");
       DOM.Core.Append_Node (List => Nodes,
                             N    => Node);
+      Node := DOM.Core.Nodes.Clone_Node (N => Node, Deep => False);
+      DOM.Core.Elements.Set_Attribute
+        (Elem  => Node,
+         Name  => "apicId",
+         Value => "4");
+      DOM.Core.Elements.Set_Attribute
+        (Elem  => Node,
+         Name  => "cpuId",
+         Value => "4");
+      DOM.Core.Append_Node (List => Nodes,
+                            N    => Node);
+      Node := DOM.Core.Nodes.Clone_Node (N => Node, Deep => False);
+      DOM.Core.Elements.Set_Attribute
+        (Elem  => Node,
+         Name  => "apicId",
+         Value => "0");
+      DOM.Core.Elements.Set_Attribute
+        (Elem  => Node,
+         Name  => "cpuId",
+         Value => "3");
+      DOM.Core.Append_Node (List => Nodes,
+                            N    => Node);
 
-      Assert (Condition => Get_APIC_CPU_ID_Map (CPU_Nodes => Nodes) = Ref,
-              Message   => "CPU ID Map mismatch");
+      Assert (Condition => Get_CPU_APIC_ID_Map (CPU_Nodes => Nodes) = Ref,
+              Message   => "CPU APIC ID Map mismatch");
 --  begin read only
-   end Test_Get_APIC_CPU_ID_Map;
+   end Test_Get_CPU_APIC_ID_Map;
 --  end read only
 
 

@@ -1,11 +1,11 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <hardware>
  <processor cpuCores="4">
-  <x86_64 tscFrequency="50" vmxTimerRate="0">
+  <x86_64 bspApicId="0" tscFrequency="50" vmxTimerRate="0">
    <cpu apicId="0"/>
    <cpu apicId="2"/>
    <cpu apicId="4"/>
-   <cpu apicId="6"/>
+   <cpu apicId="4294967295"/>
   </x86_64>
  </processor>
  <memory/>

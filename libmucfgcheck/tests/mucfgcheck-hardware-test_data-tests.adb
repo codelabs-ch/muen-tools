@@ -305,14 +305,36 @@ package body Mucfgcheck.Hardware.Test_Data.Tests is
 
       Muxml.Utils.Set_Attribute
         (Doc   => Data.Doc,
-         XPath => "/system/hardware/processor/x86_64/cpu[@cpuId='0']",
+         XPath => "/system/hardware/processor/x86_64/cpu[@apicId='0']",
          Name  => "cpuId",
-         Value => "4");
+         Value => "1");
 
       CPU_APIC_IDs (XML_Data => Data);
       Assert (Condition => Validation_Errors.Contains
-              (Msg => "CPU with APIC ID 0 not present in active CPU set"),
-              Message   => "Exception mismatch (2) ");
+              (Msg => "BSP CPU has unexpected CPU ID 1, must be 0"),
+              Message   => "Exception mismatch (2)");
+
+      Muxml.Utils.Set_Attribute
+        (Doc   => Data.Doc,
+         XPath => "/system/hardware/processor/x86_64/cpu[@apicId='1']",
+         Name  => "apicId",
+         Value => "0");
+
+      CPU_APIC_IDs (XML_Data => Data);
+      Assert (Condition => Validation_Errors.Contains
+              (Msg => "Multiple CPUs with BSP APIC ID 0 present"),
+              Message   => "Exception mismatch (3)");
+
+      Muxml.Utils.Set_Attribute
+        (Doc   => Data.Doc,
+         XPath => "/system/hardware/processor/x86_64",
+         Name  => "bspApicId",
+         Value => "32");
+
+      CPU_APIC_IDs (XML_Data => Data);
+      Assert (Condition => Validation_Errors.Contains
+              (Msg => "No BSP CPU with APIC ID 32 present"),
+              Message   => "Exception mismatch (4)");
 --  begin read only
    end Test_CPU_APIC_IDs;
 --  end read only

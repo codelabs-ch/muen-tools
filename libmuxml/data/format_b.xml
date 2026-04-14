@@ -5,9 +5,10 @@
   <string name="system" value="test_system.xml"/>
  </config>
  <hardware>
-  <processor cpuCores="1">
-   <x86_64 tscFrequency="2900000" vmxTimerRate="5">
+  <processor cpuCores="2">
+   <x86_64 bspApicId="0" tscFrequency="2900000" vmxTimerRate="5">
     <cpu apicId="0" cpuId="0"/>
+    <cpu apicId="4294967295" cpuId="1"/>
    </x86_64>
   </processor>
   <memory>

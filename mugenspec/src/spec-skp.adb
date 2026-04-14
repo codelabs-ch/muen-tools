@@ -169,6 +169,10 @@ is
             XPath => "/system/memory/memory[@type='system_vmxon' and "
             & "contains(string(@name),'kernel_0')]",
             Name  => "physicalAddress"));
+      BSP_APIC_ID : constant String := Muxml.Utils.Get_Attribute
+        (Doc   => Policy.Doc,
+         XPath => "/system/hardware/processor/x86_64",
+         Name  => "bspApicId");
 
       APIC_ID_Predicate, APIC_ID_Array : Unbounded_String;
 
@@ -205,6 +209,10 @@ is
         (Template => Tmpl,
          Pattern  => "__cpu_to_apic_id__",
          Content  => Indent (N => 2) & To_String (APIC_ID_Array));
+      Mutools.Templates.Replace
+        (Template => Tmpl,
+         Pattern  => "__bsp_apic_id__",
+         Content  => BSP_APIC_ID);
 
       Mutools.Templates.Write
         (Template => Tmpl,
