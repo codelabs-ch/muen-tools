@@ -138,6 +138,7 @@ package body Expanders.Hardware.Test_Data.Tests is
       Test_Utils.Expander.Run_Test
         (Filename => "obj/processor_cpu_ids.xml",
          Ref_Diff => "data/processor_cpu_ids.xml.diff",
+         Pre      => Add_BSP_CPU_ID'Access,
          Expander => Add_Processor_CPU_IDs'Access);
 --  begin read only
    end Test_Add_Processor_CPU_IDs;

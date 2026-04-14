@@ -71,6 +71,7 @@ package body Expanders.Kernel.Test_Data is
    is
    begin
       Add_Section_Skeleton (Data => Data);
+      Hardware.Add_BSP_CPU_ID (Data => Data);
       Hardware.Add_Processor_CPU_IDs (Data => Data);
    end Pre_Map_Tau0_Interface;
 
