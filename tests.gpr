@@ -30,6 +30,4 @@ abstract project Tests extends "tools.gpr" is
 
    package Gnattest renames Shared_Tests.Gnattest;
 
-   package Make renames Shared_Tests.Make;
-
 end Tests;
