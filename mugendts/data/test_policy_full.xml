@@ -83,6 +83,27 @@
     <capability name="uart"/>
    </capabilities>
   </device>
+  <device name="I2C0">
+   <irq name="irq" number="49"/>
+   <memory caching="UC" name="mem" physicalAddress="16#ff02_0000#" size="16#0000_1000#"/>
+   <capabilities>
+    <capability name="i2c"/>
+   </capabilities>
+  </device>
+  <device name="I2C1">
+   <irq name="irq" number="50"/>
+   <memory caching="UC" name="mem" physicalAddress="16#ff03_0000#" size="16#0000_1000#"/>
+   <capabilities>
+    <capability name="i2c"/>
+   </capabilities>
+  </device>
+  <device name="GPIO">
+   <irq name="irq" number="48"/>
+   <memory caching="UC" name="mem" physicalAddress="16#ff0a_0000#" size="16#0000_1000#"/>
+   <capabilities>
+    <capability name="gpio"/>
+   </capabilities>
+  </device>
   <device name="USB3_0_XHCI">
    <irq name="irq1" number="97"/>
    <irq name="irq2" number="98"/>
@@ -989,6 +1010,14 @@
    <device logical="serial" physical="UART1">
     <irq logical="serial_irq" physical="irq" vector="32"/>
     <memory logical="serial_dev" physical="mem" virtualAddress="16#3100_0000#" writable="true" executable="false"/>
+   </device>
+   <device logical="i2c_controller" physical="I2C1">
+    <irq logical="i2c_irq" physical="irq" vector="33"/>
+    <memory logical="i2c_dev" physical="mem" virtualAddress="16#3100_1000#" writable="true" executable="false"/>
+   </device>
+   <device logical="gpio_controller" physical="GPIO">
+    <irq logical="gpio_irq" physical="irq" vector="36"/>
+    <memory logical="gpio_dev" physical="mem" virtualAddress="16#3100_2000#" writable="true" executable="false"/>
    </device>
    <device logical="ethernet" physical="GEM3">
     <irq logical="irq1" physical="irq1" vector="34"/>

@@ -30,6 +30,18 @@ is
 
 private
 
+   procedure Generate_GPIO_Node
+     (Policy    :     Muxml.XML_Data_Type;
+      Device    :     DOM.Core.Node;
+      DTS_Entry : out Unbounded_String;
+      DTS_Range : out DTS_Range_Type);
+
+   procedure Generate_I2C_Node
+     (Policy    :     Muxml.XML_Data_Type;
+      Device    :     DOM.Core.Node;
+      DTS_Entry : out Unbounded_String;
+      DTS_Range : out DTS_Range_Type);
+
    procedure Generate_NIC_Node
      (Policy    :     Muxml.XML_Data_Type;
       Device    :     DOM.Core.Node;
@@ -48,6 +60,9 @@ private
       DTS_Entry : out Unbounded_String;
       DTS_Range : out DTS_Range_Type);
 
-   type SoC_Device_Type is (NIC, UART, USB);
+   --  NOTE that GPIO has to be the first device type entry, because device
+   --  tree entries for other devices may depend on whether a GPIO device is
+   --  present or not.
+   type SoC_Device_Type is (GPIO, I2C, NIC, UART, USB);
 
 end DTS.SoC_Devices;

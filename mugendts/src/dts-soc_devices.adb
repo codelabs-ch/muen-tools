@@ -29,7 +29,18 @@ with String_Templates;
 package body DTS.SoC_Devices
 is
 
+   --  In its interrupt handling, Linux distinguishes between shared peripheral
+   --  interrupts (SPI) and private peripheral interrupts (PPI) / software
+   --  generated interrupts (SGI). It therefore requires that SPI interrupts
+   --  are declared in the device tree starting at '0' using the formula
+   --  'hardware id minus SPI offset'. For the GIC-400 implemented on the
+   --  Xilinx ZCU104, the SGI and PPI are always assigned to the hardware
+   --  interrupt ids '0' to '31' as specified by the ARM GIC-400 RM and the
+   --  SPI offset is hence always '32' for a GIC-400 interrupt controller.
+   GIC400_SPI_Offset : constant Unsigned_64 := 32;
+
    UART_Device_Counter : Natural := 0;
+   GPIO_Support        : Boolean := False;
 
    -------------------------------------------------------------------------
 
@@ -42,6 +53,8 @@ is
       SoC_First  : Unsigned_64 := Unsigned_64'Last;
       SoC_Last   : Unsigned_64 := 16#0#;
    begin
+      GPIO_Support := False;
+
       for I in SoC_Device_Type'Range loop
          declare
             --  (1) extract all physical devices with the currently
@@ -72,6 +85,24 @@ is
                begin
                   if DOM.Core.Nodes.Length (Virtual_SoC_Dev) = 1 then
                      case I is
+                        when GPIO  =>
+                           --  GPIO is the first entry in SoC_Device_Type
+                           --  and therefore the GPIO_Support variable is
+                           --  set correctly for all other devices
+                           GPIO_Support := True;
+                           Generate_GPIO_Node (Policy    => Policy,
+                                               Device    => DOM.Core.Nodes.Item
+                                                 (List  => Virtual_SoC_Dev,
+                                                  Index => 0),
+                                               DTS_Entry => Virtual_Dev_Entry,
+                                               DTS_Range => Virtual_Dev_Range);
+                        when I2C  =>
+                           Generate_I2C_Node (Policy    => Policy,
+                                              Device    => DOM.Core.Nodes.Item
+                                                (List  => Virtual_SoC_Dev,
+                                                 Index => 0),
+                                              DTS_Entry => Virtual_Dev_Entry,
+                                              DTS_Range => Virtual_Dev_Range);
                         when NIC  =>
                            Generate_NIC_Node (Policy    => Policy,
                                               Device    => DOM.Core.Nodes.Item
@@ -151,6 +182,162 @@ is
 
    -------------------------------------------------------------------------
 
+   procedure Generate_GPIO_Node
+     (Policy    :     Muxml.XML_Data_Type;
+      Device    :     DOM.Core.Node;
+      DTS_Entry : out Unbounded_String;
+      DTS_Range : out DTS_Range_Type)
+   is
+      Template : Mutools.Templates.Template_Type
+        := Mutools.Templates.Create
+          (Content => String_Templates.xilinx_gpio_dsl);
+
+      Virtual_IRQs : constant DOM.Core.Node_List
+        := McKae.XML.XPath.XIA.XPath_Query
+          (N     => Device,
+           XPath => "irq");
+
+      Physical_Name : constant String
+        := DOM.Core.Elements.Get_Attribute (Elem => Device,
+                                            Name => "physical");
+
+      Register_Entry : Unbounded_String;
+   begin
+      DTS_Range_Register_Entry
+        (Policy    => Policy,
+         Device    => Device,
+         DTS_Entry => Register_Entry,
+         DTS_Range => DTS_Range);
+
+      Mutools.Templates.Replace
+        (Template => Template,
+         Pattern  => "__gpio_bus_alias__",
+         Content  => "gpio: ");
+      Mutools.Templates.Replace
+        (Template => Template,
+         Pattern  => "__gpio_bus_name__",
+         Content  => Ada.Characters.Handling.To_Lower (Physical_Name));
+      Mutools.Templates.Replace
+        (Template => Template,
+         Pattern  => "__gpio_bus_base__",
+         Content  => Mutools.Utils.To_Hex
+           (Number     => DTS_Range.Base,
+            Normalize  => False,
+            Byte_Short => False));
+      Mutools.Templates.Replace
+        (Template => Template,
+         Pattern  => "__gpio_registers__",
+         Content  => To_String (Register_Entry));
+
+      if DOM.Core.Nodes.Length (Virtual_IRQs) = 1 then
+         declare
+            Virtual_IRQ : constant Unsigned_64
+              := Unsigned_64'Value
+                (DOM.Core.Elements.Get_Attribute
+                   (Elem => DOM.Core.Nodes.Item
+                      (List  => Virtual_IRQs,
+                       Index => 0),
+                    Name => "vector"));
+         begin
+            Mutools.Templates.Replace
+              (Template => Template,
+               Pattern  => "__gpio_irq_irq__",
+               Content  => Mutools.Utils.To_Hex
+                 (Number     => Virtual_IRQ - GIC400_SPI_Offset,
+                  Normalize  => False,
+                  Byte_Short => False));
+         end;
+      end if;
+
+      Append (Source   => DTS_Entry,
+              New_Item => Mutools.Templates.To_String (Template => Template));
+   end Generate_GPIO_Node;
+
+   -------------------------------------------------------------------------
+
+   procedure Generate_I2C_Node
+     (Policy    :     Muxml.XML_Data_Type;
+      Device    :     DOM.Core.Node;
+      DTS_Entry : out Unbounded_String;
+      DTS_Range : out DTS_Range_Type)
+   is
+      Template : Mutools.Templates.Template_Type
+        := Mutools.Templates.Create
+          (Content => String_Templates.xilinx_i2c_dsl);
+
+      Virtual_IRQs : constant DOM.Core.Node_List
+        := McKae.XML.XPath.XIA.XPath_Query
+          (N     => Device,
+           XPath => "irq");
+
+      Physical_Name : constant String
+        := DOM.Core.Elements.Get_Attribute (Elem => Device,
+                                            Name => "physical");
+
+      GPIO_Declaration : constant String
+        := ASCII.LF & "    scl-gpios = <&gpio 0x10 " &
+        "(GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;" & ASCII.LF &
+        "    sda-gpios = <&gpio 0x11 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;";
+
+      Register_Entry : Unbounded_String;
+   begin
+      DTS_Range_Register_Entry
+        (Policy    => Policy,
+         Device    => Device,
+         DTS_Entry => Register_Entry,
+         DTS_Range => DTS_Range);
+
+      Mutools.Templates.Replace
+        (Template => Template,
+         Pattern  => "__i2c_bus_alias__",
+         Content  => "");
+      Mutools.Templates.Replace
+        (Template => Template,
+         Pattern  => "__i2c_bus_name__",
+         Content  => Ada.Characters.Handling.To_Lower (Physical_Name));
+      Mutools.Templates.Replace
+        (Template => Template,
+         Pattern  => "__i2c_bus_base__",
+         Content  => Mutools.Utils.To_Hex
+           (Number     => DTS_Range.Base,
+            Normalize  => False,
+            Byte_Short => False));
+      Mutools.Templates.Replace
+        (Template => Template,
+         Pattern  => "__i2c_registers__",
+         Content  => To_String (Register_Entry));
+
+      Mutools.Templates.Replace
+        (Template => Template,
+         Pattern  => "__i2c_gpio_scl_sda__",
+         Content  => (if GPIO_Support then GPIO_Declaration else ""));
+
+      if DOM.Core.Nodes.Length (Virtual_IRQs) = 1 then
+         declare
+            Virtual_IRQ : constant Unsigned_64
+              := Unsigned_64'Value
+                (DOM.Core.Elements.Get_Attribute
+                   (Elem => DOM.Core.Nodes.Item
+                      (List  => Virtual_IRQs,
+                       Index => 0),
+                    Name => "vector"));
+         begin
+            Mutools.Templates.Replace
+              (Template => Template,
+               Pattern  => "__i2c_irq_irq__",
+               Content  => Mutools.Utils.To_Hex
+                 (Number     => Virtual_IRQ - GIC400_SPI_Offset,
+                  Normalize  => False,
+                  Byte_Short => False));
+         end;
+      end if;
+
+      Append (Source   => DTS_Entry,
+              New_Item => Mutools.Templates.To_String (Template => Template));
+   end Generate_I2C_Node;
+
+   -------------------------------------------------------------------------
+
    procedure Generate_NIC_Node
      (Policy    :     Muxml.XML_Data_Type;
       Device    :     DOM.Core.Node;
@@ -214,15 +401,13 @@ is
                       (List  => Virtual_IRQs,
                        Index => I),
                     Name => "vector"));
-            SPI_Offset  : constant Unsigned_64
-              := 32;
          begin
             if Virtual_IRQ_Name = "irq1" then
                Mutools.Templates.Replace
                  (Template => Template,
                   Pattern  => "__nic_irq_controller__",
                   Content  => Mutools.Utils.To_Hex
-                    (Number     => Virtual_IRQ_Number - SPI_Offset,
+                    (Number     => Virtual_IRQ_Number - GIC400_SPI_Offset,
                      Normalize  => False,
                      Byte_Short => False));
             end if;
@@ -297,14 +482,12 @@ is
                       (List  => Virtual_IRQs,
                        Index => 0),
                     Name => "vector"));
-            SPI_Offset  : constant Unsigned_64
-              := 32;
          begin
             Mutools.Templates.Replace
               (Template => Template,
                Pattern  => "__uart_irq_irq__",
                Content  => Mutools.Utils.To_Hex
-                 (Number     => Virtual_IRQ - SPI_Offset,
+                 (Number     => Virtual_IRQ - GIC400_SPI_Offset,
                   Normalize  => False,
                   Byte_Short => False));
          end;
@@ -420,15 +603,15 @@ is
                       (List  => Virtual_IRQs,
                        Index => I),
                     Name => "vector"));
-            SPI_Offset  : constant Unsigned_64
-              := 32;
+            Linux_SPI_Number : constant Unsigned_64
+              := Virtual_IRQ_Number - GIC400_SPI_Offset;
          begin
             if Virtual_IRQ_Name = "irq1" then
                Mutools.Templates.Replace
                  (Template => Template,
                   Pattern  => "__usb_irq_endpoint_0__",
                   Content  => Mutools.Utils.To_Hex
-                    (Number     => Virtual_IRQ_Number - SPI_Offset,
+                    (Number     => Linux_SPI_Number,
                      Normalize  => False,
                      Byte_Short => False));
             elsif Virtual_IRQ_Name = "irq5" then
@@ -436,7 +619,7 @@ is
                  (Template => Template,
                   Pattern  => "__usb_irq_otg__",
                   Content  => Mutools.Utils.To_Hex
-                    (Number     => Virtual_IRQ_Number - SPI_Offset,
+                    (Number     => Linux_SPI_Number,
                      Normalize  => False,
                      Byte_Short => False));
             elsif Virtual_IRQ_Name = "irq6" then
@@ -444,7 +627,7 @@ is
                  (Template => Template,
                   Pattern  => "__usb_irq_wakeup__",
                   Content  => Mutools.Utils.To_Hex
-                    (Number     => Virtual_IRQ_Number - SPI_Offset,
+                    (Number     => Linux_SPI_Number,
                      Normalize  => False,
                      Byte_Short => False));
             end if;
