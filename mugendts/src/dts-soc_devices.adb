@@ -29,6 +29,16 @@ with String_Templates;
 package body DTS.SoC_Devices
 is
 
+   --  In its interrupt handling, Linux distinguishes between shared peripheral
+   --  interrupts (SPI) and private peripheral interrupts (PPI) / software
+   --  generated interrupts (SGI). It therefore requires that SPI interrupts
+   --  are declared in the device tree starting at '0' using the formula
+   --  'hardware id minus SPI offset'. For the GIC-400 implemented on the
+   --  Xilinx ZCU104, the SGI and PPI are always assigned to the hardware
+   --  interrupt ids '0' to '31' as specified by the ARM GIC-400 RM and the
+   --  SPI offset is hence always '32' for a GIC-400 interrupt controller.
+   GIC400_SPI_Offset : constant Unsigned_64 := 32;
+
    UART_Device_Counter : Natural := 0;
    GPIO_Support        : Boolean := False;
 
@@ -228,14 +238,12 @@ is
                       (List  => Virtual_IRQs,
                        Index => 0),
                     Name => "vector"));
-            SPI_Offset  : constant Unsigned_64
-              := 32;
          begin
             Mutools.Templates.Replace
               (Template => Template,
                Pattern  => "__gpio_irq_irq__",
                Content  => Mutools.Utils.To_Hex
-                 (Number     => Virtual_IRQ - SPI_Offset,
+                 (Number     => Virtual_IRQ - GIC400_SPI_Offset,
                   Normalize  => False,
                   Byte_Short => False));
          end;
@@ -313,14 +321,12 @@ is
                       (List  => Virtual_IRQs,
                        Index => 0),
                     Name => "vector"));
-            SPI_Offset  : constant Unsigned_64
-              := 32;
          begin
             Mutools.Templates.Replace
               (Template => Template,
                Pattern  => "__i2c_irq_irq__",
                Content  => Mutools.Utils.To_Hex
-                 (Number     => Virtual_IRQ - SPI_Offset,
+                 (Number     => Virtual_IRQ - GIC400_SPI_Offset,
                   Normalize  => False,
                   Byte_Short => False));
          end;
@@ -395,15 +401,13 @@ is
                       (List  => Virtual_IRQs,
                        Index => I),
                     Name => "vector"));
-            SPI_Offset  : constant Unsigned_64
-              := 32;
          begin
             if Virtual_IRQ_Name = "irq1" then
                Mutools.Templates.Replace
                  (Template => Template,
                   Pattern  => "__nic_irq_controller__",
                   Content  => Mutools.Utils.To_Hex
-                    (Number     => Virtual_IRQ_Number - SPI_Offset,
+                    (Number     => Virtual_IRQ_Number - GIC400_SPI_Offset,
                      Normalize  => False,
                      Byte_Short => False));
             end if;
@@ -478,14 +482,12 @@ is
                       (List  => Virtual_IRQs,
                        Index => 0),
                     Name => "vector"));
-            SPI_Offset  : constant Unsigned_64
-              := 32;
          begin
             Mutools.Templates.Replace
               (Template => Template,
                Pattern  => "__uart_irq_irq__",
                Content  => Mutools.Utils.To_Hex
-                 (Number     => Virtual_IRQ - SPI_Offset,
+                 (Number     => Virtual_IRQ - GIC400_SPI_Offset,
                   Normalize  => False,
                   Byte_Short => False));
          end;
@@ -601,15 +603,15 @@ is
                       (List  => Virtual_IRQs,
                        Index => I),
                     Name => "vector"));
-            SPI_Offset  : constant Unsigned_64
-              := 32;
+            Linux_SPI_Number : constant Unsigned_64
+              := Virtual_IRQ_Number - GIC400_SPI_Offset;
          begin
             if Virtual_IRQ_Name = "irq1" then
                Mutools.Templates.Replace
                  (Template => Template,
                   Pattern  => "__usb_irq_endpoint_0__",
                   Content  => Mutools.Utils.To_Hex
-                    (Number     => Virtual_IRQ_Number - SPI_Offset,
+                    (Number     => Linux_SPI_Number,
                      Normalize  => False,
                      Byte_Short => False));
             elsif Virtual_IRQ_Name = "irq5" then
@@ -617,7 +619,7 @@ is
                  (Template => Template,
                   Pattern  => "__usb_irq_otg__",
                   Content  => Mutools.Utils.To_Hex
-                    (Number     => Virtual_IRQ_Number - SPI_Offset,
+                    (Number     => Linux_SPI_Number,
                      Normalize  => False,
                      Byte_Short => False));
             elsif Virtual_IRQ_Name = "irq6" then
@@ -625,7 +627,7 @@ is
                  (Template => Template,
                   Pattern  => "__usb_irq_wakeup__",
                   Content  => Mutools.Utils.To_Hex
-                    (Number     => Virtual_IRQ_Number - SPI_Offset,
+                    (Number     => Linux_SPI_Number,
                      Normalize  => False,
                      Byte_Short => False));
             end if;
