@@ -373,7 +373,7 @@ is
                Validation_Errors.Insert
                  (Msg => "Source ID capability of I/O APIC '"
                   & Name & "' is not set");
-               return;
+               goto Continue_Loop;
             end if;
 
             declare
@@ -391,6 +391,7 @@ is
                      & SID_Str & "'");
             end;
          end;
+         <<Continue_Loop>>
       end loop;
    end IOAPIC_Cap_SID;
 

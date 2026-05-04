@@ -207,7 +207,7 @@ is
                  (Msg => "Subject '" & Subj_Name
                   & "' does not specify source event group '" & Group_Name
                   & "'");
-               return;
+               goto Continue_Subject_Loop;
             end if;
 
             Src_Events := XPath_Query (N     => Evt_Grp,
@@ -233,6 +233,7 @@ is
                end loop;
             end if;
          end;
+         <<Continue_Subject_Loop>>
       end loop;
    end Check_Source_Group_Event_Completeness;
 

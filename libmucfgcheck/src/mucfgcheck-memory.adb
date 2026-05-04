@@ -217,7 +217,7 @@ is
                  (Msg => Mutools.Utils.Capitalize
                     (Str => Mapping_Name) & " memory region '" & Phys_Name
                   & "' is not mapped by any kernel");
-               return;
+               goto Continue_Loop;
             elsif Kernel_Map_Count > 1 then
                Validation_Errors.Insert
                  (Msg => Mutools.Utils.Capitalize
@@ -281,6 +281,7 @@ is
                   Mapping_Name => Phys_Name);
             end;
          end;
+         <<Continue_Loop>>
       end loop;
    end Check_Subject_Region_Mappings;
 
@@ -723,7 +724,7 @@ is
                Validation_Errors.Insert
                  (Msg => "No kernel mapping for info region"
                   & " of scheduling partition " & SP_ID_Str);
-               return;
+               goto Continue_Loop;
             elsif Mappings_Count > 1 then
                Validation_Errors.Insert
                  (Msg => "Info region of scheduling partition "
@@ -770,6 +771,7 @@ is
                end if;
             end;
          end;
+         <<Continue_Loop>>
       end loop;
    end Kernel_Sched_Info_Mappings;
 

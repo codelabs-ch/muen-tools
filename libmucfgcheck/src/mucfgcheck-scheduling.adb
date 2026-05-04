@@ -73,7 +73,7 @@ is
                        (Msg => "Barrier of major frame"
                         & I'Img & " has invalid ID" & Barrier_ID'Img
                         & ", must be in range 1 .." & Barrier_Count'Img);
-                     return;
+                     goto Continue_Loop;
                   end if;
 
                   if IDs_Present (Barrier_ID) then
@@ -84,6 +84,7 @@ is
 
                   IDs_Present (Barrier_ID) := True;
                end;
+               <<Continue_Loop>>
             end loop;
          end;
       end loop;
@@ -311,12 +312,11 @@ is
                                    Name => "id");
                            begin
                               Validation_Errors.Insert
-                                (Msg => "Minor frame" & J'Img
-                                 & " of CPU " & CPU_ID & " in major frame"
-                                 & I'Img & " references invalid barrier"
-                                 & Ref_Idx'Img & ", must be less than"
-                                 & Barrier_Count'Img);
-                              return;
+                                (Msg => "Minor frame of CPU " & CPU_ID
+                                 & " in major frame" & I'Img
+                                 & " references invalid barrier" & Ref_Idx'Img
+                                 & ", must be less than" & Barrier_Count'Img);
+                              goto Continue_Minor_Frame_Loop;
                            end;
                         end if;
 
@@ -324,6 +324,7 @@ is
                      end;
                   end if;
                end;
+               <<Continue_Minor_Frame_Loop>>
             end loop;
 
             for J in 1 .. Barrier_Count loop

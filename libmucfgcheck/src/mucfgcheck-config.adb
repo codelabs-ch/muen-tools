@@ -113,7 +113,9 @@ is
              & "/config/*[self::boolean or self::integer or self::string]");
       Set_Of_Names : Set_Of_Strings_Type.Set;
    begin
-      for I in Natural range 0 .. DOM.Core.Nodes.Length (List => Config_Nodes) - 1 loop
+      for I in Natural range 0 .. DOM.Core.Nodes.Length
+         (List => Config_Nodes) - 1
+      loop
          declare
             Config_Node : constant DOM.Core.Node
               := DOM.Core.Nodes.Item
@@ -338,7 +340,8 @@ is
                end;
             end loop;
 
-            for J in 0 .. DOM.Core.Nodes.Length (List => Expr_EvalString) - 1 loop
+            for J in 0 .. DOM.Core.Nodes.Length (List => Expr_EvalString) - 1
+            loop
                declare
                   Node : constant DOM.Core.Node
                      := DOM.Core.Nodes.Item

@@ -398,7 +398,7 @@ is
                   & "' does not map logical " & Resource_Type & " '" & Log_Name
                   & "' as requested by referenced component '" & Comp_Name
                   & "'");
-               return;
+               goto Continue_Loop;
             end if;
 
             declare
@@ -418,7 +418,7 @@ is
                      & Resource_Type & " '" & Phys_Name & "' referenced by "
                      & "mapping of component logical resource '" & Log_Name
                      & "' by subject" & " '" & Subj_Name & "' does not exist");
-                  return;
+                  goto Continue_Loop;
                end if;
 
                Additional_Check (Logical_Resource  => Log_Res,
@@ -426,6 +426,7 @@ is
                                  Mapping           => Mapping);
             end;
          end;
+         <<Continue_Loop>>
       end loop;
    end Check_Component_Resource_Mappings;
 
@@ -876,7 +877,7 @@ is
                     XPath => "component/map[@logical='" & Log_Dev_Name
                     & "']/map");
             begin
-               for I in 0 .. DOM.Core.Nodes.Length (List => Log_Dev_Ports) - 1
+               for J in 0 .. DOM.Core.Nodes.Length (List => Log_Dev_Ports) - 1
                loop
                   declare
                      use type Interfaces.Unsigned_64;
@@ -884,7 +885,7 @@ is
                      Log_Dev_Port        : constant DOM.Core.Node
                        := DOM.Core.Nodes.Item
                          (List  => Log_Dev_Ports,
-                          Index => I);
+                          Index => J);
                      Log_Dev_Port_Name   : constant String
                        := DOM.Core.Elements.Get_Attribute
                          (Elem => Log_Dev_Port,
@@ -1029,7 +1030,7 @@ is
                     XPath => "component/map[@logical='" & Log_Dev_Name
                     & "']/map");
             begin
-               for I in 0 .. DOM.Core.Nodes.Length (List => Log_Dev_Mem) - 1
+               for J in 0 .. DOM.Core.Nodes.Length (List => Log_Dev_Mem) - 1
                loop
                   declare
                      use type Interfaces.Unsigned_64;
@@ -1037,7 +1038,7 @@ is
                      Log_Dev_Memory    : constant DOM.Core.Node
                        := DOM.Core.Nodes.Item
                          (List  => Log_Dev_Mem,
-                          Index => I);
+                          Index => J);
                      Log_Dev_Mem_Name  : constant String
                        := DOM.Core.Elements.Get_Attribute
                          (Elem => Log_Dev_Memory,
@@ -2032,14 +2033,14 @@ is
                    (N     => Physical_Device,
                     XPath => "*");
             begin
-               for I in 0 .. DOM.Core.Nodes.Length (List => Log_Dev_Res) - 1
+               for J in 0 .. DOM.Core.Nodes.Length (List => Log_Dev_Res) - 1
                loop
                   declare
                      use type DOM.Core.Node;
 
                      Log_Res : constant DOM.Core.Node
                        := DOM.Core.Nodes.Item (List  => Log_Dev_Res,
-                                               Index => I);
+                                               Index => J);
                      Log_Res_Name : constant String
                        := DOM.Core.Elements.Get_Attribute
                          (Elem => Log_Res,
@@ -2074,7 +2075,7 @@ is
                            & Log_Dev_Name & "->" & Log_Res_Name
                            & "' by subject" & " '" & Subj_Name
                            & "' does not exist");
-                        return;
+                        goto Continue_Loop;
                      end if;
 
                      if DOM.Core.Nodes.Node_Name (N => Log_Res)
@@ -2089,6 +2090,8 @@ is
                            & "' have different type");
                      end if;
                   end;
+
+                  <<Continue_Loop>>
                end loop;
             end Check_Device_Resource_Mappings;
          begin

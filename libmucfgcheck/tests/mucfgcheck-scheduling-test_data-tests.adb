@@ -407,21 +407,31 @@ package body Mucfgcheck.Scheduling.Test_Data.Tests is
       Barrier_ID (XML_Data => Data);
       Assert (Condition => Validation_Errors.Contains
               (Msg => "Major frame 0 has multiple barriers with ID 2"),
-              Message   => "Exception mismatch");
+              Message   => "Exception mismatch (1)");
 
-      --  Set invalid barrier ID (i.e. larger than barrier count).
+      --  Set multiple invalid barrier IDs (i.e. larger than barrier count).
 
+      Validation_Errors.Clear;
       Muxml.Utils.Set_Attribute
         (Doc   => Data.Doc,
-         XPath => "/system/scheduling/majorFrame/barriers/barrier",
+         XPath => "/system/scheduling/majorFrame/barriers/barrier[@id='1']",
          Name  => "id",
          Value => "42");
+      Muxml.Utils.Set_Attribute
+        (Doc   => Data.Doc,
+         XPath => "/system/scheduling/majorFrame/barriers/barrier[@id='2']",
+         Name  => "id",
+         Value => "23");
 
       Barrier_ID (XML_Data => Data);
       Assert (Condition => Validation_Errors.Contains
               (Msg => "Barrier of major frame 0 has invalid ID 42, must be in "
                & "range 1 .. 4"),
-              Message   => "Exception mismatch");
+              Message   => "Exception mismatch (2)");
+      Assert (Condition => Validation_Errors.Contains
+              (Msg => "Barrier of major frame 0 has invalid ID 23, must be in "
+               & "range 1 .. 4"),
+              Message   => "Exception mismatch (3)");
 --  begin read only
    end Test_Barrier_ID;
 --  end read only
@@ -557,22 +567,33 @@ package body Mucfgcheck.Scheduling.Test_Data.Tests is
       Assert (Condition => Validation_Errors.Contains
               (Msg => "References to barrier 3 of major frame 0 do not match "
                & "barrier size: 3 /= 4"),
-              Message   => "Exception mismatch");
+              Message   => "Exception mismatch (1)");
 
-      --  Set barrier reference that is too large.
+      --  Set multiple barrier references that are too large.
 
+      Validation_Errors.Clear;
       Muxml.Utils.Set_Attribute
         (Doc   => Data.Doc,
-         XPath => "/system/scheduling/majorFrame/cpu/"
+         XPath => "/system/scheduling/majorFrame/cpu[@id='0']/"
          & "minorFrame[@barrier='1']",
          Name  => "barrier",
          Value => "42");
+      Muxml.Utils.Set_Attribute
+        (Doc   => Data.Doc,
+         XPath => "/system/scheduling/majorFrame/cpu[@id='2']/"
+         & "minorFrame[@barrier='2']",
+         Name  => "barrier",
+         Value => "23");
 
       Minor_Frame_Barrier_Refs (XML_Data => Data);
       Assert (Condition => Validation_Errors.Contains
-              (Msg => "Minor frame 0 of CPU 0 in major frame 0 references "
+              (Msg => "Minor frame of CPU 0 in major frame 0 references "
                & "invalid barrier 42, must be less than 4"),
-              Message   => "Exception mismatch");
+              Message   => "Exception mismatch (2)");
+      Assert (Condition => Validation_Errors.Contains
+              (Msg => "Minor frame of CPU 2 in major frame 0 references "
+               & "invalid barrier 23, must be less than 4"),
+              Message   => "Exception mismatch (3)");
 --  begin read only
    end Test_Minor_Frame_Barrier_Refs;
 --  end read only
