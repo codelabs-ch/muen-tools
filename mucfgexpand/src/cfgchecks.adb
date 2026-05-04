@@ -876,7 +876,7 @@ is
                     XPath => "component/map[@logical='" & Log_Dev_Name
                     & "']/map");
             begin
-               for I in 0 .. DOM.Core.Nodes.Length (List => Log_Dev_Ports) - 1
+               for J in 0 .. DOM.Core.Nodes.Length (List => Log_Dev_Ports) - 1
                loop
                   declare
                      use type Interfaces.Unsigned_64;
@@ -884,7 +884,7 @@ is
                      Log_Dev_Port        : constant DOM.Core.Node
                        := DOM.Core.Nodes.Item
                          (List  => Log_Dev_Ports,
-                          Index => I);
+                          Index => J);
                      Log_Dev_Port_Name   : constant String
                        := DOM.Core.Elements.Get_Attribute
                          (Elem => Log_Dev_Port,
@@ -1029,7 +1029,7 @@ is
                     XPath => "component/map[@logical='" & Log_Dev_Name
                     & "']/map");
             begin
-               for I in 0 .. DOM.Core.Nodes.Length (List => Log_Dev_Mem) - 1
+               for J in 0 .. DOM.Core.Nodes.Length (List => Log_Dev_Mem) - 1
                loop
                   declare
                      use type Interfaces.Unsigned_64;
@@ -1037,7 +1037,7 @@ is
                      Log_Dev_Memory    : constant DOM.Core.Node
                        := DOM.Core.Nodes.Item
                          (List  => Log_Dev_Mem,
-                          Index => I);
+                          Index => J);
                      Log_Dev_Mem_Name  : constant String
                        := DOM.Core.Elements.Get_Attribute
                          (Elem => Log_Dev_Memory,
@@ -2032,14 +2032,14 @@ is
                    (N     => Physical_Device,
                     XPath => "*");
             begin
-               for I in 0 .. DOM.Core.Nodes.Length (List => Log_Dev_Res) - 1
+               for J in 0 .. DOM.Core.Nodes.Length (List => Log_Dev_Res) - 1
                loop
                   declare
                      use type DOM.Core.Node;
 
                      Log_Res : constant DOM.Core.Node
                        := DOM.Core.Nodes.Item (List  => Log_Dev_Res,
-                                               Index => I);
+                                               Index => J);
                      Log_Res_Name : constant String
                        := DOM.Core.Elements.Get_Attribute
                          (Elem => Log_Res,
