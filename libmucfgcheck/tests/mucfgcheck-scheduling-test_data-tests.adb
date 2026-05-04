@@ -407,21 +407,31 @@ package body Mucfgcheck.Scheduling.Test_Data.Tests is
       Barrier_ID (XML_Data => Data);
       Assert (Condition => Validation_Errors.Contains
               (Msg => "Major frame 0 has multiple barriers with ID 2"),
-              Message   => "Exception mismatch");
+              Message   => "Exception mismatch (1)");
 
-      --  Set invalid barrier ID (i.e. larger than barrier count).
+      --  Set multiple invalid barrier IDs (i.e. larger than barrier count).
 
+      Validation_Errors.Clear;
       Muxml.Utils.Set_Attribute
         (Doc   => Data.Doc,
-         XPath => "/system/scheduling/majorFrame/barriers/barrier",
+         XPath => "/system/scheduling/majorFrame/barriers/barrier[@id='1']",
          Name  => "id",
          Value => "42");
+      Muxml.Utils.Set_Attribute
+        (Doc   => Data.Doc,
+         XPath => "/system/scheduling/majorFrame/barriers/barrier[@id='2']",
+         Name  => "id",
+         Value => "23");
 
       Barrier_ID (XML_Data => Data);
       Assert (Condition => Validation_Errors.Contains
               (Msg => "Barrier of major frame 0 has invalid ID 42, must be in "
                & "range 1 .. 4"),
-              Message   => "Exception mismatch");
+              Message   => "Exception mismatch (2)");
+      Assert (Condition => Validation_Errors.Contains
+              (Msg => "Barrier of major frame 0 has invalid ID 23, must be in "
+               & "range 1 .. 4"),
+              Message   => "Exception mismatch (3)");
 --  begin read only
    end Test_Barrier_ID;
 --  end read only

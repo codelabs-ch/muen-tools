@@ -73,7 +73,7 @@ is
                        (Msg => "Barrier of major frame"
                         & I'Img & " has invalid ID" & Barrier_ID'Img
                         & ", must be in range 1 .." & Barrier_Count'Img);
-                     return;
+                     goto Continue_Loop;
                   end if;
 
                   if IDs_Present (Barrier_ID) then
@@ -84,6 +84,7 @@ is
 
                   IDs_Present (Barrier_ID) := True;
                end;
+               <<Continue_Loop>>
             end loop;
          end;
       end loop;
