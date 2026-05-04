@@ -1630,8 +1630,9 @@ package body Mucfgcheck.Memory.Test_Data.Tests is
                & "kernel mappings: 2"),
               Message   => "Exception mismatch (3)");
 
-      --  No kernel subject FPU state mapping.
+      --  Multiple missing kernel subject FPU state mappings.
 
+      Validation_Errors.Clear;
       Muxml.Utils.Set_Attribute
         (Doc   => Data.Doc,
          XPath => "/system/kernel/memory/cpu/memory[@logical="
@@ -1643,11 +1644,20 @@ package body Mucfgcheck.Memory.Test_Data.Tests is
          XPath => "/system/kernel/memory/cpu/memory[@logical='vt|fpu']",
          Name  => "physical",
          Value => "nonexistent");
+      Muxml.Utils.Set_Attribute
+        (Doc   => Data.Doc,
+         XPath => "/system/kernel/memory/cpu/memory[@logical='sm|fpu']",
+         Name  => "physical",
+         Value => "nonexistent");
       Subject_FPU_State_Mappings (XML_Data => Data);
       Assert (Condition => Validation_Errors.Contains
               (Msg => "Subject FPU state memory region 'vt|fpu' is not mapped "
                & "by any kernel"),
               Message   => "Exception mismatch (4)");
+      Assert (Condition => Validation_Errors.Contains
+              (Msg => "Subject FPU state memory region 'sm|fpu' is not mapped "
+               & "by any kernel"),
+              Message   => "Exception mismatch (5)");
 --  begin read only
    end Test_Subject_FPU_State_Mappings;
 --  end read only

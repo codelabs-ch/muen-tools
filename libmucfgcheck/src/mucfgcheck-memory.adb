@@ -217,7 +217,7 @@ is
                  (Msg => Mutools.Utils.Capitalize
                     (Str => Mapping_Name) & " memory region '" & Phys_Name
                   & "' is not mapped by any kernel");
-               return;
+               goto Continue_Loop;
             elsif Kernel_Map_Count > 1 then
                Validation_Errors.Insert
                  (Msg => Mutools.Utils.Capitalize
@@ -281,6 +281,7 @@ is
                   Mapping_Name => Phys_Name);
             end;
          end;
+         <<Continue_Loop>>
       end loop;
    end Check_Subject_Region_Mappings;
 
