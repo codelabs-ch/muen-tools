@@ -910,24 +910,27 @@ package body Mucfgcheck.Memory.Test_Data.Tests is
                & "kernel mappings: 2"),
               Message   => "Exception mismatch (3)");
 
-      --  Missing kernel scheduling info mapping.
+      --  Multiple missing kernel scheduling info mappings.
 
-      declare
-         Node : DOM.Core.Node := Muxml.Utils.Get_Element
-           (Doc   => Data.Doc,
-            XPath => "/system/kernel/memory/cpu[@id='0']/memory"
+      Validation_Errors.Clear;
+      Muxml.Utils.Remove_Elements
+        (Doc   => Data.Doc,
+         XPath => "/system/kernel/memory/cpu[@id='0']/memory"
             & "[@physical='scheduling_info_1']");
-      begin
-         Node := DOM.Core.Nodes.Remove_Child
-           (N         => DOM.Core.Nodes.Parent_Node (N => Node),
-            Old_Child => Node);
+      Muxml.Utils.Remove_Elements
+        (Doc   => Data.Doc,
+         XPath => "/system/kernel/memory/cpu/memory"
+            & "[@physical='scheduling_info_3']");
 
-         Kernel_Sched_Info_Mappings (XML_Data => Data);
-         Assert (Condition => Validation_Errors.Contains
-                 (Msg => "No kernel mapping for info region of scheduling "
-                  & "partition 1"),
-                 Message   => "Exception mismatch (4)");
-      end;
+      Kernel_Sched_Info_Mappings (XML_Data => Data);
+      Assert (Condition => Validation_Errors.Contains
+              (Msg => "No kernel mapping for info region of scheduling "
+               & "partition 1"),
+              Message   => "Exception mismatch (4)");
+      Assert (Condition => Validation_Errors.Contains
+              (Msg => "No kernel mapping for info region of scheduling "
+               & "partition 3"),
+              Message   => "Exception mismatch (5)");
 --  begin read only
    end Test_Kernel_Sched_Info_Mappings;
 --  end read only

@@ -724,7 +724,7 @@ is
                Validation_Errors.Insert
                  (Msg => "No kernel mapping for info region"
                   & " of scheduling partition " & SP_ID_Str);
-               return;
+               goto Continue_Loop;
             elsif Mappings_Count > 1 then
                Validation_Errors.Insert
                  (Msg => "Info region of scheduling partition "
@@ -771,6 +771,7 @@ is
                end if;
             end;
          end;
+         <<Continue_Loop>>
       end loop;
    end Kernel_Sched_Info_Mappings;
 
