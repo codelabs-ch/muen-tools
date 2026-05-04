@@ -316,7 +316,7 @@ is
                                  & " in major frame" & I'Img
                                  & " references invalid barrier" & Ref_Idx'Img
                                  & ", must be less than" & Barrier_Count'Img);
-                              return;
+                              goto Continue_Minor_Frame_Loop;
                            end;
                         end if;
 
@@ -324,6 +324,7 @@ is
                      end;
                   end if;
                end;
+               <<Continue_Minor_Frame_Loop>>
             end loop;
 
             for J in 1 .. Barrier_Count loop
