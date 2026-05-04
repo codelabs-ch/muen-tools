@@ -447,16 +447,23 @@ package body Cfgchecks.Test_Data.Tests is
               (Msg =>"Physical device resource 'sata_controller->ioport1' and"
                & " component logical resource 'storage_device->mmio1' "
                & "mapped by subject 'subject1' have different type"),
-              Message   => "Exception mismatch");
+              Message   => "Exception mismatch (1)");
 
-      --  Invalid physical device resource reference.
+      --  Multiple invalid physical device resource references.
 
+      Mucfgcheck.Validation_Errors.Clear;
       Muxml.Utils.Set_Attribute
         (Doc   => Policy.Doc,
          XPath => "/system/subjects/subject[@name='subject1']/component"
          & "/map[@logical='storage_device']/map[@logical='mmio1']",
          Name  => "physical",
          Value => "nonexistent");
+      Muxml.Utils.Set_Attribute
+        (Doc   => Policy.Doc,
+         XPath => "/system/subjects/subject[@name='subject1']/component"
+         & "/map[@logical='storage_device']/map[@logical='port_3']",
+         Name  => "physical",
+         Value => "foobar");
 
       Subject_Device_Exports (XML_Data => Policy);
       Assert (Condition => Mucfgcheck.Validation_Errors.Contains
@@ -464,7 +471,13 @@ package body Cfgchecks.Test_Data.Tests is
                & " referenced by mapping of component logical resource "
                & "'storage_device->mmio1' by subject 'subject1' does not "
                & "exist"),
-              Message   => "Exception mismatch");
+              Message   => "Exception mismatch (2)");
+      Assert (Condition => Mucfgcheck.Validation_Errors.Contains
+              (Msg =>"Physical device resource 'sata_controller->foobar'"
+               & " referenced by mapping of component logical resource "
+               & "'storage_device->port_3' by subject 'subject1' does not "
+               & "exist"),
+              Message   => "Exception mismatch (3)");
 
       --  Missing component device resource mapping.
 
@@ -480,7 +493,7 @@ package body Cfgchecks.Test_Data.Tests is
               (Msg =>"Subject 'subject1' does not map logical device resource"
                & " 'storage_device->mmio1' as requested by referenced "
                & "component 'c1'"),
-              Message   => "Exception mismatch");
+              Message   => "Exception mismatch (4)");
 
       --  Invalid physical device reference.
 
@@ -496,7 +509,7 @@ package body Cfgchecks.Test_Data.Tests is
               (Msg =>"Physical device 'nonexistent' referenced by mapping of"
                & " component logical resource 'storage_device' by subject"
                & " 'subject1' does not exist"),
-              Message   => "Exception mismatch");
+              Message   => "Exception mismatch (5)");
 
       --  Missing component device mapping.
 
@@ -512,7 +525,7 @@ package body Cfgchecks.Test_Data.Tests is
               (Msg =>"Subject 'subject1' does not map logical device "
                & "'storage_device' as requested by referenced component "
                & "'c1'"),
-              Message   => "Exception mismatch");
+              Message   => "Exception mismatch (6)");
 --  begin read only
    end Test_Subject_Device_Exports;
 --  end read only

@@ -2075,7 +2075,7 @@ is
                            & Log_Dev_Name & "->" & Log_Res_Name
                            & "' by subject" & " '" & Subj_Name
                            & "' does not exist");
-                        return;
+                        goto Continue_Loop;
                      end if;
 
                      if DOM.Core.Nodes.Node_Name (N => Log_Res)
@@ -2090,6 +2090,8 @@ is
                            & "' have different type");
                      end if;
                   end;
+
+                  <<Continue_Loop>>
                end loop;
             end Check_Device_Resource_Mappings;
          begin
