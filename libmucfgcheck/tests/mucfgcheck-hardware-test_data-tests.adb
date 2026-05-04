@@ -433,17 +433,26 @@ package body Mucfgcheck.Hardware.Test_Data.Tests is
               (Msg => "Source ID capability of I/O APIC 'ioapic' is not set"),
               Message   => "Exception mismatch (2)");
 
-      --  SID capability not present.
+      --  Multiple I/O APICs with SID capability not present.
 
+      Validation_Errors.Clear;
       Muxml.Utils.Remove_Elements
         (Doc   => Data.Doc,
          XPath => "/system/hardware/devices/device[@name='ioapic']"
          & "/capabilities/capability[@name='source_id']");
-
+      Muxml.Utils.Set_Attribute
+        (Doc   => Data.Doc,
+         XPath => "/system/hardware/devices/device[@name='iommu_1']"
+         & "/capabilities/capability[@name='iommu']",
+         Name  => "name",
+         Value => "ioapic");
       IOAPIC_Cap_SID (XML_Data => Data);
       Assert (Condition => Validation_Errors.Contains
               (Msg => "Source ID capability of I/O APIC 'ioapic' is not set"),
               Message   => "Exception mismatch (3)");
+      Assert (Condition => Validation_Errors.Contains
+              (Msg => "Source ID capability of I/O APIC 'iommu_1' is not set"),
+              Message   => "Exception mismatch (4)");
 --  begin read only
    end Test_IOAPIC_Cap_SID;
 --  end read only
