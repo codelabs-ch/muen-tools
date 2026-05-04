@@ -312,11 +312,10 @@ is
                                    Name => "id");
                            begin
                               Validation_Errors.Insert
-                                (Msg => "Minor frame" & J'Img
-                                 & " of CPU " & CPU_ID & " in major frame"
-                                 & I'Img & " references invalid barrier"
-                                 & Ref_Idx'Img & ", must be less than"
-                                 & Barrier_Count'Img);
+                                (Msg => "Minor frame of CPU " & CPU_ID
+                                 & " in major frame" & I'Img
+                                 & " references invalid barrier" & Ref_Idx'Img
+                                 & ", must be less than" & Barrier_Count'Img);
                               return;
                            end;
                         end if;

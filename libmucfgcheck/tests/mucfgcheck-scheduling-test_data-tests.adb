@@ -580,7 +580,7 @@ package body Mucfgcheck.Scheduling.Test_Data.Tests is
 
       Minor_Frame_Barrier_Refs (XML_Data => Data);
       Assert (Condition => Validation_Errors.Contains
-              (Msg => "Minor frame 0 of CPU 0 in major frame 0 references "
+              (Msg => "Minor frame of CPU 0 in major frame 0 references "
                & "invalid barrier 42, must be less than 4"),
               Message   => "Exception mismatch");
 --  begin read only
