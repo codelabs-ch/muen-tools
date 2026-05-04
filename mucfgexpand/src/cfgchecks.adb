@@ -398,7 +398,7 @@ is
                   & "' does not map logical " & Resource_Type & " '" & Log_Name
                   & "' as requested by referenced component '" & Comp_Name
                   & "'");
-               return;
+               goto Continue_Loop;
             end if;
 
             declare
@@ -418,7 +418,7 @@ is
                      & Resource_Type & " '" & Phys_Name & "' referenced by "
                      & "mapping of component logical resource '" & Log_Name
                      & "' by subject" & " '" & Subj_Name & "' does not exist");
-                  return;
+                  goto Continue_Loop;
                end if;
 
                Additional_Check (Logical_Resource  => Log_Res,
@@ -426,6 +426,7 @@ is
                                  Mapping           => Mapping);
             end;
          end;
+         <<Continue_Loop>>
       end loop;
    end Check_Component_Resource_Mappings;
 

@@ -288,6 +288,27 @@ package body Cfgchecks.Test_Data.Tests is
               (Msg =>"Subject 'subject2' does not map logical channel "
                & "'output1' as requested by referenced component 'c2'"),
                Message   => "Exception mismatch (3)");
+
+      --  Multiple missing component channel mappings.
+
+      Mucfgcheck.Validation_Errors.Clear;
+      Muxml.Utils.Set_Attribute
+        (Doc   => Policy.Doc,
+         XPath => "/system/subjects/subject[@name='subject2']/component"
+         & "/map[@logical='primary_data']",
+         Name  => "logical",
+         Value => "foobar");
+
+      Subject_Channel_Exports (XML_Data => Policy);
+      Assert (Condition => Mucfgcheck.Validation_Errors.Contains
+              (Msg =>"Subject 'subject2' does not map logical channel "
+               & "'primary_data' as requested by referenced component "
+               & "'c2'"),
+              Message   => "Exception mismatch (4)");
+      Assert (Condition => Mucfgcheck.Validation_Errors.Contains
+              (Msg =>"Subject 'subject2' does not map logical channel "
+               & "'output1' as requested by referenced component 'c2'"),
+               Message   => "Exception mismatch (5)");
 --  begin read only
    end Test_Subject_Channel_Exports;
 --  end read only
