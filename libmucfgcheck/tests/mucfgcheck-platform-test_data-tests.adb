@@ -317,7 +317,9 @@ package body Mucfgcheck.Platform.Test_Data.Tests is
       procedure Invalid_Resource_Reference
       is
          Data : Muxml.XML_Data_Type;
+         Node : DOM.Core.Node;
       begin
+         Validation_Errors.Clear;
          Muxml.Parse (Data => Data,
                       Kind => Muxml.Format_B,
                       File => "data/test_policy.xml");
@@ -327,12 +329,28 @@ package body Mucfgcheck.Platform.Test_Data.Tests is
             XPath => "/system/platform/kernelDiagnostics/device/ioPort",
             Name  => "physical",
             Value => "nonexistent");
+         Node := DOM.Core.Documents.Create_Element
+           (Doc      => Data.Doc,
+            Tag_Name => "memory");
+         DOM.Core.Elements.Set_Attribute (Elem  => Node,
+                                          Name  => "physical",
+                                          Value => "foobar");
+
+         Muxml.Utils.Append_Child
+           (Node      => Muxml.Utils.Get_Element
+              (Doc   => Data.Doc,
+               XPath => "/system/platform/kernelDiagnostics/device"),
+            New_Child => Node);
 
          Kernel_Diagnostics_Device_Reference (XML_Data => Data);
          Assert (Condition => Validation_Errors.Contains
                  (Msg => "Physical device resource 'debugconsole->nonexistent'"
                   & " referenced by kernel diagnostics device not found"),
                  Message   => "Exception mismatch (2)");
+         Assert (Condition => Validation_Errors.Contains
+                 (Msg => "Physical device resource 'debugconsole->foobar'"
+                  & " referenced by kernel diagnostics device not found"),
+                 Message   => "Exception mismatch (3)");
       end Invalid_Resource_Reference;
 
       ----------------------------------------------------------------------
@@ -364,7 +382,7 @@ package body Mucfgcheck.Platform.Test_Data.Tests is
                  (Msg => "Physical device resource 'debugconsole->port' "
                   & "referenced by kernel diagnostics device has "
                   & "different type: memory /= ioPort"),
-                 Message   => "Exception mismatch (3)");
+                 Message   => "Exception mismatch (4)");
       end Invalid_Resource_Type;
 
       ----------------------------------------------------------------------

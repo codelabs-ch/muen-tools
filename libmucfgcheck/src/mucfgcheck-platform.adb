@@ -227,7 +227,7 @@ is
                     (Msg => "Physical device resource '"
                      & Phys_Name & "->" & Phys_Res_Name & "' referenced by "
                      & "kernel diagnostics device not found");
-                  return;
+                  goto Continue_Loop;
                end if;
 
                if Diag_Res_Type /= DOM.Core.Nodes.Node_Name (N => Phys_Res)
@@ -240,6 +240,7 @@ is
                      & DOM.Core.Nodes.Node_Name (N => Phys_Res));
                end if;
             end;
+            <<Continue_Loop>>
          end loop;
       end;
    end Kernel_Diagnostics_Device_Reference;
