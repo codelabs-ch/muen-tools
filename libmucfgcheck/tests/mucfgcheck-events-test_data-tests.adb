@@ -613,12 +613,20 @@ package body Mucfgcheck.Events.Test_Data.Tests is
         (Doc   => Data.Doc,
          XPath => "/system/subjects/subject[@name='sm']/events/source/"
          & "group[@name='vmx_exit']/event[@id='23']");
+      Muxml.Utils.Remove_Elements
+        (Doc   => Data.Doc,
+         XPath => "/system/subjects/subject[@name='sm']/events/source/"
+         & "group[@name='vmx_exit']/event[@id='24']");
 
       Source_VMX_Exit_Event_Completeness (XML_Data => Data);
       Assert (Condition => Validation_Errors.Contains
               (Msg => "Subject 'sm' does not specify 'vmx_exit' group source "
                & "event with ID 23"),
               Message   => "Exception mismatch (1)");
+      Assert (Condition => Validation_Errors.Contains
+              (Msg => "Subject 'sm' does not specify 'vmx_exit' group source "
+               & "event with ID 24"),
+              Message   => "Exception mismatch (2)");
 
       Muxml.Utils.Add_Child
         (Parent     => Muxml.Utils.Get_Element
@@ -632,7 +640,7 @@ package body Mucfgcheck.Events.Test_Data.Tests is
       Validation_Errors.Clear;
       Source_VMX_Exit_Event_Completeness (XML_Data => Data);
       Assert (Condition => Validation_Errors.Is_Empty,
-              Message   => "Unexpected error in positive test (2)");
+              Message   => "Unexpected error in positive test (3)");
 
       Muxml.Utils.Remove_Elements
         (Doc   => Data.Doc,
@@ -643,7 +651,7 @@ package body Mucfgcheck.Events.Test_Data.Tests is
       Assert (Condition => Validation_Errors.Contains
               (Msg => "Subject 'sm' does not specify source event group "
                & "'vmx_exit'"),
-              Message   => "Exception mismatch (2)");
+              Message   => "Exception mismatch (4)");
 --  begin read only
    end Test_Source_VMX_Exit_Event_Completeness;
 --  end read only
