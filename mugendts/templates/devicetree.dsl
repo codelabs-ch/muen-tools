@@ -31,7 +31,7 @@
         #size-cells = <0x2>;
         ranges;
 
-        exclude_kernel@__reserved_base__ {
+        excluded_memory@__reserved_base__ {
             __reserved_registers__
         };
     };

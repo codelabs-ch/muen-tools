@@ -178,6 +178,9 @@
  <memory alignment="16#1000#" caching="WB" name="event_logger|binary" physicalAddress="16#0400_0000#" size="16#0002_0000#" type="subject_binary">
   <file filename="subject_one.bin" offset="none"/>
  </memory>
+ <memory alignment="16#1000#" caching="WB" name="linux|ram_ro_test" physicalAddress="16#0022_0000#" size="16#0000_1000#" type="subject">
+  <fill pattern="16#00#"/>
+ </memory>
  <memory alignment="16#1000#" caching="WB" name="linux|lowmem" physicalAddress="16#1000_0000#" size="16#0004_0000#" type="subject">
   <fill pattern="16#00#"/>
  </memory>
@@ -324,6 +327,7 @@
    <memory logical="binary" physical="linux|binary" virtualAddress="16#0008_0000#" writable="true" executable="true"/>
    <memory logical="ram" physical="linux|ram" virtualAddress="16#0075_d000#" writable="true" executable="true"/>
    <memory logical="rootfs" physical="linux|rootfs" virtualAddress="16#1b00_0000#" writable="true" executable="true"/>
+   <memory logical="reserved_ram" physical="linux|ram_ro_test" virtualAddress="16#2200_0000#" writable="false" executable="false"/>
   </memory>
   <devices>
    <device logical="vgic" physical="APU_GIC">

@@ -141,6 +141,10 @@ is
             Virtual_Memory_Phys : constant String
               := DOM.Core.Elements.Get_Attribute (Elem => Virtual_Memory_Node,
                                                   Name => "physical");
+            Virtual_Memory_RW   : constant Boolean
+              := Boolean'Value (DOM.Core.Elements.Get_Attribute
+                                (Elem => Virtual_Memory_Node,
+                                 Name => "writable"));
 
             Physical_Memory_Node : constant DOM.Core.Node
               := Muxml.Utils.Get_Element (Nodes     => Physical_Memory,
@@ -180,8 +184,13 @@ is
 
             --  The kernel image is marked as reserved memory, so it won't get
             --  used by the kernel. In particular for DMA, so we don't have to
-            --  map it into the SMMU.
-            if Physical_Memory_Type in Mutools.Types.Subject_Binary then
+            --  map it into the SMMU. Also read-only subject memory is marked
+            --  as reserved.
+            if
+              Physical_Memory_Type in Mutools.Types.Subject_Binary or else
+              (Physical_Memory_Type in Mutools.Types.Subject_RAM_Memory and
+                 not Virtual_Memory_RW)
+            then
                if Unsigned_64'Value (Virtual_Memory_Base) < Reserved_Base then
                   Reserved_Base := Unsigned_64'Value (Virtual_Memory_Base);
                end if;

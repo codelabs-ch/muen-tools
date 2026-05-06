@@ -276,20 +276,24 @@ package body DTS.Root.Test_Data.Tests is
         ASCII.LF &
         "               0x00000000 0x0075d000 0x00000000 0x1a8a3000" &
         ASCII.LF &
-        "               0x00000000 0x1b000000 0x00000000 0x05000000>;" &
-        ASCII.LF & "    };" &
-        "    reserved@80000 {" & ASCII.LF &
-        "        reg = <0x00000000 0x00080000 0x00000000 0x006dd000>;" &
-        ASCII.LF & "    };";
+        "               0x00000000 0x1b000000 0x00000000 0x05000000" &
+        ASCII.LF &
+        "               0x00000000 0x22000000 0x00000000 0x00001000>;" &
+        ASCII.LF & "    };" & ASCII.LF &
+        "        reserved@80000 {" & ASCII.LF &
+        "            reg = <0x00000000 0x00080000 0x00000000 0x006dd000" &
+        ASCII.LF &
+        "                   0x00000000 0x22000000 0x00000000 0x00001000>;" &
+        ASCII.LF & "        };";
 
       Template : Mutools.Templates.Template_Type
         := Mutools.Templates.Create
           (Content =>
              "    memory@__memory_base__ {" & ASCII.LF &
              "        device_type = ""memory"";" & ASCII.LF &
-             "        __memory_registers__" & ASCII.LF & "    };" &
-             "    reserved@__reserved_base__ {" & ASCII.LF &
-             "        __reserved_registers__" & ASCII.LF & "    };");
+             "        __memory_registers__" & ASCII.LF & "    };" & ASCII.LF &
+             "        reserved@__reserved_base__ {" & ASCII.LF &
+             "            __reserved_registers__" & ASCII.LF & "        };");
 
       Policy : Muxml.XML_Data_Type;
 
