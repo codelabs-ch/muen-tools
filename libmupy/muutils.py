@@ -27,7 +27,7 @@ def int_to_ada_hex(value):
     if value == "":
         return ""
     else:
-        val = hex(value).rstrip("L").lstrip("0x")
+        val = hex(value).rstrip("L")[2:]
         val = val.rjust(int(math.ceil(len(val) / 4.0) * 4), "0")
         hexvalue = "16#"
         for index in range(0, len(val)):
