@@ -1,39 +1,33 @@
-FROM ocaml/opam:debian-12-ocaml-4.14
+FROM ocaml/opam@sha256:3392c09686e089098aec8ec48243271758738c768dd0faadef30caaf1d238071
 
 LABEL maintainer="Reto Buerki <reet@codelabs.ch>"
 LABEL description="Build environment for Muen-enabled MirageOS/Solo5 Unipi website unikernel"
 
 USER root
-RUN curl -SL https://github.com/ocaml/opam/releases/download/2.1.5/opam-2.1.5-x86_64-linux -o $(which opam) \
-	&& chmod 755 $(which opam)
+RUN mv /usr/bin/opam-2.5 /usr/bin/opam
 USER opam
-
-RUN git clone https://github.com/Solo5/solo5.git \
-	&& git -C solo5 reset --hard dabc69fd89b8119449ec4088c54b458d4ccc851b
 
 RUN cd /home/opam/opam-repository \
 	&& git fetch origin master \
-	&& git reset --hard 6d17c11f6930230daaef6a30d13bc23c1597fc9f \
+	&& git reset --hard 493123878a032e3f829b102f34e8690b3b2a4fd4 \
 	&& opam update \
-	&& opam pin add solo5 $HOME/solo5 \
-	&& opam install -y mirage.4.4.2
+	&& opam install -y solo5.0.10.1 mirage.4.11.0 ocaml-solo5
 
 # clone mirage-skeleton and prepare dependencies.
-# the settings are as described in the muen.sk article.
-RUN git clone https://github.com/mirage/mirage-skeleton \
+RUN git clone -b codelabs https://github.com/codelabs-ch/mirage-skeleton \
 	&& cd mirage-skeleton/applications/static_website_tls \
-	&& git reset --hard c7841e2796270c3114cbff932e3f7a0ff86b62c4 \
+	&& git reset --hard 6dbd88712b0f81ebef9bfdcec9e1ace48284bd19 \
 	&& eval $(opam env) \
-	&& mirage configure -t muen --ipv4=192.168.254.10/24 --ipv4-gateway=192.168.254.1 \
+	&& mirage configure -t muen \
 	&& make \
 	&& mv dist/https.muen $HOME/
 
-# clone unipi and perpare dependencies.
-RUN git clone -b with-kv-mirage4 https://github.com/roburio/unipi.git \
+# clone unipi and prepare dependencies.
+RUN git clone -b with-kv-mirage411 https://github.com/roburio/unipi.git \
 	&& cd unipi \
-	&& git reset --hard 90dd597b41aee0162cdc75d87a1ce3ca415bef55 \
+	&& git reset --hard 3b019c413be79c5acde6628ad5e0f85022eec6c9 \
 	&& eval $(opam env) \
-	&& mirage configure -t muen --ipv4=192.168.254.10/24 --ipv4-gateway=192.168.254.1 \
+	&& mirage configure -t muen \
 	&& make
 
 CMD [ "bash" ]
