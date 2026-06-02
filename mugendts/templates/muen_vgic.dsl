@@ -1,5 +1,5 @@
 interrupt-controller@__vgic_bus_base__ {
-    compatible = "muensk,irq-v0";
+    compatible = "muen,irqchip-v1.0";
     #interrupt-cells = <0x3>;
     interrupt-controller;
     __vgic_registers__

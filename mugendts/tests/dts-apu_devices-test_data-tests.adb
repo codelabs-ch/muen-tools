@@ -52,7 +52,7 @@ package body DTS.APU_Devices.Test_Data.Tests is
         "        ranges = <0x00000000 0x00000000 0x00000000 0x00000000 " &
         "0x00000000 0x20002000>;" & ASCII.LF & ASCII.LF &
         "        interrupt-controller@20000000 {" & ASCII.LF &
-        "            compatible = ""muensk,irq-v0"";" & ASCII.LF &
+        "            compatible = ""muen,irqchip-v1.0"";" & ASCII.LF &
         "            #interrupt-cells = <0x3>;" & ASCII.LF &
         "            interrupt-controller;" & ASCII.LF &
         "            reg = <0x00000000 0x20000000 0x00000000 0x00002000>;" &
@@ -115,7 +115,7 @@ package body DTS.APU_Devices.Test_Data.Tests is
 
       Expected_Entry : constant String
         := "interrupt-controller@20000000 {" & ASCII.LF &
-        "    compatible = ""muensk,irq-v0"";" & ASCII.LF &
+        "    compatible = ""muen,irqchip-v1.0"";" & ASCII.LF &
         "    #interrupt-cells = <0x3>;" & ASCII.LF &
         "    interrupt-controller;" & ASCII.LF &
         "    reg = <0x00000000 0x20000000 0x00000000 0x00002000>;" & ASCII.LF &
