@@ -151,7 +151,8 @@ enum muen_resource_kind {
 	MUEN_RES_EVENT,
 	MUEN_RES_VECTOR,
 	MUEN_RES_DEVICE,
-	MUEN_RES_DEVMEM
+	MUEN_RES_DEVMEM,
+	MUEN_RES_DEVPORT
 };
 
 /* Resource data depending on the kind of resource */

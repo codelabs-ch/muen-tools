@@ -19,6 +19,7 @@
      <bars>
        <memory index="0" is64bit="false" prefetchable="true" ref="mmio1"/>
        <memory index="2" is64bit="false" prefetchable="false" ref="mmio2"/>
+       <port index="3" ref="ioport1"/>
      </bars>
     </pci>
     <irq name="irq_1" number="40"/>
@@ -26,6 +27,7 @@
     <memory caching="UC" name="mmio1" physicalAddress="16#d250_0000#" size="16#0002_0000#"/>
     <memory caching="UC" name="mmio2" physicalAddress="16#d253_b000#" size="16#1000#"/>
     <memory caching="UC" name="mmconf" physicalAddress="16#f80c_8000#" size="16#1000#"/>
+    <ioPort end="16#c0ff#" name="ioport1" start="16#c000#"/>
     <capabilities>
       <capability name="pci_reset_method">flr</capability>
     </capabilities>
@@ -343,6 +345,7 @@
      <irq logical="eth0_irq_2" physical="irq_2" vector="60"/>
      <memory executable="false" logical="mem1" physical="mmio1" virtualAddress="16#fea5_5000#" writable="true"/>
      <memory executable="false" logical="mem2" physical="mmio2" virtualAddress="16#fea5_6000#" writable="true"/>
+     <ioPort logical="port1" physical="ioport1"/>
     </device>
     <device logical="wlan0" physical="wireless">
      <pci bus="16#23#" device="16#00#" function="0"/>

@@ -67,6 +67,15 @@ is
       Physical_Dev :        DOM.Core.Node;
       Physical_Mem :        DOM.Core.Node);
 
+   --  Add device I/O port to given subject info.
+   procedure Add_Device_IO_Port_To_Info
+     (Info          : in out Musinfo.Subject_Info_Type;
+      Subject_Name  :        String;
+      Logical_Dev   :        DOM.Core.Node;
+      Logical_Port  :        DOM.Core.Node;
+      Physical_Dev  :        DOM.Core.Node;
+      Physical_Port :        DOM.Core.Node);
+
    --  Add event to given subject info.
    procedure Add_Event_To_Info
      (Info         : in out Musinfo.Subject_Info_Type;
@@ -85,6 +94,75 @@ is
    function Get_PCI_Reset_Method
      (Physical_Dev : DOM.Core.Node)
       return Musinfo.Reset_Method_Type;
+
+   -------------------------------------------------------------------------
+
+   procedure Add_Device_IO_Port_To_Info
+     (Info          : in out Musinfo.Subject_Info_Type;
+      Subject_Name  :        String;
+      Logical_Dev   :        DOM.Core.Node;
+      Logical_Port  :        DOM.Core.Node;
+      Physical_Dev  :        DOM.Core.Node;
+      Physical_Port :        DOM.Core.Node)
+   is
+      use type Interfaces.Unsigned_16;
+
+      Device_Name : constant String
+        := DOM.Core.Elements.Get_Attribute
+          (Elem => Logical_Dev,
+           Name => "logical");
+      Phys_Port_Name : constant String
+        := DOM.Core.Elements.Get_Attribute
+          (Elem => Physical_Port,
+           Name => "name");
+      Log_Port_Name : constant String
+        := DOM.Core.Elements.Get_Attribute
+          (Elem => Logical_Port,
+           Name => "logical");
+      Address : constant Interfaces.Unsigned_16
+        := Interfaces.Unsigned_16'Value
+          (DOM.Core.Elements.Get_Attribute
+             (Elem => Physical_Port,
+              Name => "start"));
+      End_Val : constant Interfaces.Unsigned_16
+        := Interfaces.Unsigned_16'Value
+          (DOM.Core.Elements.Get_Attribute
+             (Elem => Physical_Port,
+              Name => "end"));
+      Size : constant Interfaces.Unsigned_16 := End_Val - Address + 1;
+      SID : constant Interfaces.Unsigned_16
+        := Mutools.PCI.To_SID (BDF => Mutools.PCI.Get_BDF (Dev => Logical_Dev));
+      BAR_Config : constant DOM.Core.Node
+        := Muxml.Utils.Get_Element
+          (Doc   => Physical_Dev,
+           XPath => "pci/bars/port[@ref='" & Phys_Port_Name & "']");
+      BAR_Idx : constant Musinfo.BAR_Range
+        := Musinfo.BAR_Range'Value
+          (DOM.Core.Elements.Get_Attribute
+             (Elem => BAR_Config, Name => "index"));
+   begin
+      Mulog.Log
+        (Msg => "Announcing device '" & Device_Name & "' I/O port to subject '"
+         & Subject_Name & "': " & Log_Port_Name & "@"
+         & Mutools.Utils.To_Hex (Number => Interfaces.Unsigned_64 (Address))
+         & ", size " & Mutools.Utils.To_Hex
+            (Number => Interfaces.Unsigned_64 (Size))
+         & ", [BAR:" & BAR_Idx'Img & "]");
+      Utils.Append_Resource
+        (Info     => Info,
+         Resource =>
+           (Kind             => Musinfo.Res_Device_IO_Port,
+            Name             => Utils.Create_Name
+              (Str => Device_Name & "_" & Log_Port_Name),
+            Dev_IO_Port_Data =>
+              (SID      => SID,
+               BAR_Idx  => BAR_Idx,
+               Padding1 => 0,
+               Address  => Address,
+               Size     => Size,
+               Padding2 => (others => 0)),
+            Padding      => (others => 0)));
+   end Add_Device_IO_Port_To_Info;
 
    -------------------------------------------------------------------------
 
@@ -526,6 +604,10 @@ is
                     := McKae.XML.XPath.XIA.XPath_Query
                       (N     => Logical_Device,
                        XPath => "memory");
+                  Dev_Ports : constant DOM.Core.Node_List
+                    := McKae.XML.XPath.XIA.XPath_Query
+                      (N     => Logical_Device,
+                       XPath => "ioPort");
                begin
                   Add_Device_To_Info
                     (Info          => Subject_Info,
@@ -556,6 +638,31 @@ is
                            Logical_Mem  => Log_Mem,
                            Physical_Dev => Physical_Device,
                            Physical_Mem => Phys_Mem);
+                     end;
+                  end loop;
+
+                  for K in 0 .. DOM.Core.Nodes.Length (List => Dev_Ports) - 1
+                  loop
+                     declare
+                        Log_Port : constant DOM.Core.Node
+                          := DOM.Core.Nodes.Item (List  => Dev_Ports,
+                                                  Index => K);
+                        Phys_Port_Name : constant String
+                          := DOM.Core.Elements.Get_Attribute
+                            (Elem => Log_Port,
+                             Name => "physical");
+                        Phys_Port : constant DOM.Core.Node
+                          := Muxml.Utils.Get_Element
+                            (Doc   => Physical_Device,
+                             XPath => "ioPort[@name='" & Phys_Port_Name & "']");
+                     begin
+                        Add_Device_IO_Port_To_Info
+                          (Info          => Subject_Info,
+                           Subject_Name  => Subj_Name,
+                           Logical_Dev   => Logical_Device,
+                           Logical_Port  => Log_Port,
+                           Physical_Dev  => Physical_Device,
+                           Physical_Port => Phys_Port);
                      end;
                   end loop;
                end;

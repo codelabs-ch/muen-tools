@@ -53,7 +53,7 @@ package body Sinfo.Generator.Test_Data.Tests is
                 Policy     => Policy);
 
          Assert (Condition => Test_Utils.Equal_Files
-                 (Filename1 => "data/lnx_sinfo",
+                 (Filename1 => "data/lnx_sinfo_" & Arch,
                   Filename2 => Subject_Sinfo),
                  Message   => "Subject info file mismatch (" & Arch & ")");
          Ada.Directories.Delete_File (Name => Subject_Sinfo);
