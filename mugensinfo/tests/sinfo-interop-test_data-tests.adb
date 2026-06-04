@@ -109,10 +109,11 @@ package body Sinfo.Interop.Test_Data.Tests is
             Flags       => (Writable   => True,
                             Executable => True,
                             Padding    => 0),
-            Iomem_Flags => (Prefetchable => True,
-                            Is_64bit     => True,
-                            Padding      => 0),
-            BAR_Idx     => 5,
+            BAR_Config  =>
+              (Iomem_Flags => (Prefetchable => True,
+                               Is_64bit     => True,
+                               Padding      => 0),
+               BAR_Idx     => 5),
             Padding1    => (others => 0),
             Address     => 16#dead_beef_cafe_feed#,
             Size        => 16#8080_abab_cdcd_9000#,
@@ -303,10 +304,14 @@ package body Sinfo.Interop.Test_Data.Tests is
       Dummy : Musinfo.Device_Memory_Type := Musinfo.Null_Device_Memory;
    begin
       Assert (Condition => C_Imports.C_Assert_Device_Memory_Type
-              (Size           => Musinfo.Device_Memory_Type'Size / 8,
-               Flags_Offset   => Dummy.Flags'Bit_Position / 8,
-               Address_Offset => Dummy.Address'Bit_Position / 8,
-               Size_Offset    => Dummy.Size'Bit_Position / 8) = 1,
+              (Size               => Musinfo.Device_Memory_Type'Size / 8,
+               SID_Offset         => Dummy.SID'Bit_Position / 8,
+               Flags_Offset       => Dummy.Flags'Bit_Position / 8,
+               BAR_Config_Offset  => Dummy.BAR_Config'Bit_Position / 8,
+               Iomem_Flags_Offset => Dummy.BAR_Config.Iomem_Flags'Bit_Position / 8,
+               BAR_Idx_Offset     => Dummy.BAR_Config.BAR_Idx'Bit_Position / 8,
+               Address_Offset     => Dummy.Address'Bit_Position / 8,
+               Size_Offset        => Dummy.Size'Bit_Position / 8) = 1,
               Message   => "C device memory type mismatch");
 --  begin read only
    end Test_Check_Device_Memory_Type;

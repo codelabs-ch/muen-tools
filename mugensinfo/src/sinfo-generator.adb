@@ -174,6 +174,8 @@ is
       Physical_Dev :        DOM.Core.Node;
       Physical_Mem :        DOM.Core.Node)
    is
+      use type DOM.Core.Node;
+
       Device_Name : constant String
         := DOM.Core.Elements.Get_Attribute
           (Elem => Logical_Dev,
@@ -208,23 +210,43 @@ is
               Name => "executable"));
       SID : constant Interfaces.Unsigned_16
         := Mutools.PCI.To_SID (BDF => Mutools.PCI.Get_BDF (Dev => Logical_Dev));
-      BAR_Config : constant DOM.Core.Node
+      BAR_Config : DOM.Core.Node
         := Muxml.Utils.Get_Element
           (Doc   => Physical_Dev,
            XPath => "pci/bars/memory[@ref='" & Phys_Mem_Name & "']");
-      BAR_Idx : constant Musinfo.BAR_Range
-        := Musinfo.BAR_Range'Value
-          (DOM.Core.Elements.Get_Attribute
-             (Elem => BAR_Config, Name => "index"));
-      Prefetchable : constant Boolean
-        := Boolean'Value
-          (DOM.Core.Elements.Get_Attribute
-             (Elem => BAR_Config, Name => "prefetchable"));
-      Is_64bit     : constant Boolean
-        := Boolean'Value
-          (DOM.Core.Elements.Get_Attribute
-             (Elem => BAR_Config, Name => "is64bit"));
+      BAR_Idx      : Musinfo.Raw_BAR_Range;
+      Prefetchable : Boolean := False;
+      Is_64bit     : Boolean := False;
    begin
+      if BAR_Config = null then
+
+         --  Might be ROM, encode it as Idx 6.
+
+         BAR_Config := Muxml.Utils.Get_Element
+             (Doc   => Physical_Dev,
+              XPath => "pci/bars/rom[@ref='" & Phys_Mem_Name & "']");
+         if BAR_Config /= null then
+            BAR_Idx := 6;
+         else
+
+            --  No BAR config, mmconf.
+            BAR_Idx := 7;
+         end if;
+      else
+         BAR_Idx :=
+           Musinfo.BAR_Range'Value
+             (DOM.Core.Elements.Get_Attribute
+                (Elem => BAR_Config, Name => "index"));
+         Prefetchable :=
+           Boolean'Value
+             (DOM.Core.Elements.Get_Attribute
+                (Elem => BAR_Config, Name => "prefetchable"));
+         Is_64bit :=
+           Boolean'Value
+             (DOM.Core.Elements.Get_Attribute
+                (Elem => BAR_Config, Name => "is64bit"));
+      end if;
+
       Mulog.Log
         (Msg => "Announcing device '" & Device_Name & "' memory to subject '"
          & Subject_Name & "': " & Log_Mem_Name & "@"
@@ -232,8 +254,11 @@ is
          & ", size " & Mutools.Utils.To_Hex (Number => Size) & ", "
          & (if Writable   then "writable" else "read-only") & ", "
          & (if Executable then "executable" else "non-executable")
-         & " [BAR:" & BAR_Idx'Img & ", prefetchable " & Prefetchable'Img
-         & ", 64-bit " & Is_64bit'Img & "]");
+         & (if BAR_Idx = 6 then " [expansion ROM]"
+            elsif BAR_Idx <= 5 then
+             " [BAR:" & BAR_Idx'Img & ", prefetchable " & Prefetchable'Img
+             & ", 64-bit " & Is_64bit'Img & "]"
+            else ""));
       Utils.Append_Resource
         (Info     => Info,
          Resource =>
@@ -245,10 +270,11 @@ is
                Flags       => (Executable => Executable,
                                Writable   => Writable,
                                Padding    => 0),
-               Iomem_Flags => (Prefetchable => Prefetchable,
-                               Is_64bit     => Is_64bit,
-                               Padding      => 0),
-               BAR_Idx     => BAR_Idx,
+               BAR_Config  =>
+                 (Iomem_Flags => (Prefetchable => Prefetchable,
+                                  Is_64bit     => Is_64bit,
+                                  Padding      => 0),
+                  BAR_Idx     => BAR_Idx),
                Padding1    => (others => 0),
                Address     => Address,
                Size        => Size,

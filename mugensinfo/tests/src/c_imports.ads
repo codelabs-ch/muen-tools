@@ -139,10 +139,14 @@ is
        Link_Name  => "assert_device_type";
 
    function C_Assert_Device_Memory_Type
-     (Size           : Interfaces.C.int;
-      Flags_Offset   : Interfaces.C.int;
-      Address_Offset : Interfaces.C.int;
-      Size_Offset    : Interfaces.C.int)
+     (Size               : Interfaces.C.int;
+      SID_Offset         : Interfaces.C.int;
+      Flags_Offset       : Interfaces.C.int;
+      BAR_Config_Offset  : Interfaces.C.int;
+      Iomem_Flags_Offset : Interfaces.C.int;
+      BAR_Idx_Offset     : Interfaces.C.int;
+      Address_Offset     : Interfaces.C.int;
+      Size_Offset        : Interfaces.C.int)
       return Interfaces.C.int
      with
        Import     => True,
