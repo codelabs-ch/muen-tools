@@ -392,6 +392,35 @@ int assert_device_memory(const struct muen_devmem_type *const mem)
 	return 1;
 }
 
+int assert_device_ioport(const struct muen_devport_type *const port)
+{
+	if (port->sid != 0xabcd)
+	{
+		printf("Devport: Invalid SID 0x%x\n", port->sid);
+		return 0;
+	}
+
+	if (port->bar_idx != 5)
+	{
+		printf("Devport: BAR index mismatch: %d\n", port->bar_idx);
+		return 0;
+	}
+
+	if (port->address != 0xfeed)
+	{
+		printf("Devport: Invalid address 0x%x\n", port->address);
+		return 0;
+	}
+
+	if (port->size != 0x9000)
+	{
+		printf("Devport: Invalid size field 0x%x\n", port->size);
+		return 0;
+	}
+
+	return 1;
+}
+
 int assert_device_memory_type(const int size, const int flags_offset,
 		const int address_offset, const int size_offset)
 {
@@ -420,6 +449,48 @@ int assert_device_memory_type(const int size, const int flags_offset,
 	{
 		printf("Devmem: Invalid 'size' offset %d /= %d\n", size_offset,
 				offsetof(struct muen_devmem_type, size));
+		return 0;
+	}
+
+	return 1;
+}
+
+int assert_device_ioport_type(const int size, const int sid_offset,
+		const int bar_idx_offset, const int address_offset,
+		const int size_offset)
+{
+	if (sizeof(struct muen_devport_type) != size)
+	{
+		printf("Devport: Invalid struct size %d /= %d\n", size,
+				sizeof(struct muen_devport_type));
+		return 0;
+	}
+
+	if (offsetof(struct muen_devport_type, sid) != sid_offset)
+	{
+		printf("Devport: Invalid 'sid' offset %d /= %d\n", sid_offset,
+				offsetof(struct muen_devport_type, sid));
+		return 0;
+	}
+
+	if (offsetof(struct muen_devport_type, bar_idx) != bar_idx_offset)
+	{
+		printf("Devport: Invalid 'bar_idx' offset %d /= %d\n", bar_idx_offset,
+				offsetof(struct muen_devport_type, bar_idx));
+		return 0;
+	}
+
+	if (offsetof(struct muen_devport_type, address) != address_offset)
+	{
+		printf("Devport: Invalid 'address' offset %d /= %d\n", address_offset,
+				offsetof(struct muen_devport_type, address));
+		return 0;
+	}
+
+	if (offsetof(struct muen_devport_type, size) != size_offset)
+	{
+		printf("Devport: Invalid 'size' offset %d /= %d\n", size_offset,
+				offsetof(struct muen_devport_type, size));
 		return 0;
 	}
 

@@ -23,6 +23,7 @@ is
    procedure Memregion_To_C is null;
    procedure Device_To_C is null;
    procedure Device_Memory_To_C is null;
+   procedure Device_IO_Port_To_C is null;
    procedure Resource_To_C is null;
    procedure Subject_Info_To_C is null;
    procedure Check_Name_Type is null;
@@ -30,6 +31,7 @@ is
    procedure Check_Resource_Type is null;
    procedure Check_Device_Type is null;
    procedure Check_Device_Memory_Type is null;
+   procedure Check_Device_IO_Port_Type is null;
    procedure Check_Subject_Info_Type is null;
 
 end Sinfo.Interop;

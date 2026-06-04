@@ -73,6 +73,14 @@ is
        Convention => C,
        Link_Name  => "assert_device_memory";
 
+   function C_Assert_Device_IO_Port
+     (Memory : System.Address)
+      return Interfaces.C.int
+     with
+       Import     => True,
+       Convention => C,
+       Link_Name  => "assert_device_ioport";
+
    function C_Assert_Subject_Info
      (Info : System.Address)
       return Interfaces.C.int
@@ -140,6 +148,18 @@ is
        Import     => True,
        Convention => C,
        Link_Name  => "assert_device_memory_type";
+
+   function C_Assert_Device_IO_Port_Type
+     (Size           : Interfaces.C.int;
+      SID_Offset     : Interfaces.C.int;
+      BAR_Idx_Offset : Interfaces.C.int;
+      Address_Offset : Interfaces.C.int;
+      Size_Offset    : Interfaces.C.int)
+      return Interfaces.C.int
+     with
+       Import     => True,
+       Convention => C,
+       Link_Name  => "assert_device_ioport_type";
 
    function C_Assert_Subject_Info_Type
      (Size             : Interfaces.C.int;

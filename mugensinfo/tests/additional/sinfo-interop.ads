@@ -32,6 +32,9 @@ is
    --  Verify device memory type interoperability.
    procedure Device_Memory_To_C;
 
+   --  Verify device I/O port type interoperability.
+   procedure Device_IO_Port_To_C;
+
    --  Verify resource type interoperability.
    procedure Resource_To_C;
 
@@ -52,6 +55,9 @@ is
 
    --  Verify device memory type equivalence.
    procedure Check_Device_Memory_Type;
+
+   --  Verify device I/O port type equivalence.
+   procedure Check_Device_IO_Port_Type;
 
    --  Verify subject info type equivalence.
    procedure Check_Subject_Info_Type;

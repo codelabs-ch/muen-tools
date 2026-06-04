@@ -120,9 +120,34 @@ package body Sinfo.Interop.Test_Data.Tests is
    begin
       Assert (Condition => C_Imports.C_Assert_Device_Memory
               (Memory => M'Address) = 1,
-              Message   => "C device memorymismatch");
+              Message   => "C device memory mismatch");
 --  begin read only
    end Test_Device_Memory_To_C;
+--  end read only
+
+
+--  begin read only
+   procedure Test_Device_IO_Port_To_C (Gnattest_T : in out Test);
+   procedure Test_Device_IO_Port_To_C_069123 (Gnattest_T : in out Test) renames Test_Device_IO_Port_To_C;
+--  id:2.2/06912341a6b94a14/Device_IO_Port_To_C/1/0/
+   procedure Test_Device_IO_Port_To_C (Gnattest_T : in out Test) is
+--  end read only
+
+      pragma Unreferenced (Gnattest_T);
+
+      M : Musinfo.Device_IO_Port_Type
+        := (SID         => 16#abcd#,
+            BAR_Idx     => 5,
+            Padding1    => 0,
+            Address     => 16#feed#,
+            Size        => 16#9000#,
+            Padding2    => (others => 0));
+   begin
+      Assert (Condition => C_Imports.C_Assert_Device_IO_Port
+              (Memory => M'Address) = 1,
+              Message   => "C device I/O port mismatch");
+--  begin read only
+   end Test_Device_IO_Port_To_C;
 --  end read only
 
 
@@ -285,6 +310,29 @@ package body Sinfo.Interop.Test_Data.Tests is
               Message   => "C device memory type mismatch");
 --  begin read only
    end Test_Check_Device_Memory_Type;
+--  end read only
+
+
+--  begin read only
+   procedure Test_Check_Device_IO_Port_Type (Gnattest_T : in out Test);
+   procedure Test_Check_Device_IO_Port_Type_263673 (Gnattest_T : in out Test) renames Test_Check_Device_IO_Port_Type;
+--  id:2.2/263673983faac974/Check_Device_IO_Port_Type/1/0/
+   procedure Test_Check_Device_IO_Port_Type (Gnattest_T : in out Test) is
+--  end read only
+
+      pragma Unreferenced (Gnattest_T);
+
+      Dummy : Musinfo.Device_IO_Port_Type := Musinfo.Null_IO_Port;
+   begin
+      Assert (Condition => C_Imports.C_Assert_Device_IO_Port_Type
+              (Size           => Musinfo.Device_IO_Port_Type'Size / 8,
+               SID_Offset     => Dummy.SID'Bit_Position / 8,
+               BAR_Idx_Offset => Dummy.BAR_Idx'Bit_Position / 8,
+               Address_Offset => Dummy.Address'Bit_Position / 8,
+               Size_Offset    => Dummy.Size'Bit_Position / 8) = 1,
+              Message   => "C device I/O port type mismatch");
+--  begin read only
+   end Test_Check_Device_IO_Port_Type;
 --  end read only
 
 

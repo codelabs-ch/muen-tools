@@ -132,6 +132,18 @@ struct muen_devmem_type {
 	char padding2[largest_variant_size - (devmem_type_size + 3)];
 } __attribute__ ((packed, aligned(8)));
 
+#define devport_type_size (2 + 1 + 2 * 2)
+
+/* Structure holding information about a device I/O port */
+struct muen_devport_type {
+	uint16_t sid;
+	uint8_t bar_idx;
+	char padding1[1];
+	uint16_t address;
+	uint16_t size;
+	char padding2[largest_variant_size - (devport_type_size + 1)];
+} __attribute__ ((packed, aligned(8)));
+
 /* Currently known resource types */
 enum muen_resource_kind {
 	MUEN_RES_NONE = 0,
@@ -147,6 +159,7 @@ union muen_resource_data {
 	struct muen_memregion_type mem;
 	struct muen_device_type dev;
 	struct muen_devmem_type devmem;
+	struct muen_devport_type devport;
 	uint8_t number;
 };
 
