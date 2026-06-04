@@ -17,6 +17,7 @@
 --
 
 with Ada.Strings.Fixed;
+with Ada.Characters.Handling;
 
 with Interfaces;
 
@@ -63,6 +64,7 @@ is
       Subject_Name :        String;
       Logical_Dev  :        DOM.Core.Node;
       Logical_Mem  :        DOM.Core.Node;
+      Physical_Dev :        DOM.Core.Node;
       Physical_Mem :        DOM.Core.Node);
 
    --  Add event to given subject info.
@@ -77,6 +79,13 @@ is
       Subject_Name :        String;
       Logical_Vec  :        DOM.Core.Node);
 
+   --  Return reset method to use for given PCI device. Currently only Function
+   --  Level Reset (FLR) is supported, therefore this function will either return
+   --  "FLR" or "None".
+   function Get_PCI_Reset_Method
+     (Physical_Dev : DOM.Core.Node)
+      return Musinfo.Reset_Method_Type;
+
    -------------------------------------------------------------------------
 
    procedure Add_Device_Memory_To_Info
@@ -84,12 +93,17 @@ is
       Subject_Name :        String;
       Logical_Dev  :        DOM.Core.Node;
       Logical_Mem  :        DOM.Core.Node;
+      Physical_Dev :        DOM.Core.Node;
       Physical_Mem :        DOM.Core.Node)
    is
       Device_Name : constant String
         := DOM.Core.Elements.Get_Attribute
           (Elem => Logical_Dev,
            Name => "logical");
+      Phys_Mem_Name : constant String
+        := DOM.Core.Elements.Get_Attribute
+          (Elem => Physical_Mem,
+           Name => "name");
       Log_Mem_Name : constant String
         := DOM.Core.Elements.Get_Attribute
           (Elem => Logical_Mem,
@@ -114,6 +128,24 @@ is
           (DOM.Core.Elements.Get_Attribute
              (Elem => Logical_Mem,
               Name => "executable"));
+      SID : constant Interfaces.Unsigned_16
+        := Mutools.PCI.To_SID (BDF => Mutools.PCI.Get_BDF (Dev => Logical_Dev));
+      BAR_Config : constant DOM.Core.Node
+        := Muxml.Utils.Get_Element
+          (Doc   => Physical_Dev,
+           XPath => "pci/bars/memory[@ref='" & Phys_Mem_Name & "']");
+      BAR_Idx : constant Musinfo.BAR_Range
+        := Musinfo.BAR_Range'Value
+          (DOM.Core.Elements.Get_Attribute
+             (Elem => BAR_Config, Name => "index"));
+      Prefetchable : constant Boolean
+        := Boolean'Value
+          (DOM.Core.Elements.Get_Attribute
+             (Elem => BAR_Config, Name => "prefetchable"));
+      Is_64bit     : constant Boolean
+        := Boolean'Value
+          (DOM.Core.Elements.Get_Attribute
+             (Elem => BAR_Config, Name => "is64bit"));
    begin
       Mulog.Log
         (Msg => "Announcing device '" & Device_Name & "' memory to subject '"
@@ -121,8 +153,9 @@ is
          & Mutools.Utils.To_Hex (Number => Address)
          & ", size " & Mutools.Utils.To_Hex (Number => Size) & ", "
          & (if Writable   then "writable" else "read-only") & ", "
-         & (if Executable then "executable" else "non-executable"));
-
+         & (if Executable then "executable" else "non-executable")
+         & " [BAR:" & BAR_Idx'Img & ", prefetchable " & Prefetchable'Img
+         & ", 64-bit " & Is_64bit'Img & "]");
       Utils.Append_Resource
         (Info     => Info,
          Resource =>
@@ -130,13 +163,18 @@ is
             Name         => Utils.Create_Name
               (Str => Device_Name & "_" & Log_Mem_Name),
             Dev_Mem_Data =>
-              (Flags    => (Executable => Executable,
-                            Writable   => Writable,
-                            Padding    => 0),
-               Padding1 => (others => 0),
-               Address  => Address,
-               Size     => Size,
-               Padding2 => (others => 0)),
+              (SID         => SID,
+               Flags       => (Executable => Executable,
+                               Writable   => Writable,
+                               Padding    => 0),
+               Iomem_Flags => (Prefetchable => Prefetchable,
+                               Is_64bit     => Is_64bit,
+                               Padding      => 0),
+               BAR_Idx     => BAR_Idx,
+               Padding1    => (others => 0),
+               Address     => Address,
+               Size        => Size,
+               Padding2    => (others => 0)),
             Padding      => (others => 0)));
    end Add_Device_Memory_To_Info;
 
@@ -163,6 +201,8 @@ is
         := Muxml.Utils.Get_Element
           (Doc   => Logical_Dev,
            XPath => "irq");
+      Reset_Method : constant Musinfo.Reset_Method_Type
+        := Get_PCI_Reset_Method (Physical_Dev => Physical_Dev);
       MSI : Boolean := False;
       IRQ_Start, IRQ_End, IRTE_Start, IRTE_End,
       IR_Count : Interfaces.Unsigned_64 := 0;
@@ -223,6 +263,7 @@ is
                IR_Count   => Interfaces.Unsigned_8 (IR_Count),
                Flags      => (MSI_Capable => MSI,
                               Padding     => 0),
+               Reset      => Reset_Method,
                Padding    => (others => 0)),
             Padding  => (others => 0)));
    end Add_Device_To_Info;
@@ -332,6 +373,37 @@ is
                                    Padding => (others => 0)),
                       Padding  => (others => 0)));
    end Add_Vector_To_Info;
+
+   -------------------------------------------------------------------------
+
+   function Get_PCI_Reset_Method
+     (Physical_Dev : DOM.Core.Node)
+      return Musinfo.Reset_Method_Type
+   is
+      use type Musinfo.Reset_Method_Type;
+
+      Dev_Methods : constant DOM.Core.Node_List
+        := McKae.XML.XPath.XIA.XPath_Query
+          (N     => Physical_Dev,
+           XPath => "capabilities/capability[@name='pci_reset_method']");
+   begin
+      for I in 0 .. DOM.Core.Nodes.Length (List => Dev_Methods) - 1 loop
+         declare
+            Cap_Node   : constant DOM.Core.Node
+              := DOM.Core.Nodes.Item (List  => Dev_Methods,
+                                      Index => I);
+            Method_Str : constant String
+              := DOM.Core.Nodes.Node_Value
+                   (N => DOM.Core.Nodes.First_Child (Cap_Node));
+         begin
+            if Ada.Characters.Handling.To_Lower (Method_Str) = "flr" then
+               return Musinfo.Reset_Method_FLR;
+            end if;
+         end;
+      end loop;
+
+      return Musinfo.Reset_Method_None;
+   end Get_PCI_Reset_Method;
 
    -------------------------------------------------------------------------
 
@@ -482,6 +554,7 @@ is
                            Subject_Name => Subj_Name,
                            Logical_Dev  => Logical_Device,
                            Logical_Mem  => Log_Mem,
+                           Physical_Dev => Physical_Device,
                            Physical_Mem => Phys_Mem);
                      end;
                   end loop;

@@ -38,6 +38,7 @@ package Sinfo.Interop.Test_Data is
                       IR_Count   => 22,
                       Flags      => (MSI_Capable => True,
                                      Padding     => 0),
+                      Reset      => Musinfo.Reset_Method_Bus,
                       Padding    => (others => 0)),
         Padding   => (others => 0));
 

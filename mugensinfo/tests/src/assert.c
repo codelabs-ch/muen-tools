@@ -288,6 +288,12 @@ int assert_device(const struct muen_device_type *const dev_info)
 		return 0;
 	}
 
+	if (dev_info->reset != MUEN_RESET_METHOD_BUS)
+	{
+		printf("Dev: Invalid reset method %d\n", dev_info->reset);
+		return 0;
+	}
+
 	return 1;
 }
 
@@ -338,6 +344,12 @@ int assert_device_type(const int size, const int irte_start_offset,
 
 int assert_device_memory(const struct muen_devmem_type *const mem)
 {
+	if (mem->sid != 0xabcd)
+	{
+		printf("Devmem: Invalid SID 0x%x\n", mem->sid);
+		return 0;
+	}
+
 	if (!(mem->flags & MEM_WRITABLE_FLAG))
 	{
 		printf("Devmem: Writable flag not set\n");
@@ -346,6 +358,22 @@ int assert_device_memory(const struct muen_devmem_type *const mem)
 	if (!(mem->flags & MEM_EXECUTABLE_FLAG))
 	{
 		printf("Devmem: Executable flag not set\n");
+		return 0;
+	}
+	if (!(mem->iomem_flags & DEVMEM_PREFETCHABLE_FLAG))
+	{
+		printf("Devmem: Prefetchable flag not set\n");
+		return 0;
+	}
+	if (!(mem->iomem_flags & DEVMEM_64BIT_FLAG))
+	{
+		printf("Devmem: 64-bit flag not set\n");
+		return 0;
+	}
+
+	if (mem->bar_idx != 5)
+	{
+		printf("Devmem: BAR index mismatch: %d\n", mem->bar_idx);
 		return 0;
 	}
 

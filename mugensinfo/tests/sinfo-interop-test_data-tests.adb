@@ -105,13 +105,18 @@ package body Sinfo.Interop.Test_Data.Tests is
       pragma Unreferenced (Gnattest_T);
 
       M : Musinfo.Device_Memory_Type
-        := (Flags    => (Writable   => True,
-                         Executable => True,
-                         Padding    => 0),
-            Padding1 => (others => 0),
-            Address  => 16#dead_beef_cafe_feed#,
-            Size     => 16#8080_abab_cdcd_9000#,
-            Padding2 => (others => 0));
+        := (SID         => 16#abcd#,
+            Flags       => (Writable   => True,
+                            Executable => True,
+                            Padding    => 0),
+            Iomem_Flags => (Prefetchable => True,
+                            Is_64bit     => True,
+                            Padding      => 0),
+            BAR_Idx     => 5,
+            Padding1    => (others => 0),
+            Address     => 16#dead_beef_cafe_feed#,
+            Size        => 16#8080_abab_cdcd_9000#,
+            Padding2    => (others => 0));
    begin
       Assert (Condition => C_Imports.C_Assert_Device_Memory
               (Memory => M'Address) = 1,

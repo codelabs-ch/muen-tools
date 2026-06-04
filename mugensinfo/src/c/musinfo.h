@@ -29,7 +29,7 @@
 #ifndef MUSINFO_H_
 #define MUSINFO_H_
 
-#define MUEN_SUBJECT_INFO_MAGIC	0x04006f666e69756dULL
+#define MUEN_SUBJECT_INFO_MAGIC	0x05006f666e69756dULL
 
 #define MAX_RESOURCE_COUNT	255
 #define MAX_NAME_LENGTH		63
@@ -38,6 +38,9 @@
 
 #define MEM_WRITABLE_FLAG	(1 << 0)
 #define MEM_EXECUTABLE_FLAG	(1 << 1)
+
+#define DEVMEM_PREFETCHABLE_FLAG	(1 << 0)
+#define DEVMEM_64BIT_FLAG		(1 << 1)
 
 #define DEV_MSI_FLAG		(1 << 0)
 
@@ -91,9 +94,18 @@ struct muen_memregion_type {
 	uint8_t hash[HASH_LENGTH];
 } __attribute__ ((packed, aligned(8)));
 
+/* PCI device reset methods */
+enum muen_reset_method_kind {
+	MUEN_RESET_METHOD_NONE = 0,
+	MUEN_RESET_METHOD_FLR,
+	MUEN_RESET_METHOD_AF_FLR,
+	MUEN_RESET_METHOD_PM,
+	MUEN_RESET_METHOD_BUS
+} __attribute__ ((packed));
+
 /* Required for explicit padding */
 #define largest_variant_size sizeof(struct muen_memregion_type)
-#define device_type_size 7
+#define device_type_size 8
 
 /* Structure holding information about a PCI device */
 struct muen_device_type {
@@ -102,18 +114,22 @@ struct muen_device_type {
 	uint8_t irq_start;
 	uint8_t ir_count;
 	uint8_t flags;
+	uint8_t reset;
 	char padding[largest_variant_size - device_type_size];
 } __attribute__ ((packed, aligned(8)));
 
-#define devmem_type_size (1 + 16)
+#define devmem_type_size (2 + 3 + 2 * 8)
 
 /* Structure holding information about a device MMIO region */
 struct muen_devmem_type {
+	uint16_t sid;
 	uint8_t flags;
-	char padding1[7];
+	uint8_t iomem_flags;
+	uint8_t bar_idx;
+	char padding1[3];
 	uint64_t address;
 	uint64_t size;
-	char padding2[largest_variant_size - (devmem_type_size + 7)];
+	char padding2[largest_variant_size - (devmem_type_size + 3)];
 } __attribute__ ((packed, aligned(8)));
 
 /* Currently known resource types */
@@ -147,8 +163,8 @@ struct subject_info_type {
 	uint64_t magic;
 	uint32_t tsc_khz;
 	struct muen_name_type name;
-	uint16_t resource_count;
 	char padding[1];
+	uint16_t resource_count;
 	struct muen_resource_type resources[MAX_RESOURCE_COUNT];
 } __attribute__ ((packed, aligned (8)));
 
