@@ -95,12 +95,12 @@ struct muen_memregion_type {
 } __attribute__ ((packed, aligned(8)));
 
 /* PCI device reset methods */
-enum muen_reset_method_kind {
-	MUEN_RESET_METHOD_NONE = 0,
-	MUEN_RESET_METHOD_FLR,
-	MUEN_RESET_METHOD_AF_FLR,
-	MUEN_RESET_METHOD_PM,
-	MUEN_RESET_METHOD_BUS
+enum muen_dev_reset_method_kind {
+	MUEN_DEV_RESET_METHOD_NONE = 0,
+	MUEN_DEV_RESET_METHOD_FLR,
+	MUEN_DEV_RESET_METHOD_AF_FLR,
+	MUEN_DEV_RESET_METHOD_PM,
+	MUEN_DEV_RESET_METHOD_BUS
 } __attribute__ ((packed));
 
 /* Required for explicit padding */

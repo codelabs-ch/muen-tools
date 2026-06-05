@@ -93,7 +93,7 @@ is
    --  "FLR" or "None".
    function Get_PCI_Reset_Method
      (Physical_Dev : DOM.Core.Node)
-      return Musinfo.Reset_Method_Type;
+      return Musinfo.Dev_Reset_Method_Type;
 
    -------------------------------------------------------------------------
 
@@ -305,7 +305,7 @@ is
         := Muxml.Utils.Get_Element
           (Doc   => Logical_Dev,
            XPath => "irq");
-      Reset_Method : constant Musinfo.Reset_Method_Type
+      Reset_Method : constant Musinfo.Dev_Reset_Method_Type
         := Get_PCI_Reset_Method (Physical_Dev => Physical_Dev);
       MSI : Boolean := False;
       IRQ_Start, IRQ_End, IRTE_Start, IRTE_End,
@@ -482,9 +482,9 @@ is
 
    function Get_PCI_Reset_Method
      (Physical_Dev : DOM.Core.Node)
-      return Musinfo.Reset_Method_Type
+      return Musinfo.Dev_Reset_Method_Type
    is
-      use type Musinfo.Reset_Method_Type;
+      use type Musinfo.Dev_Reset_Method_Type;
 
       Dev_Methods : constant DOM.Core.Node_List
         := McKae.XML.XPath.XIA.XPath_Query
@@ -501,12 +501,12 @@ is
                    (N => DOM.Core.Nodes.First_Child (Cap_Node));
          begin
             if Ada.Characters.Handling.To_Lower (Method_Str) = "flr" then
-               return Musinfo.Reset_Method_FLR;
+               return Musinfo.Dev_Reset_Method_FLR;
             end if;
          end;
       end loop;
 
-      return Musinfo.Reset_Method_None;
+      return Musinfo.Dev_Reset_Method_None;
    end Get_PCI_Reset_Method;
 
    -------------------------------------------------------------------------

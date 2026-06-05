@@ -288,7 +288,7 @@ int assert_device(const struct muen_device_type *const dev_info)
 		return 0;
 	}
 
-	if (dev_info->reset != MUEN_RESET_METHOD_BUS)
+	if (dev_info->reset != MUEN_DEV_RESET_METHOD_BUS)
 	{
 		printf("Dev: Invalid reset method %d\n", dev_info->reset);
 		return 0;
