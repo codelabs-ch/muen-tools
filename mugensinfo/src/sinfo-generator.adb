@@ -307,6 +307,25 @@ is
            XPath => "irq");
       Reset_Method : constant Musinfo.Dev_Reset_Method_Type
         := Get_PCI_Reset_Method (Physical_Dev => Physical_Dev);
+      Identification : constant DOM.Core.Node
+        := Muxml.Utils.Get_Element
+             (Doc   => Physical_Dev,
+              XPath => "pci/identification");
+      Vendor_ID : constant Musinfo.Vendor_ID_Type
+        := Musinfo.Vendor_ID_Type'Value
+          (DOM.Core.Elements.Get_Attribute
+             (Elem => Identification,
+              Name => "vendorId"));
+      Device_ID : constant Musinfo.Device_ID_Type
+        := Musinfo.Device_ID_Type'Value
+          (DOM.Core.Elements.Get_Attribute
+             (Elem => Identification,
+              Name => "deviceId"));
+      Class_Code : constant Musinfo.Class_Code_Type
+        := Musinfo.Class_Code_Type'Value
+          (DOM.Core.Elements.Get_Attribute
+             (Elem => Identification,
+              Name => "classcode"));
       MSI : Boolean := False;
       IRQ_Start, IRQ_End, IRTE_Start, IRTE_End,
       IR_Count : Interfaces.Unsigned_64 := 0;
@@ -362,6 +381,9 @@ is
             Name     => Utils.Create_Name (Str => Log_Name),
             Dev_Data =>
               (SID        => SID,
+               Vendor_ID  => Vendor_ID,
+               Device_ID  => Device_ID,
+               Class_Code => Class_Code,
                IRTE_Start => Interfaces.Unsigned_16 (IRTE_Start),
                IRQ_Start  => Interfaces.Unsigned_8 (IRQ_Start),
                IR_Count   => Interfaces.Unsigned_8 (IR_Count),

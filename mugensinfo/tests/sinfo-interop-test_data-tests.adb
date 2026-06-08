@@ -282,6 +282,10 @@ package body Sinfo.Interop.Test_Data.Tests is
       Assert
         (Condition => C_Imports.C_Assert_Device_Type
            (Size              => Musinfo.Device_Type'Size / 8,
+            SID_Offset        => Ref_Dev.Dev_Data.SID'Bit_Position / 8,
+            Vendor_ID_Offset  => Ref_Dev.Dev_Data.Vendor_Id'Bit_Position / 8,
+            Device_ID_Offset  => Ref_Dev.Dev_Data.Device_ID'Bit_Position / 8,
+            Class_Code_Offset => Ref_Dev.Dev_Data.Class_Code'Bit_Position / 8,
             IRTE_Start_Offset => Ref_Dev.Dev_Data.IRTE_Start'Bit_Position / 8,
             IRQ_Start_Offset  => Ref_Dev.Dev_Data.IRQ_Start'Bit_Position / 8,
             IR_Count_Offset   => Ref_Dev.Dev_Data.IR_Count'Bit_Position / 8,

@@ -264,6 +264,24 @@ int assert_device(const struct muen_device_type *const dev_info)
 		return 0;
 	}
 
+	if (dev_info->vendor_id != 0xfefe)
+	{
+		printf("Dev: Invalid vendor ID 0x%x\n", dev_info->vendor_id);
+		return 0;
+	}
+
+	if (dev_info->device_id != 0x1234)
+	{
+		printf("Dev: Invalid device ID 0x%x\n", dev_info->device_id);
+		return 0;
+	}
+
+	if (dev_info->class_code != 0xcece)
+	{
+		printf("Dev: Invalid class code 0x%x\n", dev_info->class_code);
+		return 0;
+	}
+
 	if (dev_info->irte_start != 200)
 	{
 		printf("Dev: Invalid IRTE start %d\n", dev_info->irte_start);
@@ -297,7 +315,9 @@ int assert_device(const struct muen_device_type *const dev_info)
 	return 1;
 }
 
-int assert_device_type(const int size, const int irte_start_offset,
+int assert_device_type(const int size,
+		const int sid_offset, const int vendor_id_offset, const int device_id_offset,
+		const int class_code_offset, const int irte_start_offset,
 		const int irq_start_offset, const int ir_count_offset,
 		const int flags_offset)
 {
@@ -305,6 +325,34 @@ int assert_device_type(const int size, const int irte_start_offset,
 	{
 		printf("Dev: Invalid size %d /= %d\n", size,
 				sizeof(struct muen_device_type));
+		return 0;
+	}
+
+	if (offsetof(struct muen_device_type, sid) != sid_offset)
+	{
+		printf("Dev: Invalid 'sid' offset %d /= %d\n", sid_offset,
+				offsetof(struct muen_device_type, sid));
+		return 0;
+	}
+
+	if (offsetof(struct muen_device_type, vendor_id) != vendor_id_offset)
+	{
+		printf("Dev: Invalid 'vendor_id' offset %d /= %d\n", vendor_id_offset,
+				offsetof(struct muen_device_type, vendor_id));
+		return 0;
+	}
+
+	if (offsetof(struct muen_device_type, device_id) != device_id_offset)
+	{
+		printf("Dev: Invalid 'device_id' offset %d /= %d\n", device_id_offset,
+				offsetof(struct muen_device_type, device_id));
+		return 0;
+	}
+
+	if (offsetof(struct muen_device_type, class_code) != class_code_offset)
+	{
+		printf("Dev: Invalid 'class_code' offset %d /= %d\n", class_code_offset,
+				offsetof(struct muen_device_type, class_code));
 		return 0;
 	}
 
