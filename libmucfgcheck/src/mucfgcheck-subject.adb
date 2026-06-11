@@ -1767,6 +1767,9 @@ is
             end if;
          end if;
 
+         --  Unrestricted guest requires EPT, while EPT without unrestricted
+         --  guest is a valid configuration.
+
          if Is_Element_Value (Node  => Ctrls,
                               XPath => "proc2/UnrestrictedGuest",
                               Value => "1")

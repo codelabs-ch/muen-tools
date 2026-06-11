@@ -1118,7 +1118,26 @@ package body Mucfgcheck.Subject.Test_Data.Tests is
          Assert (Condition => Validation_Errors.Contains
                  (Msg => "VMX control 'unrestricted guest' is 1 for subject "
                   & "'linux' but 'Enable EPT' is 0"),
-                 Message   => "Exception mismatch (Unrestricted Guest)");
+                 Message   => "Exception mismatch (Unrestricted Guest 1)");
+
+         Muxml.Utils.Set_Element_Value
+           (Doc   => Data.Doc,
+            XPath => "/system/subjects/subject[@name='linux']/vcpu/x86_64/vmx/"
+            & "controls/proc2/UnrestrictedGuest",
+            Value => "0");
+         Muxml.Utils.Set_Element_Value
+           (Doc   => Data.Doc,
+            XPath => "/system/subjects/subject[@name='linux']/vcpu/x86_64/vmx/"
+            & "controls/proc2/EnableEPT",
+            Value => "1");
+
+         --  EPT without unrestricted guest is a valid configuration.
+
+         Validation_Errors.Clear;
+         VMX_Controls_Entry_Checks (XML_Data => Data);
+         Assert (Condition => Validation_Errors.Is_Empty,
+                 Message   => "Unexpected error (Unrestricted Guest 2): "
+                 & Validation_Errors.Get_Error_Message);
       end Unrestricted_Guest;
 
       ----------------------------------------------------------------------
