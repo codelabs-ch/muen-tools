@@ -2303,11 +2303,13 @@ is
                   & "' invalid: must be 1");
             end if;
 
-            --  Protection and Paging must be set if EPT is disabled.
+            --  Protection and Paging must be set if unrestricted guest is
+            --  disabled.
 
-            if Is_Element_Value (Node  => CR0_Mask,
-                                 XPath => "../../controls/proc2/EnableEPT",
-                                 Value => "0")
+            if Is_Element_Value
+              (Node  => CR0_Mask,
+               XPath => "../../controls/proc2/UnrestrictedGuest",
+               Value => "0")
             then
                if Is_Element_Value (Node  => CR0_Mask,
                                     XPath => "ProtectionEnable",
@@ -2331,6 +2333,59 @@ is
          end;
       end loop;
    end VMX_CR0_Mask_Requirements;
+
+   -------------------------------------------------------------------------
+
+   procedure VMX_CR0_Requirements (XML_Data : Muxml.XML_Data_Type)
+   is
+      CR0_Regs : constant DOM.Core.Node_List := XPath_Query
+        (N     => XML_Data.Doc,
+         XPath => "/system/subjects/subject/vcpu/x86_64/registers/cr0");
+      Count : constant Natural := DOM.Core.Nodes.Length (List => CR0_Regs);
+   begin
+      for I in 0 .. Count - 1 loop
+         declare
+            CR0_Reg : constant DOM.Core.Node
+              := DOM.Core.Nodes.Item (List  => CR0_Regs,
+                                      Index => I);
+            Subj_Name : constant String
+              := DOM.Core.Elements.Get_Attribute
+                (Elem => Muxml.Utils.Ancestor_Node (Node  => CR0_Reg,
+                                                    Level => 4),
+                 Name => "name");
+         begin
+            Mulog.Log (Msg => "Checking requirements for VMX CR0 register of "
+                       & "subject '" & Subj_Name & "'");
+
+            --  Protection and Paging must be set if unrestricted guest is
+            --  disabled.
+
+            if Is_Element_Value
+              (Node  => CR0_Reg,
+               XPath => "../../vmx/controls/proc2/UnrestrictedGuest",
+               Value => "0")
+            then
+               if Is_Element_Value (Node  => CR0_Reg,
+                                    XPath => "ProtectionEnable",
+                                    Value => "0")
+               then
+                  Validation_Errors.Insert
+                    (Msg => "VMX CR0 register 'Protection Enable' of subject '"
+                     & Subj_Name & "' invalid: must be 1");
+               end if;
+
+               if Is_Element_Value (Node  => CR0_Reg,
+                                    XPath => "Paging",
+                                    Value => "0")
+               then
+                  Validation_Errors.Insert
+                    (Msg => "VMX CR0 register 'Paging' of subject '" &
+                     Subj_Name & "' invalid: must be 1");
+               end if;
+            end if;
+         end;
+      end loop;
+   end VMX_CR0_Requirements;
 
    -------------------------------------------------------------------------
 

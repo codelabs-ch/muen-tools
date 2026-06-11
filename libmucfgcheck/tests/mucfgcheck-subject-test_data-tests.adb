@@ -2061,6 +2061,59 @@ package body Mucfgcheck.Subject.Test_Data.Tests is
 
 
 --  begin read only
+   procedure Test_VMX_CR0_Requirements (Gnattest_T : in out Test);
+   procedure Test_VMX_CR0_Requirements_ff8e43 (Gnattest_T : in out Test) renames Test_VMX_CR0_Requirements;
+--  id:2.2/ff8e43395d421d50/VMX_CR0_Requirements/1/0/
+   procedure Test_VMX_CR0_Requirements (Gnattest_T : in out Test) is
+--  end read only
+
+      pragma Unreferenced (Gnattest_T);
+
+      Data : Muxml.XML_Data_Type;
+   begin
+      Muxml.Parse (Data => Data,
+                   Kind => Muxml.Format_B,
+                   File => "data/test_policy.xml");
+
+      --  Positive test, must not raise an exception.
+
+      VMX_CR0_Requirements (XML_Data => Data);
+      Assert (Condition => Validation_Errors.Is_Empty,
+              Message   => "Unexpected error in positive test");
+
+      --  Paging.
+
+      Muxml.Utils.Set_Element_Value
+        (Doc   => Data.Doc,
+         XPath => "/system/subjects/subject[@name='vt']/vcpu/x86_64/registers/"
+         & "cr0/Paging",
+         Value => "0");
+
+      VMX_CR0_Requirements (XML_Data => Data);
+      Assert (Condition => Validation_Errors.Contains
+              (Msg => "VMX CR0 register 'Paging' of subject 'vt' "
+               & "invalid: must be 1"),
+              Message   => "Exception mismatch (Paging)");
+
+      --  Protection Enable.
+
+      Muxml.Utils.Set_Element_Value
+        (Doc   => Data.Doc,
+         XPath => "/system/subjects/subject[@name='vt']/vcpu/x86_64/registers/"
+         & "cr0/ProtectionEnable",
+         Value => "0");
+
+      VMX_CR0_Requirements (XML_Data => Data);
+      Assert (Condition => Validation_Errors.Contains
+              (Msg => "VMX CR0 register 'Protection Enable' of subject 'vt' "
+               & "invalid: must be 1"),
+              Message   => "Exception mismatch (Protection Enable)");
+--  begin read only
+   end Test_VMX_CR0_Requirements;
+--  end read only
+
+
+--  begin read only
    procedure Test_VMX_CR0_Mask_Requirements (Gnattest_T : in out Test);
    procedure Test_VMX_CR0_Mask_Requirements_ac4b69 (Gnattest_T : in out Test) renames Test_VMX_CR0_Mask_Requirements;
 --  id:2.2/ac4b692b1a57841d/VMX_CR0_Mask_Requirements/1/0/
