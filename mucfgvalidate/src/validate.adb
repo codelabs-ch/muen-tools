@@ -870,6 +870,8 @@ is
       XML_Processors.Register
         (Process => Subject.VM_Entry_Controls_Requirements'Access);
       XML_Processors.Register
+        (Process => Subject.VMX_CR0_Requirements'Access);
+      XML_Processors.Register
         (Process => Subject.VMX_CR0_Mask_Requirements'Access);
       XML_Processors.Register
         (Process => Subject.VMX_CR4_Mask_Requirements'Access);
