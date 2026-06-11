@@ -2110,6 +2110,34 @@ package body Mucfgcheck.Subject.Test_Data.Tests is
                & "'Not Write-through' of subject 'linux' "
                & "invalid: must be 1"),
               Message   => "Exception mismatch (NW)");
+
+      --  Paging.
+
+      Muxml.Utils.Set_Element_Value
+        (Doc   => Data.Doc,
+         XPath => "/system/subjects/subject[@name='vt']/vcpu/x86_64/vmx/"
+         & "masks/cr0/Paging",
+         Value => "0");
+
+      VMX_CR0_Mask_Requirements (XML_Data => Data);
+      Assert (Condition => Validation_Errors.Contains
+              (Msg => "VMX CR0 guest/host mask control "
+               & "'Paging' of subject 'vt' invalid: must be 1"),
+              Message   => "Exception mismatch (Paging)");
+
+      --  Protection Enable.
+
+      Muxml.Utils.Set_Element_Value
+        (Doc   => Data.Doc,
+         XPath => "/system/subjects/subject[@name='vt']/vcpu/x86_64/vmx/"
+         & "masks/cr0/ProtectionEnable",
+         Value => "0");
+
+      VMX_CR0_Mask_Requirements (XML_Data => Data);
+      Assert (Condition => Validation_Errors.Contains
+              (Msg => "VMX CR0 guest/host mask control "
+               & "'Protection Enable' of subject 'vt' invalid: must be 1"),
+              Message   => "Exception mismatch (Protection Enable)");
 --  begin read only
    end Test_VMX_CR0_Mask_Requirements;
 --  end read only

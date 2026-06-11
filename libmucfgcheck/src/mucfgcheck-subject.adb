@@ -2302,6 +2302,32 @@ is
                   & "'Cache Disable' of subject '" & Subj_Name
                   & "' invalid: must be 1");
             end if;
+
+            --  Protection and Paging must be set if EPT is disabled.
+
+            if Is_Element_Value (Node  => CR0_Mask,
+                                 XPath => "../../controls/proc2/EnableEPT",
+                                 Value => "0")
+            then
+               if Is_Element_Value (Node  => CR0_Mask,
+                                    XPath => "ProtectionEnable",
+                                    Value => "0")
+               then
+                  Validation_Errors.Insert
+                    (Msg => "VMX CR0 guest/host mask control "
+                     & "'Protection Enable' of subject '" & Subj_Name
+                     & "' invalid: must be 1");
+               end if;
+
+               if Is_Element_Value (Node  => CR0_Mask,
+                                    XPath => "Paging",
+                                    Value => "0")
+               then
+                  Validation_Errors.Insert
+                    (Msg => "VMX CR0 guest/host mask control 'Paging' of "
+                     & "subject '" & Subj_Name & "' invalid: must be 1");
+               end if;
+            end if;
          end;
       end loop;
    end VMX_CR0_Mask_Requirements;
