@@ -180,6 +180,11 @@ is
         := DOM.Core.Elements.Get_Attribute
           (Elem => Logical_Dev,
            Name => "logical");
+      Physical_Address : Interfaces.Unsigned_64
+        := Interfaces.Unsigned_64'Value
+          (DOM.Core.Elements.Get_Attribute
+            (Elem => Physical_Mem,
+             Name => "physicalAddress"));
       Phys_Mem_Name : constant String
         := DOM.Core.Elements.Get_Attribute
           (Elem => Physical_Mem,
@@ -230,7 +235,8 @@ is
          else
 
             --  No BAR config, mmconf.
-            BAR_Idx := 7;
+            BAR_Idx          := 7;
+            Physical_Address := 0;
          end if;
       else
          BAR_Idx :=
@@ -254,9 +260,13 @@ is
          & ", size " & Mutools.Utils.To_Hex (Number => Size) & ", "
          & (if Writable   then "writable" else "read-only") & ", "
          & (if Executable then "executable" else "non-executable")
-         & (if BAR_Idx = 6 then " [expansion ROM]"
+         & (if BAR_Idx = 6 then " [expansion ROM & "
+             & Mutools.Utils.To_Hex (Number => Physical_Address)
+             & "]"
             elsif BAR_Idx <= 5 then
-             " [BAR:" & BAR_Idx'Img & ", prefetchable " & Prefetchable'Img
+             " [BAR" & Ada.Strings.Fixed.Trim (BAR_Idx'Img, Ada.Strings.Left)
+             & " @ " & Mutools.Utils.To_Hex (Number => Physical_Address)
+             & ", prefetchable " & Prefetchable'Img
              & ", 64-bit " & Is_64bit'Img & "]"
             else ""));
       Utils.Append_Resource
@@ -266,19 +276,20 @@ is
             Name         => Utils.Create_Name
               (Str => Device_Name & "_" & Log_Mem_Name),
             Dev_Mem_Data =>
-              (SID         => SID,
-               Flags       => (Executable => Executable,
-                               Writable   => Writable,
-                               Padding    => 0),
-               BAR_Config  =>
+              (SID        => SID,
+               Flags      => (Executable => Executable,
+                              Writable   => Writable,
+                              Padding    => 0),
+               BAR_Config =>
                  (Iomem_Flags => (Prefetchable => Prefetchable,
                                   Is_64bit     => Is_64bit,
                                   Padding      => 0),
-                  BAR_Idx     => BAR_Idx),
-               Padding1    => (others => 0),
-               Address     => Address,
-               Size        => Size,
-               Padding2    => (others => 0)),
+                  BAR_Idx     => BAR_Idx,
+                  Padding     => (others => 0),
+                  BAR_Address => Physical_Address),
+               Address    => Address,
+               Size       => Size,
+               Padding    => (others => 0)),
             Padding      => (others => 0)));
    end Add_Device_Memory_To_Info;
 

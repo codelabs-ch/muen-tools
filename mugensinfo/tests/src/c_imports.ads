@@ -149,6 +149,7 @@ is
       BAR_Config_Offset  : Interfaces.C.int;
       Iomem_Flags_Offset : Interfaces.C.int;
       BAR_Idx_Offset     : Interfaces.C.int;
+      BAR_Address_Offset : Interfaces.C.int;
       Address_Offset     : Interfaces.C.int;
       Size_Offset        : Interfaces.C.int)
       return Interfaces.C.int

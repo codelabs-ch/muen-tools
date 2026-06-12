@@ -121,25 +121,23 @@ struct muen_device_type {
 	char padding[largest_variant_size - device_type_size];
 } __attribute__ ((packed, aligned(8)));
 
-#define devmem_type_size (2 + 3 + 2 * 8)
-
 struct muen_bar_config_type {
 	uint8_t iomem_flags;
 	uint8_t bar_idx;
+	char padding[3];
+	uint64_t bar_address;
 } __attribute__ ((packed));
 
-const struct muen_bar_config_type muen_null_bar_config = { 0, 7 };
-const struct muen_bar_config_type muen_expansion_rom = { 0, 6 };
+#define devmem_type_size (2 + 1 + 13 + 2 * 8)
 
 /* Structure holding information about a device MMIO region */
 struct muen_devmem_type {
 	uint16_t sid;
 	uint8_t flags;
 	struct muen_bar_config_type bar_config;
-	char padding1[3];
 	uint64_t address;
 	uint64_t size;
-	char padding2[largest_variant_size - (devmem_type_size + 3)];
+	char padding[largest_variant_size - devmem_type_size];
 } __attribute__ ((packed, aligned(8)));
 
 #define devport_type_size (2 + 1 + 2 * 2)

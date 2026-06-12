@@ -408,6 +408,7 @@ int assert_device_memory(const struct muen_devmem_type *const mem)
 		printf("Devmem: Executable flag not set\n");
 		return 0;
 	}
+
 	if (!(mem->bar_config.iomem_flags & DEVMEM_PREFETCHABLE_FLAG))
 	{
 		printf("Devmem: Prefetchable flag not set\n");
@@ -422,6 +423,12 @@ int assert_device_memory(const struct muen_devmem_type *const mem)
 	if (mem->bar_config.bar_idx != 5)
 	{
 		printf("Devmem: BAR index mismatch: %d\n", mem->bar_config.bar_idx);
+		return 0;
+	}
+
+	if (mem->bar_config.bar_address != 0xabcdabcdabcdabcd)
+	{
+		printf("Devmem: BAR address mismatch: 0x%lx\n", mem->bar_config.bar_address);
 		return 0;
 	}
 
@@ -472,7 +479,7 @@ int assert_device_ioport(const struct muen_devport_type *const port)
 int assert_device_memory_type(const int size, const int sid_offset,
 		const int flags_offset, const int bar_config_offset,
 		const int iomem_flags_offset, const int bar_idx_offset,
-		const int address_offset, const int size_offset)
+		const int bar_addr_offset, const int address_offset, const int size_offset)
 {
 	if (sizeof(struct muen_devmem_type) != size)
 	{
@@ -513,6 +520,13 @@ int assert_device_memory_type(const int size, const int sid_offset,
 	{
 		printf("Devmem: Invalid 'bar_idx' offset %d /= %d\n", bar_idx_offset,
 				offsetof(struct muen_bar_config_type, bar_idx));
+		return 0;
+	}
+
+	if (offsetof(struct muen_bar_config_type, bar_address) != bar_addr_offset)
+	{
+		printf("Devmem: Invalid 'bar_address' offset %d /= %d\n", bar_addr_offset,
+				offsetof(struct muen_bar_config_type, bar_address));
 		return 0;
 	}
 
