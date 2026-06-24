@@ -49,6 +49,10 @@ is
    procedure PCI_BAR_Config (XML_Data : Muxml.XML_Data_Type);
 
    --D @Item List => validators_hw
+   --D Validate that PCI BAR config memory/port/rom references are valid.
+   procedure PCI_BAR_Config_References (XML_Data : Muxml.XML_Data_Type);
+
+   --D @Item List => validators_hw
    --D Validate that the hardware provides enough physical CPU cores.
    procedure CPU_Count (XML_Data : Muxml.XML_Data_Type);
 

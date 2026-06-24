@@ -27,6 +27,7 @@ with McKae.XML.XPath.XIA;
 with Mulog;
 with Muxml.Utils;
 with Mutools.Utils;
+with Mutools.Match;
 with Mutools.XML_Utils;
 with Mutools.Constants;
 
@@ -722,6 +723,48 @@ is
          end;
       end loop;
    end PCI_BAR_Config;
+
+   -------------------------------------------------------------------------
+
+   procedure PCI_BAR_Config_References (XML_Data : Muxml.XML_Data_Type)
+   is
+      --  Returns the error message for a given reference node.
+      procedure Error_Msg
+        (Node    :     DOM.Core.Node;
+         Err_Str : out Ada.Strings.Unbounded.Unbounded_String;
+         Fatal   : out Boolean);
+
+      ----------------------------------------------------------------------
+
+      procedure Error_Msg
+        (Node    :     DOM.Core.Node;
+         Err_Str : out Ada.Strings.Unbounded.Unbounded_String;
+         Fatal   : out Boolean)
+      is
+         Ref : constant String := DOM.Core.Elements.Get_Attribute
+           (Elem => Node,
+            Name => "ref");
+         Dev : constant String := DOM.Core.Elements.Get_Attribute
+           (Elem => Muxml.Utils.Ancestor_Node
+              (Node  => Node,
+               Level => 3),
+            Name => "name");
+      begin
+         Err_Str := Ada.Strings.Unbounded.To_Unbounded_String
+           ("PCI device '" & Dev & "' BAR config reference "
+            & "'" & Ref & "' not found");
+         Fatal := False;
+      end Error_Msg;
+   begin
+      For_Each_Match
+        (XML_Data     => XML_Data,
+         Source_XPath => "//pci/bars/*[self::memory or self::port or self::rom]",
+         Ref_XPath    => "/system/hardware/devices/device/*"
+         & "[self::memory or self::ioPort]",
+         Log_Message  => "BAR config references",
+         Error        => Error_Msg'Access,
+         Match        => Mutools.Match.Is_Valid_Ref_Name'Access);
+   end PCI_BAR_Config_References;
 
    -------------------------------------------------------------------------
 

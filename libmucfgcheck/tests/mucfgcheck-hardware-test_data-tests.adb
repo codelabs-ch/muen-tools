@@ -248,7 +248,7 @@ package body Mucfgcheck.Hardware.Test_Data.Tests is
       PCI_BAR_Config (XML_Data => Data);
       Assert (Condition => Validation_Errors.Contains
               (Msg => "PCI device 'wireless' BAR config count mismatch"
-                      & " - got 0 expected 1"),
+               & " - got 0 expected 1"),
               Message   => "Exception mismatch (BAR config count)");
 
       Validation_Errors.Clear;
@@ -261,10 +261,46 @@ package body Mucfgcheck.Hardware.Test_Data.Tests is
       PCI_BAR_Config (XML_Data => Data);
       Assert (Condition => Validation_Errors.Contains
               (Msg => "PCI device 'wireless' does not provide BAR config <bars>"
-                      & " element"),
+               & " element"),
               Message   => "Exception mismatch (BAR config presence)");
 --  begin read only
    end Test_PCI_BAR_Config;
+--  end read only
+
+
+--  begin read only
+   procedure Test_PCI_BAR_Config_References (Gnattest_T : in out Test);
+   procedure Test_PCI_BAR_Config_References_d37218 (Gnattest_T : in out Test) renames Test_PCI_BAR_Config_References;
+--  id:2.2/d37218195d1675d3/PCI_BAR_Config_References/1/0/
+   procedure Test_PCI_BAR_Config_References (Gnattest_T : in out Test) is
+--  end read only
+
+      pragma Unreferenced (Gnattest_T);
+
+      Data : Muxml.XML_Data_Type;
+   begin
+      Muxml.Parse (Data => Data,
+                   Kind => Muxml.Format_B,
+                   File => "data/test_policy.xml");
+
+      --  Positive test.
+
+      PCI_BAR_Config_References (XML_Data => Data);
+
+      Muxml.Utils.Set_Attribute
+        (Doc   => Data.Doc,
+         XPath => "/system/hardware/devices/device[@name='ethernet']"
+         & "/pci/bars/memory[@ref='mmio1']",
+         Name  => "ref",
+         Value => "mmio_none");
+
+      PCI_BAR_Config_References (XML_Data => Data);
+      Assert (Condition => Validation_Errors.Contains
+              (Msg => "PCI device 'ethernet' BAR config reference 'mmio_none'"
+               & " not found"),
+              Message   => "Exception mismatch (BAR config presence)");
+--  begin read only
+   end Test_PCI_BAR_Config_References;
 --  end read only
 
 
