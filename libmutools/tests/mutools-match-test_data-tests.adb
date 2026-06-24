@@ -205,6 +205,54 @@ package body Mutools.Match.Test_Data.Tests is
    end Test_Is_Valid_Resource_Ref;
 --  end read only
 
+
+--  begin read only
+   procedure Test_Is_Valid_Ref_Name (Gnattest_T : in out Test);
+   procedure Test_Is_Valid_Ref_Name_5567f4 (Gnattest_T : in out Test) renames Test_Is_Valid_Ref_Name;
+--  id:2.2/5567f4d54259d120/Is_Valid_Ref_Name/1/0/
+   procedure Test_Is_Valid_Ref_Name (Gnattest_T : in out Test) is
+--  end read only
+
+      pragma Unreferenced (Gnattest_T);
+
+      Data        : Muxml.XML_Data_Type;
+      Impl        : DOM.Core.DOM_Implementation;
+      Left, Right : DOM.Core.Node;
+   begin
+      Data.Doc := DOM.Core.Create_Document (Implementation => Impl);
+
+      Left := DOM.Core.Documents.Create_Element
+        (Doc      => Data.Doc,
+         Tag_Name => "el1");
+      DOM.Core.Elements.Set_Attribute
+        (Elem  => Left,
+         Name  => "ref",
+         Value => "refname");
+      Right := DOM.Core.Documents.Create_Element
+        (Doc      => Data.Doc,
+         Tag_Name => "el2");
+      DOM.Core.Elements.Set_Attribute
+        (Elem  => Right,
+         Name  => "name",
+         Value => "refname");
+
+      Assert (Condition => Is_Valid_Ref_Name
+              (Left  => Left,
+               Right => Right),
+              Message   => "Name does not match");
+
+      DOM.Core.Elements.Set_Attribute
+        (Elem  => Right,
+         Name  => "name",
+         Value => "nonexistent");
+      Assert (Condition => not Is_Valid_Ref_Name
+              (Left  => Left,
+               Right => Right),
+              Message   => "Name matches");
+--  begin read only
+   end Test_Is_Valid_Ref_Name;
+--  end read only
+
 --  begin read only
 --  id:2.2/02/
 --

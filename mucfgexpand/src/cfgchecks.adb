@@ -97,10 +97,6 @@ is
       Attr_Name   : String;
       Description : String);
 
-   --  Returns True if the left node's 'ref' attribute matches the 'name'
-   --  attribute of the right node.
-   function Match_Ref_Name (Left, Right : DOM.Core.Node) return Boolean;
-
    -------------------------------------------------------------------------
 
    procedure Channel_Reader_Has_Event_Vector (XML_Data : Muxml.XML_Data_Type)
@@ -1236,7 +1232,7 @@ is
          Ref_XPath    => "/system/components/library",
          Log_Message  => "component library reference(s)",
          Error        => Error_Msg'Access,
-         Match        => Match_Ref_Name'Access);
+         Match        => Mutools.Match.Is_Valid_Ref_Name'Access);
    end Component_Library_References;
 
    -------------------------------------------------------------------------
@@ -1697,7 +1693,7 @@ is
          Ref_XPath    => "/system/hardware/memory/reservedMemory",
          Log_Message  => "reserved memory region reference(s)",
          Error        => Error_Msg'Access,
-         Match        => Match_Ref_Name'Access);
+         Match        => Mutools.Match.Is_Valid_Ref_Name'Access);
    end Hardware_Reserved_Memory_Region_References;
 
    -------------------------------------------------------------------------
@@ -1714,20 +1710,6 @@ is
          Attr_Name   => "name",
          Description => "library");
    end Library_Name_Uniqueness;
-
-   -------------------------------------------------------------------------
-
-   function Match_Ref_Name (Left, Right : DOM.Core.Node) return Boolean
-   is
-      Ref  : constant String := DOM.Core.Elements.Get_Attribute
-        (Elem => Left,
-         Name => "ref");
-      Name : constant String := DOM.Core.Elements.Get_Attribute
-        (Elem => Right,
-         Name => "name");
-   begin
-      return Ref = Name;
-   end Match_Ref_Name;
 
    ----------------------------------------------------------------------
 
@@ -1855,7 +1837,7 @@ is
          Ref_XPath    => "/system/components/component",
          Log_Message  => "subject component reference(s)",
          Error        => Error_Msg'Access,
-         Match        => Match_Ref_Name'Access);
+         Match        => Mutools.Match.Is_Valid_Ref_Name'Access);
    end Subject_Component_References;
 
    -------------------------------------------------------------------------
@@ -2741,7 +2723,7 @@ is
          Ref_XPath    => "/system/subjects/subject[not(sibling)]",
          Log_Message  => "subject sibling reference(s)",
          Error        => Error_Msg'Access,
-         Match        => Match_Ref_Name'Access);
+         Match        => Mutools.Match.Is_Valid_Ref_Name'Access);
    end Subject_Sibling_References;
 
    -------------------------------------------------------------------------
