@@ -642,6 +642,89 @@ is
 
    -------------------------------------------------------------------------
 
+   procedure PCI_BAR_Config (XML_Data : Muxml.XML_Data_Type)
+   is
+      PCI_Devs : constant DOM.Core.Node_List
+        := McKae.XML.XPath.XIA.XPath_Query
+             (N     => XML_Data.Doc,
+              XPath => "/system/hardware/devices/device[pci]");
+      PCI_Dev_Count : constant Natural
+        := DOM.Core.Nodes.Length (List => PCI_Devs);
+   begin
+      Mulog.Log (Msg => "Checking PCI BAR config of"
+                 & PCI_Dev_Count'Img & " device(s)");
+
+      for I in 0 .. PCI_Dev_Count - 1 loop
+         declare
+            use type DOM.Core.Node;
+
+            Dev    : constant DOM.Core.Node
+              := DOM.Core.Nodes.Item
+                 (List  => PCI_Devs,
+                  Index => I);
+            Dev_Name : constant String
+              := DOM.Core.Elements.Get_Attribute
+                 (Elem => Dev,
+                  Name => "name");
+            Config : constant DOM.Core.Node
+              := Muxml.Utils.Get_Element
+                (Doc   => Dev,
+                 XPath => "pci/bars");
+         begin
+            if Config = null then
+               Validation_Errors.Insert
+                 (Msg => "PCI device '" & Dev_Name & "' does not provide BAR"
+                         & " config <bars> element");
+            else
+
+               --  Verify that there is a BAR config for every mem/ioport
+               --  resource.
+
+               declare
+                  --  -1 because of mmconf, which must be present for every PCI
+                  --  device but is not a mmio BAR.
+                  Res_Count : constant Natural := DOM.Core.Nodes.Length
+                    (List => McKae.XML.XPath.XIA.XPath_Query
+                       (N     => Dev,
+                        XPath => "*[self::memory or self::ioPort]")) - 1;
+                  Config_Bars : constant Natural := DOM.Core.Nodes.Length
+                    (List => McKae.XML.XPath.XIA.XPath_Query
+                       (N     => Config,
+                        XPath => "*[self::memory or self::port or self::rom]"));
+               begin
+                  if Res_Count /= Config_Bars then
+                     Validation_Errors.Insert
+                       (Msg => "PCI device '" & Dev_Name & "' BAR config"
+                        & " count mismatch - got" & Config_Bars'Img
+                        & " expected" & Res_Count'Img);
+                  end if;
+               end;
+
+               --  Verify mem/port attribute uniqueness.
+
+               Attr_Uniqueness
+                 (Nodes     =>
+                    McKae.XML.XPath.XIA.XPath_Query
+                      (N     => Config,
+                       XPath => "memory"),
+                  Attr_Name => "ref",
+                  Error_Msg => "PCI device '" & Dev_Name
+                  & "' BAR config memory reference not unique.");
+               Attr_Uniqueness
+                 (Nodes     =>
+                    McKae.XML.XPath.XIA.XPath_Query
+                      (N     => Config,
+                       XPath => "port"),
+                  Attr_Name => "ref",
+                  Error_Msg => "PCI device '" & Dev_Name
+                  & "' BAR config IO port reference not unique.");
+            end if;
+         end;
+      end loop;
+   end PCI_BAR_Config;
+
+   -------------------------------------------------------------------------
+
    procedure PCI_Config_Space (XML_Data : Muxml.XML_Data_Type)
    is
       Cfg_Address   : constant String := Muxml.Utils.Get_Attribute

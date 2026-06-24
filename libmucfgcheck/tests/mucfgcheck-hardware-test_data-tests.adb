@@ -148,6 +148,8 @@ package body Mucfgcheck.Hardware.Test_Data.Tests is
       --  Positive test, must not raise an exception.
 
       PCI_Config_Space (XML_Data => Data);
+      Assert (Condition => Validation_Errors.Is_Empty,
+              Message   => "Unexpected error in positive test");
 
       Muxml.Utils.Set_Attribute
         (Doc   => Data.Doc,
@@ -169,6 +171,100 @@ package body Mucfgcheck.Hardware.Test_Data.Tests is
               Message   => "Exception mismatch (size)");
 --  begin read only
    end Test_PCI_Config_Space;
+--  end read only
+
+
+--  begin read only
+   procedure Test_PCI_BAR_Config (Gnattest_T : in out Test);
+   procedure Test_PCI_BAR_Config_e2c0a0 (Gnattest_T : in out Test) renames Test_PCI_BAR_Config;
+--  id:2.2/e2c0a06fb326df3a/PCI_BAR_Config/1/0/
+   procedure Test_PCI_BAR_Config (Gnattest_T : in out Test) is
+--  end read only
+
+      pragma Unreferenced (Gnattest_T);
+
+      Data : Muxml.XML_Data_Type;
+   begin
+      Muxml.Parse (Data => Data,
+                   Kind => Muxml.Format_B,
+                   File => "data/test_policy.xml");
+
+      --  Positive test.
+
+      PCI_BAR_Config (XML_Data => Data);
+      Assert (Condition => Validation_Errors.Is_Empty,
+              Message   => "Unexpected error in positive test");
+
+      --  BAR config memory reference uniqueness.
+
+      Muxml.Utils.Set_Attribute
+        (Doc   => Data.Doc,
+         XPath => "/system/hardware/devices/device[@name='ethernet']"
+         & "/pci/bars/memory[@ref='mmio1']",
+         Name  => "ref",
+         Value => "mmio2");
+      PCI_BAR_Config (XML_Data => Data);
+      Assert (Condition => Validation_Errors.Contains
+              (Msg => "PCI device 'ethernet' BAR config memory reference not "
+               & "unique. Conflicting value: 'mmio2'"),
+              Message   => "Exception mismatch (BAR config memory uniqueness)");
+
+      Muxml.Utils.Set_Attribute
+        (Doc   => Data.Doc,
+         XPath => "/system/hardware/devices/device[@name='ethernet']"
+         & "/pci/bars/memory[@ref='mmio2']",
+         Name  => "ref",
+         Value => "mmio1");
+      Validation_Errors.Clear;
+
+      --  BAR config I/O port reference uniqueness.
+
+      Muxml.Utils.Set_Attribute
+        (Doc   => Data.Doc,
+         XPath => "/system/hardware/devices/device[@name='ethernet']"
+         & "/pci/bars/port[@ref='ioport1']",
+         Name  => "ref",
+         Value => "ioport2");
+      PCI_BAR_Config (XML_Data => Data);
+      Assert (Condition => Validation_Errors.Contains
+              (Msg => "PCI device 'ethernet' BAR config IO port reference not "
+               & "unique. Conflicting value: 'ioport2'"),
+              Message   => "Exception mismatch (BAR config port uniqueness)");
+
+      Muxml.Utils.Set_Attribute
+        (Doc   => Data.Doc,
+         XPath => "/system/hardware/devices/device[@name='ethernet']"
+         & "/pci/bars/port[@ref='ioport2']",
+         Name  => "ref",
+         Value => "ioport1");
+      Validation_Errors.Clear;
+
+      --  BAR config resource count.
+
+      Muxml.Utils.Remove_Elements
+        (Doc   => Data.Doc,
+         XPath => "/system/hardware/devices/device[@name='wireless']/pci/bars"
+         & "/memory");
+      PCI_BAR_Config (XML_Data => Data);
+      Assert (Condition => Validation_Errors.Contains
+              (Msg => "PCI device 'wireless' BAR config count mismatch"
+                      & " - got 0 expected 1"),
+              Message   => "Exception mismatch (BAR config count)");
+
+      Validation_Errors.Clear;
+
+      --  No BAR config given for PCI device.
+
+      Muxml.Utils.Remove_Elements
+        (Doc   => Data.Doc,
+         XPath => "/system/hardware/devices/device[@name='wireless']/pci/bars");
+      PCI_BAR_Config (XML_Data => Data);
+      Assert (Condition => Validation_Errors.Contains
+              (Msg => "PCI device 'wireless' does not provide BAR config <bars>"
+                      & " element"),
+              Message   => "Exception mismatch (BAR config presence)");
+--  begin read only
+   end Test_PCI_BAR_Config;
 --  end read only
 
 
