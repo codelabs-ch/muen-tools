@@ -74,9 +74,8 @@
                                                                                                                                                      >      <memory executable="false" logical="resource_1" physical="subject3|resource_1" virtualAddress="16#0020_1000#" writable="true"/>
                                                                                                                                                      >      <memory executable="false" logical="resource_2" physical="subject3|resource_2" virtualAddress="16#0040_0000#" writable="true"/>
                                                                                                                                                      >     </memory>
-                                                                                                                                                     >     <devices/>
-   <events>                                                                                                                                                <events>
-    <source>                                                                                                                                                <source>
+   <devices>                                                                                                                                               <devices>
+    <device logical="nic1" physical="nic1">                                                                                                                 <device logical="nic1" physical="nic1">
 --
     </source>                                                                                                                                               </source>
    </events>                                                                                                                                               </events>

@@ -47,6 +47,9 @@
     <memory caching="UC" name="mmio1" physicalAddress="16#d250_0000#" size="16#0002_0000#"/>
     <memory caching="UC" name="mmio2" physicalAddress="16#d253_b000#" size="16#1000#"/>
     <memory caching="UC" name="mmconf" physicalAddress="16#e030_2000#" size="16#1000#"/>
+    <capabilities>
+     <capability name="pci_reset_method">flr</capability>
+    </capabilities>
    </device>
    <device name="nic2">
     <pci bus="16#23#" device="16#19#" function="1" msi="false">
@@ -422,7 +425,7 @@
   <memory alignment="16#1000#" caching="WB" name="subject2|pt" size="16#e000#" type="system_pt">
    <fill pattern="16#00#"/>
   </memory>
-  <memory alignment="16#1000#" caching="WB" name="subject3|pt" size="16#b000#" type="system_pt">
+  <memory alignment="16#1000#" caching="WB" name="subject3|pt" size="16#d000#" type="system_pt">
    <fill pattern="16#00#"/>
   </memory>
   <memory alignment="16#1000#" caching="WB" name="vtd_root" size="16#1000#" type="system_vtd_root">
@@ -3048,7 +3051,12 @@
     <memory executable="false" logical="subject3_resource_1_src" physical="subject3|resource_1" virtualAddress="16#7000_0000_0000#" writable="false"/>
     <memory executable="false" logical="subject3_resource_2_src" physical="subject3|resource_2" virtualAddress="16#7000_0000_2000#" writable="false"/>
    </memory>
-   <devices/>
+   <devices>
+    <device logical="nic1" physical="nic1">
+     <pci bus="16#00#" device="16#19#" function="0"/>
+     <memory executable="false" logical="mmconf" physical="mmconf" virtualAddress="16#dead_beef#" writable="true"/>
+    </device>
+   </devices>
    <events>
     <source>
      <group name="vmx_exit">

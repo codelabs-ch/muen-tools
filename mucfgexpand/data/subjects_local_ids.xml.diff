@@ -25,8 +25,8 @@
    <sibling ref="lnx"/>                                                                                                                                    <sibling ref="lnx"/>
   </subject>                                                                                                                                              </subject>
   <subject name="subject3">                                                                                                                          |    <subject cpu="0" localId="2" name="subject3">
-   <events>                                                                                                                                                <events>
-    <source>                                                                                                                                                <source>
+   <devices>                                                                                                                                               <devices>
+    <device logical="nic1" physical="nic1">                                                                                                                 <device logical="nic1" physical="nic1">
 --
  <scheduling tickRate="10000">                                                                                                                           <scheduling tickRate="10000">
   <partitions>                                                                                                                                            <partitions>

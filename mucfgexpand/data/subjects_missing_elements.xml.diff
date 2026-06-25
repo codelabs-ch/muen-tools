@@ -30,9 +30,8 @@
                                                                                                                                                      >     <vcpu/>
                                                                                                                                                      >     <bootparams/>
                                                                                                                                                      >     <memory/>
-                                                                                                                                                     >     <devices/>
-   <events>                                                                                                                                                <events>
-    <source>                                                                                                                                                <source>
+   <devices>                                                                                                                                               <devices>
+    <device logical="nic1" physical="nic1">                                                                                                                 <device logical="nic1" physical="nic1">
 --
     </source>                                                                                                                                               </source>
    </events>                                                                                                                                               </events>
