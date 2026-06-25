@@ -671,54 +671,60 @@ is
               := Muxml.Utils.Get_Element
                 (Doc   => Dev,
                  XPath => "pci/bars");
+             --  -1 because of mmconf, which must be present for every PCI
+             --  device but is not a mmio BAR.
+            Res_Count : constant Natural := DOM.Core.Nodes.Length
+              (List => McKae.XML.XPath.XIA.XPath_Query
+                 (N     => Dev,
+                  XPath => "*[self::memory or self::ioPort]")) - 1;
          begin
-            if Config = null then
-               Validation_Errors.Insert
-                 (Msg => "PCI device '" & Dev_Name & "' does not provide BAR"
-                         & " config <bars> element");
-            else
 
-               --  Verify that there is a BAR config for every mem/ioport
-               --  resource.
+            --  There are devices with no io resources at all
+            --  (i.e. host bridges).
 
-               declare
-                  --  -1 because of mmconf, which must be present for every PCI
-                  --  device but is not a mmio BAR.
-                  Res_Count : constant Natural := DOM.Core.Nodes.Length
-                    (List => McKae.XML.XPath.XIA.XPath_Query
-                       (N     => Dev,
-                        XPath => "*[self::memory or self::ioPort]")) - 1;
-                  Config_Bars : constant Natural := DOM.Core.Nodes.Length
-                    (List => McKae.XML.XPath.XIA.XPath_Query
-                       (N     => Config,
-                        XPath => "*[self::memory or self::port or self::rom]"));
-               begin
-                  if Res_Count /= Config_Bars then
-                     Validation_Errors.Insert
-                       (Msg => "PCI device '" & Dev_Name & "' BAR config"
-                        & " count mismatch - got" & Config_Bars'Img
-                        & " expected" & Res_Count'Img);
-                  end if;
-               end;
+            if Res_Count > 0 then
+               if Config = null then
+                  Validation_Errors.Insert
+                    (Msg => "PCI device '" & Dev_Name & "' does not provide BAR"
+                            & " config <bars> element");
+               else
 
-               --  Verify mem/port attribute uniqueness.
+                  --  Verify that there is a BAR config for every mem/ioport
+                  --  resource.
 
-               Attr_Uniqueness
-                 (Nodes     =>
-                    McKae.XML.XPath.XIA.XPath_Query
-                      (N     => Config,
-                       XPath => "memory"),
-                  Attr_Name => "ref",
-                  Error_Msg => "PCI device '" & Dev_Name
-                  & "' BAR config memory reference not unique.");
-               Attr_Uniqueness
-                 (Nodes     =>
-                    McKae.XML.XPath.XIA.XPath_Query
-                      (N     => Config,
-                       XPath => "port"),
-                  Attr_Name => "ref",
-                  Error_Msg => "PCI device '" & Dev_Name
-                  & "' BAR config IO port reference not unique.");
+                  declare
+                     Config_Bars : constant Natural := DOM.Core.Nodes.Length
+                       (List => McKae.XML.XPath.XIA.XPath_Query
+                          (N     => Config,
+                           XPath => "*[self::memory or self::port or self::rom]"));
+                  begin
+                     if Res_Count /= Config_Bars then
+                        Validation_Errors.Insert
+                          (Msg => "PCI device '" & Dev_Name & "' BAR config"
+                           & " count mismatch - got" & Config_Bars'Img
+                           & " expected" & Res_Count'Img);
+                     end if;
+                  end;
+
+                  --  Verify mem/port attribute uniqueness.
+
+                  Attr_Uniqueness
+                    (Nodes     =>
+                       McKae.XML.XPath.XIA.XPath_Query
+                         (N     => Config,
+                          XPath => "memory"),
+                     Attr_Name => "ref",
+                     Error_Msg => "PCI device '" & Dev_Name
+                     & "' BAR config memory reference not unique.");
+                  Attr_Uniqueness
+                    (Nodes     =>
+                       McKae.XML.XPath.XIA.XPath_Query
+                         (N     => Config,
+                          XPath => "port"),
+                     Attr_Name => "ref",
+                     Error_Msg => "PCI device '" & Dev_Name
+                     & "' BAR config IO port reference not unique.");
+               end if;
             end if;
          end;
       end loop;
