@@ -2483,7 +2483,7 @@ is
         := McKae.XML.XPath.XIA.XPath_Query
            (N     => XML_Data.Doc,
             XPath => "/system/hardware/devices/device/capabilities/capability"
-            & "[@name='pci_reset_method']/text()['flr']/../../..");
+            & "[@name='pci_reset_method' and text()='flr']/../..");
       Log_Devs : constant DOM.Core.Node_List
         := McKae.XML.XPath.XIA.XPath_Query
            (N     => XML_Data.Doc,

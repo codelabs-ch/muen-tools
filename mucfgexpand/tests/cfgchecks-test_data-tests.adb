@@ -873,9 +873,22 @@ package body Cfgchecks.Test_Data.Tests is
          Value => "nonexistent");
       Subject_Muinit_PCI_Dev_Reset (XML_Data => Policy);
       Assert (Condition => Mucfgcheck.Validation_Errors.Contains
-              (Msg => "Subject 'subject3' uses muinit and maps reset-capable" 
+              (Msg => "Subject 'subject3' uses muinit and maps reset-capable"
                & " PCI device 'nic1' but does not map mmconf region"),
                Message  => "Exception mismatch");
+
+      Mucfgcheck.Validation_Errors.Clear;
+
+      --  Assure that only FLR-capable devices are examined.
+
+      Muxml.Utils.Set_Element_Value
+        (Doc   => Policy.Doc,
+         XPath => "/system/hardware/devices/device[@name='nic1']/capabilities/"
+         & "capability[@name='pci_reset_method']",
+         Value => "bus");
+      Subject_Muinit_PCI_Dev_Reset (XML_Data => Policy);
+      Assert (Condition => Mucfgcheck.Validation_Errors.Is_Empty,
+              Message   => "Unexpected error (non-flr device)");
 --  begin read only
    end Test_Subject_Muinit_PCI_Dev_Reset;
 --  end read only
