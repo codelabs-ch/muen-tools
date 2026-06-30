@@ -140,7 +140,7 @@ struct muen_devmem_type {
 	char padding[largest_variant_size - devmem_type_size];
 } __attribute__ ((packed, aligned(8)));
 
-#define devport_type_size (2 + 1 + 2 * 2)
+#define devport_type_size (2 + 1 + 1 + 2 * 2)
 
 /* Structure holding information about a device I/O port */
 struct muen_devport_type {
@@ -149,7 +149,7 @@ struct muen_devport_type {
 	char padding1[1];
 	uint16_t address;
 	uint16_t size;
-	char padding2[largest_variant_size - (devport_type_size + 1)];
+	char padding2[largest_variant_size - devport_type_size];
 } __attribute__ ((packed, aligned(8)));
 
 /* Currently known resource types */
