@@ -20,6 +20,7 @@ with Ada.Containers.Indefinite_Holders;
 with Muxml;
 
 package Mutools
+with SPARK_Mode => Off  -- Indefinite_Holders formal has "in out" param, not allowed in SPARK
 is
    package String_Vector renames Muxml.String_Vector;
 
