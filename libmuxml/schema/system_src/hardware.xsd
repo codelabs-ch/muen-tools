@@ -17,7 +17,7 @@
 
     The Muen toolchain provides a handy tool to automate the cumbersome process
     of gathering hardware resource data from a running Linux system:
-    \texttt{mugenhwcfg}\footnote{https://git.codelabs.ch/?p=muen/mugenhwcfg.git}.
+    \texttt{mugenhwcfg}\footnote{https://git.codelabs.ch/cgit/muen/mugenhwcfg.git}.
 
     See line \ref{lst:af-lineref-hw} in listing \ref{lst:annotated-policy} for
     an example hardware section.
