@@ -286,6 +286,8 @@ package body Mucfgcheck.Hardware.Test_Data.Tests is
       --  Positive test.
 
       PCI_BAR_Config_References (XML_Data => Data);
+      Assert (Condition => Validation_Errors.Is_Empty,
+              Message   => "Unexpected error in positive test");
 
       Muxml.Utils.Set_Attribute
         (Doc   => Data.Doc,
