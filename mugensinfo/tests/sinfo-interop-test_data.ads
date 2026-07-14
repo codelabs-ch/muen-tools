@@ -32,17 +32,17 @@ package Sinfo.Interop.Test_Data is
    Ref_Dev : constant Musinfo.Resource_Type
      := (Kind     => Musinfo.Res_Device,
          Name     => Ref_Name,
-         Dev_Data => (SID        => 16#abcd#,
-                      Vendor_ID  => 16#fefe#,
-                      Device_ID  => 16#1234#,
-                      Class_Code => 16#cece#,
-                      IRTE_Start => 200,
-                      IRQ_Start  => 12,
-                      IR_Count   => 22,
-                      Flags      => (MSI_Capable => True,
-                                     Padding     => 0),
-                      Reset      => Musinfo.Dev_Reset_Method_Bus,
-                      Padding    => (others => 0)),
+         Dev_Data => (SID          => 16#abcd#,
+                      Vendor_ID    => 16#fefe#,
+                      Device_ID    => 16#1234#,
+                      Class_Code   => 16#cece#,
+                      IRTE_Start   => 200,
+                      IRQ_Start    => 12,
+                      IR_Count     => 22,
+                      Flags        => (MSI_Capable => True,
+                                       Padding     => 0),
+                      Reset_Method => Musinfo.Dev_Reset_Method_Bus,
+                      Padding      => (others => 0)),
         Padding   => (others => 0));
 
 end Sinfo.Interop.Test_Data;

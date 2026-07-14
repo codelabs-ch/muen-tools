@@ -117,7 +117,7 @@ struct muen_device_type {
 	uint8_t irq_start;
 	uint8_t ir_count;
 	uint8_t flags;
-	uint8_t reset;
+	uint8_t reset_method;
 	char padding[largest_variant_size - device_type_size];
 } __attribute__ ((packed, aligned(8)));
 

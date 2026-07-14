@@ -391,17 +391,17 @@ is
            (Kind     => Musinfo.Res_Device,
             Name     => Utils.Create_Name (Str => Log_Name),
             Dev_Data =>
-              (SID        => SID,
-               Vendor_ID  => Vendor_ID,
-               Device_ID  => Device_ID,
-               Class_Code => Class_Code,
-               IRTE_Start => Interfaces.Unsigned_16 (IRTE_Start),
-               IRQ_Start  => Interfaces.Unsigned_8 (IRQ_Start),
-               IR_Count   => Interfaces.Unsigned_8 (IR_Count),
-               Flags      => (MSI_Capable => MSI,
-                              Padding     => 0),
-               Reset      => Reset_Method,
-               Padding    => (others => 0)),
+              (SID          => SID,
+               Vendor_ID    => Vendor_ID,
+               Device_ID    => Device_ID,
+               Class_Code   => Class_Code,
+               IRTE_Start   => Interfaces.Unsigned_16 (IRTE_Start),
+               IRQ_Start    => Interfaces.Unsigned_8 (IRQ_Start),
+               IR_Count     => Interfaces.Unsigned_8 (IR_Count),
+               Flags        => (MSI_Capable => MSI,
+                                Padding     => 0),
+               Reset_Method => Reset_Method,
+               Padding      => (others => 0)),
             Padding  => (others => 0)));
    end Add_Device_To_Info;
 
