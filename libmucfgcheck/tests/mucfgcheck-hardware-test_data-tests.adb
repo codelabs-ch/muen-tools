@@ -239,6 +239,28 @@ package body Mucfgcheck.Hardware.Test_Data.Tests is
          Value => "ioport1");
       Validation_Errors.Clear;
 
+      --  BAR config index attribute uniqueness.
+
+      Muxml.Utils.Set_Attribute
+        (Doc   => Data.Doc,
+         XPath => "/system/hardware/devices/device[@name='ethernet']"
+         & "/pci/bars/memory[@index='3']",
+         Name  => "index",
+         Value => "2");
+      PCI_BAR_Config (XML_Data => Data);
+      Assert (Condition => Validation_Errors.Contains
+              (Msg => "PCI device 'ethernet' BAR config index attribues not "
+               & "unique. Conflicting value: '2'"),
+              Message   => "Exception mismatch (BAR config index uniqueness)");
+
+      Muxml.Utils.Set_Attribute
+        (Doc   => Data.Doc,
+         XPath => "/system/hardware/devices/device[@name='ethernet']"
+         & "/pci/bars/memory[@index='2']",
+         Name  => "index",
+         Value => "3");
+      Validation_Errors.Clear;
+
       --  BAR config resource count.
 
       Muxml.Utils.Remove_Elements

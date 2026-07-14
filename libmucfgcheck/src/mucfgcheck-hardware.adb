@@ -705,7 +705,7 @@ is
                      end if;
                   end;
 
-                  --  Verify mem/port attribute uniqueness.
+                  --  Verify mem/port ref attribute uniqueness.
 
                   Attr_Uniqueness
                     (Nodes     =>
@@ -723,6 +723,17 @@ is
                      Attr_Name => "ref",
                      Error_Msg => "PCI device '" & Dev_Name
                      & "' BAR config IO port reference not unique.");
+
+                  --  Index attribute uniqueness.
+
+                  Attr_Uniqueness
+                    (Nodes     =>
+                       McKae.XML.XPath.XIA.XPath_Query
+                         (N     => Config,
+                          XPath => "*[self::memory or self::ioPort or self::rom]"),
+                     Attr_Name => "index",
+                     Error_Msg => "PCI device '" & Dev_Name
+                     & "' BAR config index attribues not unique.");
                end if;
             end if;
          end;
