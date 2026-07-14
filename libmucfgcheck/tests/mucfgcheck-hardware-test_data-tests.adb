@@ -247,8 +247,8 @@ package body Mucfgcheck.Hardware.Test_Data.Tests is
          & "/memory");
       PCI_BAR_Config (XML_Data => Data);
       Assert (Condition => Validation_Errors.Contains
-              (Msg => "PCI device 'wireless' BAR config count mismatch"
-               & " - got 0 expected 1"),
+              (Msg => "PCI device 'wireless' BAR config count mismatch: "
+               & "0 /= 1"),
               Message   => "Exception mismatch (BAR config count)");
 
       Validation_Errors.Clear;
