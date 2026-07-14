@@ -311,18 +311,59 @@ package body Mucfgcheck.Hardware.Test_Data.Tests is
       Assert (Condition => Validation_Errors.Is_Empty,
               Message   => "Unexpected error in positive test");
 
+      --  Invalid memory reference.
+
       Muxml.Utils.Set_Attribute
         (Doc   => Data.Doc,
          XPath => "/system/hardware/devices/device[@name='ethernet']"
-         & "/pci/bars/memory[@ref='mmio1']",
-         Name  => "ref",
+         & "/memory[@name='mmio1']",
+         Name  => "name",
          Value => "mmio_none");
-
       PCI_BAR_Config_References (XML_Data => Data);
       Assert (Condition => Validation_Errors.Contains
-              (Msg => "PCI device 'ethernet' BAR config reference 'mmio_none'"
-               & " not found"),
-              Message   => "Exception mismatch (BAR config presence)");
+              (Msg => "PCI device 'ethernet' BAR config memory reference "
+               & "'mmio1' not found"),
+              Message   => "Exception mismatch (BAR config memory reference)");
+      Muxml.Utils.Set_Attribute
+        (Doc   => Data.Doc,
+         XPath => "/system/hardware/devices/device[@name='ethernet']"
+         & "/memory[@name='mmio_none']",
+         Name  => "name",
+         Value => "mmio1");
+
+      --  Invalid I/O port reference.
+
+      Muxml.Utils.Set_Attribute
+        (Doc   => Data.Doc,
+         XPath => "/system/hardware/devices/device[@name='ethernet']"
+         & "/ioPort[@name='ioport1']",
+         Name  => "name",
+         Value => "ioport_none");
+      PCI_BAR_Config_References (XML_Data => Data);
+      Assert (Condition => Validation_Errors.Contains
+              (Msg => "PCI device 'ethernet' BAR config I/O port reference "
+               & "'ioport1' not found"),
+              Message   => "Exception mismatch (BAR config port reference)");
+      Muxml.Utils.Set_Attribute
+        (Doc   => Data.Doc,
+         XPath => "/system/hardware/devices/device[@name='ethernet']"
+         & "/ioPort[@name='ioport_none']",
+         Name  => "name",
+         Value => "ioport1");
+
+      --  I/O port referencing a memory resource.
+
+      Muxml.Utils.Set_Attribute
+        (Doc   => Data.Doc,
+         XPath => "/system/hardware/devices/device[@name='ethernet']"
+         & "/pci/bars/ioPort[@ref='ioport1']",
+         Name  => "ref",
+         Value => "mmio1");
+      PCI_BAR_Config_References (XML_Data => Data);
+      Assert (Condition => Validation_Errors.Contains
+              (Msg => "PCI device 'ethernet' BAR config I/O port reference "
+               & "'mmio1' not found"),
+              Message   => "Exception mismatch (BAR config port reference #2)");
 --  begin read only
    end Test_PCI_BAR_Config_References;
 --  end read only

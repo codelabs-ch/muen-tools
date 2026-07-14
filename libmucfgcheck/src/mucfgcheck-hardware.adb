@@ -744,6 +744,11 @@ is
 
    procedure PCI_BAR_Config_References (XML_Data : Muxml.XML_Data_Type)
    is
+
+      use Ada.Strings.Unbounded;
+
+      Res_Type : Unbounded_String := To_Unbounded_String ("memory");
+
       --  Returns the error message for a given reference node.
       procedure Error_Msg
         (Node    :     DOM.Core.Node;
@@ -767,19 +772,63 @@ is
             Name => "name");
       begin
          Err_Str := Ada.Strings.Unbounded.To_Unbounded_String
-           ("PCI device '" & Dev & "' BAR config reference "
-            & "'" & Ref & "' not found");
+           ("PCI device '" & Dev & "' BAR config " & To_String (Res_Type)
+            & " reference " & "'" & Ref & "' not found");
          Fatal := False;
       end Error_Msg;
+
+      Devices : constant DOM.Core.Node_List
+        := McKae.XML.XPath.XIA.XPath_Query
+          (N     => XML_Data.Doc,
+           XPath => "/system/hardware/devices/device[pci/bars]");
    begin
-      For_Each_Match
-        (XML_Data     => XML_Data,
-         Source_XPath => "//pci/bars/*[self::memory or self::ioPort or self::rom]",
-         Ref_XPath    => "/system/hardware/devices/device/*"
-         & "[self::memory or self::ioPort]",
-         Log_Message  => "BAR config references",
-         Error        => Error_Msg'Access,
-         Match        => Mutools.Match.Is_Valid_Ref_Name'Access);
+      for I in 0 .. DOM.Core.Nodes.Length (List => Devices) - 1 loop
+         declare
+            Dev : constant DOM.Core.Node
+              := DOM.Core.Nodes.Item
+                (List  => Devices,
+                 Index => I);
+            Dev_Name : constant String
+              := DOM.Core.Elements.Get_Attribute
+                (Elem => Dev,
+                 Name => "name");
+            Mem_Bars : constant DOM.Core.Node_List
+              := McKae.XML.XPath.XIA.XPath_Query
+                (N     => Dev,
+                 XPath => "pci/bars/*[self::memory or self::rom]");
+            Port_Bars : constant DOM.Core.Node_List
+              := McKae.XML.XPath.XIA.XPath_Query
+                (N     => Dev,
+                 XPath => "pci/bars/ioPort");
+            Dev_Memory : constant DOM.Core.Node_List
+              := McKae.XML.XPath.XIA.XPath_Query
+                (N     => Dev,
+                 XPath => "memory");
+            Dev_Ports : constant DOM.Core.Node_List
+              := McKae.XML.XPath.XIA.XPath_Query
+                (N     => Dev,
+                 XPath => "ioPort");
+         begin
+            if DOM.Core.Nodes.Length (List => Mem_Bars) > 0 then
+               For_Each_Match
+                 (Source_Nodes => Mem_Bars,
+                  Ref_Nodes    => Dev_Memory,
+                  Log_Message  => "Device '" & Dev_Name & " 'BAR config memory ref(s)",
+                  Error        => Error_Msg'Access,
+                  Match        => Mutools.Match.Is_Valid_Ref_Name'Access);
+            end if;
+
+            if DOM.Core.Nodes.Length (List => Port_Bars) > 0 then
+               Res_Type := To_Unbounded_String ("I/O port");
+               For_Each_Match
+                 (Source_Nodes => Port_Bars,
+                  Ref_Nodes    => Dev_Ports,
+                  Log_Message  => "Device '" & Dev_Name & " 'BAR config I/O port ref(s)",
+                  Error        => Error_Msg'Access,
+                  Match        => Mutools.Match.Is_Valid_Ref_Name'Access);
+            end if;
+         end;
+      end loop;
    end PCI_BAR_Config_References;
 
    -------------------------------------------------------------------------

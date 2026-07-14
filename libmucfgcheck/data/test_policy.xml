@@ -69,11 +69,13 @@
       <memory index="3" is64bit="false" prefetchable="true" ref="mmio2"/>
       <ioPort index="4" ref="ioport1"/>
       <ioPort index="5" ref="ioport2"/>
+      <rom ref="mmio3"/>
      </bars>
     </pci>
     <irq name="irq" number="20"/>
     <memory caching="UC" name="mmio1" physicalAddress="16#d250_0000#" size="16#0002_0000#"/>
     <memory caching="UC" name="mmio2" physicalAddress="16#d253_b000#" size="16#1000#"/>
+    <memory caching="UC" name="mmio3" physicalAddress="16#f80a_8000#" size="16#1000#"/>
     <memory caching="UC" name="mmconf" physicalAddress="16#f80c_8000#" size="16#1000#"/>
     <ioPort end="16#abcd#" name="ioport1" start="16#abcd#"/>
     <ioPort end="16#abca#" name="ioport2" start="16#abca#"/>
