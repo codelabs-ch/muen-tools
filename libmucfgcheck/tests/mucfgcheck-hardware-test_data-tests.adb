@@ -222,7 +222,7 @@ package body Mucfgcheck.Hardware.Test_Data.Tests is
       Muxml.Utils.Set_Attribute
         (Doc   => Data.Doc,
          XPath => "/system/hardware/devices/device[@name='ethernet']"
-         & "/pci/bars/port[@ref='ioport1']",
+         & "/pci/bars/ioPort[@ref='ioport1']",
          Name  => "ref",
          Value => "ioport2");
       PCI_BAR_Config (XML_Data => Data);
@@ -234,7 +234,7 @@ package body Mucfgcheck.Hardware.Test_Data.Tests is
       Muxml.Utils.Set_Attribute
         (Doc   => Data.Doc,
          XPath => "/system/hardware/devices/device[@name='ethernet']"
-         & "/pci/bars/port[@ref='ioport2']",
+         & "/pci/bars/ioPort[@ref='ioport2']",
          Name  => "ref",
          Value => "ioport1");
       Validation_Errors.Clear;

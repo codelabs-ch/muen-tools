@@ -229,7 +229,7 @@
   <xs:sequence>
    <xs:choice minOccurs="0" maxOccurs="6">
     <xs:element name="memory"  type="pciBarMemType"  minOccurs="1" maxOccurs="1"/>
-    <xs:element name="port" type="pciBarPortType" minOccurs="1" maxOccurs="1"/>
+    <xs:element name="ioPort" type="pciBarPortType" minOccurs="1" maxOccurs="1"/>
    </xs:choice>
    <xs:element name="rom" type="pciBarROMType"  minOccurs="0" maxOccurs="1"/>
   </xs:sequence>

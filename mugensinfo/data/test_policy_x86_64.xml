@@ -19,7 +19,7 @@
      <bars>
        <memory index="0" is64bit="false" prefetchable="true" ref="mmio1"/>
        <memory index="2" is64bit="false" prefetchable="false" ref="mmio2"/>
-       <port index="3" ref="ioport1"/>
+       <ioPort index="3" ref="ioport1"/>
      </bars>
     </pci>
     <irq name="irq_1" number="40"/>

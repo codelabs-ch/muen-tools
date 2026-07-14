@@ -32,7 +32,7 @@
      <iommuGroup id="4" originOfNode="format_src.xml:32:26"/>
      <bars originOfNode="format_src.xml:33:12">
       <memory index="2" is64bit="false" originOfNode="format_src.xml:34:73" prefetchable="true" ref="mem1"/>
-      <port index="4" originOfNode="format_src.xml:35:36" ref="port1"/>
+      <ioPort index="4" originOfNode="format_src.xml:35:38" ref="port1"/>
       <rom originOfNode="format_src.xml:36:24" ref="mem2"/>
      </bars>
     </pci>

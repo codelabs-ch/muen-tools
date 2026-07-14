@@ -32,7 +32,7 @@
      <iommuGroup id="4"/>
      <bars>
       <memory index="2" is64bit="false" prefetchable="true" ref="mem1"/>
-      <port index="4" ref="port1"/>
+      <ioPort index="4" ref="port1"/>
       <rom ref="mem2"/>
      </bars>
     </pci>

@@ -696,7 +696,7 @@ is
                      Config_Bars : constant Natural := DOM.Core.Nodes.Length
                        (List => McKae.XML.XPath.XIA.XPath_Query
                           (N     => Config,
-                           XPath => "*[self::memory or self::port or self::rom]"));
+                           XPath => "*[self::memory or self::ioPort or self::rom]"));
                   begin
                      if Res_Count /= Config_Bars then
                         Validation_Errors.Insert
@@ -720,7 +720,7 @@ is
                     (Nodes     =>
                        McKae.XML.XPath.XIA.XPath_Query
                          (N     => Config,
-                          XPath => "port"),
+                          XPath => "ioPort"),
                      Attr_Name => "ref",
                      Error_Msg => "PCI device '" & Dev_Name
                      & "' BAR config IO port reference not unique.");
@@ -764,7 +764,7 @@ is
    begin
       For_Each_Match
         (XML_Data     => XML_Data,
-         Source_XPath => "//pci/bars/*[self::memory or self::port or self::rom]",
+         Source_XPath => "//pci/bars/*[self::memory or self::ioPort or self::rom]",
          Ref_XPath    => "/system/hardware/devices/device/*"
          & "[self::memory or self::ioPort]",
          Log_Message  => "BAR config references",

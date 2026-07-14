@@ -135,7 +135,7 @@ is
       BAR_Config : constant DOM.Core.Node
         := Muxml.Utils.Get_Element
           (Doc   => Physical_Dev,
-           XPath => "pci/bars/port[@ref='" & Phys_Port_Name & "']");
+           XPath => "pci/bars/ioPort[@ref='" & Phys_Port_Name & "']");
       BAR_Idx : constant Musinfo.BAR_Range
         := Musinfo.BAR_Range'Value
           (DOM.Core.Elements.Get_Attribute
