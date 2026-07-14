@@ -153,29 +153,29 @@
   <xs:attribute name="index" type="barIndexType" use="required">
    <xs:annotation>
     <xs:documentation>
-     BAR index.
+     PCI Base Address Register index.
     </xs:documentation>
    </xs:annotation>
   </xs:attribute>
   <xs:attribute name="ref" type="nameType" use="required">
    <xs:annotation>
     <xs:documentation>
-     Reference to device mmio region.
+     Reference to device memory resource.
     </xs:documentation>
    </xs:annotation>
   </xs:attribute>
   <xs:attribute name="prefetchable" type="booleanType" use="required">
    <xs:annotation>
     <xs:documentation>
-     Whether the mmio region is prefetchable.
+     Indicates whether the device memory region is prefetchable.
     </xs:documentation>
    </xs:annotation>
   </xs:attribute>
   <xs:attribute name="is64bit" type="booleanType" use="required">
    <xs:annotation>
     <xs:documentation>
-     Whether the mmio region can be located anywhere in 64-bit
-     address space.
+     Indicates whether the device memory region can be located anywhere
+     in the 64-bit address space.
     </xs:documentation>
    </xs:annotation>
   </xs:attribute>
@@ -190,7 +190,7 @@
   <xs:attribute name="index" type="barIndexType" use="required">
    <xs:annotation>
     <xs:documentation>
-     BAR index.
+     PCI Base Address Register index.
     </xs:documentation>
    </xs:annotation>
   </xs:attribute>
