@@ -334,7 +334,7 @@ package body Sinfo.Interop.Test_Data.Tests is
 
       pragma Unreferenced (Gnattest_T);
 
-      Dummy : Musinfo.Device_IO_Port_Type := Musinfo.Null_IO_Port;
+      Dummy : Musinfo.Device_IO_Port_Type := Musinfo.Null_Device_IO_Port;
    begin
       Assert (Condition => C_Imports.C_Assert_Device_IO_Port_Type
               (Size           => Musinfo.Device_IO_Port_Type'Size / 8,
