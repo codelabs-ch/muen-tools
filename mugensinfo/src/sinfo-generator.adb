@@ -320,8 +320,8 @@ is
         := Get_PCI_Reset_Method (Physical_Dev => Physical_Dev);
       Identification : constant DOM.Core.Node
         := Muxml.Utils.Get_Element
-             (Doc   => Physical_Dev,
-              XPath => "pci/identification");
+          (Doc   => Physical_Dev,
+           XPath => "pci/identification");
       Vendor_ID : constant Musinfo.Vendor_ID_Type
         := Musinfo.Vendor_ID_Type'Value
           (DOM.Core.Elements.Get_Attribute
