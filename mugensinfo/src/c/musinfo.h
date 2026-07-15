@@ -122,7 +122,7 @@ struct muen_device_type {
 } __attribute__ ((packed, aligned(8)));
 
 struct muen_bar_config_type {
-	uint8_t iomem_flags;
+	uint8_t io_mem_flags;
 	uint8_t bar_idx;
 	char padding[3];
 	uint64_t bar_address;

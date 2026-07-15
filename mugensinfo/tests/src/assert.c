@@ -417,12 +417,12 @@ int assert_device_memory(const struct muen_devmem_type *const mem)
 		return 0;
 	}
 
-	if (!(mem->bar_config.iomem_flags & DEVMEM_PREFETCHABLE_FLAG))
+	if (!(mem->bar_config.io_mem_flags & DEVMEM_PREFETCHABLE_FLAG))
 	{
 		printf("Devmem: Prefetchable flag not set\n");
 		return 0;
 	}
-	if (!(mem->bar_config.iomem_flags & DEVMEM_64BIT_FLAG))
+	if (!(mem->bar_config.io_mem_flags & DEVMEM_64BIT_FLAG))
 	{
 		printf("Devmem: 64-bit flag not set\n");
 		return 0;
@@ -517,10 +517,10 @@ int assert_device_memory_type(const int size, const int sid_offset,
 		return 0;
 	}
 
-	if (offsetof(struct muen_bar_config_type, iomem_flags) != iomem_flags_offset)
+	if (offsetof(struct muen_bar_config_type, io_mem_flags) != iomem_flags_offset)
 	{
 		printf("Devmem: Invalid 'iomem_flags' offset %d /= %d\n", iomem_flags_offset,
-				offsetof(struct muen_bar_config_type, iomem_flags));
+				offsetof(struct muen_bar_config_type, io_mem_flags));
 		return 0;
 	}
 
