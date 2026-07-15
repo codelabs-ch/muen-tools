@@ -133,11 +133,17 @@
 
     };
 
-    amba-soc@31000000 {
+    amba-soc@30004000 {
         compatible = "simple-bus";
         #address-cells = <0x2>;
         #size-cells = <0x2>;
         ranges = <0x00000000 0x00000000 0x00000000 0x00000000 0x00000000 0x31050000>;
+
+        vrtc@30004000 {
+            compatible = "muen,rtc-chip-v0.1";
+            reg = <0x00000000 0x30004000 0x00000000 0x00001000>;
+            status = "okay";
+        };
 
         serial_0: uart0@31000000 {
             compatible = "cdns,uart-r1p12", "xlnx,xuartps";

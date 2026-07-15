@@ -52,104 +52,157 @@ is
       SoC_Buffer : Unbounded_String;
       SoC_First  : Unsigned_64 := Unsigned_64'Last;
       SoC_Last   : Unsigned_64 := 16#0#;
+
+      --  Update the address range of the SoC bus according to the given
+      --  device range. If the address range of the device is already inside
+      --  the current SoC address range, no changes are required.
+      procedure Update_Entry
+        (Device_Entry : in out Unbounded_String;
+         Device_Range :        DTS_Range_Type);
+
+      ----------------------------------------------------------------------
+
+      procedure Update_Entry
+        (Device_Entry : in out Unbounded_String;
+         Device_Range :        DTS_Range_Type)
+      is
+      begin
+         if Length (Device_Entry) /= 0 then
+            if Device_Range.Base < SoC_First then
+               SoC_First := Device_Range.Base;
+            end if;
+
+            if
+              SoC_Last < Device_Range.Base +
+                Device_Range.Size
+            then
+               SoC_Last := Device_Range.Base +
+                 Device_Range.Size;
+            end if;
+
+            Block_Indent (Block     => Device_Entry,
+                          N         => 2,
+                          Unit_Size => 4);
+            Append (Source   => SoC_Buffer,
+                    New_Item => ASCII.LF & Device_Entry);
+         end if;
+      end Update_Entry;
+
    begin
       GPIO_Support := False;
 
       for I in SoC_Device_Type'Range loop
-         declare
-            --  (1) extract all physical devices with the currently
-            --  investigated SoC capability
-            Physical_SoC_Dev : constant DOM.Core.Node_List
-              := McKae.XML.XPath.XIA.XPath_Query
-                (N     => Policy.Doc,
-                 XPath => "/system/hardware/devices/device" &
-                   "[capabilities/capability/@name='" & Ada.Characters.
-                   Handling.To_Lower (SoC_Device_Type'Image (I)) & "']");
-         begin
-            for K in 0 .. DOM.Core.Nodes.Length (Physical_SoC_Dev) - 1 loop
-               declare
-                  --  (2) check if SoC device is used by subject and extract
-                  --  the virtual device node
-                  Virtual_SoC_Dev : constant DOM.Core.Node_List
-                    := McKae.XML.XPath.XIA.XPath_Query
-                      (N     => Subject,
-                       XPath => "devices/device[@physical='" & DOM.Core.
-                         Elements.Get_Attribute
-                           (Elem => DOM.Core.Nodes.Item
-                              (List  => Physical_SoC_Dev,
-                               Index => K),
-                            Name => "name") & "']");
+         if I = RTC then
+            declare
+               --  (1) extract all virtual memory regions with logical name
+               --  'time_info' indicating a virtual RTC device
+               Virtual_Memory : constant DOM.Core.Node_List
+                 := McKae.XML.XPath.XIA.XPath_Query
+                   (N     => Subject,
+                    XPath => "memory/memory[@logical='time_info']");
 
-                  Virtual_Dev_Entry : Unbounded_String;
-                  Virtual_Dev_Range : DTS_Range_Type;
-               begin
-                  if DOM.Core.Nodes.Length (Virtual_SoC_Dev) = 1 then
-                     case I is
-                        when GPIO  =>
-                           --  GPIO is the first entry in SoC_Device_Type
-                           --  and therefore the GPIO_Support variable is
-                           --  set correctly for all other devices
-                           GPIO_Support := True;
-                           Generate_GPIO_Node (Policy    => Policy,
-                                               Device    => DOM.Core.Nodes.Item
-                                                 (List  => Virtual_SoC_Dev,
-                                                  Index => 0),
-                                               DTS_Entry => Virtual_Dev_Entry,
-                                               DTS_Range => Virtual_Dev_Range);
-                        when I2C  =>
-                           Generate_I2C_Node (Policy    => Policy,
-                                              Device    => DOM.Core.Nodes.Item
-                                                (List  => Virtual_SoC_Dev,
-                                                 Index => 0),
-                                              DTS_Entry => Virtual_Dev_Entry,
-                                              DTS_Range => Virtual_Dev_Range);
-                        when NIC  =>
-                           Generate_NIC_Node (Policy    => Policy,
-                                              Device    => DOM.Core.Nodes.Item
-                                                (List  => Virtual_SoC_Dev,
-                                                 Index => 0),
-                                              DTS_Entry => Virtual_Dev_Entry,
-                                              DTS_Range => Virtual_Dev_Range);
-                        when UART =>
-                           Generate_UART_Node (Policy    => Policy,
-                                               Device    => DOM.Core.Nodes.Item
-                                                 (List  => Virtual_SoC_Dev,
-                                                  Index => 0),
-                                               DTS_Entry => Virtual_Dev_Entry,
-                                               DTS_Range => Virtual_Dev_Range);
-                           UART_Device_Counter := UART_Device_Counter + 1;
-                        when USB  =>
-                           Generate_USB_Node (Policy    => Policy,
-                                              Device    => DOM.Core.Nodes.Item
-                                                (List  => Virtual_SoC_Dev,
-                                                 Index => 0),
-                                              DTS_Entry => Virtual_Dev_Entry,
-                                              DTS_Range => Virtual_Dev_Range);
-                     end case;
+               Virtual_Dev_Entry : Unbounded_String;
+               Virtual_Dev_Range : DTS_Range_Type;
+            begin
+               if DOM.Core.Nodes.Length (Virtual_Memory) = 1 then
+                  Generate_RTC_Node (Policy    => Policy,
+                                     Memory    => DOM.Core.Nodes.Item
+                                       (List  => Virtual_Memory,
+                                        Index => 0),
+                                     DTS_Entry => Virtual_Dev_Entry,
+                                     DTS_Range => Virtual_Dev_Range);
+                  Update_Entry
+                    (Device_Entry => Virtual_Dev_Entry,
+                     Device_Range => Virtual_Dev_Range);
+               end if;
+            end;
+         else
+            declare
+               --  (1) extract all physical devices with the currently
+               --  investigated SoC capability
+               Physical_SoC_Dev : constant DOM.Core.Node_List
+                 := McKae.XML.XPath.XIA.XPath_Query
+                   (N     => Policy.Doc,
+                    XPath => "/system/hardware/devices/device" &
+                      "[capabilities/capability/@name='" & Ada.Characters.
+                      Handling.To_Lower (SoC_Device_Type'Image (I)) & "']");
+            begin
+               for K in 0 .. DOM.Core.Nodes.Length (Physical_SoC_Dev) - 1 loop
+                  declare
+                     --  (2) check if SoC device is used by subject and extract
+                     --  the virtual device node
+                     Virtual_SoC_Dev : constant DOM.Core.Node_List
+                       := McKae.XML.XPath.XIA.XPath_Query
+                         (N     => Subject,
+                          XPath => "devices/device[@physical='" & DOM.Core.
+                            Elements.Get_Attribute
+                              (Elem => DOM.Core.Nodes.Item
+                                 (List  => Physical_SoC_Dev,
+                                  Index => K),
+                               Name => "name") & "']");
 
-                     if Length (Virtual_Dev_Entry) /= 0 then
-                        if Virtual_Dev_Range.Base < SoC_First then
-                           SoC_First := Virtual_Dev_Range.Base;
-                        end if;
+                     Virtual_Dev_Entry : Unbounded_String;
+                     Virtual_Dev_Range : DTS_Range_Type;
+                  begin
+                     if DOM.Core.Nodes.Length (Virtual_SoC_Dev) = 1 then
+                        case I is
+                           when GPIO  =>
+                              --  GPIO is the first entry in SoC_Device_Type
+                              --  and therefore the GPIO_Support variable is
+                              --  set correctly for all other devices
+                              GPIO_Support := True;
+                              Generate_GPIO_Node
+                                (Policy    => Policy,
+                                 Device    => DOM.Core.Nodes.Item
+                                   (List  => Virtual_SoC_Dev,
+                                    Index => 0),
+                                 DTS_Entry => Virtual_Dev_Entry,
+                                 DTS_Range => Virtual_Dev_Range);
+                           when I2C  =>
+                              Generate_I2C_Node
+                                (Policy    => Policy,
+                                 Device    => DOM.Core.Nodes.Item
+                                   (List  => Virtual_SoC_Dev,
+                                    Index => 0),
+                                 DTS_Entry => Virtual_Dev_Entry,
+                                 DTS_Range => Virtual_Dev_Range);
+                           when NIC  =>
+                              Generate_NIC_Node
+                                (Policy    => Policy,
+                                 Device    => DOM.Core.Nodes.Item
+                                   (List  => Virtual_SoC_Dev,
+                                    Index => 0),
+                                 DTS_Entry => Virtual_Dev_Entry,
+                                 DTS_Range => Virtual_Dev_Range);
+                           when RTC  =>
+                              null;
+                           when UART =>
+                              Generate_UART_Node
+                                (Policy    => Policy,
+                                 Device    => DOM.Core.Nodes.Item
+                                   (List  => Virtual_SoC_Dev,
+                                    Index => 0),
+                                 DTS_Entry => Virtual_Dev_Entry,
+                                 DTS_Range => Virtual_Dev_Range);
+                              UART_Device_Counter := UART_Device_Counter + 1;
+                           when USB  =>
+                              Generate_USB_Node
+                                (Policy    => Policy,
+                                 Device    => DOM.Core.Nodes.Item
+                                   (List  => Virtual_SoC_Dev,
+                                    Index => 0),
+                                 DTS_Entry => Virtual_Dev_Entry,
+                                 DTS_Range => Virtual_Dev_Range);
+                        end case;
 
-                        if
-                          SoC_Last < Virtual_Dev_Range.Base +
-                            Virtual_Dev_Range.Size
-                        then
-                           SoC_Last := Virtual_Dev_Range.Base +
-                             Virtual_Dev_Range.Size;
-                        end if;
-
-                        Block_Indent (Block     => Virtual_Dev_Entry,
-                                      N         => 2,
-                                      Unit_Size => 4);
-                        Append (Source   => SoC_Buffer,
-                                New_Item => ASCII.LF & Virtual_Dev_Entry);
+                        Update_Entry
+                          (Device_Entry => Virtual_Dev_Entry,
+                           Device_Range => Virtual_Dev_Range);
                      end if;
-                  end if;
-               end;
-            end loop;
-         end;
+                  end;
+               end loop;
+            end;
+         end if;
       end loop;
 
       UART_Device_Counter := 0;
@@ -359,10 +412,11 @@ is
 
       Register_Entry : Unbounded_String;
    begin
-      DTS_Range_Register_Entry (Policy    => Policy,
-                          Device    => Device,
-                          DTS_Entry => Register_Entry,
-                          DTS_Range => DTS_Range);
+      DTS_Range_Register_Entry
+        (Policy    => Policy,
+         Device    => Device,
+         DTS_Entry => Register_Entry,
+         DTS_Range => DTS_Range);
 
       Mutools.Templates.Replace
         (Template => Template,
@@ -417,6 +471,86 @@ is
       Append (Source   => DTS_Entry,
               New_Item => Mutools.Templates.To_String (Template => Template));
    end Generate_NIC_Node;
+
+   -------------------------------------------------------------------------
+
+   procedure Generate_RTC_Node
+     (Policy    :     Muxml.XML_Data_Type;
+      Memory    :     DOM.Core.Node;
+      DTS_Entry : out Unbounded_String;
+      DTS_Range : out DTS_Range_Type)
+   is
+      Template : Mutools.Templates.Template_Type
+        := Mutools.Templates.Create
+          (Content => String_Templates.xilinx_rtc_dsl);
+
+      --  (1) set the physical device name statically.
+      Physical_Device_Name : constant String
+        := "vrtc";
+
+      --  (2) extract the physical memory node that maps to the virtual
+      --  memory node with 'logical="time_info"'.
+      Physical_Memory : constant DOM.Core.Node_List
+        := McKae.XML.XPath.XIA.XPath_Query
+          (N     => Policy.Doc,
+           XPath => "/system/memory/memory[@name='" &
+             DOM.Core.Elements.Get_Attribute
+               (Elem => Memory,
+                Name => "physical") & "']");
+
+      Register_Range : DTS_Range_Type
+      := (Base => 16#0000_0000_0000_0000#,
+          Size => 16#0000_0000_0000_0000#);
+   begin
+      if DOM.Core.Nodes.Length (Physical_Memory) = 1 then
+         declare
+            Physical_Size : constant Unsigned_64
+              := Unsigned_64'Value
+                (DOM.Core.Elements.Get_Attribute
+                   (Elem => DOM.Core.Nodes.Item
+                      (List  => Physical_Memory,
+                       Index => 0),
+                    Name => "size"));
+            Virtual_Base : constant Unsigned_64
+              := Unsigned_64'Value
+                (DOM.Core.Elements.Get_Attribute
+                   (Elem => Memory,
+                    Name => "virtualAddress"));
+         begin
+            Register_Range.Base := Virtual_Base;
+            Register_Range.Size := Physical_Size;
+         end;
+      end if;
+
+      DTS_Range := Register_Range;
+
+      --  The device does not require an alias at the moment. To still be able
+      --  to use the official Linux devicetree format for the template, the
+      --  '__rtc_bus_alias__' is statically replaced with an empty string.
+      Mutools.Templates.Replace
+        (Template => Template,
+         Pattern  => "__rtc_bus_alias__",
+         Content  => "");
+      Mutools.Templates.Replace
+        (Template => Template,
+         Pattern  => "__rtc_bus_name__",
+         Content  => Ada.Characters.Handling.To_Lower (Physical_Device_Name));
+      Mutools.Templates.Replace
+        (Template => Template,
+         Pattern  => "__rtc_bus_base__",
+         Content  => Mutools.Utils.To_Hex
+           (Number     => DTS_Range.Base,
+            Normalize  => False,
+            Byte_Short => False));
+      Mutools.Templates.Replace
+        (Template => Template,
+         Pattern  => "__rtc_registers__",
+         Content  => "reg = <" & To_DTS_Cell (Register_Range.Base) & " " &
+           To_DTS_Cell (Register_Range.Size) & ">;");
+
+      Append (Source   => DTS_Entry,
+              New_Item => Mutools.Templates.To_String (Template => Template));
+   end Generate_RTC_Node;
 
    -------------------------------------------------------------------------
 

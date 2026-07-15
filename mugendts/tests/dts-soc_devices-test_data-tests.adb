@@ -20,6 +20,7 @@ with McKae.XML.XPath.XIA;
 with DOM.Core.Nodes;
 
 with Mutools.Templates;
+with Muxml.Utils;
 
 --  begin read only
 --  end read only
@@ -436,6 +437,61 @@ package body DTS.SoC_Devices.Test_Data.Tests is
 
 --  begin read only
    end Test_Generate_NIC_Node;
+--  end read only
+
+
+--  begin read only
+   procedure Test_Generate_RTC_Node (Gnattest_T : in out Test);
+   procedure Test_Generate_RTC_Node_6dc2e1 (Gnattest_T : in out Test) renames Test_Generate_RTC_Node;
+--  id:2.2/6dc2e11dc3ba19ee/Generate_RTC_Node/1/0/
+   procedure Test_Generate_RTC_Node (Gnattest_T : in out Test) is
+--  end read only
+
+      pragma Unreferenced (Gnattest_T);
+
+      Expected_Entry : constant String
+        := "vrtc@30004000 {" & ASCII.LF &
+        "    compatible = ""muen,rtc-chip-v0.1"";" & ASCII.LF &
+        "    reg = <0x00000000 0x30004000 0x00000000 0x00001000>;" & ASCII.LF &
+        "    status = ""okay"";" & ASCII.LF &
+        "};" & ASCII.LF;
+
+      Policy   : Muxml.XML_Data_Type;
+      RTC_Mem  : DOM.Core.Node;
+
+      Actual_Entry : Unbounded_String;
+      Actual_Range : DTS_Range_Type;
+   begin
+      --  (1) parse test policy
+      Muxml.Parse (Data => Policy,
+                   Kind => Muxml.Format_B,
+                   File => "data/test_policy_full.xml");
+
+      --  (2) extract memory node for virtual RTC device node directly
+      RTC_Mem := Muxml.Utils.Get_Element
+        (Doc   => Policy.Doc,
+         XPath => "/system/subjects/subject[@globalId='0']/" &
+           "memory/memory[@logical='time_info']");
+
+      --  (3) test the RTC device entry
+      Generate_RTC_Node (Policy    => Policy,
+                         Memory    => RTC_Mem,
+                         DTS_Entry => Actual_Entry,
+                         DTS_Range => Actual_Range);
+
+      Assert (Actual   => To_String (Actual_Entry),
+              Expected => Expected_Entry,
+              Message  =>
+                "wrong node entry for RTC test data");
+      Assert (Condition => Actual_Range.Base = 16#0000_0000_3000_4000#,
+              Message   =>
+                "wrong register range base for RTC test data");
+      Assert (Condition => Actual_Range.Size = 16#0000_0000_0000_1000#,
+              Message   =>
+                "wrong register range size for RTC test data");
+
+--  begin read only
+   end Test_Generate_RTC_Node;
 --  end read only
 
 

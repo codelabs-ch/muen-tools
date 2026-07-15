@@ -146,6 +146,14 @@
     <capability name="nic"/>
    </capabilities>
   </device>
+  <device name="RTC">
+   <irq name="irq1" number="58"/>
+   <irq name="irq2" number="59"/>
+   <memory caching="UC" name="mem" physicalAddress="16#ffa6_0000#" size="16#1000#"/>
+   <capabilities>
+    <capability name="rtc"/>
+   </capabilities>
+  </device>
  </devices>
 </hardware>
 <platform>
@@ -252,6 +260,9 @@
  </memory>
  <memory alignment="16#1000#" caching="WB" name="lnx2|sinfo" physicalAddress="16#0051_0000#" size="16#9000#" type="subject_info">
     <file filename="sinfo_linux_two.bin" offset="none"/>
+ </memory>
+ <memory alignment="16#1000#" caching="WB" name="time_info" physicalAddress="16#0052_0000#" size="16#1000#" type="subject_channel">
+  <fill pattern="16#00#"/>
  </memory>
  <!--  These regions are only here to satisfy the validator -->
  <memory alignment="16#1000#" caching="WB" name="kernel_interrupt_stack_0" physicalAddress="16#003f_f000#" size="16#1000#" type="kernel">
@@ -406,6 +417,7 @@
    <memory logical="log_channel_reader" physical="ringlogger_string_reverser" virtualAddress="16#3105_2000#" writable="false" executable="false"/>
    <memory logical="lnx_channel_writer" physical="lnx_channel_out" virtualAddress="16#3105_3000#" writable="true" executable="false"/>
    <memory logical="sinfo" physical="lnx1|sinfo" virtualAddress="16#000e_0000_0000#" writable="false" executable="false"/>
+   <memory logical="time_info" physical="time_info" virtualAddress="16#3000_4000#" writable="false" executable="false"/>
   </memory>
   <devices>
    <device logical="vgic" physical="APU_GIC">
