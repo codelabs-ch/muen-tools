@@ -231,11 +231,11 @@ is
              (Doc   => Physical_Dev,
               XPath => "pci/bars/rom[@ref='" & Phys_Mem_Name & "']");
          if BAR_Config /= null then
-            BAR_Idx := 6;
+            BAR_Idx := Musinfo.Expansion_ROM_BAR_Idx;
          else
 
             --  No BAR config, mmconf.
-            BAR_Idx          := 7;
+            BAR_Idx          := Musinfo.No_BAR_Config;
             Physical_Address := 0;
          end if;
       else
@@ -260,10 +260,10 @@ is
          & ", size " & Mutools.Utils.To_Hex (Number => Size) & ", "
          & (if Writable   then "writable" else "read-only") & ", "
          & (if Executable then "executable" else "non-executable")
-         & (if BAR_Idx = 6 then " [expansion ROM & "
+         & (if BAR_Idx = Musinfo.Expansion_ROM_BAR_Idx then " [expansion ROM @ "
              & Mutools.Utils.To_Hex (Number => Physical_Address)
              & "]"
-            elsif BAR_Idx <= 5 then
+            elsif BAR_Idx in Musinfo.BAR_Range then
              " [BAR" & Ada.Strings.Fixed.Trim (BAR_Idx'Img, Ada.Strings.Left)
              & " @ " & Mutools.Utils.To_Hex (Number => Physical_Address)
              & ", prefetchable " & Prefetchable'Img
