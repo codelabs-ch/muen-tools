@@ -127,15 +127,16 @@ is
        Link_Name  => "assert_resource_type";
 
    function C_Assert_Device_Type
-     (Size              : Interfaces.C.int;
-      SID_Offset        : Interfaces.C.int;
-      Vendor_ID_Offset  : Interfaces.C.int;
-      Device_ID_Offset  : Interfaces.C.int;
-      Class_Code_Offset : Interfaces.C.int;
-      IRTE_Start_Offset : Interfaces.C.int;
-      IRQ_Start_Offset  : Interfaces.C.int;
-      IR_Count_Offset   : Interfaces.C.int;
-      Flags_Offset      : Interfaces.C.int)
+     (Size                : Interfaces.C.int;
+      SID_Offset          : Interfaces.C.int;
+      Vendor_ID_Offset    : Interfaces.C.int;
+      Device_ID_Offset    : Interfaces.C.int;
+      Class_Code_Offset   : Interfaces.C.int;
+      IRTE_Start_Offset   : Interfaces.C.int;
+      IRQ_Start_Offset    : Interfaces.C.int;
+      IR_Count_Offset     : Interfaces.C.int;
+      Flags_Offset        : Interfaces.C.int;
+      Reset_Method_Offset : Interfaces.C.int)
       return Interfaces.C.int
      with
        Import     => True,

@@ -319,7 +319,7 @@ int assert_device_type(const int size,
 		const int sid_offset, const int vendor_id_offset, const int device_id_offset,
 		const int class_code_offset, const int irte_start_offset,
 		const int irq_start_offset, const int ir_count_offset,
-		const int flags_offset)
+		const int flags_offset, const int reset_method_offset)
 {
 	if (sizeof(struct muen_device_type) != size)
 	{
@@ -384,6 +384,14 @@ int assert_device_type(const int size,
 		printf("Dev: Invalid 'flags' offset %d /= %d\n",
 				flags_offset,
 				offsetof(struct muen_device_type, flags));
+		return 0;
+	}
+
+	if (offsetof(struct muen_device_type, reset_method) != reset_method_offset)
+	{
+		printf("Dev: Invalid 'reset_method' offset %d /= %d\n",
+				reset_method_offset,
+				offsetof(struct muen_device_type, reset_method));
 		return 0;
 	}
 

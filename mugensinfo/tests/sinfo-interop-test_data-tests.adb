@@ -282,15 +282,16 @@ package body Sinfo.Interop.Test_Data.Tests is
    begin
       Assert
         (Condition => C_Imports.C_Assert_Device_Type
-           (Size              => Musinfo.Device_Type'Size / 8,
-            SID_Offset        => Ref_Dev.Dev_Data.SID'Bit_Position / 8,
-            Vendor_ID_Offset  => Ref_Dev.Dev_Data.Vendor_Id'Bit_Position / 8,
-            Device_ID_Offset  => Ref_Dev.Dev_Data.Device_ID'Bit_Position / 8,
-            Class_Code_Offset => Ref_Dev.Dev_Data.Class_Code'Bit_Position / 8,
-            IRTE_Start_Offset => Ref_Dev.Dev_Data.IRTE_Start'Bit_Position / 8,
-            IRQ_Start_Offset  => Ref_Dev.Dev_Data.IRQ_Start'Bit_Position / 8,
-            IR_Count_Offset   => Ref_Dev.Dev_Data.IR_Count'Bit_Position / 8,
-            Flags_Offset      => Ref_Dev.Dev_Data.Flags'Bit_Position / 8) = 1,
+           (Size                => Musinfo.Device_Type'Size / 8,
+            SID_Offset          => Ref_Dev.Dev_Data.SID'Bit_Position / 8,
+            Vendor_ID_Offset    => Ref_Dev.Dev_Data.Vendor_Id'Bit_Position / 8,
+            Device_ID_Offset    => Ref_Dev.Dev_Data.Device_ID'Bit_Position / 8,
+            Class_Code_Offset   => Ref_Dev.Dev_Data.Class_Code'Bit_Position / 8,
+            IRTE_Start_Offset   => Ref_Dev.Dev_Data.IRTE_Start'Bit_Position / 8,
+            IRQ_Start_Offset    => Ref_Dev.Dev_Data.IRQ_Start'Bit_Position / 8,
+            IR_Count_Offset     => Ref_Dev.Dev_Data.IR_Count'Bit_Position / 8,
+            Flags_Offset        => Ref_Dev.Dev_Data.Flags'Bit_Position / 8,
+            Reset_Method_Offset => Ref_Dev.Dev_Data.Reset_Method'Bit_Position / 8) = 1,
          Message   => "C device type mismatch");
 --  begin read only
    end Test_Check_Device_Type;
