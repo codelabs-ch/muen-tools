@@ -100,6 +100,7 @@ is
       Check_Procs.Register
         (Process => Subject_Monitor_Loader_Addresses'Access);
       Check_Procs.Register (Process => Subject_Muinit_Loader_Presence'Access);
+      Check_Procs.Register (Process => Subject_Muinit_PCI_Dev_Reset'Access);
       Check_Procs.Register (Process => Subject_Channel_References'Access);
       Check_Procs.Register (Process => Subject_Sibling_Bootparams'Access);
       Check_Procs.Register (Process => Subject_Sibling_Memory'Access);

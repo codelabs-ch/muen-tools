@@ -70,6 +70,12 @@ is
    --  correctly configured, i.e. have a loader self reference.
    procedure Subject_Muinit_Loader_Presence (XML_Data : Muxml.XML_Data_Type);
 
+   --  Check that subjects configured for initialization via Muinit with
+   --  assigned PCI devices providing supported reset methods have mmconf
+   --  regions mapped. Otherwise device reset and therefore init code will
+   --  fail.
+   procedure Subject_Muinit_PCI_Dev_Reset (XML_Data : Muxml.XML_Data_Type);
+
    --  Check that each channel has exactly one reader and one writer.
    procedure Channel_Reader_Writer (XML_Data : Muxml.XML_Data_Type);
 

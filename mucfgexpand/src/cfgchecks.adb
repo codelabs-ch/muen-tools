@@ -97,10 +97,6 @@ is
       Attr_Name   : String;
       Description : String);
 
-   --  Returns True if the left node's 'ref' attribute matches the 'name'
-   --  attribute of the right node.
-   function Match_Ref_Name (Left, Right : DOM.Core.Node) return Boolean;
-
    -------------------------------------------------------------------------
 
    procedure Channel_Reader_Has_Event_Vector (XML_Data : Muxml.XML_Data_Type)
@@ -1236,7 +1232,7 @@ is
          Ref_XPath    => "/system/components/library",
          Log_Message  => "component library reference(s)",
          Error        => Error_Msg'Access,
-         Match        => Match_Ref_Name'Access);
+         Match        => Mutools.Match.Is_Valid_Ref_Name'Access);
    end Component_Library_References;
 
    -------------------------------------------------------------------------
@@ -1697,7 +1693,7 @@ is
          Ref_XPath    => "/system/hardware/memory/reservedMemory",
          Log_Message  => "reserved memory region reference(s)",
          Error        => Error_Msg'Access,
-         Match        => Match_Ref_Name'Access);
+         Match        => Mutools.Match.Is_Valid_Ref_Name'Access);
    end Hardware_Reserved_Memory_Region_References;
 
    -------------------------------------------------------------------------
@@ -1714,20 +1710,6 @@ is
          Attr_Name   => "name",
          Description => "library");
    end Library_Name_Uniqueness;
-
-   -------------------------------------------------------------------------
-
-   function Match_Ref_Name (Left, Right : DOM.Core.Node) return Boolean
-   is
-      Ref  : constant String := DOM.Core.Elements.Get_Attribute
-        (Elem => Left,
-         Name => "ref");
-      Name : constant String := DOM.Core.Elements.Get_Attribute
-        (Elem => Right,
-         Name => "name");
-   begin
-      return Ref = Name;
-   end Match_Ref_Name;
 
    ----------------------------------------------------------------------
 
@@ -1855,7 +1837,7 @@ is
          Ref_XPath    => "/system/components/component",
          Log_Message  => "subject component reference(s)",
          Error        => Error_Msg'Access,
-         Match        => Match_Ref_Name'Access);
+         Match        => Mutools.Match.Is_Valid_Ref_Name'Access);
    end Subject_Component_References;
 
    -------------------------------------------------------------------------
@@ -2494,6 +2476,86 @@ is
 
    -------------------------------------------------------------------------
 
+   procedure Subject_Muinit_PCI_Dev_Reset (XML_Data : Muxml.XML_Data_Type)
+   is
+      --  For now only FLR reset is supported and therefore checked.
+      Phys_Devs : constant DOM.Core.Node_List
+        := McKae.XML.XPath.XIA.XPath_Query
+           (N     => XML_Data.Doc,
+            XPath => "/system/hardware/devices/device/capabilities/capability"
+            & "[@name='pci_reset_method' and text()='flr']/../..");
+      Log_Devs : constant DOM.Core.Node_List
+        := McKae.XML.XPath.XIA.XPath_Query
+           (N     => XML_Data.Doc,
+            XPath => "/system/subjects/subject/memory/memory"
+            & "[@logical='muinit']/../../devices/device");
+      Devs : constant Muxml.Utils.Matching_Pairs_Type
+        := Muxml.Utils.Get_Matching
+           (Left_Nodes  => Log_Devs,
+            Right_Nodes => Phys_Devs,
+            Match       => Mutools.Match.Is_Valid_Reference'Access);
+      Log_Dev_Count : constant Natural := DOM.Core.Nodes.Length
+         (List => Devs.Left);
+   begin
+      for I in 0 .. Log_Dev_Count - 1 loop
+         declare
+            use type DOM.Core.Node;
+
+            Log_Dev : constant DOM.Core.Node
+              := DOM.Core.Nodes.Item
+                 (List  => Devs.Left,
+                  Index => I);
+            Subj : constant DOM.Core.Node
+              := Muxml.Utils.Ancestor_Node
+                 (Node  => Log_Dev,
+                  Level => 2);
+            Subj_Name : constant String
+              := DOM.Core.Elements.Get_Attribute
+                 (Elem => Subj,
+                  Name => "name");
+            Muinit_Mem : constant DOM.Core.Node
+              := Muxml.Utils.Get_Element
+                 (Doc   => Subj,
+                  XPath => "memory/memory[@logical='muinit']");
+         begin
+            if Muinit_Mem /= null then
+               declare
+                  Phys_Dev : constant DOM.Core.Node
+                    := DOM.Core.Nodes.Item
+                       (List  => Devs.Right,
+                        Index => I);
+                  Phys_Dev_Name : constant String
+                    := DOM.Core.Elements.Get_Attribute
+                       (Elem => Phys_Dev,
+                        Name => "name");
+                  Phys_Dev_Mem : constant DOM.Core.Node_List
+                    := McKae.XML.XPath.XIA.XPath_Query
+                       (N     => Phys_Dev,
+                        XPath => "memory[@name='mmconf']");
+                  Log_Dev_Mem : constant DOM.Core.Node_List
+                    := McKae.XML.XPath.XIA.XPath_Query
+                       (N     => Log_Dev,
+                        XPath => "memory");
+                  Nodes : constant Muxml.Utils.Matching_Pairs_Type
+                    := Muxml.Utils.Get_Matching
+                       (Left_Nodes  => Log_Dev_Mem,
+                        Right_Nodes => Phys_Dev_Mem,
+                        Match       => Mutools.Match.Is_Valid_Reference'Access);
+               begin
+                  if DOM.Core.Nodes.Length (List => Nodes.Left) = 0 then
+                     Mucfgcheck.Validation_Errors.Insert
+                       (Msg => "Subject '" & Subj_Name & "' uses muinit and "
+                        & "maps reset-capable PCI device '" & Phys_Dev_Name
+                        & "' but does not map mmconf region");
+                  end if;
+               end;
+            end if;
+         end;
+      end loop;
+   end Subject_Muinit_PCI_Dev_Reset;
+
+   -------------------------------------------------------------------------
+
    procedure Subject_Resource_Maps_Logical_Uniqueness
      (XML_Data : Muxml.XML_Data_Type)
    is
@@ -2741,7 +2803,7 @@ is
          Ref_XPath    => "/system/subjects/subject[not(sibling)]",
          Log_Message  => "subject sibling reference(s)",
          Error        => Error_Msg'Access,
-         Match        => Match_Ref_Name'Access);
+         Match        => Mutools.Match.Is_Valid_Ref_Name'Access);
    end Subject_Sibling_References;
 
    -------------------------------------------------------------------------

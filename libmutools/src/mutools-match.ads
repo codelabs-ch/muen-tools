@@ -36,4 +36,8 @@ is
    --  attribute matches the right node's parent 'name' attribute.
    function Is_Valid_Resource_Ref (Left, Right : DOM.Core.Node) return Boolean;
 
+   --  Returns True if the left node's 'ref' attribute matches the 'name'
+   --  attribute of the right node.
+   function Is_Valid_Ref_Name (Left, Right : DOM.Core.Node) return Boolean;
+
 end Mutools.Match;

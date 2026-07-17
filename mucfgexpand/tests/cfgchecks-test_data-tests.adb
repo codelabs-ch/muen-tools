@@ -796,9 +796,9 @@ package body Cfgchecks.Test_Data.Tests is
       Subject_Muinit_Loader_Presence (XML_Data => Policy);
       Assert (Condition => Mucfgcheck.Validation_Errors.Is_Empty,
               Message   => "Unexpected error in positive test (1)");
-      
+
       --  Missing Muinit memory mapping.
-      
+
       Muinit_Mem_Node := Muxml.Utils.Get_Element
         (Doc => Policy.Doc,
          XPath => "/system/subjects/subject[@name='subject3']/memory/"
@@ -813,7 +813,7 @@ package body Cfgchecks.Test_Data.Tests is
               (Msg =>"Subject 'subject3' specifies loader with self-reference"
                & " but does not map muinit memory region"),
               Message   => "Exception mismatch (Missing muinit region)");
-      
+
       --  Positive test, no loader and no Muinit memory mapping.
 
       Mucfgcheck.Validation_Errors.Clear;
@@ -824,9 +824,9 @@ package body Cfgchecks.Test_Data.Tests is
       Subject_Muinit_Loader_Presence (XML_Data => Policy);
       Assert (Condition => Mucfgcheck.Validation_Errors.Is_Empty,
               Message   => "Unexpected error in positive test (2)");
-      
+
       --  Missing loader self reference.
-      
+
       Muxml.Utils.Append_Child (Node      => Mem_Node,
                                 New_Child => Muinit_Mem_Node);        
       Subject_Muinit_Loader_Presence (XML_Data => Policy);
@@ -836,6 +836,61 @@ package body Cfgchecks.Test_Data.Tests is
                Message  => "Exception mismatch (Missing loader)");
 --  begin read only
    end Test_Subject_Muinit_Loader_Presence;
+--  end read only
+
+
+--  begin read only
+   procedure Test_Subject_Muinit_PCI_Dev_Reset (Gnattest_T : in out Test);
+   procedure Test_Subject_Muinit_PCI_Dev_Reset_788a89 (Gnattest_T : in out Test) renames Test_Subject_Muinit_PCI_Dev_Reset;
+--  id:2.2/788a897b01193022/Subject_Muinit_PCI_Dev_Reset/1/0/
+   procedure Test_Subject_Muinit_PCI_Dev_Reset (Gnattest_T : in out Test) is
+--  end read only
+
+      pragma Unreferenced (Gnattest_T);
+
+      Policy : Muxml.XML_Data_Type;
+      Log_Dev, Muinit_Mem_Node : DOM.Core.Node;
+   begin
+      Muxml.Parse (Data => Policy,
+                   Kind => Muxml.Format_Src,
+                   File => "data/test_policy.xml");
+      Expanders.Subjects.Add_Missing_Elements (Data => Policy);
+      Expanders.Components.Add_Library_Resources (Data => Policy);
+      Expanders.Components.Add_Provided_Memory (Data => Policy);
+      Expanders.Components.Add_Memory (Data => Policy);
+
+      --  Positive test, must not raise an exception.
+
+      Subject_Muinit_PCI_Dev_Reset (XML_Data => Policy);
+      Assert (Condition => Mucfgcheck.Validation_Errors.Is_Empty,
+              Message   => "Unexpected error in positive test");
+
+      Muxml.Utils.Set_Attribute
+        (Doc   => Policy.Doc,
+         XPath => "/system/subjects/subject[@name='subject3']/devices/device"
+         & "[@logical='nic1']/memory[@physical='mmconf']",
+         Name  => "physical",
+         Value => "nonexistent");
+      Subject_Muinit_PCI_Dev_Reset (XML_Data => Policy);
+      Assert (Condition => Mucfgcheck.Validation_Errors.Contains
+              (Msg => "Subject 'subject3' uses muinit and maps reset-capable"
+               & " PCI device 'nic1' but does not map mmconf region"),
+               Message  => "Exception mismatch");
+
+      Mucfgcheck.Validation_Errors.Clear;
+
+      --  Assure that only FLR-capable devices are examined.
+
+      Muxml.Utils.Set_Element_Value
+        (Doc   => Policy.Doc,
+         XPath => "/system/hardware/devices/device[@name='nic1']/capabilities/"
+         & "capability[@name='pci_reset_method']",
+         Value => "bus");
+      Subject_Muinit_PCI_Dev_Reset (XML_Data => Policy);
+      Assert (Condition => Mucfgcheck.Validation_Errors.Is_Empty,
+              Message   => "Unexpected error (non-flr device)");
+--  begin read only
+   end Test_Subject_Muinit_PCI_Dev_Reset;
 --  end read only
 
 

@@ -73,6 +73,14 @@ is
        Convention => C,
        Link_Name  => "assert_device_memory";
 
+   function C_Assert_Device_IO_Port
+     (Memory : System.Address)
+      return Interfaces.C.int
+     with
+       Import     => True,
+       Convention => C,
+       Link_Name  => "assert_device_ioport";
+
    function C_Assert_Subject_Info
      (Info : System.Address)
       return Interfaces.C.int
@@ -119,11 +127,16 @@ is
        Link_Name  => "assert_resource_type";
 
    function C_Assert_Device_Type
-     (Size              : Interfaces.C.int;
-      IRTE_Start_Offset : Interfaces.C.int;
-      IRQ_Start_Offset  : Interfaces.C.int;
-      IR_Count_Offset   : Interfaces.C.int;
-      Flags_Offset      : Interfaces.C.int)
+     (Size                : Interfaces.C.int;
+      SID_Offset          : Interfaces.C.int;
+      Vendor_ID_Offset    : Interfaces.C.int;
+      Device_ID_Offset    : Interfaces.C.int;
+      Class_Code_Offset   : Interfaces.C.int;
+      IRTE_Start_Offset   : Interfaces.C.int;
+      IRQ_Start_Offset    : Interfaces.C.int;
+      IR_Count_Offset     : Interfaces.C.int;
+      Flags_Offset        : Interfaces.C.int;
+      Reset_Method_Offset : Interfaces.C.int)
       return Interfaces.C.int
      with
        Import     => True,
@@ -131,15 +144,32 @@ is
        Link_Name  => "assert_device_type";
 
    function C_Assert_Device_Memory_Type
+     (Size               : Interfaces.C.int;
+      SID_Offset         : Interfaces.C.int;
+      Flags_Offset       : Interfaces.C.int;
+      BAR_Config_Offset  : Interfaces.C.int;
+      Iomem_Flags_Offset : Interfaces.C.int;
+      BAR_Idx_Offset     : Interfaces.C.int;
+      BAR_Address_Offset : Interfaces.C.int;
+      Address_Offset     : Interfaces.C.int;
+      Size_Offset        : Interfaces.C.int)
+      return Interfaces.C.int
+     with
+       Import     => True,
+       Convention => C,
+       Link_Name  => "assert_device_memory_type";
+
+   function C_Assert_Device_IO_Port_Type
      (Size           : Interfaces.C.int;
-      Flags_Offset   : Interfaces.C.int;
+      SID_Offset     : Interfaces.C.int;
+      BAR_Idx_Offset : Interfaces.C.int;
       Address_Offset : Interfaces.C.int;
       Size_Offset    : Interfaces.C.int)
       return Interfaces.C.int
      with
        Import     => True,
        Convention => C,
-       Link_Name  => "assert_device_memory_type";
+       Link_Name  => "assert_device_ioport_type";
 
    function C_Assert_Subject_Info_Type
      (Size             : Interfaces.C.int;

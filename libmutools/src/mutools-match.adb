@@ -24,6 +24,20 @@ is
 
    -------------------------------------------------------------------------
 
+   function Is_Valid_Ref_Name (Left, Right : DOM.Core.Node) return Boolean
+   is
+      Ref  : constant String := DOM.Core.Elements.Get_Attribute
+        (Elem => Left,
+         Name => "ref");
+      Name : constant String := DOM.Core.Elements.Get_Attribute
+        (Elem => Right,
+         Name => "name");
+   begin
+      return Ref = Name;
+   end Is_Valid_Ref_Name;
+
+   -------------------------------------------------------------------------
+
    function Is_Valid_Reference (Left, Right : DOM.Core.Node) return Boolean
    is
       Ref_Name : constant String := DOM.Core.Elements.Get_Attribute

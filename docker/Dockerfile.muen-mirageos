@@ -10,8 +10,9 @@ USER opam
 RUN cd /home/opam/opam-repository \
 	&& git fetch origin master \
 	&& git reset --hard 493123878a032e3f829b102f34e8690b3b2a4fd4 \
+	&& opam pin add solo5 https://github.com/codelabs-ch/solo5.git#1443b0608061 \
 	&& opam update \
-	&& opam install -y solo5.0.10.1 mirage.4.11.0 ocaml-solo5
+	&& opam install -y solo5 mirage.4.11.0 ocaml-solo5
 
 # clone mirage-skeleton and prepare dependencies.
 RUN git clone -b codelabs https://github.com/codelabs-ch/mirage-skeleton \

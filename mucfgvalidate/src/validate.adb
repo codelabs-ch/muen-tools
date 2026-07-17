@@ -937,6 +937,10 @@ is
       XML_Processors.Register
         (Process => Hardware.IOMMU_Cap_Register_Offsets'Access);
       XML_Processors.Register
+        (Process => Hardware.PCI_BAR_Config'Access);
+      XML_Processors.Register
+        (Process => Hardware.PCI_BAR_Config_References'Access);
+      XML_Processors.Register
         (Process => Device.IOMMU_Region_Size'Access);
       XML_Processors.Register
         (Process => Kernel.IOMMU_Consecutiveness'Access);

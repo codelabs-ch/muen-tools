@@ -50,6 +50,9 @@
     <memory caching="UC" name="mmio1" physicalAddress="16#d250_0000#" size="16#0002_0000#"/>
     <memory caching="UC" name="mmio2" physicalAddress="16#d253_b000#" size="16#1000#"/>
     <memory caching="UC" name="mmconf" physicalAddress="16#e030_2000#" size="16#1000#"/>
+    <capabilities>
+     <capability name="pci_reset_method">flr</capability>
+    </capabilities>
     <reservedMemory ref="rmrr1"/>
    </device>
    <device name="nic2">
@@ -641,6 +644,12 @@
    <sibling ref="lnx"/>
   </subject>
   <subject name="subject3">
+   <devices>
+    <device logical="nic1" physical="nic1">
+     <pci bus="16#00#" device="16#19#" function="0"/>
+     <memory executable="false" logical="mmconf" physical="mmconf" virtualAddress="16#dead_beef#" writable="true"/>
+    </device>
+   </devices>
    <events>
     <source>
      <group name="vmx_exit">

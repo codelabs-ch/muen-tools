@@ -264,6 +264,24 @@ int assert_device(const struct muen_device_type *const dev_info)
 		return 0;
 	}
 
+	if (dev_info->vendor_id != 0xfefe)
+	{
+		printf("Dev: Invalid vendor ID 0x%x\n", dev_info->vendor_id);
+		return 0;
+	}
+
+	if (dev_info->device_id != 0x1234)
+	{
+		printf("Dev: Invalid device ID 0x%x\n", dev_info->device_id);
+		return 0;
+	}
+
+	if (dev_info->class_code != 0xcece)
+	{
+		printf("Dev: Invalid class code 0x%x\n", dev_info->class_code);
+		return 0;
+	}
+
 	if (dev_info->irte_start != 200)
 	{
 		printf("Dev: Invalid IRTE start %d\n", dev_info->irte_start);
@@ -288,17 +306,53 @@ int assert_device(const struct muen_device_type *const dev_info)
 		return 0;
 	}
 
+	if (dev_info->reset_method != MUEN_DEV_RESET_METHOD_BUS)
+	{
+		printf("Dev: Invalid reset method %d\n", dev_info->reset_method);
+		return 0;
+	}
+
 	return 1;
 }
 
-int assert_device_type(const int size, const int irte_start_offset,
+int assert_device_type(const int size,
+		const int sid_offset, const int vendor_id_offset, const int device_id_offset,
+		const int class_code_offset, const int irte_start_offset,
 		const int irq_start_offset, const int ir_count_offset,
-		const int flags_offset)
+		const int flags_offset, const int reset_method_offset)
 {
 	if (sizeof(struct muen_device_type) != size)
 	{
 		printf("Dev: Invalid size %d /= %d\n", size,
 				sizeof(struct muen_device_type));
+		return 0;
+	}
+
+	if (offsetof(struct muen_device_type, sid) != sid_offset)
+	{
+		printf("Dev: Invalid 'sid' offset %d /= %d\n", sid_offset,
+				offsetof(struct muen_device_type, sid));
+		return 0;
+	}
+
+	if (offsetof(struct muen_device_type, vendor_id) != vendor_id_offset)
+	{
+		printf("Dev: Invalid 'vendor_id' offset %d /= %d\n", vendor_id_offset,
+				offsetof(struct muen_device_type, vendor_id));
+		return 0;
+	}
+
+	if (offsetof(struct muen_device_type, device_id) != device_id_offset)
+	{
+		printf("Dev: Invalid 'device_id' offset %d /= %d\n", device_id_offset,
+				offsetof(struct muen_device_type, device_id));
+		return 0;
+	}
+
+	if (offsetof(struct muen_device_type, class_code) != class_code_offset)
+	{
+		printf("Dev: Invalid 'class_code' offset %d /= %d\n", class_code_offset,
+				offsetof(struct muen_device_type, class_code));
 		return 0;
 	}
 
@@ -333,11 +387,25 @@ int assert_device_type(const int size, const int irte_start_offset,
 		return 0;
 	}
 
+	if (offsetof(struct muen_device_type, reset_method) != reset_method_offset)
+	{
+		printf("Dev: Invalid 'reset_method' offset %d /= %d\n",
+				reset_method_offset,
+				offsetof(struct muen_device_type, reset_method));
+		return 0;
+	}
+
 	return 1;
 }
 
 int assert_device_memory(const struct muen_devmem_type *const mem)
 {
+	if (mem->sid != 0xabcd)
+	{
+		printf("Devmem: Invalid SID 0x%x\n", mem->sid);
+		return 0;
+	}
+
 	if (!(mem->flags & MEM_WRITABLE_FLAG))
 	{
 		printf("Devmem: Writable flag not set\n");
@@ -346,6 +414,29 @@ int assert_device_memory(const struct muen_devmem_type *const mem)
 	if (!(mem->flags & MEM_EXECUTABLE_FLAG))
 	{
 		printf("Devmem: Executable flag not set\n");
+		return 0;
+	}
+
+	if (!(mem->bar_config.io_mem_flags & DEVMEM_PREFETCHABLE_FLAG))
+	{
+		printf("Devmem: Prefetchable flag not set\n");
+		return 0;
+	}
+	if (!(mem->bar_config.io_mem_flags & DEVMEM_64BIT_FLAG))
+	{
+		printf("Devmem: 64-bit flag not set\n");
+		return 0;
+	}
+
+	if (mem->bar_config.bar_idx != 5)
+	{
+		printf("Devmem: BAR index mismatch: %d\n", mem->bar_config.bar_idx);
+		return 0;
+	}
+
+	if (mem->bar_config.bar_address != 0xabcdabcdabcdabcd)
+	{
+		printf("Devmem: BAR address mismatch: 0x%lx\n", mem->bar_config.bar_address);
 		return 0;
 	}
 
@@ -364,8 +455,39 @@ int assert_device_memory(const struct muen_devmem_type *const mem)
 	return 1;
 }
 
-int assert_device_memory_type(const int size, const int flags_offset,
-		const int address_offset, const int size_offset)
+int assert_device_ioport(const struct muen_devport_type *const port)
+{
+	if (port->sid != 0xabcd)
+	{
+		printf("Devport: Invalid SID 0x%x\n", port->sid);
+		return 0;
+	}
+
+	if (port->bar_idx != 5)
+	{
+		printf("Devport: BAR index mismatch: %d\n", port->bar_idx);
+		return 0;
+	}
+
+	if (port->address != 0xfeed)
+	{
+		printf("Devport: Invalid address 0x%x\n", port->address);
+		return 0;
+	}
+
+	if (port->size != 0x9000)
+	{
+		printf("Devport: Invalid size field 0x%x\n", port->size);
+		return 0;
+	}
+
+	return 1;
+}
+
+int assert_device_memory_type(const int size, const int sid_offset,
+		const int flags_offset, const int bar_config_offset,
+		const int iomem_flags_offset, const int bar_idx_offset,
+		const int bar_addr_offset, const int address_offset, const int size_offset)
 {
 	if (sizeof(struct muen_devmem_type) != size)
 	{
@@ -374,10 +496,45 @@ int assert_device_memory_type(const int size, const int flags_offset,
 		return 0;
 	}
 
+	if (offsetof(struct muen_devmem_type, sid) != sid_offset)
+	{
+		printf("Devmem: Invalid 'sid' offset %d /= %d\n", sid_offset,
+				offsetof(struct muen_devmem_type, sid));
+		return 0;
+	}
+
 	if (offsetof(struct muen_devmem_type, flags) != flags_offset)
 	{
 		printf("Devmem: Invalid 'flags' offset %d /= %d\n", flags_offset,
 				offsetof(struct muen_devmem_type, flags));
+		return 0;
+	}
+
+	if (offsetof(struct muen_devmem_type, bar_config) != bar_config_offset)
+	{
+		printf("Devmem: Invalid 'bar_config' offset %d /= %d\n", bar_config_offset,
+				offsetof(struct muen_devmem_type, bar_config));
+		return 0;
+	}
+
+	if (offsetof(struct muen_bar_config_type, io_mem_flags) != iomem_flags_offset)
+	{
+		printf("Devmem: Invalid 'iomem_flags' offset %d /= %d\n", iomem_flags_offset,
+				offsetof(struct muen_bar_config_type, io_mem_flags));
+		return 0;
+	}
+
+	if (offsetof(struct muen_bar_config_type, bar_idx) != bar_idx_offset)
+	{
+		printf("Devmem: Invalid 'bar_idx' offset %d /= %d\n", bar_idx_offset,
+				offsetof(struct muen_bar_config_type, bar_idx));
+		return 0;
+	}
+
+	if (offsetof(struct muen_bar_config_type, bar_address) != bar_addr_offset)
+	{
+		printf("Devmem: Invalid 'bar_address' offset %d /= %d\n", bar_addr_offset,
+				offsetof(struct muen_bar_config_type, bar_address));
 		return 0;
 	}
 
@@ -392,6 +549,48 @@ int assert_device_memory_type(const int size, const int flags_offset,
 	{
 		printf("Devmem: Invalid 'size' offset %d /= %d\n", size_offset,
 				offsetof(struct muen_devmem_type, size));
+		return 0;
+	}
+
+	return 1;
+}
+
+int assert_device_ioport_type(const int size, const int sid_offset,
+		const int bar_idx_offset, const int address_offset,
+		const int size_offset)
+{
+	if (sizeof(struct muen_devport_type) != size)
+	{
+		printf("Devport: Invalid struct size %d /= %d\n", size,
+				sizeof(struct muen_devport_type));
+		return 0;
+	}
+
+	if (offsetof(struct muen_devport_type, sid) != sid_offset)
+	{
+		printf("Devport: Invalid 'sid' offset %d /= %d\n", sid_offset,
+				offsetof(struct muen_devport_type, sid));
+		return 0;
+	}
+
+	if (offsetof(struct muen_devport_type, bar_idx) != bar_idx_offset)
+	{
+		printf("Devport: Invalid 'bar_idx' offset %d /= %d\n", bar_idx_offset,
+				offsetof(struct muen_devport_type, bar_idx));
+		return 0;
+	}
+
+	if (offsetof(struct muen_devport_type, address) != address_offset)
+	{
+		printf("Devport: Invalid 'address' offset %d /= %d\n", address_offset,
+				offsetof(struct muen_devport_type, address));
+		return 0;
+	}
+
+	if (offsetof(struct muen_devport_type, size) != size_offset)
+	{
+		printf("Devport: Invalid 'size' offset %d /= %d\n", size_offset,
+				offsetof(struct muen_devport_type, size));
 		return 0;
 	}
 

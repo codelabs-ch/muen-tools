@@ -17,6 +17,7 @@
 --
 
 with Ada.Strings.Fixed;
+with Ada.Characters.Handling;
 
 with Interfaces;
 
@@ -63,7 +64,17 @@ is
       Subject_Name :        String;
       Logical_Dev  :        DOM.Core.Node;
       Logical_Mem  :        DOM.Core.Node;
+      Physical_Dev :        DOM.Core.Node;
       Physical_Mem :        DOM.Core.Node);
+
+   --  Add device I/O port to given subject info.
+   procedure Add_Device_IO_Port_To_Info
+     (Info          : in out Musinfo.Subject_Info_Type;
+      Subject_Name  :        String;
+      Logical_Dev   :        DOM.Core.Node;
+      Logical_Port  :        DOM.Core.Node;
+      Physical_Dev  :        DOM.Core.Node;
+      Physical_Port :        DOM.Core.Node);
 
    --  Add event to given subject info.
    procedure Add_Event_To_Info
@@ -77,6 +88,82 @@ is
       Subject_Name :        String;
       Logical_Vec  :        DOM.Core.Node);
 
+   --  Return reset method to use for given PCI device. Currently only Function
+   --  Level Reset (FLR) is supported, therefore this function will either return
+   --  "FLR" or "None".
+   function Get_PCI_Reset_Method
+     (Physical_Dev : DOM.Core.Node)
+      return Musinfo.Dev_Reset_Method_Type;
+
+   -------------------------------------------------------------------------
+
+   procedure Add_Device_IO_Port_To_Info
+     (Info          : in out Musinfo.Subject_Info_Type;
+      Subject_Name  :        String;
+      Logical_Dev   :        DOM.Core.Node;
+      Logical_Port  :        DOM.Core.Node;
+      Physical_Dev  :        DOM.Core.Node;
+      Physical_Port :        DOM.Core.Node)
+   is
+      use type Interfaces.Unsigned_16;
+
+      Device_Name : constant String
+        := DOM.Core.Elements.Get_Attribute
+          (Elem => Logical_Dev,
+           Name => "logical");
+      Phys_Port_Name : constant String
+        := DOM.Core.Elements.Get_Attribute
+          (Elem => Physical_Port,
+           Name => "name");
+      Log_Port_Name : constant String
+        := DOM.Core.Elements.Get_Attribute
+          (Elem => Logical_Port,
+           Name => "logical");
+      Address : constant Interfaces.Unsigned_16
+        := Interfaces.Unsigned_16'Value
+          (DOM.Core.Elements.Get_Attribute
+             (Elem => Physical_Port,
+              Name => "start"));
+      End_Val : constant Interfaces.Unsigned_16
+        := Interfaces.Unsigned_16'Value
+          (DOM.Core.Elements.Get_Attribute
+             (Elem => Physical_Port,
+              Name => "end"));
+      Size : constant Interfaces.Unsigned_16 := End_Val - Address + 1;
+      SID : constant Interfaces.Unsigned_16
+        := Mutools.PCI.To_SID (BDF => Mutools.PCI.Get_BDF (Dev => Logical_Dev));
+      BAR_Config : constant DOM.Core.Node
+        := Muxml.Utils.Get_Element
+          (Doc   => Physical_Dev,
+           XPath => "pci/bars/ioPort[@ref='" & Phys_Port_Name & "']");
+      BAR_Idx : constant Musinfo.BAR_Range
+        := Musinfo.BAR_Range'Value
+          (DOM.Core.Elements.Get_Attribute
+             (Elem => BAR_Config, Name => "index"));
+   begin
+      Mulog.Log
+        (Msg => "Announcing device '" & Device_Name & "' I/O port to subject '"
+         & Subject_Name & "': " & Log_Port_Name & "@"
+         & Mutools.Utils.To_Hex (Number => Interfaces.Unsigned_64 (Address))
+         & ", size " & Mutools.Utils.To_Hex
+            (Number => Interfaces.Unsigned_64 (Size))
+         & ", [BAR:" & BAR_Idx'Img & "]");
+      Utils.Append_Resource
+        (Info     => Info,
+         Resource =>
+           (Kind             => Musinfo.Res_Device_IO_Port,
+            Name             => Utils.Create_Name
+              (Str => Device_Name & "_" & Log_Port_Name),
+            Dev_IO_Port_Data =>
+              (SID      => SID,
+               BAR_Idx  => BAR_Idx,
+               Padding1 => 0,
+               Address  => Address,
+               Size     => Size,
+               Padding2 => (others => 0)),
+            Padding      => (others => 0)));
+   end Add_Device_IO_Port_To_Info;
+
    -------------------------------------------------------------------------
 
    procedure Add_Device_Memory_To_Info
@@ -84,12 +171,24 @@ is
       Subject_Name :        String;
       Logical_Dev  :        DOM.Core.Node;
       Logical_Mem  :        DOM.Core.Node;
+      Physical_Dev :        DOM.Core.Node;
       Physical_Mem :        DOM.Core.Node)
    is
+      use type DOM.Core.Node;
+
       Device_Name : constant String
         := DOM.Core.Elements.Get_Attribute
           (Elem => Logical_Dev,
            Name => "logical");
+      Physical_Address : Interfaces.Unsigned_64
+        := Interfaces.Unsigned_64'Value
+          (DOM.Core.Elements.Get_Attribute
+            (Elem => Physical_Mem,
+             Name => "physicalAddress"));
+      Phys_Mem_Name : constant String
+        := DOM.Core.Elements.Get_Attribute
+          (Elem => Physical_Mem,
+           Name => "name");
       Log_Mem_Name : constant String
         := DOM.Core.Elements.Get_Attribute
           (Elem => Logical_Mem,
@@ -114,15 +213,62 @@ is
           (DOM.Core.Elements.Get_Attribute
              (Elem => Logical_Mem,
               Name => "executable"));
+      SID : constant Interfaces.Unsigned_16
+        := Mutools.PCI.To_SID (BDF => Mutools.PCI.Get_BDF (Dev => Logical_Dev));
+      BAR_Config : DOM.Core.Node
+        := Muxml.Utils.Get_Element
+          (Doc   => Physical_Dev,
+           XPath => "pci/bars/memory[@ref='" & Phys_Mem_Name & "']");
+      BAR_Idx      : Musinfo.Raw_BAR_Range;
+      Prefetchable : Boolean := False;
+      Is_64bit     : Boolean := False;
    begin
+      if BAR_Config = null then
+
+         --  Might be ROM, encode it as Idx 6.
+
+         BAR_Config := Muxml.Utils.Get_Element
+             (Doc   => Physical_Dev,
+              XPath => "pci/bars/rom[@ref='" & Phys_Mem_Name & "']");
+         if BAR_Config /= null then
+            BAR_Idx := Musinfo.Expansion_ROM_BAR_Idx;
+         else
+
+            --  No BAR config, mmconf.
+            BAR_Idx          := Musinfo.No_BAR_Config;
+            Physical_Address := 0;
+         end if;
+      else
+         BAR_Idx :=
+           Musinfo.BAR_Range'Value
+             (DOM.Core.Elements.Get_Attribute
+                (Elem => BAR_Config, Name => "index"));
+         Prefetchable :=
+           Boolean'Value
+             (DOM.Core.Elements.Get_Attribute
+                (Elem => BAR_Config, Name => "prefetchable"));
+         Is_64bit :=
+           Boolean'Value
+             (DOM.Core.Elements.Get_Attribute
+                (Elem => BAR_Config, Name => "is64bit"));
+      end if;
+
       Mulog.Log
         (Msg => "Announcing device '" & Device_Name & "' memory to subject '"
          & Subject_Name & "': " & Log_Mem_Name & "@"
          & Mutools.Utils.To_Hex (Number => Address)
          & ", size " & Mutools.Utils.To_Hex (Number => Size) & ", "
          & (if Writable   then "writable" else "read-only") & ", "
-         & (if Executable then "executable" else "non-executable"));
-
+         & (if Executable then "executable" else "non-executable")
+         & (if BAR_Idx = Musinfo.Expansion_ROM_BAR_Idx then " [expansion ROM @ "
+             & Mutools.Utils.To_Hex (Number => Physical_Address)
+             & "]"
+            elsif BAR_Idx in Musinfo.BAR_Range then
+             " [BAR" & Ada.Strings.Fixed.Trim (BAR_Idx'Img, Ada.Strings.Left)
+             & " @ " & Mutools.Utils.To_Hex (Number => Physical_Address)
+             & ", prefetchable " & Prefetchable'Img
+             & ", 64-bit " & Is_64bit'Img & "]"
+            else ""));
       Utils.Append_Resource
         (Info     => Info,
          Resource =>
@@ -130,13 +276,20 @@ is
             Name         => Utils.Create_Name
               (Str => Device_Name & "_" & Log_Mem_Name),
             Dev_Mem_Data =>
-              (Flags    => (Executable => Executable,
-                            Writable   => Writable,
-                            Padding    => 0),
-               Padding1 => (others => 0),
-               Address  => Address,
-               Size     => Size,
-               Padding2 => (others => 0)),
+              (SID        => SID,
+               Flags      => (Executable => Executable,
+                              Writable   => Writable,
+                              Padding    => 0),
+               BAR_Config =>
+                 (IO_Mem_Flags => (Prefetchable => Prefetchable,
+                                   Is_64bit     => Is_64bit,
+                                   Padding      => 0),
+                  BAR_Idx      => BAR_Idx,
+                  Padding      => (others => 0),
+                  BAR_Address  => Physical_Address),
+               Address    => Address,
+               Size       => Size,
+               Padding    => (others => 0)),
             Padding      => (others => 0)));
    end Add_Device_Memory_To_Info;
 
@@ -163,6 +316,27 @@ is
         := Muxml.Utils.Get_Element
           (Doc   => Logical_Dev,
            XPath => "irq");
+      Reset_Method : constant Musinfo.Dev_Reset_Method_Type
+        := Get_PCI_Reset_Method (Physical_Dev => Physical_Dev);
+      Identification : constant DOM.Core.Node
+        := Muxml.Utils.Get_Element
+          (Doc   => Physical_Dev,
+           XPath => "pci/identification");
+      Vendor_ID : constant Musinfo.Vendor_ID_Type
+        := Musinfo.Vendor_ID_Type'Value
+          (DOM.Core.Elements.Get_Attribute
+             (Elem => Identification,
+              Name => "vendorId"));
+      Device_ID : constant Musinfo.Device_ID_Type
+        := Musinfo.Device_ID_Type'Value
+          (DOM.Core.Elements.Get_Attribute
+             (Elem => Identification,
+              Name => "deviceId"));
+      Class_Code : constant Musinfo.Class_Code_Type
+        := Musinfo.Class_Code_Type'Value
+          (DOM.Core.Elements.Get_Attribute
+             (Elem => Identification,
+              Name => "classcode"));
       MSI : Boolean := False;
       IRQ_Start, IRQ_End, IRTE_Start, IRTE_End,
       IR_Count : Interfaces.Unsigned_64 := 0;
@@ -217,13 +391,17 @@ is
            (Kind     => Musinfo.Res_Device,
             Name     => Utils.Create_Name (Str => Log_Name),
             Dev_Data =>
-              (SID        => SID,
-               IRTE_Start => Interfaces.Unsigned_16 (IRTE_Start),
-               IRQ_Start  => Interfaces.Unsigned_8 (IRQ_Start),
-               IR_Count   => Interfaces.Unsigned_8 (IR_Count),
-               Flags      => (MSI_Capable => MSI,
-                              Padding     => 0),
-               Padding    => (others => 0)),
+              (SID          => SID,
+               Vendor_ID    => Vendor_ID,
+               Device_ID    => Device_ID,
+               Class_Code   => Class_Code,
+               IRTE_Start   => Interfaces.Unsigned_16 (IRTE_Start),
+               IRQ_Start    => Interfaces.Unsigned_8 (IRQ_Start),
+               IR_Count     => Interfaces.Unsigned_8 (IR_Count),
+               Flags        => (MSI_Capable => MSI,
+                                Padding     => 0),
+               Reset_Method => Reset_Method,
+               Padding      => (others => 0)),
             Padding  => (others => 0)));
    end Add_Device_To_Info;
 
@@ -332,6 +510,37 @@ is
                                    Padding => (others => 0)),
                       Padding  => (others => 0)));
    end Add_Vector_To_Info;
+
+   -------------------------------------------------------------------------
+
+   function Get_PCI_Reset_Method
+     (Physical_Dev : DOM.Core.Node)
+      return Musinfo.Dev_Reset_Method_Type
+   is
+      use type Musinfo.Dev_Reset_Method_Type;
+
+      Dev_Methods : constant DOM.Core.Node_List
+        := McKae.XML.XPath.XIA.XPath_Query
+          (N     => Physical_Dev,
+           XPath => "capabilities/capability[@name='pci_reset_method']");
+   begin
+      for I in 0 .. DOM.Core.Nodes.Length (List => Dev_Methods) - 1 loop
+         declare
+            Cap_Node   : constant DOM.Core.Node
+              := DOM.Core.Nodes.Item (List  => Dev_Methods,
+                                      Index => I);
+            Method_Str : constant String
+              := DOM.Core.Nodes.Node_Value
+                   (N => DOM.Core.Nodes.First_Child (Cap_Node));
+         begin
+            if Ada.Characters.Handling.To_Lower (Method_Str) = "flr" then
+               return Musinfo.Dev_Reset_Method_FLR;
+            end if;
+         end;
+      end loop;
+
+      return Musinfo.Dev_Reset_Method_None;
+   end Get_PCI_Reset_Method;
 
    -------------------------------------------------------------------------
 
@@ -454,6 +663,10 @@ is
                     := McKae.XML.XPath.XIA.XPath_Query
                       (N     => Logical_Device,
                        XPath => "memory");
+                  Dev_Ports : constant DOM.Core.Node_List
+                    := McKae.XML.XPath.XIA.XPath_Query
+                      (N     => Logical_Device,
+                       XPath => "ioPort");
                begin
                   Add_Device_To_Info
                     (Info          => Subject_Info,
@@ -482,7 +695,33 @@ is
                            Subject_Name => Subj_Name,
                            Logical_Dev  => Logical_Device,
                            Logical_Mem  => Log_Mem,
+                           Physical_Dev => Physical_Device,
                            Physical_Mem => Phys_Mem);
+                     end;
+                  end loop;
+
+                  for K in 0 .. DOM.Core.Nodes.Length (List => Dev_Ports) - 1
+                  loop
+                     declare
+                        Log_Port : constant DOM.Core.Node
+                          := DOM.Core.Nodes.Item (List  => Dev_Ports,
+                                                  Index => K);
+                        Phys_Port_Name : constant String
+                          := DOM.Core.Elements.Get_Attribute
+                            (Elem => Log_Port,
+                             Name => "physical");
+                        Phys_Port : constant DOM.Core.Node
+                          := Muxml.Utils.Get_Element
+                            (Doc   => Physical_Device,
+                             XPath => "ioPort[@name='" & Phys_Port_Name & "']");
+                     begin
+                        Add_Device_IO_Port_To_Info
+                          (Info          => Subject_Info,
+                           Subject_Name  => Subj_Name,
+                           Logical_Dev   => Logical_Device,
+                           Logical_Port  => Log_Port,
+                           Physical_Dev  => Physical_Device,
+                           Physical_Port => Phys_Port);
                      end;
                   end loop;
                end;

@@ -148,6 +148,8 @@ package body Mucfgcheck.Hardware.Test_Data.Tests is
       --  Positive test, must not raise an exception.
 
       PCI_Config_Space (XML_Data => Data);
+      Assert (Condition => Validation_Errors.Is_Empty,
+              Message   => "Unexpected error in positive test");
 
       Muxml.Utils.Set_Attribute
         (Doc   => Data.Doc,
@@ -169,6 +171,201 @@ package body Mucfgcheck.Hardware.Test_Data.Tests is
               Message   => "Exception mismatch (size)");
 --  begin read only
    end Test_PCI_Config_Space;
+--  end read only
+
+
+--  begin read only
+   procedure Test_PCI_BAR_Config (Gnattest_T : in out Test);
+   procedure Test_PCI_BAR_Config_e2c0a0 (Gnattest_T : in out Test) renames Test_PCI_BAR_Config;
+--  id:2.2/e2c0a06fb326df3a/PCI_BAR_Config/1/0/
+   procedure Test_PCI_BAR_Config (Gnattest_T : in out Test) is
+--  end read only
+
+      pragma Unreferenced (Gnattest_T);
+
+      Data : Muxml.XML_Data_Type;
+   begin
+      Muxml.Parse (Data => Data,
+                   Kind => Muxml.Format_B,
+                   File => "data/test_policy.xml");
+
+      --  Positive test.
+
+      PCI_BAR_Config (XML_Data => Data);
+      Assert (Condition => Validation_Errors.Is_Empty,
+              Message   => "Unexpected error in positive test");
+
+      --  BAR config memory reference uniqueness.
+
+      Muxml.Utils.Set_Attribute
+        (Doc   => Data.Doc,
+         XPath => "/system/hardware/devices/device[@name='ethernet']"
+         & "/pci/bars/memory[@ref='mmio1']",
+         Name  => "ref",
+         Value => "mmio2");
+      PCI_BAR_Config (XML_Data => Data);
+      Assert (Condition => Validation_Errors.Contains
+              (Msg => "PCI device 'ethernet' BAR config memory reference not "
+               & "unique. Conflicting value: 'mmio2'"),
+              Message   => "Exception mismatch (BAR config memory uniqueness)");
+
+      Muxml.Utils.Set_Attribute
+        (Doc   => Data.Doc,
+         XPath => "/system/hardware/devices/device[@name='ethernet']"
+         & "/pci/bars/memory[@ref='mmio2']",
+         Name  => "ref",
+         Value => "mmio1");
+      Validation_Errors.Clear;
+
+      --  BAR config I/O port reference uniqueness.
+
+      Muxml.Utils.Set_Attribute
+        (Doc   => Data.Doc,
+         XPath => "/system/hardware/devices/device[@name='ethernet']"
+         & "/pci/bars/ioPort[@ref='ioport1']",
+         Name  => "ref",
+         Value => "ioport2");
+      PCI_BAR_Config (XML_Data => Data);
+      Assert (Condition => Validation_Errors.Contains
+              (Msg => "PCI device 'ethernet' BAR config IO port reference not "
+               & "unique. Conflicting value: 'ioport2'"),
+              Message   => "Exception mismatch (BAR config port uniqueness)");
+
+      Muxml.Utils.Set_Attribute
+        (Doc   => Data.Doc,
+         XPath => "/system/hardware/devices/device[@name='ethernet']"
+         & "/pci/bars/ioPort[@ref='ioport2']",
+         Name  => "ref",
+         Value => "ioport1");
+      Validation_Errors.Clear;
+
+      --  BAR config index attribute uniqueness.
+
+      Muxml.Utils.Set_Attribute
+        (Doc   => Data.Doc,
+         XPath => "/system/hardware/devices/device[@name='ethernet']"
+         & "/pci/bars/memory[@index='3']",
+         Name  => "index",
+         Value => "2");
+      PCI_BAR_Config (XML_Data => Data);
+      Assert (Condition => Validation_Errors.Contains
+              (Msg => "PCI device 'ethernet' BAR config index attribues not "
+               & "unique. Conflicting value: '2'"),
+              Message   => "Exception mismatch (BAR config index uniqueness)");
+
+      Muxml.Utils.Set_Attribute
+        (Doc   => Data.Doc,
+         XPath => "/system/hardware/devices/device[@name='ethernet']"
+         & "/pci/bars/memory[@index='2']",
+         Name  => "index",
+         Value => "3");
+      Validation_Errors.Clear;
+
+      --  BAR config resource count.
+
+      Muxml.Utils.Remove_Elements
+        (Doc   => Data.Doc,
+         XPath => "/system/hardware/devices/device[@name='wireless']/pci/bars"
+         & "/memory");
+      PCI_BAR_Config (XML_Data => Data);
+      Assert (Condition => Validation_Errors.Contains
+              (Msg => "PCI device 'wireless' BAR config count mismatch: "
+               & "0 /= 1"),
+              Message   => "Exception mismatch (BAR config count)");
+
+      Validation_Errors.Clear;
+
+      --  No BAR config given for PCI device.
+
+      Muxml.Utils.Remove_Elements
+        (Doc   => Data.Doc,
+         XPath => "/system/hardware/devices/device[@name='wireless']/pci/bars");
+      PCI_BAR_Config (XML_Data => Data);
+      Assert (Condition => Validation_Errors.Contains
+              (Msg => "PCI device 'wireless' does not provide BAR config <bars>"
+               & " element"),
+              Message   => "Exception mismatch (BAR config presence)");
+--  begin read only
+   end Test_PCI_BAR_Config;
+--  end read only
+
+
+--  begin read only
+   procedure Test_PCI_BAR_Config_References (Gnattest_T : in out Test);
+   procedure Test_PCI_BAR_Config_References_d37218 (Gnattest_T : in out Test) renames Test_PCI_BAR_Config_References;
+--  id:2.2/d37218195d1675d3/PCI_BAR_Config_References/1/0/
+   procedure Test_PCI_BAR_Config_References (Gnattest_T : in out Test) is
+--  end read only
+
+      pragma Unreferenced (Gnattest_T);
+
+      Data : Muxml.XML_Data_Type;
+   begin
+      Muxml.Parse (Data => Data,
+                   Kind => Muxml.Format_B,
+                   File => "data/test_policy.xml");
+
+      --  Positive test.
+
+      PCI_BAR_Config_References (XML_Data => Data);
+      Assert (Condition => Validation_Errors.Is_Empty,
+              Message   => "Unexpected error in positive test");
+
+      --  Invalid memory reference.
+
+      Muxml.Utils.Set_Attribute
+        (Doc   => Data.Doc,
+         XPath => "/system/hardware/devices/device[@name='ethernet']"
+         & "/memory[@name='mmio1']",
+         Name  => "name",
+         Value => "mmio_none");
+      PCI_BAR_Config_References (XML_Data => Data);
+      Assert (Condition => Validation_Errors.Contains
+              (Msg => "PCI device 'ethernet' BAR config memory reference "
+               & "'mmio1' not found"),
+              Message   => "Exception mismatch (BAR config memory reference)");
+      Muxml.Utils.Set_Attribute
+        (Doc   => Data.Doc,
+         XPath => "/system/hardware/devices/device[@name='ethernet']"
+         & "/memory[@name='mmio_none']",
+         Name  => "name",
+         Value => "mmio1");
+
+      --  Invalid I/O port reference.
+
+      Muxml.Utils.Set_Attribute
+        (Doc   => Data.Doc,
+         XPath => "/system/hardware/devices/device[@name='ethernet']"
+         & "/ioPort[@name='ioport1']",
+         Name  => "name",
+         Value => "ioport_none");
+      PCI_BAR_Config_References (XML_Data => Data);
+      Assert (Condition => Validation_Errors.Contains
+              (Msg => "PCI device 'ethernet' BAR config I/O port reference "
+               & "'ioport1' not found"),
+              Message   => "Exception mismatch (BAR config port reference)");
+      Muxml.Utils.Set_Attribute
+        (Doc   => Data.Doc,
+         XPath => "/system/hardware/devices/device[@name='ethernet']"
+         & "/ioPort[@name='ioport_none']",
+         Name  => "name",
+         Value => "ioport1");
+
+      --  I/O port referencing a memory resource.
+
+      Muxml.Utils.Set_Attribute
+        (Doc   => Data.Doc,
+         XPath => "/system/hardware/devices/device[@name='ethernet']"
+         & "/pci/bars/ioPort[@ref='ioport1']",
+         Name  => "ref",
+         Value => "mmio1");
+      PCI_BAR_Config_References (XML_Data => Data);
+      Assert (Condition => Validation_Errors.Contains
+              (Msg => "PCI device 'ethernet' BAR config I/O port reference "
+               & "'mmio1' not found"),
+              Message   => "Exception mismatch (BAR config port reference #2)");
+--  begin read only
+   end Test_PCI_BAR_Config_References;
 --  end read only
 
 
