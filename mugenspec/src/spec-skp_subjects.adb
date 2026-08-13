@@ -294,13 +294,20 @@ is
            := McKae.XML.XPath.XIA.XPath_Query
              (N     => Subject,
               XPath => "vcpu/arm64/registers/hcr_el2/*");
+
+         Sibling : constant String
+           := Muxml.Utils.Get_Attribute (Doc   => Subject,
+                                         XPath => "sibling",
+                                         Name  => "ref");
+         PT_Name : constant String
+           := (if Sibling'Length > 0 then Sibling else Name);
          VTTBR_Address : constant Unsigned_64
            := Unsigned_64'Value (Muxml.Utils.Get_Attribute
                                  (Nodes     => Physical_Memory,
                                   Refs      => ((Name  => U ("type"),
                                                  Value => U ("system_pt")),
                                                 (Name  => U ("name"),
-                                                 Value => U (Name & "|pt"))),
+                                                 Value => U (PT_Name & "|pt"))),
                                   Attr_Name => "physicalAddress"));
 
          --  Check if GIC device is used by subject (NOTE - currently
