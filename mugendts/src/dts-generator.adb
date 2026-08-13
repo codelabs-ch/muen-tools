@@ -59,7 +59,7 @@ is
             Linux_Subjects : constant DOM.Core.Node_List
               := McKae.XML.XPath.XIA.XPath_Query
                 (N     => Policy.Doc,
-                 XPath => "/system/subjects/subject[memory/memory/" &
+                 XPath => "/system/subjects/subject[not(sibling) and memory/memory/" &
                    "@physical='" & DTS_Name & "']");
          begin
             if DOM.Core.Nodes.Length (Linux_Subjects) = 1 then
