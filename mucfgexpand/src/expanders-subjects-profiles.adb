@@ -664,12 +664,17 @@ is
             --D       Priority => 0).
             --D Invalidate guest state of Linux SMP emulation sibling subjects
 
-            Mulog.Log (Msg => "Invalidating guest state of sibling subject '"
-                       & Subj_Name & "'");
-            DOM.Core.Nodes.Normalize (N => VMXE_Node);
-            DOM.Core.Nodes.Set_Node_Value
-              (N     => DOM.Core.Nodes.First_Child (N => VMXE_Node),
-               Value => "0");
+            case Arch
+            is
+               when Mutools.Types.Arm64 => null;
+               when Mutools.Types.X86_64 =>
+                  Mulog.Log (Msg => "Invalidating guest state of sibling subject '"
+                                    & Subj_Name & "'");
+                  DOM.Core.Nodes.Normalize (N => VMXE_Node);
+                  DOM.Core.Nodes.Set_Node_Value
+                    (N     => DOM.Core.Nodes.First_Child (N => VMXE_Node),
+                     Value => "0");
+            end case;
          end;
       end if;
    end Handle_Linux_Profile;
