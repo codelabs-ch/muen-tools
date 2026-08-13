@@ -39,10 +39,6 @@ with Expanders.Subjects.Config;
 
 package body Expanders.Subjects.Profiles
 is
-
-   Ipi_Call_Func_Vector  : constant String := "251";
-   Ipi_Reschedule_Vector : constant String := "253";
-
    --  Append given boot parameter to subject.
    procedure Append_Boot_Param
      (Subject     : DOM.Core.Node;
@@ -54,7 +50,8 @@ is
      (Data         : in out Muxml.XML_Data_Type;
       Subject      :        DOM.Core.Node;
       Subject_Name :        String;
-      Siblings     :        DOM.Core.Node_List);
+      Siblings     :        DOM.Core.Node_List;
+      Arch         :        Mutools.Types.Arch_Type);
 
    --  Create unified devices view for all siblings of given subject group.
    --  This is required because device initialization can be performed by any
@@ -70,13 +67,24 @@ is
      (Data         : in out Muxml.XML_Data_Type;
       Subject      :        DOM.Core.Node;
       Subject_Name :        String;
-      Siblings     :        DOM.Core.Node_List)
+      Siblings     :        DOM.Core.Node_List;
+      Arch         :        Mutools.Types.Arch_Type)
    is
       subtype CPU_Range is Natural range 0 .. 99;
 
       subtype CPU_Str is String (1 .. 2);
 
       function CPU_Img (C : CPU_Range) return CPU_Str;
+
+      Ipi_Call_Func_Vector  : constant String :=
+        (case Arch is
+            when Mutools.Types.X86_64 => "251",
+            when Mutools.Types.Arm64 => "1");
+
+      Ipi_Reschedule_Vector : constant String :=
+        (case Arch is
+            when Mutools.Types.X86_64 => "253",
+            when Mutools.Types.Arm64 => "0");
 
       ----------------------------------------------------------------------
 
@@ -555,7 +563,8 @@ is
               (Data         => Data,
                Subject      => Subject,
                Subject_Name => Subj_Name,
-               Siblings     => Siblings);
+               Siblings     => Siblings,
+               Arch         => Arch);
             Create_Unified_Devices_View
               (Subject      => Subject,
                Subject_Name => Subj_Name,
