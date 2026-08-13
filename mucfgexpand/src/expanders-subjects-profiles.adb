@@ -553,12 +553,17 @@ is
                Normalize => False));
 
          if Sib_Ref_Count > 0 then
-            Append_Boot_Param
-              (Subject     => Subject,
-               Subject_Mem => Subj_Mem_Node,
-               Param       => "possible_cpus=" & Ada.Strings.Fixed.Trim
-                 (Source => Positive'Image (Sib_Ref_Count + 1),
-                  Side   => Ada.Strings.Left));
+            case Arch
+            is
+               when Mutools.Types.Arm64 => null;
+               when Mutools.Types.X86_64 =>
+                  Append_Boot_Param
+                    (Subject     => Subject,
+                     Subject_Mem => Subj_Mem_Node,
+                     Param       => "possible_cpus=" & Ada.Strings.Fixed.Trim
+                       (Source => Positive'Image (Sib_Ref_Count + 1),
+                        Side   => Ada.Strings.Left));
+            end case;
             Add_IPI_Events
               (Data         => Data,
                Subject      => Subject,
