@@ -75,50 +75,115 @@ is
    procedure Alias_Physical_Device_Resource_References
      (XML_Data : Muxml.XML_Data_Type)
    is
-      --  Returns the error message for a given reference node.
-      procedure Error_Msg
-        (Node    :     DOM.Core.Node;
-         Err_Str : out Ada.Strings.Unbounded.Unbounded_String;
-         Fatal   : out Boolean);
+
+      --  Check that all resource of the given alias are valid references to
+      --  the resources of the physical device node.
+      procedure Check_Resources
+        (Alias           : DOM.Core.Node;
+         Alias_Prefix    : String;
+         Physical        : DOM.Core.Node_List;
+         Physical_Prefix : String);
 
       ----------------------------------------------------------------------
 
-      procedure Error_Msg
-        (Node    :     DOM.Core.Node;
-         Err_Str : out Ada.Strings.Unbounded.Unbounded_String;
-         Fatal   : out Boolean)
+      procedure Check_Resources
+        (Alias           : DOM.Core.Node;
+         Alias_Prefix    : String;
+         Physical        : DOM.Core.Node_List;
+         Physical_Prefix : String)
       is
-         Alias_Name     : constant String := DOM.Core.Elements.Get_Attribute
-           (Elem => DOM.Core.Nodes.Parent_Node (N => Node),
+         use type DOM.Core.Node;
+
+         Alias_Name : constant String := DOM.Core.Elements.Get_Attribute
+           (Elem => Alias,
             Name => "name");
-         Alias_Res_Name : constant String := DOM.Core.Elements.Get_Attribute
-           (Elem => Node,
-            Name => "name");
-         Phys_Res_Name  : constant String := DOM.Core.Elements.Get_Attribute
-           (Elem => Node,
+         Phys_Name : constant String := DOM.Core.Elements.Get_Attribute
+           (Elem => Alias,
             Name => "physical");
+         Phys_Node : constant DOM.Core.Node
+           := Muxml.Utils.Get_Element (Nodes     => Physical,
+                                       Ref_Attr  => "name",
+                                       Ref_Value => Phys_Name);
+         Alias_Resources : DOM.Core.Node_List;
+         Alias_Res_Count : Natural;
+         Phys_Res        : DOM.Core.Node_List;
+
+         Full_Alias_Name : constant String
+           := (if Alias_Prefix'Length > 0 then Alias_Prefix & "->" else "")
+               & Alias_Name;
+         Full_Phys_Name : constant String
+           := (if Physical_Prefix'Length > 0 then Physical_Prefix & "->"
+               else "") & Phys_Name;
       begin
-         Err_Str := Ada.Strings.Unbounded.To_Unbounded_String
-           ("Physical device resource '" & Phys_Res_Name
-            & "' referenced by alias resource '" & Alias_Res_Name
-            & "' of device alias '" & Alias_Name & "' not found");
-         Fatal := True;
-      end Error_Msg;
+         if Phys_Node = null then
+
+            --  Missing physical devices referenced by top-level aliases are
+            --  reported by Alias_Physical_Device_References.
+
+            if Physical_Prefix'Length > 0 then
+               Validation_Errors.Insert
+                 (Msg => "Physical device resource '" & Full_Phys_Name
+                  & "' referenced by device alias '"
+                  & Full_Alias_Name & "' not found");
+            end if;
+            return;
+         end if;
+
+         Alias_Resources := McKae.XML.XPath.XIA.XPath_Query
+             (N     => Alias,
+              XPath => "*");
+         Alias_Res_Count := DOM.Core.Nodes.Length
+           (List => Alias_Resources);
+         Phys_Res := McKae.XML.XPath.XIA.XPath_Query
+             (N     => Phys_Node,
+              XPath => "*");
+
+         for I in 0 .. Alias_Res_Count - 1 loop
+            declare
+               Alias_Res : constant DOM.Core.Node
+                 := DOM.Core.Nodes.Item (List  => Alias_Resources,
+                                         Index => I);
+            begin
+               Check_Resources (Alias           => Alias_Res,
+                                Alias_Prefix    => Full_Alias_Name,
+                                Physical        => Phys_Res,
+                                Physical_Prefix => Full_Phys_Name);
+            end;
+         end loop;
+      end Check_Resources;
+
+      ----------------------------------------------------------------------
+
+      Phys_Devs   : constant DOM.Core.Node_List
+        := McKae.XML.XPath.XIA.XPath_Query
+          (N     => XML_Data.Doc,
+           XPath => "/system/hardware/devices/device");
+      Aliases     : constant DOM.Core.Node_List
+        := McKae.XML.XPath.XIA.XPath_Query
+          (N     => XML_Data.Doc,
+           XPath => "/system/platform/mappings/aliases/alias");
+      Alias_Count : constant Natural := DOM.Core.Nodes.Length
+        (List => Aliases);
+      Res_Count   : constant Natural := DOM.Core.Nodes.Length
+        (List => McKae.XML.XPath.XIA.XPath_Query
+           (N     => XML_Data.Doc,
+            XPath => "/system/platform/mappings/aliases/alias//resource"));
    begin
-      For_Each_Match
-        (XML_Data     => XML_Data,
-         Source_XPath => "/system/platform/mappings/aliases/alias/resource",
-         Ref_XPath    => "/system/hardware/devices/device/"
-           & "*[self::reservedMemory"
-           & " or self::description"
-           & " or self::pci"
-           & " or self::irq"
-           & " or self::memory"
-           & " or self::ioPort"
-           & " or self::capabilities]",
-         Log_Message  => "alias device resource reference(s)",
-         Error        => Error_Msg'Access,
-         Match        => Mutools.Match.Is_Valid_Resource_Ref'Access);
+      Mulog.Log (Msg => "Checking" & Res_Count'Img
+                 & " alias device resource reference(s)");
+
+      for I in 0 .. Alias_Count - 1 loop
+         declare
+            Alias_Node : constant DOM.Core.Node
+              := DOM.Core.Nodes.Item (List  => Aliases,
+                                      Index => I);
+         begin
+            Check_Resources (Alias           => Alias_Node,
+                             Alias_Prefix    => "",
+                             Physical        => Phys_Devs,
+                             Physical_Prefix => "");
+         end;
+      end loop;
    end Alias_Physical_Device_Resource_References;
 
    -------------------------------------------------------------------------
