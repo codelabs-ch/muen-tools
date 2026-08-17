@@ -733,7 +733,7 @@ is
                           XPath => "*[self::memory or self::ioPort or self::rom]"),
                      Attr_Name => "index",
                      Error_Msg => "PCI device '" & Dev_Name
-                     & "' BAR config index attribues not unique.");
+                     & "' BAR config index attributes not unique.");
                end if;
             end if;
          end;

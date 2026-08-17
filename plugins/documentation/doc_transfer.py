@@ -122,7 +122,7 @@ def apply_rule(node, key, value):
     local_rule = key.split("/")[0]
     remaining_rule = "/".join(key.split("/")[1:])
     # a new, shortened rule is produced from the old rule in case the given
-    # rule involed children of node
+    # rule involved children of node
     new_action = (
         do_traversal({remaining_rule: value}) if remaining_rule != "" else value
     )

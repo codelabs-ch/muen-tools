@@ -407,7 +407,7 @@ is
         (Process => Kernel.CPU_Memory_Section_Count'Access);
 
       --  Arch Dedependent: The ARMv8-A PMU is not yet supported and
-      --  is completey different from an architectural point of view.
+      --  is completely different from an architectural point of view.
       --  These checks have to be added after PMU integration.
 
       --  Arch Independent: Validate that the debug console device and
