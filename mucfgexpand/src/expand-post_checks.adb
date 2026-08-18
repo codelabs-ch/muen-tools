@@ -19,6 +19,7 @@
 with Mucfgcheck.Memory;
 with Mucfgcheck.Hardware;
 with Mucfgcheck.Kernel;
+with Mucfgcheck.Validation_Errors;
 
 package body Expand.Post_Checks
 is
@@ -50,6 +51,11 @@ is
 
    -------------------------------------------------------------------------
 
-   procedure Run (Data : Muxml.XML_Data_Type) renames Check_Procs.Run;
+   procedure Run (Data : Muxml.XML_Data_Type)
+   is
+   begin
+      Check_Procs.Run (Data => Data);
+      Mucfgcheck.Validation_Errors.Check;
+   end Run;
 
 end Expand.Post_Checks;
