@@ -2616,8 +2616,7 @@ is
       Subjects : constant DOM.Core.Node_List
         := McKae.XML.XPath.XIA.XPath_Query
           (N     => XML_Data.Doc,
-           XPath => "/system/subjects/subject"
-           & "[not(sibling) and @profile='linux']");
+           XPath => "/system/subjects/subject[not(sibling)]");
    begin
       for I in 0 .. DOM.Core.Nodes.Length (List => Subjects) - 1 loop
          declare

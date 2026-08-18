@@ -21,6 +21,8 @@ with Mucfgcheck.Hardware;
 with Mucfgcheck.Kernel;
 with Mucfgcheck.Validation_Errors;
 
+with Cfgchecks;
+
 package body Expand.Post_Checks
 is
 
@@ -47,6 +49,8 @@ is
         (Process => Mucfgcheck.Hardware.IOMMU_Cap_Agaw'Access);
       Check_Procs.Register
         (Process => Mucfgcheck.Kernel.Diagnostics_Device_Reference'Access);
+      Check_Procs.Register
+        (Process => Cfgchecks.Subject_Sibling_Device_BDFs'Access);
    end Register_All;
 
    -------------------------------------------------------------------------
