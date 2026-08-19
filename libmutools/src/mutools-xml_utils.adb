@@ -1524,4 +1524,27 @@ is
                              Name => "apicId"));
    end To_APIC_ID;
 
+   -------------------------------------------------------------------------
+
+   function To_BDF_Str (PCI_Node : DOM.Core.Node) return String
+   is
+      Bus_Str : constant String := Utils.To_Hex
+        (Number     => Interfaces.Unsigned_64'Value
+           (DOM.Core.Elements.Get_Attribute (Elem => PCI_Node,
+                                             Name => "bus")),
+         Normalize  => False,
+         Byte_Short => True);
+      Dev_Str : constant String := Utils.To_Hex
+        (Number     => Interfaces.Unsigned_64'Value
+           (DOM.Core.Elements.Get_Attribute (Elem => PCI_Node,
+                                             Name => "device")),
+         Normalize  => False,
+         Byte_Short => True);
+      Fun_Str : constant String := DOM.Core.Elements.Get_Attribute
+        (Elem => PCI_Node,
+         Name => "function");
+   begin
+      return Bus_Str & ":" & Dev_Str & "." & Fun_Str;
+   end To_BDF_Str;
+
 end Mutools.XML_Utils;

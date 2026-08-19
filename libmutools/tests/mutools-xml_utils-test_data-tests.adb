@@ -1734,6 +1734,72 @@ package body Mutools.XML_Utils.Test_Data.Tests is
 
 
 --  begin read only
+   procedure Test_To_BDF_Str (Gnattest_T : in out Test);
+   procedure Test_To_BDF_Str_e781ea (Gnattest_T : in out Test) renames Test_To_BDF_Str;
+--  id:2.2/e781ea78c9957c15/To_BDF_Str/1/0/
+   procedure Test_To_BDF_Str (Gnattest_T : in out Test) is
+--  end read only
+
+      pragma Unreferenced (Gnattest_T);
+
+      Data : Muxml.XML_Data_Type;
+      Impl : DOM.Core.DOM_Implementation;
+      Node : DOM.Core.Node;
+   begin
+      Data.Doc := DOM.Core.Create_Document (Implementation => Impl);
+
+      Node := DOM.Core.Documents.Create_Element
+        (Doc      => Data.Doc,
+         Tag_Name => "pci");
+      DOM.Core.Elements.Set_Attribute
+        (Elem  => Node,
+         Name  => "bus",
+         Value => "16#05#");
+      DOM.Core.Elements.Set_Attribute
+        (Elem  => Node,
+         Name  => "device",
+         Value => "16#11#");
+      DOM.Core.Elements.Set_Attribute
+        (Elem  => Node,
+         Name  => "function",
+         Value => "2");
+      Assert (Condition => To_BDF_Str (PCI_Node => Node)
+              = "05:11.2",
+              Message   => "BDF string mismatch (1)");
+
+      DOM.Core.Elements.Set_Attribute
+        (Elem  => Node,
+         Name  => "bus",
+         Value => "16#00#");
+      DOM.Core.Elements.Set_Attribute
+        (Elem  => Node,
+         Name  => "device",
+         Value => "16#00#");
+      DOM.Core.Elements.Set_Attribute
+        (Elem  => Node,
+         Name  => "function",
+         Value => "0");
+      Assert (Condition => To_BDF_Str (PCI_Node => Node)
+              = "00:00.0",
+              Message   => "BDF string mismatch (2)");
+
+      DOM.Core.Elements.Set_Attribute
+        (Elem  => Node,
+         Name  => "bus",
+         Value => "16#1f#");
+      DOM.Core.Elements.Set_Attribute
+        (Elem  => Node,
+         Name  => "function",
+         Value => "5");
+      Assert (Condition => To_BDF_Str (PCI_Node => Node)
+              = "1f:00.5",
+              Message   => "BDF string mismatch (3)");
+--  begin read only
+   end Test_To_BDF_Str;
+--  end read only
+
+
+--  begin read only
    procedure Test_1_Set_Memory_Size (Gnattest_T : in out Test);
    procedure Test_Set_Memory_Size_9298ea (Gnattest_T : in out Test) renames Test_1_Set_Memory_Size;
 --  id:2.2/9298eacc38aef69c/Set_Memory_Size/1/0/
