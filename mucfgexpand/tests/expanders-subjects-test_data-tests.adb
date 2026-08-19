@@ -14,6 +14,7 @@ with System.Assertions;
 --  This section can be used to add with clauses if necessary.
 --
 --  end read only
+with DOM.Core.Documents;
 with Expanders.Scheduling;
 with Mucfgcheck.Validation_Errors;
 --  begin read only
@@ -429,13 +430,15 @@ package body Expanders.Subjects.Test_Data.Tests is
 
       pragma Unreferenced (Gnattest_T);
 
-      Policy    : Muxml.XML_Data_Type;
-      XHCI_Path : constant String := "/system/subjects/subject/devices/"
+      Policy        : Muxml.XML_Data_Type;
+      XHCI_Path     : constant String := "/system/subjects/subject/devices/"
         & "device[@physical='xhci']/pci";
-      NIC_Path  : constant String := "/system/subjects/subject/devices/"
+      NIC_Path      : constant String := "/system/subjects/subject/devices/"
         & "device[@physical='nic1']/pci";
-      Wlan_Path : constant String := "/system/subjects/subject/devices/"
+      Wlan_Path     : constant String := "/system/subjects/subject/devices/"
         & "device[@physical='wlan1']/pci";
+      Sib_XHCI_Path : constant String := "/system/subjects/"
+        & "subject[@name='lnx_core_1']/devices/device[@physical='xhci']/pci";
    begin
       Muxml.Parse (Data => Policy,
                    Kind => Muxml.Format_Src,
@@ -445,6 +448,34 @@ package body Expanders.Subjects.Test_Data.Tests is
       --  without PCI BDF assigned.
 
       Platform.Resolve_Device_Aliases (Data => Policy);
+
+      --  Let sibling subject 'lnx_core_1' reference the same physical device
+      --  as its origin subject 'lnx' so both must be assigned the same BDF.
+
+      declare
+         Devs_Node : constant DOM.Core.Node
+           := DOM.Core.Documents.Create_Element
+             (Doc      => Policy.Doc,
+              Tag_Name => "devices");
+         Dev_Node  : constant DOM.Core.Node
+           := DOM.Core.Documents.Create_Element
+             (Doc      => Policy.Doc,
+              Tag_Name => "device");
+      begin
+         DOM.Core.Elements.Set_Attribute (Elem  => Dev_Node,
+                                          Name  => "logical",
+                                          Value => "xhci");
+         DOM.Core.Elements.Set_Attribute (Elem  => Dev_Node,
+                                          Name  => "physical",
+                                          Value => "xhci");
+         Muxml.Utils.Append_Child (Node      => Devs_Node,
+                                   New_Child => Dev_Node);
+         Muxml.Utils.Append_Child
+           (Node      => Muxml.Utils.Get_Element
+              (Doc   => Policy.Doc,
+               XPath => "/system/subjects/subject[@name='lnx_core_1']"),
+            New_Child => Devs_Node);
+      end;
 
       Add_Device_BDFs (Data => Policy);
 
@@ -495,6 +526,64 @@ package body Expanders.Subjects.Test_Data.Tests is
                XPath => Wlan_Path,
                Name  => "function") = "0",
               Message   => "Function mismatch (Wlan)");
+
+      --  Siblings must must have the same view of a device.
+
+      Assert (Condition => Muxml.Utils.Get_Attribute
+              (Doc   => Policy.Doc,
+               XPath => Sib_XHCI_Path,
+               Name  => "bus") = "16#00#",
+              Message   => "Bus mismatch (sibling XHCI)");
+      Assert (Condition => Muxml.Utils.Get_Attribute
+              (Doc   => Policy.Doc,
+               XPath => Sib_XHCI_Path,
+               Name  => "device") = "16#01#",
+              Message   => "Device mismatch (sibling XHCI)");
+      Assert (Condition => Muxml.Utils.Get_Attribute
+              (Doc   => Policy.Doc,
+               XPath => Sib_XHCI_Path,
+               Name  => "function") = "0",
+              Message   => "Function mismatch (sibling XHCI)");
+
+      --  Mismatch of device BDF of same physical device between siblings must
+      --  raise a validation error. Add a logical device without <pci>
+      --  referencing the same physical device to force reprocessing of the
+      --  sibling group.
+
+      Muxml.Utils.Set_Attribute
+        (Doc   => Policy.Doc,
+         XPath => Sib_XHCI_Path,
+         Name  => "device",
+         Value => "16#03#");
+      declare
+         Dev_Node : constant DOM.Core.Node
+           := DOM.Core.Documents.Create_Element
+             (Doc      => Policy.Doc,
+              Tag_Name => "device");
+      begin
+         DOM.Core.Elements.Set_Attribute (Elem  => Dev_Node,
+                                          Name  => "logical",
+                                          Value => "xhci2");
+         DOM.Core.Elements.Set_Attribute (Elem  => Dev_Node,
+                                          Name  => "physical",
+                                          Value => "xhci");
+         Muxml.Utils.Append_Child
+           (Node      => Muxml.Utils.Get_Element
+              (Doc   => Policy.Doc,
+               XPath => "/system/subjects/subject[@name='lnx']/devices"),
+            New_Child => Dev_Node);
+
+         Add_Device_BDFs (Data => Policy);
+         Assert (Condition => False,
+                 Message   => "Exception expected");
+
+      exception
+         when Mucfgcheck.Validation_Errors.Validation_Error =>
+            Assert (Condition => Mucfgcheck.Validation_Errors.Contains
+                    (Msg => "Logical devices referencing physical device 'xhci'"
+                          & " have differing PCI BDFs: 00:03.0 /= 00:01.0"),
+                    Message   => "Exception message mismatch");
+      end;
 --  begin read only
    end Test_Add_Device_BDFs;
 --  end read only

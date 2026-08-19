@@ -423,15 +423,36 @@ is
       Subjects    : constant DOM.Core.Node_List
         := McKae.XML.XPath.XIA.XPath_Query
           (N     => Data.Doc,
-           XPath => "/system/subjects/subject[devices/device]");
+           XPath => "/system/subjects/subject[not(sibling)]");
 
-      --  Return all subject devices that are part of a physical PCI
-      --  multi-function device with the given physical device. The specified
-      --  physical device is always included in the returned list.
-      function Get_All_Device_Functions_Refs
+      --  Return all logical devices in the given subject devices list which
+      --  reference the specified physical device.
+      function Get_Logical_Devices
         (Subject_Devices : DOM.Core.Node_List;
          Physical_Device : DOM.Core.Node)
          return DOM.Core.Node_List;
+
+      --  Return all physical devices which are functions of the same PCI
+      --  multi-function device as the given physical device and are
+      --  referenced by at least one of the specified subject devices.
+      function Get_Physical_Device_Functions
+        (Subject_Devices : DOM.Core.Node_List;
+         Physical_Device : DOM.Core.Node)
+         return DOM.Core.Node_List;
+
+      --  Return the PCI node of the first logical device in the given list
+      --  which has a logical BDF set. Null is returned if no such device is
+      --  present in the list. A validation error is raised if multiple
+      --  logical devices with differing BDFs are present.
+      function Get_Assigned_BDF
+        (Logical_Devices : DOM.Core.Node_List)
+         return DOM.Core.Node;
+
+      --  Assign the BDF of the given PCI node to all logical devices in the
+      --  specified list which have no logical BDF.
+      procedure Set_Device_BDFs
+        (Logical_Devices : DOM.Core.Node_List;
+         PCI_Node        : DOM.Core.Node);
 
       --  The procedure checks if the given subject is part of a subject
       --  sibling group. If it is, it updates the given node lists with the
@@ -515,7 +536,67 @@ is
 
       ----------------------------------------------------------------------
 
-      function Get_All_Device_Functions_Refs
+      function Get_Assigned_BDF
+        (Logical_Devices : DOM.Core.Node_List)
+         return DOM.Core.Node
+      is
+         use type DOM.Core.Node;
+
+         BDF_Node : DOM.Core.Node := null;
+      begin
+         for I in 0 .. DOM.Core.Nodes.Length (List => Logical_Devices) - 1 loop
+            declare
+               Log_Dev : constant DOM.Core.Node
+                 := DOM.Core.Nodes.Item (List  => Logical_Devices,
+                                         Index => I);
+               Cur_BDF : constant DOM.Core.Node
+                 := Muxml.Utils.Get_Element (Doc   => Log_Dev,
+                                             XPath => "pci");
+            begin
+               if Cur_BDF /= null then
+                  if BDF_Node = null then
+                     BDF_Node := Cur_BDF;
+                  elsif not Mutools.XML_Utils.Equal_BDFs
+                    (Left  => BDF_Node,
+                     Right => Cur_BDF)
+                  then
+                     Mucfgcheck.Validation_Errors.Insert
+                       (Msg   => "Logical devices referencing physical device '"
+                        & DOM.Core.Elements.Get_Attribute
+                          (Elem => Log_Dev,
+                           Name => "physical")
+                        & "' have differing PCI BDFs: "
+                        & Mutools.XML_Utils.To_BDF_Str (PCI_Node => BDF_Node)
+                        & " /= "
+                        & Mutools.XML_Utils.To_BDF_Str (PCI_Node => Cur_BDF),
+                        Fatal => True);
+                  end if;
+               end if;
+            end;
+         end loop;
+
+         return BDF_Node;
+      end Get_Assigned_BDF;
+
+      ----------------------------------------------------------------------
+
+      function Get_Logical_Devices
+        (Subject_Devices : DOM.Core.Node_List;
+         Physical_Device : DOM.Core.Node)
+         return DOM.Core.Node_List
+      is
+      begin
+         return Muxml.Utils.Get_Elements
+           (Nodes     => Subject_Devices,
+            Ref_Attr  => "physical",
+            Ref_Value => DOM.Core.Elements.Get_Attribute
+              (Elem => Physical_Device,
+               Name => "name"));
+      end Get_Logical_Devices;
+
+      ----------------------------------------------------------------------
+
+      function Get_Physical_Device_Functions
         (Subject_Devices : DOM.Core.Node_List;
          Physical_Device : DOM.Core.Node)
          return DOM.Core.Node_List
@@ -530,40 +611,80 @@ is
              (Doc   => Physical_Device,
               XPath => "pci",
               Name  => "device");
-         Phys_Siblings : constant DOM.Core.Node_List
+         Dev_Functions : constant DOM.Core.Node_List
            := McKae.XML.XPath.XIA.XPath_Query
              (N     => Data.Doc,
               XPath => "/system/hardware/devices/device/pci[@bus='" & Bus_Nr
               & "' and @device='" & Dev_Nr & "']/..");
 
-         Sibling_Devs : DOM.Core.Node_List;
+         Referenced_Functions : DOM.Core.Node_List;
       begin
-         for I in 0 .. DOM.Core.Nodes.Length (List => Phys_Siblings) - 1 loop
+         for I in 0 .. DOM.Core.Nodes.Length (List => Dev_Functions) - 1 loop
             declare
-               use type DOM.Core.Node;
-
-               Phys_Dev  : constant DOM.Core.Node
-                 := DOM.Core.Nodes.Item (List  => Phys_Siblings,
+               Phys_Dev : constant DOM.Core.Node
+                 := DOM.Core.Nodes.Item (List  => Dev_Functions,
                                          Index => I);
-               Phys_Name : constant String
-                 := DOM.Core.Elements.Get_Attribute
-                   (Elem => Phys_Dev,
-                    Name => "name");
-               Log_Dev : constant DOM.Core.Node := Muxml.Utils.Get_Element
-                 (Nodes     => Subject_Devices,
-                  Ref_Attr  => "physical",
-                  Ref_Value => Phys_Name);
             begin
-               if Log_Dev /= null then
-                  DOM.Core.Append_Node
-                    (List => Sibling_Devs,
-                     N    => Log_Dev);
+               if DOM.Core.Nodes.Length
+                 (List => Get_Logical_Devices
+                    (Subject_Devices => Subject_Devices,
+                     Physical_Device => Phys_Dev)) > 0
+               then
+                  DOM.Core.Append_Node (List => Referenced_Functions,
+                                        N    => Phys_Dev);
                end if;
             end;
          end loop;
 
-         return Sibling_Devs;
-      end Get_All_Device_Functions_Refs;
+         return Referenced_Functions;
+      end Get_Physical_Device_Functions;
+
+      ----------------------------------------------------------------------
+
+      procedure Set_Device_BDFs
+        (Logical_Devices : DOM.Core.Node_List;
+         PCI_Node        : DOM.Core.Node)
+      is
+         use type DOM.Core.Node;
+      begin
+         for I in 0 .. DOM.Core.Nodes.Length (List => Logical_Devices) - 1 loop
+            declare
+               Log_Dev : constant DOM.Core.Node
+                 := DOM.Core.Nodes.Item (List  => Logical_Devices,
+                                         Index => I);
+            begin
+               if Muxml.Utils.Get_Element (Doc   => Log_Dev,
+                                           XPath => "pci") = null
+               then
+                  declare
+                     Log_Name   : constant String
+                       := DOM.Core.Elements.Get_Attribute
+                         (Elem => Log_Dev,
+                          Name => "logical");
+                     Subj_Name  : constant String
+                       := DOM.Core.Elements.Get_Attribute
+                         (Elem => Muxml.Utils.Ancestor_Node
+                            (Node  => Log_Dev,
+                             Level => 2),
+                          Name => "name");
+                     Unused_BDF : DOM.Core.Node;
+                  begin
+                     Mulog.Log (Msg => "Setting BDF of logical device '"
+                                & Log_Name & "' of subject '" & Subj_Name
+                                & "' to " & Mutools.XML_Utils.To_BDF_Str
+                                   (PCI_Node => PCI_Node));
+                     Unused_BDF := DOM.Core.Nodes.Insert_Before
+                       (N         => Log_Dev,
+                        New_Child => DOM.Core.Nodes.Clone_Node
+                          (N    => PCI_Node,
+                           Deep => True),
+                        Ref_Child => DOM.Core.Nodes.First_Child
+                          (N => Log_Dev));
+                  end;
+               end if;
+            end;
+         end loop;
+      end Set_Device_BDFs;
    begin
       for I in 0 .. DOM.Core.Nodes.Length (List => Subjects) - 1 loop
          declare
@@ -619,11 +740,12 @@ is
 
                   if Phys_Dev /= null then
                      declare
-                        Siblings         : constant DOM.Core.Node_List
-                          := Get_All_Device_Functions_Refs
+                        Dev_Functions    : constant DOM.Core.Node_List
+                          := Get_Physical_Device_Functions
                             (Subject_Devices => All_Subj_Devs,
                              Physical_Device => Phys_Dev);
                         Device_Nr        : Natural := 0;
+                        Has_Device_Nr    : Boolean := False;
                         Fun_Nr_Allocator : Utils.Number_Allocator_Type
                           (Range_Start => 0,
                            Range_End   => 7);
@@ -631,35 +753,46 @@ is
                         Devs_To_Allocate : DOM.Core.Node_List;
                      begin
                         for K in 0 .. DOM.Core.Nodes.Length
-                          (List => Siblings) - 1
+                          (List => Dev_Functions) - 1
                         loop
                            declare
-                              Cur_Sibling : constant DOM.Core.Node
-                                := DOM.Core.Nodes.Item (List  => Siblings,
-                                                        Index => K);
-                              Dev_Nr      : constant String
-                                := Muxml.Utils.Get_Attribute
-                                  (Doc   => Cur_Sibling,
-                                   XPath => "pci",
-                                   Name  => "device");
-                              Fun_Nr      : constant String
-                                := Muxml.Utils.Get_Attribute
-                                  (Doc   => Cur_Sibling,
-                                   XPath => "pci",
-                                   Name  => "function");
+                              Cur_Function : constant DOM.Core.Node
+                                := DOM.Core.Nodes.Item
+                                  (List  => Dev_Functions,
+                                   Index => K);
+                              Cur_Log_Devs : constant DOM.Core.Node_List
+                                := Get_Logical_Devices
+                                  (Subject_Devices => All_Subj_Devs,
+                                   Physical_Device => Cur_Function);
+                              Assigned_BDF : constant DOM.Core.Node
+                                := Get_Assigned_BDF
+                                  (Logical_Devices => Cur_Log_Devs);
                            begin
-                              if Dev_Nr'Length > 0 then
+                              if Assigned_BDF /= null then
 
                                  --  Sibling has logical BDF already set in the
                                  --  policy. Remember assigned device number
-                                 --  for later allocation step and reserve
-                                 --  assigned function number.
+                                 --  for later allocation step, reserve
+                                 --  assigned function number and propagate the
+                                 --  BDF to all subject devices referencing this
+                                 --  device function.
 
-                                 Device_Nr := Natural'Value (Dev_Nr);
+                                 Device_Nr := Natural'Value
+                                   (DOM.Core.Elements.Get_Attribute
+                                      (Elem => Assigned_BDF,
+                                       Name => "device"));
+                                 Has_Device_Nr := True;
 
                                  Utils.Reserve_Number
                                    (Allocator => Fun_Nr_Allocator,
-                                    Number    => Natural'Value (Fun_Nr));
+                                    Number    => Natural'Value
+                                      (DOM.Core.Elements.Get_Attribute
+                                         (Elem => Assigned_BDF,
+                                          Name => "function")));
+
+                                 Set_Device_BDFs
+                                   (Logical_Devices => Cur_Log_Devs,
+                                    PCI_Node        => Assigned_BDF);
                               else
 
                                  --  Sibling has no logical BDF, store it in
@@ -667,12 +800,12 @@ is
 
                                  DOM.Core.Append_Node
                                    (List => Devs_To_Allocate,
-                                    N    => Cur_Sibling);
+                                    N    => Cur_Function);
                               end if;
                            end;
                         end loop;
 
-                        if Device_Nr = 0 then
+                        if not Has_Device_Nr then
 
                            --  Get next free device number if no sibling device
                            --  had a logical BDF assigned in the policy.
@@ -685,30 +818,19 @@ is
                           (List => Devs_To_Allocate) - 1
                         loop
                            declare
-                              Alloc_Dev  : constant DOM.Core.Node
+                              Alloc_Function : constant DOM.Core.Node
                                 := DOM.Core.Nodes.Item
                                   (List  => Devs_To_Allocate,
                                    Index => L);
-                              Log_Name   : constant String
-                                := DOM.Core.Elements.Get_Attribute
-                                  (Elem => Alloc_Dev,
-                                   Name => "logical");
-                              PCI_Node   : DOM.Core.Node;
-                              Fun_Number : Natural;
+                              Alloc_Log_Devs : constant DOM.Core.Node_List
+                                := Get_Logical_Devices
+                                  (Subject_Devices => All_Subj_Devs,
+                                   Physical_Device => Alloc_Function);
+                              PCI_Node       : DOM.Core.Node;
+                              Fun_Number     : Natural;
                            begin
                               Utils.Allocate (Allocator => Fun_Nr_Allocator,
                                               Number    => Fun_Number);
-                              Mulog.Log
-                                (Msg => "Setting BDF of logical device '"
-                                 & Log_Name & "' to 00:"
-                                 & Mutools.Utils.To_Hex
-                                   (Number     => Interfaces.Unsigned_64
-                                        (Device_Nr),
-                                    Normalize  => False,
-                                    Byte_Short => True) & "."
-                                 & Ada.Strings.Fixed.Trim
-                                   (Source => Fun_Number'Img,
-                                    Side   => Ada.Strings.Left));
 
                               PCI_Node := Mutools.PCI.Create_PCI_Node
                                 (Policy => Data,
@@ -718,11 +840,9 @@ is
                                  Func   => Mutools.PCI.Function_Range
                                    (Fun_Number));
 
-                              PCI_Node := DOM.Core.Nodes.Insert_Before
-                                (N         => Alloc_Dev,
-                                 New_Child => PCI_Node,
-                                 Ref_Child => DOM.Core.Nodes.First_Child
-                                   (N => Alloc_Dev));
+                              Set_Device_BDFs
+                                (Logical_Devices => Alloc_Log_Devs,
+                                 PCI_Node        => PCI_Node);
                            end;
                         end loop;
                      end;
