@@ -105,6 +105,26 @@ is
 
    -------------------------------------------------------------------------
 
+   procedure Add_Cpu_Nodes
+     (Template     : in out Mutools.Templates.Template_Type;
+      Policy       :        Muxml.XML_Data_Type;
+      Subject_Name : String)
+   is
+      Siblings : constant DOM.Core.Node_List
+      := McKae.XML.XPath.XIA.XPath_Query
+        (N     => Policy.Doc,
+         XPath => "/system/subjects/subject/sibling[@ref='" & Subject_Name & "']");
+   begin
+      Mutools.Templates.Replace
+        (Template => Template,
+         Pattern  => "__sibling_cpus__",
+         Content  => (if DOM.Core.Nodes.Length (Siblings) > 0
+                      then String_Templates.muen_cpu_dsl
+                      else ""));
+   end Add_Cpu_Nodes;
+
+   -------------------------------------------------------------------------
+
    procedure Add_Memory_Nodes
      (Template : in out Mutools.Templates.Template_Type;
       Policy   :        Muxml.XML_Data_Type;
@@ -241,7 +261,6 @@ is
       Subject_Name : String;
       Filename     : String)
    is
-      pragma Unreferenced (Subject_Name);
       Template : Mutools.Templates.Template_Type
         := Mutools.Templates.Create
           (Content => String_Templates.devicetree_dsl);
@@ -257,6 +276,10 @@ is
       Add_Memory_Nodes (Template => Template,
                         Policy   => Policy,
                         Subject  => Subject);
+
+      Add_Cpu_Nodes (Template => Template,
+                     Policy   => Policy,
+                     Subject_Name  => Subject_Name);
 
       DTS.APU_Devices.Add_APU_Devices (Template => Template,
                                        Policy   => Policy,
