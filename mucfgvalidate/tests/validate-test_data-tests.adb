@@ -74,7 +74,7 @@ package body Validate.Test_Data.Tests is
                    File => "data/test_policy.xml");
 
       Register_X86_64;
-      Assert (Condition => XML_Processors.Get_Count = 160,
+      Assert (Condition => XML_Processors.Get_Count = 163,
               Message   => "Count mismatch:"
               & XML_Processors.Get_Count'Img);
       XML_Processors.Clear;
@@ -103,7 +103,7 @@ package body Validate.Test_Data.Tests is
                    File => "data/test_policy-armv8a.xml");
 
       Register_ARMv8a;
-      Assert (Condition => XML_Processors.Get_Count = 101,
+      Assert (Condition => XML_Processors.Get_Count = 102,
               Message   => "Count mismatch:"
               & XML_Processors.Get_Count'Img);
       XML_Processors.Clear;

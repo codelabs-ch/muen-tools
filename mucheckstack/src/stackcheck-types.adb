@@ -92,9 +92,9 @@ is
    procedure Calculate_Stack_Usage (Graph : in out Control_Flow_Graph_Type)
    is
 
-      --  Determine the maximumg stack usage of the given subprogram node
+      --  Determine the maximum stack usage of the given subprogram node
       --  by recursively calculating the worst-case stack usage of all called
-      --  suprograms.
+      --  subprograms.
       procedure Calculate_Stack_Usage (Node : in out Subprogram_Type);
 
       ----------------------------------------------------------------------

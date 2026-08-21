@@ -101,7 +101,7 @@ is
 
                      if Cur_Barrier_Size = 2 then
 
-                        --  Set barrer ID of first matching minor frame.
+                        --  Set barrier ID of first matching minor frame.
 
                         DOM.Core.Elements.Set_Attribute
                           (Elem  => Prev_Deadline.Minor_Frame,

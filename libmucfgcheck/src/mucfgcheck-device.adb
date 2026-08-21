@@ -265,7 +265,7 @@ is
       Cur_Subject : DOM.Core.Node;
 
       --  Check inequality of PCI device reference bus, device, function
-      --   triplets.
+      --  triplets.
       procedure Check_Inequality (Left, Right : DOM.Core.Node);
 
       ----------------------------------------------------------------------

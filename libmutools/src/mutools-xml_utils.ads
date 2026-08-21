@@ -270,6 +270,9 @@ is
    --  function triplets.
    function Equal_BDFs (Left, Right : DOM.Core.Node) return Boolean;
 
+   --  Return BDF string representation of the given PCI node.
+   function To_BDF_Str (PCI_Node : DOM.Core.Node) return String;
+
    --  Set size of given virtual memory node by looking up the corresponding
    --  physical memory region present in the 'Ref_Nodes' list.
    procedure Set_Memory_Size

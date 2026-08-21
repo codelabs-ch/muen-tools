@@ -132,6 +132,11 @@ is
    procedure VM_Entry_Controls_Requirements (XML_Data : Muxml.XML_Data_Type);
 
    --D @Item List => validators_subj
+   --D Validate that the VMX CR0 register meets the requirements for the
+   --D execution of Muen.
+   procedure VMX_CR0_Requirements (XML_Data : Muxml.XML_Data_Type);
+
+   --D @Item List => validators_subj
    --D Validate that the VMX CR0 guest/host masks meet the requirements for the
    --D execution of Muen.
    procedure VMX_CR0_Mask_Requirements (XML_Data : Muxml.XML_Data_Type);

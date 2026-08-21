@@ -22,6 +22,11 @@ is
    --  Size of one memory page in bytes.
    Page_Size : constant := 4096;
 
+   --  Non-canonical address value, see Intel SDM Vol. 1, "3.3.7.1 Canonical
+   --  Addressing". Non-canonical and therefore invalid for both 48-bit and 57
+   --  bit addressing.
+   Non_Canonical_Address : constant := 16#0fff_ffff_ffff_0000#;
+
    --  Model-Specific Registers, see Intel SDM Vol. 4, "Chapter 2
    --  Model-Specific Registers (MSRs)".
    IA32_SYSENTER_CS          : constant := 16#0000_0174#;

@@ -237,7 +237,7 @@
         <AlignmentMask>0</AlignmentMask>
         <NotWritethrough>1</NotWritethrough>
         <CacheDisable>1</CacheDisable>
-        <Paging>0</Paging>
+        <Paging>1</Paging>
        </cr0>
        <cr4>
         <Virtual8086>0</Virtual8086>
@@ -297,7 +297,7 @@
        <AlignmentMask>0</AlignmentMask>
        <NotWritethrough>0</NotWritethrough>
        <CacheDisable>0</CacheDisable>
-       <Paging>0</Paging>
+       <Paging>1</Paging>
       </cr0>
       <cr0Shadow>
        <ProtectionEnable>1</ProtectionEnable>
@@ -310,7 +310,7 @@
        <AlignmentMask>0</AlignmentMask>
        <NotWritethrough>0</NotWritethrough>
        <CacheDisable>0</CacheDisable>
-       <Paging>0</Paging>
+       <Paging>1</Paging>
       </cr0Shadow>
       <cr4>
        <Virtual8086>0</Virtual8086>

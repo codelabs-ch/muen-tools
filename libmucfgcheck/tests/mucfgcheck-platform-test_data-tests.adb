@@ -94,24 +94,55 @@ package body Mucfgcheck.Platform.Test_Data.Tests is
       Assert (Condition => Validation_Errors.Is_Empty,
               Message   => "Unexpected error in positive test");
 
+      --  Check that invalid alias resources references are caught.
+
+      Validation_Errors.Clear;
       Muxml.Utils.Set_Attribute
         (Doc   => Data.Doc,
-         XPath => "/system/platform/mappings/aliases/alias/"
+         XPath => "/system/platform/mappings/aliases/alias[@name='nic']/"
          & "resource[@name='mem1']",
          Name  => "physical",
          Value => "nonexistent");
 
-      begin
-         Alias_Physical_Device_Resource_References (XML_Data => Data);
-         Assert (Condition => False,
-                 Message   => "Exception expected");
+      Alias_Physical_Device_Resource_References (XML_Data => Data);
+      Assert (Condition => Validation_Errors.Contains
+              (Msg => "Physical device resource 'ethernet->nonexistent' "
+               & "referenced by device alias 'nic->mem1' not found"),
+              Message   => "Exception mismatch:" & Validation_Errors.Get_Error_Message);
+      Muxml.Utils.Set_Attribute
+        (Doc   => Data.Doc,
+         XPath => "/system/platform/mappings/aliases/alias[@name='nic']/"
+         & "resource[@name='mem1']",
+         Name  => "physical",
+         Value => "mmio1");
 
-      exception
-         when Validation_Errors.Validation_Error =>
-            Assert (Condition => Validation_Errors.Contains
-                    (Msg => "Physical device resource 'nonexistent' referenced by "
-                     & "alias resource 'mem1' of device alias 'nic' not found"),
-                    Message   => "Exception mismatch");
+      --  Check that invalid nested/msi alias resources are caught.
+
+      Validation_Errors.Clear;
+      declare
+         Alias_MSI : DOM.Core.Node := DOM.Core.Documents.Create_Element
+           (Doc      => Data.Doc,
+            Tag_Name => "resource");
+      begin
+         DOM.Core.Elements.Set_Attribute
+           (Elem  => Alias_MSI,
+            Name  => "name",
+            Value => "msi");
+         DOM.Core.Elements.Set_Attribute
+           (Elem  => Alias_MSI,
+            Name  => "physical",
+            Value => "msi1");
+         Muxml.Utils.Append_Child
+           (Node      => Muxml.Utils.Get_Element
+              (Doc => Data.Doc,
+               XPath => "/system/platform/mappings/aliases/alias[@name='wlan']/"
+               & "resource[@name='interrupt']"),
+            New_Child => Alias_MSI);
+         Alias_Physical_Device_Resource_References (XML_Data => Data);
+         Assert (Condition => Validation_Errors.Contains
+                 (Msg => "Physical device resource 'wireless->irq->msi1' "
+                  & "referenced by device alias 'wlan->interrupt->msi' not found"),
+                 Message   => "Exception mismatch:" & Validation_Errors.Get_Error_Message);
       end;
 --  begin read only
    end Test_Alias_Physical_Device_Resource_References;

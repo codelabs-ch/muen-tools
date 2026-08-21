@@ -407,7 +407,7 @@ is
         (Process => Kernel.CPU_Memory_Section_Count'Access);
 
       --  Arch Dedependent: The ARMv8-A PMU is not yet supported and
-      --  is completey different from an architectural point of view.
+      --  is completely different from an architectural point of view.
       --  These checks have to be added after PMU integration.
 
       --  Arch Independent: Validate that the debug console device and
@@ -482,6 +482,9 @@ is
       --  the crash audit region.
       XML_Processors.Register
         (Process => Subject.Crash_Audit_Write_Access'Access);
+      --  Arch Independent: Validate that no subject has access to IOMMU.
+      XML_Processors.Register
+        (Process => Subject.No_IOMMU_Device_References'Access);
 
       --  Arch Dependent?: In an ARMv8-A SoC, PCI devices are always
       --  memory mapped. Therefore 'Device_Mmconf_Mappings' seems to
@@ -851,6 +854,8 @@ is
       XML_Processors.Register
         (Process => Subject.Device_Mmconf_Mappings'Access);
       XML_Processors.Register
+        (Process => Subject.No_IOMMU_Device_References'Access);
+      XML_Processors.Register
         (Process => Subject.VCPU_Architecture_Consistency'Access);
       XML_Processors.Register
         (Process => Subject.VMX_Controls_Entry_Checks'Access);
@@ -864,6 +869,8 @@ is
         (Process => Subject.VM_Exit_Controls_Requirements'Access);
       XML_Processors.Register
         (Process => Subject.VM_Entry_Controls_Requirements'Access);
+      XML_Processors.Register
+        (Process => Subject.VMX_CR0_Requirements'Access);
       XML_Processors.Register
         (Process => Subject.VMX_CR0_Mask_Requirements'Access);
       XML_Processors.Register
@@ -954,6 +961,8 @@ is
         (Process => Device_Domains.Domain_PT_Region_Presence'Access);
       XML_Processors.Register
         (Process => Device_Domains.PCI_Bus_Context_Region_Presence'Access);
+      XML_Processors.Register
+        (Process => Device_Domains.PCI_Device_References'Access);
    end Register_X86_64;
 
    -------------------------------------------------------------------------

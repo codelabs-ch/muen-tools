@@ -248,7 +248,7 @@ is
               (Number    => Unsigned_64 (CPU_Count),
                Normalize => False));
 
-         for I in 0 .. (CPU_Count - 1) loop
+         for I in 0 .. CPU_Count - 1 loop
             declare
                CPU_Str : constant String := Ada.Strings.Fixed.Trim
                  (Source => I'Img,

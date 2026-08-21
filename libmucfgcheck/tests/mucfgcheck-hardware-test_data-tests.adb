@@ -249,7 +249,7 @@ package body Mucfgcheck.Hardware.Test_Data.Tests is
          Value => "2");
       PCI_BAR_Config (XML_Data => Data);
       Assert (Condition => Validation_Errors.Contains
-              (Msg => "PCI device 'ethernet' BAR config index attribues not "
+              (Msg => "PCI device 'ethernet' BAR config index attributes not "
                & "unique. Conflicting value: '2'"),
               Message   => "Exception mismatch (BAR config index uniqueness)");
 
