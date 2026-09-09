@@ -569,6 +569,36 @@
   </xs:attribute>
  </xs:complexType>
 
+ <xs:complexType name="sourceEventArrayType">
+  <xs:annotation>
+   <xs:documentation>
+    The source event array abstraction simplifies the declaration of consecutive
+    source events with a given base ID. The child elements declare the number of
+    expected events.
+   </xs:documentation>
+  </xs:annotation>
+  <xs:sequence>
+   <xs:element name="event" type="arrayEntryType" minOccurs="0" maxOccurs="unbounded"/>
+  </xs:sequence>
+  <xs:attribute name="logical" type="nameType" use="required">
+   <xs:annotation>
+    <xs:documentation>
+     Logical event array name.
+    </xs:documentation>
+   </xs:annotation>
+  </xs:attribute>
+  <xs:attribute name="eventBase" type="eventIdType" use="required">
+   <xs:annotation>
+    <xs:documentation>
+     The \texttt{eventBase} attribute specifies the event number of the first
+     element in the array. This number is incremented for all further elements
+     in the array (\texttt{eventBase + 1}). For valid event ID ranges see
+     \texttt{vmcall} group in \ref{system_src.xsd:sourceEventEntryType}.
+    </xs:documentation>
+   </xs:annotation>
+  </xs:attribute>
+ </xs:complexType>
+
  <xs:complexType name="logicalEventsType">
   <xs:annotation>
    <xs:documentation>
@@ -593,9 +623,10 @@
     Specifies expected source events.
    </xs:documentation>
   </xs:annotation>
-  <xs:sequence>
-   <xs:element name="event" type="logicalSourceEventEntryType" minOccurs="1" maxOccurs="unbounded"/>
-  </xs:sequence>
+  <xs:choice minOccurs="0" maxOccurs="unbounded">
+   <xs:element name="event" type="logicalSourceEventEntryType"/>
+   <xs:element name="array" type="sourceEventArrayType"/>
+  </xs:choice>
  </xs:complexType>
 
  <xs:complexType name="logicalEventTargetType">
