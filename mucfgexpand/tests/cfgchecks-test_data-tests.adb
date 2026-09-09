@@ -182,6 +182,7 @@ package body Cfgchecks.Test_Data.Tests is
       Expanders.Components.Add_Library_Resources (Data => Policy);
       Expanders.Components.Add_Channel_Arrays (Data => Policy);
       Expanders.Components.Add_Memory_Arrays (Data => Policy);
+      Expanders.Components.Add_Source_Event_Arrays (Data => Policy);
 
       --  Positive test, must not raise exception.
 
@@ -546,6 +547,7 @@ package body Cfgchecks.Test_Data.Tests is
       Muxml.Parse (Data => Policy,
                    Kind => Muxml.Format_Src,
                    File => "data/test_policy.xml");
+      Expanders.Components.Add_Source_Event_Arrays (Data => Policy);
 
       --  Positive test, must not raise exception.
 

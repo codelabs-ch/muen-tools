@@ -29,11 +29,13 @@
     </devices>                                                                                                                                              </devices>
     <events>                                                                                                                                                <events>
 --
-       <system_poweroff/>                                                                                                                                      <system_poweroff/>
-      </event>                                                                                                                                                </event>
+       <event logical="doorbell_2"/>                                                                                                                           <event logical="doorbell_2"/>
+      </array>                                                                                                                                                </array>
+                                                                                                                                                     >        <event id="26" logical="doorbell_1"/>
+                                                                                                                                                     >        <event id="27" logical="doorbell_2"/>
                                                                                                                                                      >        <event id="20" logical="foo"/>
-      <array eventBase="26" logical="doorbells">                                                                                                              <array eventBase="26" logical="doorbells">
-       <event logical="doorbell_1"/>                                                                                                                           <event logical="doorbell_1"/>
+     </source>                                                                                                                                               </source>
+     <target>                                                                                                                                                <target>
 --
        <inject_interrupt vector="37"/>                                                                                                                         <inject_interrupt vector="37"/>
       </event>                                                                                                                                                </event>
@@ -103,6 +105,8 @@
       </default>                                                                                                                                     |        <event id="31" logical="shutdown" physical="system_poweroff">
                                                                                                                                                      >         <system_poweroff/>
                                                                                                                                                      >        </event>
+                                                                                                                                                     >        <event id="26" logical="doorbell_1" physical="doorbell_1_subject2"/>
+                                                                                                                                                     >        <event id="27" logical="doorbell_2" physical="doorbell_2_subject2"/>
                                                                                                                                                      >        <event id="20" logical="foo" physical="foo_subject1"/>
      </group>                                                                                                                                                </group>
     </source>                                                                                                                                               </source>

@@ -15,3 +15,9 @@
      <event logical="ping_from_lnx" physical="ping_subject2">                                                                                        |       <event id="0" logical="ping_from_lnx" physical="ping_subject2">
       <inject_interrupt vector="32"/>                                                                                                                         <inject_interrupt vector="32"/>
      </event>                                                                                                                                                </event>
+     <event logical="doorbell_1_from_subject1" physical="doorbell_1_subject2">                                                                       |       <event id="1" logical="doorbell_1_from_subject1" physical="doorbell_1_subject2">
+      <inject_interrupt vector="40"/>                                                                                                                         <inject_interrupt vector="40"/>
+     </event>                                                                                                                                                </event>
+     <event logical="doorbell_2_from_subject1" physical="doorbell_2_subject2">                                                                       |       <event id="2" logical="doorbell_2_from_subject1" physical="doorbell_2_subject2">
+      <inject_interrupt vector="41"/>                                                                                                                         <inject_interrupt vector="41"/>
+     </event>                                                                                                                                                </event>

@@ -40,6 +40,8 @@
     <map logical="timer" physical="timer_subject1"/>                                                                                                 <
     <map logical="foo" physical="foo_subject1"/>                                                                                                     <
     <map logical="self_reset" physical="foo_subject1"/>                                                                                              <
+    <map logical="doorbell_1" physical="doorbell_1_subject2"/>                                                                                       <
+    <map logical="doorbell_2" physical="doorbell_2_subject2"/>                                                                                       <
    </component>                                                                                                                                      <
   </subject>                                                                                                                                              </subject>
   <subject name="subject2">                                                                                                                               <subject name="subject2">
