@@ -210,6 +210,18 @@ is
 
    -------------------------------------------------------------------------
 
+   procedure Event_Array_Attrs_As_String
+     (Arr        :     DOM.Core.Node;
+      Event_Base : out Ada.Strings.Unbounded.Unbounded_String)
+   is
+   begin
+      Event_Base := U (DOM.Core.Elements.Get_Attribute
+                       (Elem => Arr,
+                        Name => "eventBase"));
+   end Event_Array_Attrs_As_String;
+
+   -------------------------------------------------------------------------
+
    function Get_Channel_Kind (Node : DOM.Core.Node) return Channel_Kind
    is
       use type DOM.Core.Node;

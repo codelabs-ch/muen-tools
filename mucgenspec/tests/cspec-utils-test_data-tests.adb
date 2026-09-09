@@ -1361,6 +1361,41 @@ package body Cspec.Utils.Test_Data.Tests is
 
 
 --  begin read only
+   procedure Test_Event_Array_Attrs_As_String (Gnattest_T : in out Test);
+   procedure Test_Event_Array_Attrs_As_String_af191d (Gnattest_T : in out Test) renames Test_Event_Array_Attrs_As_String;
+--  id:2.2/af191dbc8f7cb672/Event_Array_Attrs_As_String/1/0/
+   procedure Test_Event_Array_Attrs_As_String (Gnattest_T : in out Test) is
+--  end read only
+
+      pragma Unreferenced (Gnattest_T);
+
+      Impl       : DOM.Core.DOM_Implementation;
+      Data       : Muxml.XML_Data_Type;
+      Node       : DOM.Core.Node;
+      Event_Base : Unbounded_String;
+      Ref_Base   : constant String := "20";
+   begin
+      Data.Doc := DOM.Core.Create_Document (Implementation => Impl);
+
+      Node := DOM.Core.Documents.Create_Element
+        (Doc      => Data.Doc,
+         Tag_Name => "array");
+      DOM.Core.Elements.Set_Attribute
+        (Elem  => Node,
+         Name  => "eventBase",
+         Value => Ref_Base);
+
+      Event_Array_Attrs_As_String
+        (Arr        => Node,
+         Event_Base => Event_Base);
+      Assert (Condition => To_String (Event_Base) = Ref_Base,
+              Message   => "Event base mismatch");
+--  begin read only
+   end Test_Event_Array_Attrs_As_String;
+--  end read only
+
+
+--  begin read only
    procedure Test_Get_Channel_Kind (Gnattest_T : in out Test);
    procedure Test_Get_Channel_Kind_019f06 (Gnattest_T : in out Test) renames Test_Get_Channel_Kind;
 --  id:2.2/019f069797309693/Get_Channel_Kind/1/0/

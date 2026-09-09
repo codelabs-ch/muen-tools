@@ -125,6 +125,11 @@ private
      (Arr        :     DOM.Core.Node;
       Event_Base : out Ada.Strings.Unbounded.Unbounded_String);
 
+   --  Return source event array attributes as unbounded strings.
+   procedure Event_Array_Attrs_As_String
+     (Arr        :     DOM.Core.Node;
+      Event_Base : out Ada.Strings.Unbounded.Unbounded_String);
+
    type Channel_Kind is
      (Reader,
       Writer,
