@@ -1884,6 +1884,72 @@ package body Cfgchecks.Test_Data.Tests is
 
 
 --  begin read only
+   procedure Test_Component_Source_Event_Array_ID_Range (Gnattest_T : in out Test);
+   procedure Test_Component_Source_Event_Array_ID_Range_f46b0e (Gnattest_T : in out Test) renames Test_Component_Source_Event_Array_ID_Range;
+--  id:2.2/f46b0e948edd0bbc/Component_Source_Event_Array_ID_Range/1/0/
+   procedure Test_Component_Source_Event_Array_ID_Range (Gnattest_T : in out Test) is
+--  end read only
+
+      pragma Unreferenced (Gnattest_T);
+
+      Policy : Muxml.XML_Data_Type;
+   begin
+      Muxml.Parse (Data => Policy,
+                   Kind => Muxml.Format_Src,
+                   File => "data/test_policy.xml");
+
+      --  Positive test, must not raise an exception.
+
+      Component_Source_Event_Array_ID_Range (XML_Data => Policy);
+      Assert (Condition => Mucfgcheck.Validation_Errors.Is_Empty,
+              Message   => "Unexpected error in positive test");
+
+      --  Last element ID = Event_ID'Last, must not raise an exception.
+
+      Muxml.Utils.Set_Attribute
+        (Doc   => Policy.Doc,
+         XPath => "/system/components/component[@name='c1']/requires/events"
+         & "/source/array[@logical='doorbells']",
+         Name  => "eventBase",
+         Value => "62");
+
+      Component_Source_Event_Array_ID_Range (XML_Data => Policy);
+      Assert (Condition => Mucfgcheck.Validation_Errors.Is_Empty,
+              Message   => "Unexpected error (1)");
+
+      --  Last element ID > Event_ID'Last.
+
+      Muxml.Utils.Set_Attribute
+        (Doc   => Policy.Doc,
+         XPath => "/system/components/component[@name='c1']/requires/events"
+         & "/source/array[@logical='doorbells']",
+         Name  => "eventBase",
+         Value => "63");
+
+      Component_Source_Event_Array_ID_Range (XML_Data => Policy);
+      Assert (Condition => Mucfgcheck.Validation_Errors.Contains
+              (Msg => "Source event array 'doorbells' of component 'c1' with "
+               & "event base 63 and 2 element(s) exceeds maximum event ID "
+               & "63"),
+              Message   => "Exception mismatch");
+
+      --  Empty array, must not raise an exception.
+
+      Mucfgcheck.Validation_Errors.Clear;
+      Muxml.Utils.Remove_Elements
+        (Doc   => Policy.Doc,
+         XPath => "/system/components/component[@name='c1']/requires/events"
+         & "/source/array[@logical='doorbells']/event");
+
+      Component_Source_Event_Array_ID_Range (XML_Data => Policy);
+      Assert (Condition => Mucfgcheck.Validation_Errors.Is_Empty,
+              Message   => "Unexpected error (2)");
+--  begin read only
+   end Test_Component_Source_Event_Array_ID_Range;
+--  end read only
+
+
+--  begin read only
    procedure Test_Component_Channel_Event (Gnattest_T : in out Test);
    procedure Test_Component_Channel_Event_41519c (Gnattest_T : in out Test) renames Test_Component_Channel_Event;
 --  id:2.2/41519c5a874c2bbf/Component_Channel_Event/1/0/

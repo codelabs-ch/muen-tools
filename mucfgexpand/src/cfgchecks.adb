@@ -32,6 +32,7 @@ with Mulog;
 with Muxml.Utils;
 with Mucfgcheck.Validation_Errors;
 with Mutools.Match;
+with Mutools.Types;
 with Mutools.Utils;
 with Mutools.XML_Utils;
 
@@ -1351,6 +1352,65 @@ is
          Attr_Name   => "name",
          Description => "component");
    end Component_Name_Uniqueness;
+
+   -------------------------------------------------------------------------
+
+   procedure Component_Source_Event_Array_ID_Range
+     (XML_Data : Muxml.XML_Data_Type)
+   is
+      Event_Arrays : constant DOM.Core.Node_List
+        := McKae.XML.XPath.XIA.XPath_Query
+          (N     => XML_Data.Doc,
+           XPath => "/system/components/*/requires/events/source/array");
+      Arr_Count    : constant Natural
+        := DOM.Core.Nodes.Length (List => Event_Arrays);
+      Max_ID       : constant Natural
+        := Mutools.Types.Get_Max_ID (Group => Mutools.Types.Vmcall);
+   begin
+      if Arr_Count = 0 then
+         return;
+      end if;
+
+      Mulog.Log (Msg => "Checking event ID range of" & Arr_Count'Img
+                 & " component source event array(s)");
+
+      for I in 0 .. Arr_Count - 1 loop
+         declare
+            Cur_Node  : constant DOM.Core.Node
+              := DOM.Core.Nodes.Item
+                (List  => Event_Arrays,
+                 Index => I);
+            Cur_Name  : constant String
+              := DOM.Core.Elements.Get_Attribute
+                (Elem => Cur_Node,
+                 Name => "logical");
+            Comp_Name : constant String
+              := DOM.Core.Elements.Get_Attribute
+                (Elem => Muxml.Utils.Ancestor_Node
+                   (Node  => Cur_Node,
+                    Level => 4),
+                 Name => "name");
+            Evt_Base  : constant Natural
+              := Natural'Value
+                (DOM.Core.Elements.Get_Attribute
+                   (Elem => Cur_Node,
+                    Name => "eventBase"));
+            Evt_Count : constant Natural
+              := DOM.Core.Nodes.Length
+                (List => McKae.XML.XPath.XIA.XPath_Query
+                   (N     => Cur_Node,
+                    XPath => "event"));
+         begin
+            if Evt_Count > 0 and then Evt_Base + Evt_Count - 1 > Max_ID then
+               Mucfgcheck.Validation_Errors.Insert
+                 (Msg => "Source event array '" & Cur_Name & "' of component '"
+                  & Comp_Name & "' with event base" & Evt_Base'Img & " and"
+                  & Evt_Count'Img & " element(s) exceeds maximum event ID"
+                  & Max_ID'Img);
+            end if;
+         end;
+      end loop;
+   end Component_Source_Event_Array_ID_Range;
 
    -------------------------------------------------------------------------
 
