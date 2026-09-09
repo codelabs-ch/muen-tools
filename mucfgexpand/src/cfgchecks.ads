@@ -137,6 +137,11 @@ is
    procedure Component_Channel_Name_Uniqueness
      (XML_Data : Muxml.XML_Data_Type);
 
+   --  Check that component logical names of required source and target
+   --  events are unique.
+   procedure Component_Event_Name_Uniqueness
+     (XML_Data : Muxml.XML_Data_Type);
+
    --  Check that the event IDs of component source event arrays are in the
    --  valid range, i.e. the ID of the last array element (eventBase + number
    --  of elements - 1) must not exceed the maximum vmcall event ID.
