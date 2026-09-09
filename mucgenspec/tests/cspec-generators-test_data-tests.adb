@@ -252,6 +252,43 @@ package body Cspec.Generators.Test_Data.Tests is
 
 
 --  begin read only
+   procedure Test_Get_Event_Arrays_Str (Gnattest_T : in out Test);
+   procedure Test_Get_Event_Arrays_Str_18f97d (Gnattest_T : in out Test) renames Test_Get_Event_Arrays_Str;
+--  id:2.2/18f97dcc79b03e50/Get_Event_Arrays_Str/1/0/
+   procedure Test_Get_Event_Arrays_Str (Gnattest_T : in out Test) is
+--  end read only
+
+      pragma Unreferenced (Gnattest_T);
+
+      Fn   : constant String := "get_event_arrays";
+      Tmpl : Mutools.Templates.Template_Type;
+      Spec : Muxml.XML_Data_Type;
+   begin
+      Muxml.Parse (Data => Spec,
+                   Kind => Muxml.None,
+                   File => "data/component_vt.xml");
+
+      Tmpl := Mutools.Templates.Create
+        (Content => Get_Event_Arrays_Str (Spec => Spec));
+      Mutools.Templates.Write (Template => Tmpl,
+                               Filename => "obj/" & Fn);
+      Assert (Condition => Test_Utils.Equal_Files
+              (Filename1 => "obj/" & Fn,
+               Filename2 => "data/" & Fn),
+              Message   => "Content mismatch");
+      Ada.Directories.Delete_File (Name => "obj/" & Fn);
+
+      Muxml.Parse (Data => Spec,
+                   Kind => Muxml.None,
+                   File => "data/component_nores.xml");
+      Assert (Condition => Get_Event_Arrays_Str (Spec => Spec) = "",
+              Message   => "Content mismatch (2)");
+--  begin read only
+   end Test_Get_Event_Arrays_Str;
+--  end read only
+
+
+--  begin read only
    procedure Test_Get_Config_Str (Gnattest_T : in out Test);
    procedure Test_Get_Config_Str_e1882c (Gnattest_T : in out Test) renames Test_Get_Config_Str;
 --  id:2.2/e1882c78bcd9832f/Get_Config_Str/1/0/

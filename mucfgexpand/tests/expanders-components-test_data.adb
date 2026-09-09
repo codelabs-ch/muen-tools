@@ -27,6 +27,7 @@ package body Expanders.Components.Test_Data is
    is
    begin
       Subjects.Add_Missing_Elements (Data => Data);
+      Add_Source_Event_Arrays (Data => Data);
       Add_Library_Resources (Data => Data);
    end Prepare_Component_Events;
 

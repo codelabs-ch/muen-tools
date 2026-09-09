@@ -127,6 +127,8 @@ is
            := Generators.Get_Memory_Arrays_Str (Spec => Spec);
          Channel_Arrays : constant String
            := Generators.Get_Channel_Arrays_Str (Spec => Spec);
+         Event_Arrays : constant String
+           := Generators.Get_Event_Arrays_Str (Spec => Spec);
       begin
          if not Ada.Directories.Exists (Name => Output_Directory) then
             Ada.Directories.Create_Path (New_Directory => Output_Directory);
@@ -143,6 +145,7 @@ is
            and then Events'Length = 0
            and then Mem_Arrays'Length = 0
            and then Channel_Arrays'Length = 0
+           and then Event_Arrays'Length = 0
          then
             Mutools.Templates.Replace
               (Template => Tmpl,
@@ -233,6 +236,15 @@ is
             Pattern  => "__channel_arrays__",
             Content  => Channel_Arrays,
             Filename => Fname_Base & "-channel_arrays.ads");
+
+         Tmpl := Create_Template
+           (Comp_Name => Pack_Name,
+            Content   => String_Templates.component_event_arrays_ads);
+         Create_Child_Package
+           (Tmpl     => Tmpl,
+            Pattern  => "__event_arrays__",
+            Content  => Event_Arrays,
+            Filename => Fname_Base & "-event_arrays.ads");
 
          Mulog.Log (Msg => "Specs generated successfully");
 

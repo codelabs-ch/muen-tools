@@ -482,6 +482,8 @@
   <event mode="switch" name="handover_to_lnx"/>
   <event mode="self" name="timer_subject1"/>
   <event mode="self" name="foo_subject1"/>
+  <event mode="async" name="doorbell_1_subject2"/>
+  <event mode="async" name="doorbell_2_subject2"/>
   <event mode="kernel" name="system_reboot"/>
   <event mode="kernel" name="system_poweroff"/>
   <event mode="kernel" name="system_panic"/>
@@ -1699,6 +1701,8 @@
       <event id="31" logical="shutdown" physical="system_poweroff">
        <system_poweroff/>
       </event>
+      <event id="26" logical="doorbell_1" physical="doorbell_1_subject2"/>
+      <event id="27" logical="doorbell_2" physical="doorbell_2_subject2"/>
       <event id="20" logical="foo" physical="foo_subject1"/>
       <event id="1" logical="primary_data" physical="data_channel"/>
       <event id="1" logical="secondary_data" physical="data_channel2"/>
@@ -2336,10 +2340,16 @@
      <event id="0" logical="ping_from_lnx" physical="ping_subject2">
       <inject_interrupt vector="32"/>
      </event>
-     <event id="1" logical="c3" physical="chan_array3">
+     <event id="1" logical="doorbell_1_from_subject1" physical="doorbell_1_subject2">
+      <inject_interrupt vector="40"/>
+     </event>
+     <event id="2" logical="doorbell_2_from_subject1" physical="doorbell_2_subject2">
+      <inject_interrupt vector="41"/>
+     </event>
+     <event id="3" logical="c3" physical="chan_array3">
       <inject_interrupt vector="128"/>
      </event>
-     <event id="2" logical="c4" physical="chan_array4">
+     <event id="4" logical="c4" physical="chan_array4">
       <inject_interrupt vector="129"/>
      </event>
     </target>

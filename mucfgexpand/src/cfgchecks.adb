@@ -32,6 +32,7 @@ with Mulog;
 with Muxml.Utils;
 with Mucfgcheck.Validation_Errors;
 with Mutools.Match;
+with Mutools.Types;
 with Mutools.Utils;
 with Mutools.XML_Utils;
 
@@ -1090,6 +1091,81 @@ is
 
    -------------------------------------------------------------------------
 
+   procedure Component_Event_Name_Uniqueness (XML_Data : Muxml.XML_Data_Type)
+   is
+      use Ada.Strings.Unbounded;
+
+      Components : constant DOM.Core.Node_List
+        := McKae.XML.XPath.XIA.XPath_Query
+          (N     => XML_Data.Doc,
+           XPath => "/system/components/component");
+
+      subtype Event_Kind_String is String (1 .. 6);
+
+      Event_Kinds : constant array (1 .. 2) of Event_Kind_String
+        := (1 => "source",
+            2 => "target");
+
+      Component_Name : Unbounded_String;
+      Event_Kind     : Event_Kind_String;
+
+      --  Check inequality of logical event names.
+      procedure Check_Inequality (Left, Right : DOM.Core.Node);
+
+      ----------------------------------------------------------------------
+
+      procedure Check_Inequality (Left, Right : DOM.Core.Node)
+      is
+         Left_Name  : constant String := DOM.Core.Elements.Get_Attribute
+           (Elem => Left,
+            Name => "logical");
+         Right_Name : constant String := DOM.Core.Elements.Get_Attribute
+           (Elem => Right,
+            Name => "logical");
+      begin
+         if Left_Name = Right_Name then
+            Mucfgcheck.Validation_Errors.Insert
+              (Msg => "Multiple " & Event_Kind & " events with name '"
+               & Left_Name & "' in component '"
+               & To_String (Component_Name) & "'");
+         end if;
+      end Check_Inequality;
+   begin
+      for I in 0 .. DOM.Core.Nodes.Length (List => Components) - 1 loop
+         declare
+            Comp_Node : constant DOM.Core.Node
+              := DOM.Core.Nodes.Item (List  => Components,
+                                      Index => I);
+         begin
+            Component_Name := To_Unbounded_String
+              (DOM.Core.Elements.Get_Attribute
+                 (Elem => Comp_Node,
+                  Name => "name"));
+            for Kind of Event_Kinds loop
+               Event_Kind := Kind;
+               declare
+                  Events : constant DOM.Core.Node_List
+                    := McKae.XML.XPath.XIA.XPath_Query
+                      (N     => Comp_Node,
+                       XPath => "requires/events/" & Kind & "/event");
+               begin
+                  if DOM.Core.Nodes.Length (List => Events) > 1 then
+                     Mulog.Log (Msg => "Checking uniqueness of"
+                                & DOM.Core.Nodes.Length (List => Events)'Img
+                                & " " & Kind & " event names in component '"
+                                & To_String (Component_Name) & "'");
+                     Mucfgcheck.Compare_All
+                       (Nodes      => Events,
+                        Comparator => Check_Inequality'Access);
+                  end if;
+               end;
+            end loop;
+         end;
+      end loop;
+   end Component_Event_Name_Uniqueness;
+
+   -------------------------------------------------------------------------
+
    procedure Component_Library_Cyclic_References
      (XML_Data : Muxml.XML_Data_Type)
    is
@@ -1351,6 +1427,65 @@ is
          Attr_Name   => "name",
          Description => "component");
    end Component_Name_Uniqueness;
+
+   -------------------------------------------------------------------------
+
+   procedure Component_Source_Event_Array_ID_Range
+     (XML_Data : Muxml.XML_Data_Type)
+   is
+      Event_Arrays : constant DOM.Core.Node_List
+        := McKae.XML.XPath.XIA.XPath_Query
+          (N     => XML_Data.Doc,
+           XPath => "/system/components/*/requires/events/source/array");
+      Arr_Count    : constant Natural
+        := DOM.Core.Nodes.Length (List => Event_Arrays);
+      Max_ID       : constant Natural
+        := Mutools.Types.Get_Max_ID (Group => Mutools.Types.Vmcall);
+   begin
+      if Arr_Count = 0 then
+         return;
+      end if;
+
+      Mulog.Log (Msg => "Checking event ID range of" & Arr_Count'Img
+                 & " component source event array(s)");
+
+      for I in 0 .. Arr_Count - 1 loop
+         declare
+            Cur_Node  : constant DOM.Core.Node
+              := DOM.Core.Nodes.Item
+                (List  => Event_Arrays,
+                 Index => I);
+            Cur_Name  : constant String
+              := DOM.Core.Elements.Get_Attribute
+                (Elem => Cur_Node,
+                 Name => "logical");
+            Comp_Name : constant String
+              := DOM.Core.Elements.Get_Attribute
+                (Elem => Muxml.Utils.Ancestor_Node
+                   (Node  => Cur_Node,
+                    Level => 4),
+                 Name => "name");
+            Evt_Base  : constant Natural
+              := Natural'Value
+                (DOM.Core.Elements.Get_Attribute
+                   (Elem => Cur_Node,
+                    Name => "eventBase"));
+            Evt_Count : constant Natural
+              := DOM.Core.Nodes.Length
+                (List => McKae.XML.XPath.XIA.XPath_Query
+                   (N     => Cur_Node,
+                    XPath => "event"));
+         begin
+            if Evt_Count > 0 and then Evt_Base + Evt_Count - 1 > Max_ID then
+               Mucfgcheck.Validation_Errors.Insert
+                 (Msg => "Source event array '" & Cur_Name & "' of component '"
+                  & Comp_Name & "' with event base" & Evt_Base'Img & " and"
+                  & Evt_Count'Img & " element(s) exceeds maximum event ID"
+                  & Max_ID'Img);
+            end if;
+         end;
+      end loop;
+   end Component_Source_Event_Array_ID_Range;
 
    -------------------------------------------------------------------------
 

@@ -1,0 +1,16 @@
+   Doorbells_Event_Base    : constant := 20;
+   Doorbells_Element_Count : constant := 2;
+
+   Doorbells_Names : constant Name_Array (1 .. Doorbells_Element_Count)
+     := (
+         1 => To_Name (Str => "doorbell_1"),
+         2 => To_Name (Str => "doorbell_2")
+        );
+
+   Empty_Evarray_Event_Base    : constant := 40;
+   Empty_Evarray_Element_Count : constant := 0;
+
+   Empty_Evarray_Names : constant Name_Array (1 .. Empty_Evarray_Element_Count)
+     := (
+         others => To_Name (Str => "")
+        );

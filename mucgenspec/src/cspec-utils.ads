@@ -46,6 +46,9 @@ is
    --  Convert given channel array node to string representation.
    function To_Channel_Array_Str (Arr : DOM.Core.Node) return String;
 
+   --  Convert given source event array node to string representation.
+   function To_Event_Array_Str (Arr : DOM.Core.Node) return String;
+
    --  Convert given config variable node to string representation.
    function To_Config_Variable_Str (Var : DOM.Core.Node) return String;
 
@@ -122,6 +125,11 @@ private
 
    --  Return channel writer array attributes as unbounded strings.
    procedure Channel_Writer_Array_Attrs_As_String
+     (Arr        :     DOM.Core.Node;
+      Event_Base : out Ada.Strings.Unbounded.Unbounded_String);
+
+   --  Return source event array attributes as unbounded strings.
+   procedure Event_Array_Attrs_As_String
      (Arr        :     DOM.Core.Node;
       Event_Base : out Ada.Strings.Unbounded.Unbounded_String);
 

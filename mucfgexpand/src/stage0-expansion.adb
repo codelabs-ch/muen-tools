@@ -55,6 +55,7 @@ is
 
       Procs.Register (Process => Components.Add_Memory_Arrays'Access);
       Procs.Register (Process => Components.Add_Channel_Arrays'Access);
+      Procs.Register (Process => Components.Add_Source_Event_Arrays'Access);
 
       Procs.Register (Process => Components.Add_Library_Resources'Access);
    end Register_All;

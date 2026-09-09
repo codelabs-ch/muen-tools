@@ -218,6 +218,8 @@
   <event mode="switch" name="handover_to_lnx"/>
   <event mode="self" name="timer_subject1"/>
   <event mode="self" name="foo_subject1"/>
+  <event mode="async" name="doorbell_1_subject2"/>
+  <event mode="async" name="doorbell_2_subject2"/>
   <event mode="kernel" name="system_reboot"/>
   <event mode="kernel" name="system_poweroff"/>
   <event mode="kernel" name="system_panic"/>
@@ -348,6 +350,10 @@
       <event id="31" logical="shutdown">
        <system_poweroff/>
       </event>
+      <array eventBase="26" logical="doorbells">
+       <event logical="doorbell_1"/>
+       <event logical="doorbell_2"/>
+      </array>
      </source>
      <target>
       <event logical="timer">
@@ -564,6 +570,8 @@
     <map logical="timer" physical="timer_subject1"/>
     <map logical="foo" physical="foo_subject1"/>
     <map logical="self_reset" physical="foo_subject1"/>
+    <map logical="doorbell_1" physical="doorbell_1_subject2"/>
+    <map logical="doorbell_2" physical="doorbell_2_subject2"/>
    </component>
   </subject>
   <subject name="subject2">
@@ -594,6 +602,12 @@
     <target>
      <event logical="ping_from_lnx" physical="ping_subject2">
       <inject_interrupt vector="32"/>
+     </event>
+     <event logical="doorbell_1_from_subject1" physical="doorbell_1_subject2">
+      <inject_interrupt vector="40"/>
+     </event>
+     <event logical="doorbell_2_from_subject1" physical="doorbell_2_subject2">
+      <inject_interrupt vector="41"/>
      </event>
     </target>
    </events>

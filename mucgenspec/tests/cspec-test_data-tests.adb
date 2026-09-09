@@ -88,6 +88,10 @@ package body Cspec.Test_Data.Tests is
                  (Filename1 => Dir & "/" & C & P & "-channel_arrays.ads",
                   Filename2 => "data/" & C & P & "-channel_arrays.ads"),
                  Message   => C & P & "-channel_arrays.ads mismatch");
+         Assert (Condition => Test_Utils.Equal_Files
+                 (Filename1 => Dir & "/" & C & P & "-event_arrays.ads",
+                  Filename2 => "data/" & C & P & "-event_arrays.ads"),
+                 Message   => C & P & "-event_arrays.ads mismatch");
          Ada.Directories.Delete_Tree (Directory => Dir);
       end Component;
 

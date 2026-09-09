@@ -626,6 +626,86 @@ package body Cspec.Utils.Test_Data.Tests is
 
 
 --  begin read only
+   procedure Test_To_Event_Array_Str (Gnattest_T : in out Test);
+   procedure Test_To_Event_Array_Str_bcca8c (Gnattest_T : in out Test) renames Test_To_Event_Array_Str;
+--  id:2.2/bcca8ce5e4491291/To_Event_Array_Str/1/0/
+   procedure Test_To_Event_Array_Str (Gnattest_T : in out Test) is
+--  end read only
+
+      pragma Unreferenced (Gnattest_T);
+
+      Impl      : DOM.Core.DOM_Implementation;
+      Data      : Muxml.XML_Data_Type;
+      Arr, Node : DOM.Core.Node;
+
+      Ref1 : constant String :=
+        "   Doorbells_Event_Base    : constant := 20;" & ASCII.LF
+        & "   Doorbells_Element_Count : constant := ";
+      Ref2 : constant String :=
+        ";" & ASCII.LF
+        & ASCII.LF
+        & "   Doorbells_Names : constant Name_Array "
+        & "(1 .. Doorbells_Element_Count)" & ASCII.LF
+        & "     := (" & ASCII.LF;
+      Ref3 : constant String :=
+        "         1 => To_Name (Str => ""doorbell_1""),"  & ASCII.LF
+        & "         2 => To_Name (Str => ""doorbell_2"")"  & ASCII.LF
+        & "        );";
+   begin
+      Data.Doc := DOM.Core.Create_Document (Implementation => Impl);
+
+      Arr := DOM.Core.Documents.Create_Element
+        (Doc      => Data.Doc,
+         Tag_Name => "array");
+      DOM.Core.Elements.Set_Attribute
+        (Elem  => Arr,
+         Name  => "logical",
+         Value => "doorbells");
+      DOM.Core.Elements.Set_Attribute
+        (Elem  => Arr,
+         Name  => "eventBase",
+         Value => "20");
+
+      Assert (Condition => To_Event_Array_Str (Arr => Arr)
+                 = Ref1 & "0"
+                 & Ref2
+                 & "         others => To_Name (Str => """")"
+                 & ASCII.LF
+                 & "        );",
+              Message   => "String mismatch (1):"
+                 & To_Event_Array_Str (Arr => Arr));
+
+      Node := DOM.Core.Documents.Create_Element
+        (Doc      => Data.Doc,
+         Tag_Name => "event");
+      DOM.Core.Elements.Set_Attribute
+        (Elem  => Node,
+         Name  => "logical",
+         Value => "doorbell_1");
+      Node := DOM.Core.Nodes.Append_Child
+        (N         => Arr,
+         New_Child => Node);
+      Node := DOM.Core.Documents.Create_Element
+        (Doc      => Data.Doc,
+         Tag_Name => "event");
+      DOM.Core.Elements.Set_Attribute
+        (Elem  => Node,
+         Name  => "logical",
+         Value => "doorbell_2");
+      Node := DOM.Core.Nodes.Append_Child
+        (N         => Arr,
+         New_Child => Node);
+
+      Assert (Condition => To_Event_Array_Str (Arr => Arr)
+                 = Ref1 & "2" & Ref2 & Ref3,
+              Message   => "String mismatch (2):"
+                 & To_Event_Array_Str (Arr => Arr));
+--  begin read only
+   end Test_To_Event_Array_Str;
+--  end read only
+
+
+--  begin read only
    procedure Test_To_Config_Variable_Str (Gnattest_T : in out Test);
    procedure Test_To_Config_Variable_Str_c4bb13 (Gnattest_T : in out Test) renames Test_To_Config_Variable_Str;
 --  id:2.2/c4bb13bd991a67bb/To_Config_Variable_Str/1/0/
@@ -1357,6 +1437,41 @@ package body Cspec.Utils.Test_Data.Tests is
               Message   => "Event base mismatch");
 --  begin read only
    end Test_Channel_Writer_Array_Attrs_As_String;
+--  end read only
+
+
+--  begin read only
+   procedure Test_Event_Array_Attrs_As_String (Gnattest_T : in out Test);
+   procedure Test_Event_Array_Attrs_As_String_af191d (Gnattest_T : in out Test) renames Test_Event_Array_Attrs_As_String;
+--  id:2.2/af191dbc8f7cb672/Event_Array_Attrs_As_String/1/0/
+   procedure Test_Event_Array_Attrs_As_String (Gnattest_T : in out Test) is
+--  end read only
+
+      pragma Unreferenced (Gnattest_T);
+
+      Impl       : DOM.Core.DOM_Implementation;
+      Data       : Muxml.XML_Data_Type;
+      Node       : DOM.Core.Node;
+      Event_Base : Unbounded_String;
+      Ref_Base   : constant String := "20";
+   begin
+      Data.Doc := DOM.Core.Create_Document (Implementation => Impl);
+
+      Node := DOM.Core.Documents.Create_Element
+        (Doc      => Data.Doc,
+         Tag_Name => "array");
+      DOM.Core.Elements.Set_Attribute
+        (Elem  => Node,
+         Name  => "eventBase",
+         Value => Ref_Base);
+
+      Event_Array_Attrs_As_String
+        (Arr        => Node,
+         Event_Base => Event_Base);
+      Assert (Condition => To_String (Event_Base) = Ref_Base,
+              Message   => "Event base mismatch");
+--  begin read only
+   end Test_Event_Array_Attrs_As_String;
 --  end read only
 
 
