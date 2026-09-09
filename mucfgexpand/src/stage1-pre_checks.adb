@@ -61,6 +61,8 @@ is
       Check_Procs.Register
         (Process => Component_Channel_Name_Uniqueness'Access);
       Check_Procs.Register
+        (Process => Component_Event_Name_Uniqueness'Access);
+      Check_Procs.Register
         (Process => Subject_IRQ_MSI_Name_Uniqueness'Access);
       Check_Procs.Register
         (Process => Subject_IRQ_MSI_References'Access);
