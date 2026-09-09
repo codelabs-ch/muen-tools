@@ -91,6 +91,18 @@ is
 
    -------------------------------------------------------------------------
 
+   function Get_Event_Arrays_Str (Spec : Muxml.XML_Data_Type) return String
+   is
+   begin
+      return Get_Str
+        (Spec  => Spec,
+         Func  => Utils.To_Event_Array_Str'Access,
+         XPath => "*[self::component or self::library]/requires/"
+         & "events/source/array");
+   end Get_Event_Arrays_Str;
+
+   -------------------------------------------------------------------------
+
    function Get_Event_Str (Spec : Muxml.XML_Data_Type) return String
    is
       Events_Str : constant String := Get_Str
