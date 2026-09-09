@@ -60,6 +60,11 @@
     <event id="31" logical="shutdown">
      <system_poweroff/>
     </event>
+    <array eventBase="20" logical="doorbells">
+     <event logical="doorbell_1"/>
+     <event logical="doorbell_2"/>
+    </array>
+    <array eventBase="40" logical="empty_evarray"/>
    </source>
    <target>
     <event logical="timer">
