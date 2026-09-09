@@ -80,9 +80,13 @@ is
                  Suffix    => File_Extension (File => Src),
                  Normalize => True);
             CI_File     : constant Unbounded_String
-              := To_Unbounded_String (CI_Dir & (+Basename) & ".ci");
+              := To_Unbounded_String
+                (Ada.Directories.Full_Name
+                   (CI_Dir & (+Basename) & ".ci"));
             CI_File_Obj : constant Unbounded_String
-              := To_Unbounded_String (Obj_Dir & (+Basename) & ".ci");
+              := To_Unbounded_String
+                (Ada.Directories.Full_Name
+                   (Obj_Dir & (+Basename) & ".ci"));
          begin
             if not File_Set.Contains (Item => CI_File)
               and then Ada.Directories.Exists (Name => To_String (CI_File))
