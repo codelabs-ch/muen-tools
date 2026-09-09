@@ -644,6 +644,34 @@ is
 
    -------------------------------------------------------------------------
 
+   function To_Event_Array_Str (Arr : DOM.Core.Node) return String
+   is
+      Logical : constant Unbounded_String
+        := U (Mutools.Utils.To_Ada_Identifier
+              (Str => DOM.Core.Elements.Get_Attribute
+                 (Elem => Arr,
+                  Name => "logical")));
+      Child_Count : constant Natural
+        := Muxml.Utils.Count_Element_Children (Node => Arr);
+
+      Res, Event_Base : Unbounded_String;
+   begin
+      Event_Array_Attrs_As_String
+        (Arr        => Arr,
+         Event_Base => Event_Base);
+
+      Res :=
+        I & Logical & "_Event_Base    : constant := " & Event_Base & ";"
+        & ASCII.LF
+        & I & Logical & "_Element_Count : constant :=" & Child_Count'Img & ";";
+
+      Res := Res & ASCII.LF & ASCII.LF & To_Name_Array (Arr => Arr);
+
+      return S (Res);
+   end To_Event_Array_Str;
+
+   -------------------------------------------------------------------------
+
    function To_Event_Str (Event : DOM.Core.Node) return String
    is
 
