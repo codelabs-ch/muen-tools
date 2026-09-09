@@ -1111,6 +1111,73 @@ is
 
    -------------------------------------------------------------------------
 
+   procedure Add_Source_Event_Arrays (Data : in out Muxml.XML_Data_Type)
+   is
+      Event_Arrays : constant DOM.Core.Node_List
+        := McKae.XML.XPath.XIA.XPath_Query
+          (N     => Data.Doc,
+           XPath => "/system/components/*/requires/events/source/array");
+   begin
+      for I in 0 .. DOM.Core.Nodes.Length (List => Event_Arrays) - 1 loop
+         declare
+            Arr_Node : constant DOM.Core.Node
+              := DOM.Core.Nodes.Item
+                (List  => Event_Arrays,
+                 Index => I);
+            Arr_Name : constant String
+              := DOM.Core.Elements.Get_Attribute
+                (Elem => Arr_Node,
+                 Name => "logical");
+            Parent_Source : constant DOM.Core.Node
+              := DOM.Core.Nodes.Parent_Node (N => Arr_Node);
+            Comp_Name : constant String
+              := DOM.Core.Elements.Get_Attribute
+                (Elem => Muxml.Utils.Ancestor_Node
+                   (Node  => Arr_Node,
+                    Level => 4),
+                 Name => "name");
+            Cur_Event_ID : Natural
+              := Natural'Value
+                (DOM.Core.Elements.Get_Attribute
+                   (Elem => Arr_Node,
+                    Name => "eventBase"));
+            Events : constant DOM.Core.Node_List
+              := McKae.XML.XPath.XIA.XPath_Query
+                (N     => Arr_Node,
+                 XPath => "event");
+            Evt_Count : constant Natural
+              := DOM.Core.Nodes.Length (List => Events);
+         begin
+            Mulog.Log (Msg => "Adding" & Evt_Count'Img & " source event(s) "
+                       & "of array '" & Arr_Name & "' to component '"
+                       & Comp_Name & "'");
+            for J in 0 .. Evt_Count - 1 loop
+               declare
+                  New_Node : constant DOM.Core.Node
+                    := DOM.Core.Nodes.Clone_Node
+                      (N    => DOM.Core.Nodes.Item
+                         (List  => Events,
+                          Index => J),
+                       Deep => False);
+               begin
+                  DOM.Core.Elements.Set_Attribute
+                    (Elem  => New_Node,
+                     Name  => "id",
+                     Value => Ada.Strings.Fixed.Trim
+                       (Source => Cur_Event_ID'Img,
+                        Side   => Ada.Strings.Left));
+                  Muxml.Utils.Append_Child
+                    (Node      => Parent_Source,
+                     New_Child => New_Node);
+                  Cur_Event_ID := Cur_Event_ID + 1;
+               end;
+            end loop;
+         end;
+      end loop;
+   end Add_Source_Event_Arrays;
+
+   -------------------------------------------------------------------------
+
    procedure Add_Subject_Profile_VCPU (Data : in out Muxml.XML_Data_Type)
    is
       Arch       : constant Mutools.Types.Arch_Type

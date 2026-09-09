@@ -176,6 +176,26 @@ package body Expanders.Components.Test_Data.Tests is
 
 
 --  begin read only
+   procedure Test_Add_Source_Event_Arrays (Gnattest_T : in out Test);
+   procedure Test_Add_Source_Event_Arrays_0fb153 (Gnattest_T : in out Test) renames Test_Add_Source_Event_Arrays;
+--  id:2.2/0fb153536c26dd43/Add_Source_Event_Arrays/1/0/
+   procedure Test_Add_Source_Event_Arrays (Gnattest_T : in out Test) is
+--  end read only
+
+      pragma Unreferenced (Gnattest_T);
+
+   begin
+      Test_Utils.Expander.Run_Test
+        (Filename => "obj/components_source_event_arrays.xml",
+         Ref_Diff => "data/components_source_event_arrays.xml.diff",
+         Pre      => Subjects.Add_Missing_Elements'Access,
+         Expander => Add_Source_Event_Arrays'Access);
+--  begin read only
+   end Test_Add_Source_Event_Arrays;
+--  end read only
+
+
+--  begin read only
    procedure Test_Add_Subject_Profile_VCPU (Gnattest_T : in out Test);
    procedure Test_Add_Subject_Profile_VCPU_8ab93c (Gnattest_T : in out Test) renames Test_Add_Subject_Profile_VCPU;
 --  id:2.2/8ab93cbcf52e18f0/Add_Subject_Profile_VCPU/1/0/
