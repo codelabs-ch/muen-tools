@@ -92,7 +92,8 @@ is
    C_Writers_Read_Write_Targets : constant String_Vector.Vector
      := String_Vector."&"
      ("requires/channels/writer[@event]",
-      "requires/channels/array[@eventBase]");
+      "requires/channels/array[@eventBase]")
+     & "requires/events/source/array[@eventBase]";
 
    --  XPaths in Cspec where 'event' is read.
    --  Attention: The values found on these paths are NOT used to set missing

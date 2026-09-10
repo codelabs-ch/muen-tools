@@ -97,7 +97,8 @@ is
       use type Muxml.String_Vector.Vector;
 
       Name_Filter    : constant Muxml.String_Vector.Vector
-        := Muxml.String_Vector."&" ("reader", "writer") & "memory";
+        := Muxml.String_Vector."&" ("reader", "writer") & "memory"
+        & "event";
       Count          : constant Interfaces.Unsigned_64
         := Interfaces.Unsigned_64
         (Muxml.Utils.Count_Element_Children
@@ -205,7 +206,8 @@ is
         (Elem          => Node,
          Resource_Kind => Resource_Kind);
       Name_Filter : constant Muxml.String_Vector.Vector
-        := Muxml.String_Vector."&" ("reader", "writer") & "memory";
+        := Muxml.String_Vector."&" ("reader", "writer") & "memory"
+        & "event";
    begin
       if Attr_Value = "" or Attr_Value = "auto" then
          --  the resources needs to be written - put it on the todo-list

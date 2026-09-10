@@ -167,7 +167,8 @@ is
                  = DOM.Core.Element_Node
                  and (DOM.Core.Nodes.Node_Name (N => Child) = "memory"
                         or DOM.Core.Nodes.Node_Name (N => Child) = "reader"
-                        or DOM.Core.Nodes.Node_Name (N => Child) = "writer")
+                        or DOM.Core.Nodes.Node_Name (N => Child) = "writer"
+                        or DOM.Core.Nodes.Node_Name (N => Child) = "event")
                then
                   Logical_To_Interval_Package.Insert
                     (Container => Mapping,

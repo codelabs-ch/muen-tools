@@ -84,6 +84,14 @@
     <event id="31" logical="shutdown">
      <system_poweroff/>
     </event>
+    <array eventBase="7" logical="esa1">
+     <event logical="esa1_1"/>
+     <event logical="esa1_2"/>
+    </array>
+    <array eventBase="20" logical="esa2">
+     <event logical="esa2_1"/>
+    </array>
+    <array eventBase="63" logical="esa3"/>
    </source>
    <target>
     <event logical="et1">
