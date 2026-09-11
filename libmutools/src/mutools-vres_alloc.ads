@@ -25,7 +25,7 @@ with Mutools.Intervals;
 --  Procedures and functions for mucfgcvresalloc and mucfgvresalloc.
 package Mutools.Vres_Alloc
 is
-   type Resource_Kind_Type is (Virtual_Addresses, Writer_Events, Reader_Vectors);
+   type Resource_Kind_Type is (Virtual_Addresses, Event_Numbers, Vector_Numbers);
 
    --  Depending on Resource_Kind, set the resource attribute of Node.
    --  A region of size Size is reserved in Av_Ival.

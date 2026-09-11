@@ -138,9 +138,9 @@ package body Mutools.Vres_Alloc.Test_Data.Tests is
                    & "(16#0004_1000#, 16#2000_0000#)");
       end;
 
-      --  Positive test for Reader_Vectors and Writer_Events
-      Test_Event (Resource_Kind => Reader_Vectors, Attr_Name => "vector");
-      Test_Event (Resource_Kind => Writer_Events, Attr_Name => "event");
+      --  Positive test for Vector_Numbers and Event_Numbers
+      Test_Event (Resource_Kind => Vector_Numbers, Attr_Name => "vector");
+      Test_Event (Resource_Kind => Event_Numbers, Attr_Name => "event");
 
       --  Negative test for Virtual_Addresses: not aligned
       begin
@@ -264,19 +264,19 @@ package body Mutools.Vres_Alloc.Test_Data.Tests is
       Assert (Condition => Result = 16#0001#,
               Message   => "Size mismatch: " & Result'Image);
 
-      --  Resource_Kind: Reader
+      --  Resource_Kind: Vector_Numbers
       --  Size set to something (must not be read)
       Result := Get_Resource_Size
         (Elem          => Single_Node,
-         Resource_Kind => Reader_Vectors);
+         Resource_Kind => Vector_Numbers);
       Assert (Condition => Result = 1,
               Message   => "Size mismatch: " & Result'Image);
 
-      --  Resource_Kind: Writer
+      --  Resource_Kind: Vector_Numbers
       --  Array
       Result := Get_Resource_Size
         (Elem          => Array_Node,
-         Resource_Kind => Reader_Vectors);
+         Resource_Kind => Vector_Numbers);
       Assert (Condition => Result = 1,
               Message   => "Size mismatch: " & Result'Image);
 
@@ -382,12 +382,12 @@ package body Mutools.Vres_Alloc.Test_Data.Tests is
       Test (Tag_Name        => "writer",
             Attribute_Name  => "event",
             Attribute_Value => "15",
-            Resource_Kind   => Writer_Events,
+            Resource_Kind   => Event_Numbers,
             Result_Ref      => "15");
       Test (Tag_Name        => "reader",
             Attribute_Name  => "vector",
             Attribute_Value => "16",
-            Resource_Kind   => Reader_Vectors,
+            Resource_Kind   => Vector_Numbers,
             Result_Ref      => "16");
 
       Test (Tag_Name        => "array",
@@ -398,18 +398,18 @@ package body Mutools.Vres_Alloc.Test_Data.Tests is
       Test (Tag_Name        => "array",
             Attribute_Name  => "eventBase",
             Attribute_Value => "11",
-            Resource_Kind   => Writer_Events,
+            Resource_Kind   => Event_Numbers,
             Result_Ref      => "11");
       Test (Tag_Name        => "array",
             Attribute_Name  => "vectorBase",
             Attribute_Value => "0",
-            Resource_Kind   => Reader_Vectors,
+            Resource_Kind   => Vector_Numbers,
             Result_Ref      => "0");
 
       Test (Tag_Name        => "event",
             Attribute_Name  => "id",
             Attribute_Value => "7",
-            Resource_Kind   => Writer_Events,
+            Resource_Kind   => Event_Numbers,
             Result_Ref      => "7");
 
       --  Test getting 'vector'-attribute of inject_interrupt-child
@@ -429,11 +429,11 @@ package body Mutools.Vres_Alloc.Test_Data.Tests is
             Value => "200");
          Assert (Condition => "200" = Get_Resource_Value
                    (Elem          => Node,
-                    Resource_Kind => Reader_Vectors),
+                    Resource_Kind => Vector_Numbers),
                  Message   => "Value mismatch: "
                    & Get_Resource_Value
                    (Elem          => Node,
-                    Resource_Kind => Reader_Vectors));
+                    Resource_Kind => Vector_Numbers));
          DOM.Core.Nodes.Free (N => Node, Deep => True);
       end;
 
@@ -441,7 +441,7 @@ package body Mutools.Vres_Alloc.Test_Data.Tests is
       Test (Tag_Name        => "event",
             Attribute_Name  => "id",
             Attribute_Value => "7",
-            Resource_Kind   => Reader_Vectors,
+            Resource_Kind   => Vector_Numbers,
             Result_Ref      => "");
 
       --  Negative Test: wrong tagname
@@ -449,7 +449,7 @@ package body Mutools.Vres_Alloc.Test_Data.Tests is
          Test (Tag_Name        => "writer",
                Attribute_Name  => "id",
                Attribute_Value => "7",
-               Resource_Kind   => Reader_Vectors,
+               Resource_Kind   => Vector_Numbers,
                Result_Ref      => "");
          Assert (Condition => False,
                  Message   => "Exception expected");
@@ -457,7 +457,7 @@ package body Mutools.Vres_Alloc.Test_Data.Tests is
          when E : Validation_Error =>
             Assert (Condition => Ada.Exceptions.Exception_Message (X => E)
                       = "Found unexpected node tag 'writer' "
-                      & "when reading attribute value for reader event",
+                      & "when reading attribute value for vector number",
                     Message   => "Exception mismatch: "
                       & Ada.Exceptions.Exception_Message (X => E));
       end;
@@ -467,7 +467,7 @@ package body Mutools.Vres_Alloc.Test_Data.Tests is
          Test (Tag_Name        => "foo",
                Attribute_Name  => "event",
                Attribute_Value => "7",
-               Resource_Kind   => Writer_Events,
+               Resource_Kind   => Event_Numbers,
                Result_Ref      => "");
          Assert (Condition => False,
                  Message   => "Exception expected");
@@ -475,7 +475,7 @@ package body Mutools.Vres_Alloc.Test_Data.Tests is
          when E : Validation_Error =>
             Assert (Condition => Ada.Exceptions.Exception_Message (X => E)
                       = "Found unexpected node tag 'foo' "
-                      & "when reading attribute value for writer event",
+                      & "when reading attribute value for event number",
                     Message   => "Exception mismatch: "
                       & Ada.Exceptions.Exception_Message (X => E));
       end;
@@ -538,12 +538,12 @@ package body Mutools.Vres_Alloc.Test_Data.Tests is
       Test (Tag_Name        => "writer",
             Attribute_Name  => "event",
             Attribute_Value => "15",
-            Resource_Kind   => Writer_Events,
+            Resource_Kind   => Event_Numbers,
             Result_Ref      => "15");
       Test (Tag_Name        => "reader",
             Attribute_Name  => "vector",
             Attribute_Value => "16",
-            Resource_Kind   => Reader_Vectors,
+            Resource_Kind   => Vector_Numbers,
             Result_Ref      => "16");
 
       Test (Tag_Name        => "array",
@@ -554,18 +554,18 @@ package body Mutools.Vres_Alloc.Test_Data.Tests is
       Test (Tag_Name        => "array",
             Attribute_Name  => "eventBase",
             Attribute_Value => "11",
-            Resource_Kind   => Writer_Events,
+            Resource_Kind   => Event_Numbers,
             Result_Ref      => "11");
       Test (Tag_Name        => "array",
             Attribute_Name  => "vectorBase",
             Attribute_Value => "0",
-            Resource_Kind   => Reader_Vectors,
+            Resource_Kind   => Vector_Numbers,
             Result_Ref      => "0");
 
       Test (Tag_Name        => "event",
             Attribute_Name  => "id",
             Attribute_Value => "7",
-            Resource_Kind   => Writer_Events,
+            Resource_Kind   => Event_Numbers,
             Result_Ref      => "7");
 
       --  Test getting 'vector'-attribute of inject_interrupt-child
@@ -585,11 +585,11 @@ package body Mutools.Vres_Alloc.Test_Data.Tests is
             Value => "200");
          Assert (Condition => "200" = Get_Resource_Value
                    (Elem          => Node,
-                    Resource_Kind => Reader_Vectors),
+                    Resource_Kind => Vector_Numbers),
                  Message   => "Value mismatch: "
                    & Get_Resource_Value
                    (Elem          => Node,
-                    Resource_Kind => Reader_Vectors));
+                    Resource_Kind => Vector_Numbers));
          DOM.Core.Nodes.Free (N => Node, Deep => True);
       end;
 
@@ -597,7 +597,7 @@ package body Mutools.Vres_Alloc.Test_Data.Tests is
       Test (Tag_Name        => "event",
             Attribute_Name  => "id",
             Attribute_Value => "7",
-            Resource_Kind   => Reader_Vectors,
+            Resource_Kind   => Vector_Numbers,
             Result_Ref      => "");
 
       --  Negative Test: wrong tagname
@@ -605,7 +605,7 @@ package body Mutools.Vres_Alloc.Test_Data.Tests is
          Test (Tag_Name        => "writer",
                Attribute_Name  => "id",
                Attribute_Value => "7",
-               Resource_Kind   => Reader_Vectors,
+               Resource_Kind   => Vector_Numbers,
                Result_Ref      => "");
          Assert (Condition => False,
                  Message   => "Exception expected");
@@ -613,7 +613,7 @@ package body Mutools.Vres_Alloc.Test_Data.Tests is
          when E : Validation_Error =>
             Assert (Condition => Ada.Exceptions.Exception_Message (X => E)
                       = "Found unexpected node tag 'writer' "
-                      & "when reading attribute value for reader event",
+                      & "when reading attribute value for vector number",
                     Message   => "Exception mismatch: "
                       & Ada.Exceptions.Exception_Message (X => E));
       end;

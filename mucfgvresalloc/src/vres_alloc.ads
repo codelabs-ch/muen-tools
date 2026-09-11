@@ -41,10 +41,10 @@ is
 
    type Component_Info_Type is
    record
-      Profile           : Mutools.String_Holder_Type.Holder;
-      Va_Map            : aliased Logical_To_Interval_Package.Map;
-      Reader_Events_Map : aliased Logical_To_Interval_Package.Map;
-      Writer_Events_Map : aliased Logical_To_Interval_Package.Map;
+      Profile            : Mutools.String_Holder_Type.Holder;
+      Va_Map             : aliased Logical_To_Interval_Package.Map;
+      Vector_Numbers_Map : aliased Logical_To_Interval_Package.Map;
+      Event_Numbers_Map  : aliased Logical_To_Interval_Package.Map;
    end record;
 
    --  The main procedure

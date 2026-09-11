@@ -135,7 +135,7 @@ is
                Name  => "virtualAddressBase",
                Value => Mutools.Utils.To_Hex (Number => New_Address));
 
-         when Mutools.Vres_Alloc.Reader_Vectors =>
+         when Mutools.Vres_Alloc.Vector_Numbers =>
             if Count = 0 then
                New_Address := 255;
             else
@@ -147,7 +147,7 @@ is
               (Elem  => Node,
                Name  => "vectorBase",
                Value => Mutools.Utils.To_Decimal (New_Address));
-         when Mutools.Vres_Alloc.Writer_Events =>
+         when Mutools.Vres_Alloc.Event_Numbers =>
             if Count = 0 then
                New_Address := 63;
             else
@@ -372,11 +372,11 @@ is
                     (List     => Available_Intervals,
                      Interval => Va_Space_Vm);
                end if;
-            when Mutools.Vres_Alloc.Writer_Events =>
+            when Mutools.Vres_Alloc.Event_Numbers =>
                Mutools.Intervals.Add_Interval
                  (List     => Available_Intervals,
                   Interval => Event_Numbers_Domain);
-            when Mutools.Vres_Alloc.Reader_Vectors =>
+            when Mutools.Vres_Alloc.Vector_Numbers =>
                Mutools.Intervals.Add_Interval
                  (List     => Available_Intervals,
                   Interval => Vector_Numbers_Domain);
@@ -391,18 +391,18 @@ is
               := (case Resource_Kind is
                  when Mutools.Vres_Alloc.Virtual_Addresses =>
                     Mutools.Vres_Alloc.Config.C_Va_Alloc_Read_Write_Targets,
-                 when Mutools.Vres_Alloc.Writer_Events =>
-                    Mutools.Vres_Alloc.Config.C_Writers_Read_Write_Targets,
-                 when Mutools.Vres_Alloc.Reader_Vectors =>
-                    Mutools.Vres_Alloc.Config.C_Readers_Read_Write_Targets);
+                 when Mutools.Vres_Alloc.Event_Numbers =>
+                    Mutools.Vres_Alloc.Config.C_Event_Numbers_Read_Write_Targets,
+                 when Mutools.Vres_Alloc.Vector_Numbers =>
+                    Mutools.Vres_Alloc.Config.C_Vector_Numbers_Read_Write_Targets);
             Target_List_R : constant Mutools.String_Vector.Vector
               := (case Resource_Kind is
                  when Mutools.Vres_Alloc.Virtual_Addresses =>
                     Mutools.Vres_Alloc.Config.C_Va_Alloc_Read_Only_Targets,
-                 when Mutools.Vres_Alloc.Writer_Events =>
-                    Mutools.Vres_Alloc.Config.C_Writers_Read_Only_Targets,
-                 when Mutools.Vres_Alloc.Reader_Vectors =>
-                    Mutools.Vres_Alloc.Config.C_Readers_Read_Only_Targets);
+                 when Mutools.Vres_Alloc.Event_Numbers =>
+                    Mutools.Vres_Alloc.Config.C_Event_Numbers_Read_Only_Targets,
+                 when Mutools.Vres_Alloc.Vector_Numbers =>
+                    Mutools.Vres_Alloc.Config.C_Vector_Numbers_Read_Only_Targets);
 
             R_W_Targets : constant DOM.Core.Node_List
               := McKae.XML.XPath.XIA.XPath_Query
@@ -516,9 +516,9 @@ is
       Assign_Missing_Virtual_Resources
         (Resource_Kind => Mutools.Vres_Alloc.Virtual_Addresses);
       Assign_Missing_Virtual_Resources
-        (Resource_Kind => Mutools.Vres_Alloc.Reader_Vectors);
+        (Resource_Kind => Mutools.Vres_Alloc.Vector_Numbers);
       Assign_Missing_Virtual_Resources
-        (Resource_Kind => Mutools.Vres_Alloc.Writer_Events);
+        (Resource_Kind => Mutools.Vres_Alloc.Event_Numbers);
 
       --  Write output with validation.
       if not Ada.Directories.Exists
