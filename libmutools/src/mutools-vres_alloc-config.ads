@@ -89,20 +89,20 @@ is
       Length   => 1);
 
    --  XPaths in Cspec where 'event'/'eventBase' is read and written.
+   --  Source events request allocation by omission of the 'id' attribute.
    C_Event_Numbers_Read_Write_Targets : constant String_Vector.Vector
      := String_Vector."&"
      ("requires/channels/writer[@event]",
       "requires/channels/array[@eventBase]")
-     & "requires/events/source/array[@eventBase]";
+     & "requires/events/source/array[@eventBase]"
+     & "requires/events/source/event";
 
    --  XPaths in Cspec where 'event' is read.
    --  Attention: The values found on these paths are NOT used to set missing
    --  'event' attributes. They are only blocked in the domain for event
    --  numbers.
    C_Event_Numbers_Read_Only_Targets : constant String_Vector.Vector
-     := String_Vector.To_Vector
-     (New_Item => "requires/events/source/event",
-      Length   => 1);
+     := String_Vector.Empty_Vector;
 
    -------------------------------------------------------------------------
    --  All XPath in this section are read by Mucfgvresalloc and interpreted

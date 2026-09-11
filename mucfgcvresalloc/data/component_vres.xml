@@ -92,6 +92,10 @@
      <event logical="esa2_1"/>
     </array>
     <array logical="esa3" eventBase="auto"/>
+    <event logical="es4"/>
+    <event logical="es5">
+     <unmask_irq number="23"/>
+    </event>
    </source>
    <target>
     <event logical="et1">

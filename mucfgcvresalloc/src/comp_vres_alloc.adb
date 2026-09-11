@@ -272,12 +272,7 @@ is
          Resource_Kind => Resource_Kind);
    begin
       if Attr_Value = "auto" or Attr_Value = "" then
-         --  If the node is missing a resource, add it to the todo-list.
-         if not Read_Only then
-            Muxml.Utils.Node_List_Package.Append
-              (Container => Todo_List,
-               New_Item  => Node);
-         else
+         if Read_Only then
             Mulog.Log (Msg => "Found read-only node which requested automatic "
                          & "allocation of virtual resource. Xpath: '"
                          & Mutools.Xmldebuglog.Get_Xpath (Node => Node)
@@ -286,6 +281,24 @@ is
                          & "'");
             raise Validation_Error with "Invalid attribute value";
          end if;
+
+         --  Source event ID allocation is requested by omitting the attribute,
+         --  'auto' is not valid in this context.
+         if Attr_Value = "auto"
+           and then DOM.Core.Elements.Get_Tag_Name (Elem => Node) = "event"
+         then
+            Mulog.Log (Msg => "Found source event with 'id' attribute set to "
+                         & "'auto', omit the attribute to request automatic "
+                         & "allocation. Xpath: '"
+                         & Mutools.Xmldebuglog.Get_Xpath (Node => Node)
+                         & "'");
+            raise Validation_Error with "Invalid attribute value";
+         end if;
+
+         --  The node is missing a resource, add it to the todo-list.
+         Muxml.Utils.Node_List_Package.Append
+           (Container => Todo_List,
+            New_Item  => Node);
       else
          --  If the resource is set already, exclude it from Av_Ival.
          if Resource_Kind = Mutools.Vres_Alloc.Virtual_Addresses and then

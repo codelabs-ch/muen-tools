@@ -555,6 +555,13 @@ package body Mutools.Vres_Alloc.Test_Data.Tests is
             Value           => 16,
             Resource_Kind   => Vector_Numbers,
             Result_Ref      => "16");
+
+      --  Source events attribute to set is 'id'.
+      Test (Tag_Name        => "event",
+            Attribute_Name  => "id",
+            Value           => 17,
+            Resource_Kind   => Event_Numbers,
+            Result_Ref      => "17");
 --  begin read only
    end Test_Set_Virtual_Resource;
 --  end read only

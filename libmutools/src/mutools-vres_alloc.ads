@@ -60,7 +60,7 @@ is
      return String;
 
    --  Depending on Resource_Kind, set the attribute "virtualAddress", "event"
-   --  or "vector" of Node to Value.
+   --  (or "id" for source events), or "vector" of Node to Value.
    procedure Set_Virtual_Resource
      (Node          : DOM.Core.Node;
       Resource_Kind : Resource_Kind_Type;
