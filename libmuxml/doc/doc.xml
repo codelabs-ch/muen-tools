@@ -729,7 +729,7 @@
         as well as arrays of channels and memory regions;
         \item Assign missing IRQs of channel reader events and arrays of channel readers;
         \item Assign missing event IDs of channel writer events, arrays of channel
-        writers and arrays of source events;
+        writers, source events and arrays of source events;
      \end{enumerate}
 
      Virtual addresses, IRQs and event IDs are considered to be \textit{virtual resources}.
@@ -738,7 +738,8 @@
      (or \texttt{virtualAddressBase} for arrays) omit the attribute.
      To request automatic allocation of the vectors for channel readers or event IDs for
      channel writers the respective attribute must be set to \texttt{auto}. The same
-     applies to the \texttt{eventBase} attribute of source event arrays.
+     applies to the \texttt{eventBase} attribute of source event arrays. To request
+     automatic allocation of the \texttt{id} of a source event, omit the attribute.
 
      To determine which addresses or ids to choose, \texttt{mucfgcvresalloc}
      looks at the addresses and ids already present in the file.

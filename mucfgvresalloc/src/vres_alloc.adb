@@ -231,6 +231,13 @@ is
       Inserted   : Boolean;
       New_Value  : Address_And_Size_Type;
    begin
+      if Attr_Value = "" or Attr_Value = "auto" then
+         raise Validation_Error with
+           "Missing attribute value at '"
+           & Mutools.Xmldebuglog.Get_Xpath (Node => Node)
+           & "'";
+      end if;
+
       New_Value := Address_And_Size_Type'
         (First_Address => Interfaces.Unsigned_64'Value (Attr_Value),
          Size          => Size);

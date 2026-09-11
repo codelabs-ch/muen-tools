@@ -258,10 +258,17 @@ is
                Name  => "vector",
                Value => Mutools.Utils.To_Decimal (Value));
          when Event_Numbers =>
-            DOM.Core.Elements.Set_Attribute
-              (Elem  => Node,
-               Name  => "event",
-               Value => Mutools.Utils.To_Decimal (Value));
+            if DOM.Core.Elements.Get_Tag_Name (Elem => Node) = "event" then
+               DOM.Core.Elements.Set_Attribute
+                 (Elem  => Node,
+                  Name  => "id",
+                  Value => Mutools.Utils.To_Decimal (Value));
+            else
+               DOM.Core.Elements.Set_Attribute
+                 (Elem  => Node,
+                  Name  => "event",
+                  Value => Mutools.Utils.To_Decimal (Value));
+            end if;
       end case;
    end Set_Virtual_Resource;
 
