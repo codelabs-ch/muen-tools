@@ -16,7 +16,6 @@
 --
 with Ada.Directories;
 
-with DOM.Core;
 with DOM.Core.Nodes;
 with DOM.Core.Elements;
 
@@ -62,16 +61,6 @@ is
    --  Insert a new mapping into Components_Map mapping the 'name' of Comp_Node
    --  to its profile and empty mappings for virtual resources.
    procedure Init_Component_Head (Comp_Node : DOM.Core.Node);
-
-   ----------------------------------------------------------------------
-
-   --  Given a non-'array' node, add a mapping
-   --  'logical name'-> ('virtual resource','size')
-   --  to Mapping.
-   procedure Add_Resource_To_Mapping
-     (Mapping       : in out Logical_To_Interval_Package.Map;
-      Node          :        DOM.Core.Node;
-      Resource_Kind :        Mutools.Vres_Alloc.Resource_Kind_Type);
 
    ----------------------------------------------------------------------
 
