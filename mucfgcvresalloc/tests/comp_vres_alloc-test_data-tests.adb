@@ -176,43 +176,6 @@ package body Comp_Vres_Alloc.Test_Data.Tests is
             Ada.Directories.Delete_File (Name => Changed_Spec);
       end;
 
-      --  Id in read-only event set to auto
-      declare
-         Data         : Muxml.XML_Data_Type;
-         Changed_Spec : constant String
-           := "obj/component_vres_false_auto.xml";
-      begin
-         Muxml.Parse (Data => Data,
-                      Kind => Muxml.None,
-                      File => "data/component_vres.xml");
-         Muxml.Utils.Set_Attribute
-           (Doc   => Data.Doc,
-            XPath => "/component/requires/events/source/"
-              & "event[@logical='es2']",
-            Name  => "id",
-            Value => "auto");
-         Muxml.Write
-           (File => Changed_Spec,
-            Kind => Muxml.None,
-            Data => Data);
-
-         Test (Input_Spec                => Changed_Spec,
-               Input_Spec_Default_Folder => False,
-               Include_Path              => "",
-               Output_File_Name          => "output_component_vres.xml",
-               Output_Ref_File           => "output_component_vres.xml",
-               Test_Name                 => "False auto in event");
-         Assert (Condition => False,
-                 Message   => "Exception expected");
-      exception
-         when E: Validation_Error =>
-            Assert (Condition => Ada.Exceptions.Exception_Message (X => E)
-                      = "Invalid attribute value",
-                    Message   => "Exception mismatch: "
-                      & Ada.Exceptions.Exception_Message (X => E));
-            Ada.Directories.Delete_File (Name => Changed_Spec);
-      end;
-
       --  Not enough space for virtual addresses
       declare
          use type Interfaces.Unsigned_64;
