@@ -277,8 +277,8 @@ is
             when Mutools.Vres_Alloc.Virtual_Addresses =>
                Size := Interfaces.Unsigned_64'Value
                  (Get_Size_From_Physical (Node => Curr_Node));
-            when Mutools.Vres_Alloc.Reader_Vectors
-              | Mutools.Vres_Alloc.Writer_Events =>
+            when Mutools.Vres_Alloc.Vector_Numbers
+              | Mutools.Vres_Alloc.Event_Numbers =>
                Size := 1;
          end case;
          Mutools.Vres_Alloc.Allocate_And_Set_Single_Resource
@@ -363,8 +363,8 @@ is
                   when Mutools.Vres_Alloc.Virtual_Addresses =>
                      Size := Interfaces.Unsigned_64'Value
                        (Get_Size_From_Physical (Node => Curr_Node));
-                  when Mutools.Vres_Alloc.Reader_Vectors
-                    | Mutools.Vres_Alloc.Writer_Events =>
+                  when Mutools.Vres_Alloc.Vector_Numbers
+                    | Mutools.Vres_Alloc.Event_Numbers =>
                      Size := 1;
                end case;
 
@@ -456,14 +456,14 @@ is
             Targets_List_1 := Config.C_Va_Alloc_Read_Write_Targets;
             Targets_List_2 := Config.C_Va_Alloc_Read_Only_Targets;
             Mapping_Access := Components_Map (Comp_Name).Va_Map'Access;
-         when Mutools.Vres_Alloc.Reader_Vectors =>
-            Targets_List_1 := Config.C_Readers_Read_Write_Targets;
-            Targets_List_2 := Config.C_Readers_Read_Only_Targets;
-            Mapping_Access := Components_Map (Comp_Name).Reader_Events_Map'Access;
-         when Mutools.Vres_Alloc.Writer_Events =>
-            Targets_List_1 := Config.C_Writers_Read_Write_Targets;
-            Targets_List_2 := Config.C_Writers_Read_Only_Targets;
-            Mapping_Access := Components_Map (Comp_Name).Writer_Events_Map'Access;
+         when Mutools.Vres_Alloc.Vector_Numbers =>
+            Targets_List_1 := Config.C_Vector_Numbers_Read_Write_Targets;
+            Targets_List_2 := Config.C_Vector_Numbers_Read_Only_Targets;
+            Mapping_Access := Components_Map (Comp_Name).Vector_Numbers_Map'Access;
+         when Mutools.Vres_Alloc.Event_Numbers =>
+            Targets_List_1 := Config.C_Event_Numbers_Read_Write_Targets;
+            Targets_List_2 := Config.C_Event_Numbers_Read_Only_Targets;
+            Mapping_Access := Components_Map (Comp_Name).Event_Numbers_Map'Access;
       end case;
 
       Targets := McKae.XML.XPath.XIA.XPath_Query
@@ -508,9 +508,9 @@ is
             New_Item  =>
               (Profile           => Mutools.String_Holder_Type.To_Holder
                  (Comp_Profile),
-               Va_Map            => Logical_To_Interval_Package.Empty_Map,
-               Reader_Events_Map => Logical_To_Interval_Package.Empty_Map,
-               Writer_Events_Map => Logical_To_Interval_Package.Empty_Map));
+               Va_Map             => Logical_To_Interval_Package.Empty_Map,
+               Vector_Numbers_Map => Logical_To_Interval_Package.Empty_Map,
+               Event_Numbers_Map  => Logical_To_Interval_Package.Empty_Map));
       end if;
    end Init_Component_Head;
 
@@ -535,10 +535,10 @@ is
             Resource_Kind => Mutools.Vres_Alloc.Virtual_Addresses);
          Init_Component_Elements
            (Comp_Node     => Curr_Component,
-            Resource_Kind => Mutools.Vres_Alloc.Writer_Events);
+            Resource_Kind => Mutools.Vres_Alloc.Event_Numbers);
          Init_Component_Elements
            (Comp_Node     => Curr_Component,
-            Resource_Kind => Mutools.Vres_Alloc.Reader_Vectors);
+            Resource_Kind => Mutools.Vres_Alloc.Vector_Numbers);
       end loop;
    end Initialize_Components_Map;
 
@@ -677,11 +677,11 @@ is
                     (List     => Available_Intervals,
                      Interval => Va_Space_Vm);
                end if;
-            when Mutools.Vres_Alloc.Writer_Events =>
+            when Mutools.Vres_Alloc.Event_Numbers =>
                Mutools.Intervals.Add_Interval
                  (List     => Available_Intervals,
                   Interval => Event_Numbers_Domain);
-            when Mutools.Vres_Alloc.Reader_Vectors =>
+            when Mutools.Vres_Alloc.Vector_Numbers =>
                Mutools.Intervals.Add_Interval
                  (List     => Available_Intervals,
                   Interval => Vector_Numbers_Domain);
@@ -699,14 +699,14 @@ is
                   Targets_List_R_W := Config.Va_Alloc_Read_Write_Targets;
                   Targets_List_R   := Config.Va_Alloc_Read_Only_Targets;
                   Mapping_Access   := Component_Info.Va_Map'Access;
-               when Mutools.Vres_Alloc.Reader_Vectors =>
-                  Targets_List_R_W := Config.Readers_Read_Write_Targets;
-                  Targets_List_R   := Config.Readers_Read_Only_Targets;
-                  Mapping_Access   := Component_Info.Reader_Events_Map'Access;
-               when Mutools.Vres_Alloc.Writer_Events =>
-                  Targets_List_R_W := Config.Writers_Read_Write_Targets;
-                  Targets_List_R   := Config.Writers_Read_Only_Targets;
-                  Mapping_Access   := Component_Info.Writer_Events_Map'Access;
+               when Mutools.Vres_Alloc.Vector_Numbers =>
+                  Targets_List_R_W := Config.Vector_Numbers_Read_Write_Targets;
+                  Targets_List_R   := Config.Vector_Numbers_Read_Only_Targets;
+                  Mapping_Access   := Component_Info.Vector_Numbers_Map'Access;
+               when Mutools.Vres_Alloc.Event_Numbers =>
+                  Targets_List_R_W := Config.Event_Numbers_Read_Write_Targets;
+                  Targets_List_R   := Config.Event_Numbers_Read_Only_Targets;
+                  Mapping_Access   := Component_Info.Event_Numbers_Map'Access;
             end case;
 
             --  Put Targets within Subject on todo-list if resource
@@ -841,11 +841,11 @@ is
                      Process_Subject
                        (Subject        => Curr_Subject,
                         Component_Info => Components_Map (Component_Name),
-                        Resource_Kind  => Mutools.Vres_Alloc.Reader_Vectors);
+                        Resource_Kind  => Mutools.Vres_Alloc.Vector_Numbers);
                      Process_Subject
                        (Subject        => Curr_Subject,
                         Component_Info => Components_Map (Component_Name),
-                        Resource_Kind  => Mutools.Vres_Alloc.Writer_Events);
+                        Resource_Kind  => Mutools.Vres_Alloc.Event_Numbers);
                   else
                      raise Validation_Error with
                        "Cannot find component with name '"

@@ -74,22 +74,22 @@ is
      & "provides/memory/memory";
 
    --  XPaths in Cspec where 'vector'/'vectorBase' is read and written.
-   C_Readers_Read_Write_Targets : constant String_Vector.Vector
+   C_Vector_Numbers_Read_Write_Targets : constant String_Vector.Vector
      := String_Vector."&"
      ("requires/channels/reader[@vector]",
       "requires/channels/array[@vectorBase]");
 
    --  XPaths in Cspec where 'vector' is read.
    --  Attention: The values found on these paths are NOT used to set missing
-   --  'vector' attributes. They are only blocked in the domain for channel
-   --  reader IDs.
-   C_Readers_Read_Only_Targets : constant String_Vector.Vector
+   --  'vector' attributes. They are only blocked in the domain for vector
+   --  numbers.
+   C_Vector_Numbers_Read_Only_Targets : constant String_Vector.Vector
      := String_Vector.To_Vector
      (New_Item => "requires/events/target/event/inject_interrupt/..",
       Length   => 1);
 
    --  XPaths in Cspec where 'event'/'eventBase' is read and written.
-   C_Writers_Read_Write_Targets : constant String_Vector.Vector
+   C_Event_Numbers_Read_Write_Targets : constant String_Vector.Vector
      := String_Vector."&"
      ("requires/channels/writer[@event]",
       "requires/channels/array[@eventBase]")
@@ -97,9 +97,9 @@ is
 
    --  XPaths in Cspec where 'event' is read.
    --  Attention: The values found on these paths are NOT used to set missing
-   --  'event' attributes. They are only blocked in the domain for channel
-   --  writer IDs.
-   C_Writers_Read_Only_Targets : constant String_Vector.Vector
+   --  'event' attributes. They are only blocked in the domain for event
+   --  numbers.
+   C_Event_Numbers_Read_Only_Targets : constant String_Vector.Vector
      := String_Vector.To_Vector
      (New_Item => "requires/events/source/event",
       Length   => 1);
@@ -126,31 +126,31 @@ is
      := String_Vector.Empty_Vector;
 
    --  XPaths in subject where 'vector' is read and written.
-   Readers_Read_Write_Targets : constant String_Vector.Vector
+   Vector_Numbers_Read_Write_Targets : constant String_Vector.Vector
      := String_Vector.To_Vector
      (New_Item => "channels/reader[@vector]",
       Length   => 1);
 
    --  XPaths in subject where 'vector' is read.
    --  Attention: The values found on these paths are NOT used to set missing
-   --  'vector' attributes. They are only blocked in the domain for channel
-   --  reader IDs.
-   Readers_Read_Only_Targets : constant String_Vector.Vector
+   --  'vector' attributes. They are only blocked in the domain for vector
+   --  numbers.
+   Vector_Numbers_Read_Only_Targets : constant String_Vector.Vector
      := String_Vector.To_Vector
      (New_Item => "events/target/event/inject_interrupt/..",
       Length   => 1);
 
    --  XPaths in subject where 'event' is read and written.
-   Writers_Read_Write_Targets : constant String_Vector.Vector
+   Event_Numbers_Read_Write_Targets : constant String_Vector.Vector
      := String_Vector.To_Vector
      (New_Item => "channels/writer[@event]",
       Length   => 1);
 
    --  XPaths in subject where 'event' is read.
    --  Attention: The values found on these paths are NOT used to set missing
-   --  'event' attributes. They are only blocked in the domain for channel
-   --  writer event IDs.
-   Writers_Read_Only_Targets : constant String_Vector.Vector
+   --  'event' attributes. They are only blocked in the domain for event
+   --  numbers.
+   Event_Numbers_Read_Only_Targets : constant String_Vector.Vector
      := String_Vector.To_Vector
      (New_Item => "events/source/group[@name='vmcall']/event",
       Length   => 1);

@@ -54,7 +54,7 @@ is
                         & "'");
                raise Validation_Error with "Virtual resource not aligned";
             end if;
-         when Reader_Vectors | Writer_Events =>
+         when Vector_Numbers | Event_Numbers =>
             Size_U64 := 1;
       end case;
 
@@ -139,7 +139,7 @@ is
                  & Tag_Name
                  & "' when reading attribute value for virtual address";
             end if;
-         when Reader_Vectors =>
+         when Vector_Numbers =>
             if Tag_Name = "reader" then
                return DOM.Core.Elements.Get_Attribute
                  (Elem => Elem,
@@ -167,9 +167,9 @@ is
                raise Validation_Error with
                  "Found unexpected node tag '"
                  & Tag_Name
-                 & "' when reading attribute value for reader event";
+                 & "' when reading attribute value for vector number";
             end if;
-         when Writer_Events =>
+         when Event_Numbers =>
             if Tag_Name = "writer" then
                return DOM.Core.Elements.Get_Attribute
                  (Elem => Elem,
@@ -186,7 +186,7 @@ is
                raise Validation_Error with
                  "Found unexpected node tag '"
                  & Tag_Name
-                 & "' when reading attribute value for writer event";
+                 & "' when reading attribute value for event number";
             end if;
       end case;
    end Get_Resource_Value;
@@ -252,12 +252,12 @@ is
               (Elem  => Node,
                Name  => "virtualAddress",
                Value => Mutools.Utils.To_Hex (Number => Value));
-         when Reader_Vectors =>
+         when Vector_Numbers =>
             DOM.Core.Elements.Set_Attribute
               (Elem  => Node,
                Name  => "vector",
                Value => Mutools.Utils.To_Decimal (Value));
-         when Writer_Events =>
+         when Event_Numbers =>
             DOM.Core.Elements.Set_Attribute
               (Elem  => Node,
                Name  => "event",
