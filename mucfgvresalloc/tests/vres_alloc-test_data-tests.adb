@@ -584,6 +584,101 @@ package body Vres_Alloc.Test_Data.Tests is
    end Test_Run;
 --  end read only
 
+
+--  begin read only
+   procedure Test_Add_Resource_To_Mapping (Gnattest_T : in out Test);
+   procedure Test_Add_Resource_To_Mapping_662a02 (Gnattest_T : in out Test) renames Test_Add_Resource_To_Mapping;
+--  id:2.2/662a025bf248481c/Add_Resource_To_Mapping/1/0/
+   procedure Test_Add_Resource_To_Mapping (Gnattest_T : in out Test) is
+--  end read only
+
+      pragma Unreferenced (Gnattest_T);
+
+      use type Interfaces.Unsigned_64;
+
+      Implementation : DOM.Core.DOM_Implementation;
+      Doc            : DOM.Core.Node;
+      Node           : DOM.Core.Node;
+      Mapping        : Logical_To_Interval_Package.Map;
+
+      ----------------------------------------------------------------------
+
+      procedure Test_Missing_Resource (Id_Value : String)
+      is
+      begin
+         Doc  := DOM.Core.Create_Document (Implementation);
+         Node := DOM.Core.Documents.Create_Element
+           (Doc      => Doc,
+            Tag_Name => "event");
+         if Id_Value /= "" then
+            DOM.Core.Elements.Set_Attribute
+              (Elem  => Node,
+               Name  => "id",
+               Value => Id_Value);
+         end if;
+         Add_Resource_To_Mapping
+           (Mapping       => Mapping,
+            Node          => Node,
+            Resource_Kind => Mutools.Vres_Alloc.Event_Numbers);
+         Assert (Condition => False,
+                 Message   => "Exception expected");
+      exception
+         when E : Validation_Error =>
+            Assert (Condition => Ada.Exceptions.Exception_Message (X => E)
+                      = "Missing attribute value at '/event'",
+                    Message   => "Exception mismatch: "
+                      & Ada.Exceptions.Exception_Message (X => E));
+      end Test_Missing_Resource;
+
+      ----------------------------------------------------------------------
+
+      procedure Test_Set_Resource (Logical, Id : String)
+      is
+      begin
+         Doc  := DOM.Core.Create_Document (Implementation);
+         Node := DOM.Core.Documents.Create_Element
+           (Doc      => Doc,
+            Tag_Name => "event");
+         DOM.Core.Elements.Set_Attribute
+           (Elem  => Node,
+            Name  => "logical",
+            Value => Logical);
+         DOM.Core.Elements.Set_Attribute
+           (Elem  => Node,
+            Name  => "id",
+            Value => Id);
+         Add_Resource_To_Mapping
+           (Mapping       => Mapping,
+            Node          => Node,
+            Resource_Kind => Mutools.Vres_Alloc.Event_Numbers);
+      end Test_Set_Resource;
+   begin
+      --  Source event with missing 'id' attribute.
+      Test_Missing_Resource (Id_Value => "");
+
+      --  Source event with 'id' attribute set to 'auto'.
+      Test_Missing_Resource (Id_Value => "auto");
+
+      --  Source event with a set 'id' is added to the mapping.
+      Test_Set_Resource (Logical => "es_x",
+                         Id      => "5");
+      Assert (Condition => Logical_To_Interval_Package.Contains
+                (Container => Mapping,
+                 Key       => "es_x"),
+              Message   => "Mapping does not contain 'es_x'");
+      Assert (Condition => Mapping ("es_x").First_Address = 5,
+              Message   => "First_Address mismatch:"
+                & Mapping ("es_x").First_Address'Image);
+      Assert (Condition => Mapping ("es_x").Size = 1,
+              Message   => "Size mismatch:" & Mapping ("es_x").Size'Image);
+
+      --  Re-adding the same logical with the same value is accepted.
+      Test_Set_Resource (Logical => "es_x",
+                         Id      => "5");
+--  begin read only
+   end Test_Add_Resource_To_Mapping;
+--  end read only
+
 --  begin read only
 --  id:2.2/02/
 --

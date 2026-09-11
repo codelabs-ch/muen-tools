@@ -21,6 +21,7 @@ with Interfaces;
 
 with Mutools;
 
+private with DOM.Core;
 private with Mutools.Expressions;
 private with Mutools.Intervals;
 private with Mutools.Vres_Alloc.Config;
@@ -60,6 +61,15 @@ private
        Element_Type    => Component_Info_Type,
        Hash            => Ada.Strings.Hash,
        Equivalent_Keys => "=");
+
+   --  Given a non-'array' node, add a mapping
+   --  'logical name'-> ('virtual resource','size')
+   --  to Mapping. Raises Validation_Error if the node does not carry the
+   --  requested virtual resource.
+   procedure Add_Resource_To_Mapping
+     (Mapping       : in out Logical_To_Interval_Package.Map;
+      Node          :        DOM.Core.Node;
+      Resource_Kind :        Mutools.Vres_Alloc.Resource_Kind_Type);
 
    Memory_Sizes   : Mutools.Expressions.Name_To_String_Hashed_Map.Map;
    Channel_Sizes  : Mutools.Expressions.Name_To_String_Hashed_Map.Map;
