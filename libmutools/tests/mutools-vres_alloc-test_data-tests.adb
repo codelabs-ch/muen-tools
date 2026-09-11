@@ -16,6 +16,8 @@ with System.Assertions;
 --  end read only
 with Ada.Exceptions;
 
+with Interfaces;
+
 with DOM.Core;
 with DOM.Core.Nodes;
 with DOM.Core.Documents;
@@ -501,7 +503,7 @@ package body Mutools.Vres_Alloc.Test_Data.Tests is
       procedure Test
         (Tag_Name        : String;
          Attribute_Name  : String;
-         Attribute_Value : String;
+         Value           : Interfaces.Unsigned_64;
          Resource_Kind   : Resource_Kind_Type;
          Result_Ref      : String)
       is
@@ -510,19 +512,17 @@ package body Mutools.Vres_Alloc.Test_Data.Tests is
          Node :=  DOM.Core.Documents.Create_Element
            (Doc      => Doc,
             Tag_Name => Tag_Name);
-         if Attribute_Name /= "" then
-            DOM.Core.Elements.Set_Attribute
-              (Elem  => Node,
-               Name  => Attribute_Name,
-               Value => Attribute_Value);
-         end if;
-         Assert (Condition => Result_Ref = Get_Resource_Value
-                   (Elem          => Node,
-                    Resource_Kind => Resource_Kind),
+         Set_Virtual_Resource
+           (Node          => Node,
+            Resource_Kind => Resource_Kind,
+            Value         => Value);
+         Assert (Condition => Result_Ref = DOM.Core.Elements.Get_Attribute
+                   (Elem => Node,
+                    Name => Attribute_Name),
                  Message   => "Value mismatch: '"
-                   & Get_Resource_Value
-                   (Elem          => Node,
-                    Resource_Kind => Resource_Kind)
+                   & DOM.Core.Elements.Get_Attribute
+                   (Elem => Node,
+                    Name => Attribute_Name)
                    & "' /= '"
                    & Result_Ref
                    & "'");
@@ -530,94 +530,31 @@ package body Mutools.Vres_Alloc.Test_Data.Tests is
       end Test;
    begin
       --  Positive tests
+      Test (Tag_Name        => "memory",
+            Attribute_Name  => "virtualAddress",
+            Value           => 16#0004_1000#,
+            Resource_Kind   => Virtual_Addresses,
+            Result_Ref      => "16#0004_1000#");
       Test (Tag_Name        => "reader",
             Attribute_Name  => "virtualAddress",
-            Attribute_Value => "16#1234#",
+            Value           => 16#0004_2000#,
             Resource_Kind   => Virtual_Addresses,
-            Result_Ref      => "16#1234#");
+            Result_Ref      => "16#0004_2000#");
+      Test (Tag_Name        => "writer",
+            Attribute_Name  => "virtualAddress",
+            Value           => 16#0004_3000#,
+            Resource_Kind   => Virtual_Addresses,
+            Result_Ref      => "16#0004_3000#");
       Test (Tag_Name        => "writer",
             Attribute_Name  => "event",
-            Attribute_Value => "15",
+            Value           => 15,
             Resource_Kind   => Event_Numbers,
             Result_Ref      => "15");
       Test (Tag_Name        => "reader",
             Attribute_Name  => "vector",
-            Attribute_Value => "16",
+            Value           => 16,
             Resource_Kind   => Vector_Numbers,
             Result_Ref      => "16");
-
-      Test (Tag_Name        => "array",
-            Attribute_Name  => "virtualAddressBase",
-            Attribute_Value => "16#1000_0000_0000_0000#",
-            Resource_Kind   => Virtual_Addresses,
-            Result_Ref      => "16#1000_0000_0000_0000#");
-      Test (Tag_Name        => "array",
-            Attribute_Name  => "eventBase",
-            Attribute_Value => "11",
-            Resource_Kind   => Event_Numbers,
-            Result_Ref      => "11");
-      Test (Tag_Name        => "array",
-            Attribute_Name  => "vectorBase",
-            Attribute_Value => "0",
-            Resource_Kind   => Vector_Numbers,
-            Result_Ref      => "0");
-
-      Test (Tag_Name        => "event",
-            Attribute_Name  => "id",
-            Attribute_Value => "7",
-            Resource_Kind   => Event_Numbers,
-            Result_Ref      => "7");
-
-      --  Test getting 'vector'-attribute of inject_interrupt-child
-      declare
-         Node, Child : DOM.Core.Node;
-      begin
-         Node :=  DOM.Core.Documents.Create_Element
-           (Doc      => Doc,
-            Tag_Name => "event");
-         Child := DOM.Core.Documents.Create_Element
-           (Doc      => Doc,
-            Tag_Name => "inject_interrupt");
-         Child := DOM.Core.Nodes.Append_Child (N => Node, New_Child => Child);
-         DOM.Core.Elements.Set_Attribute
-           (Elem  => Child,
-            Name  => "vector",
-            Value => "200");
-         Assert (Condition => "200" = Get_Resource_Value
-                   (Elem          => Node,
-                    Resource_Kind => Vector_Numbers),
-                 Message   => "Value mismatch: "
-                   & Get_Resource_Value
-                   (Elem          => Node,
-                    Resource_Kind => Vector_Numbers));
-         DOM.Core.Nodes.Free (N => Node, Deep => True);
-      end;
-
-      --  Test case that the event does not have a child
-      Test (Tag_Name        => "event",
-            Attribute_Name  => "id",
-            Attribute_Value => "7",
-            Resource_Kind   => Vector_Numbers,
-            Result_Ref      => "");
-
-      --  Negative Test: wrong tagname
-      begin
-         Test (Tag_Name        => "writer",
-               Attribute_Name  => "id",
-               Attribute_Value => "7",
-               Resource_Kind   => Vector_Numbers,
-               Result_Ref      => "");
-         Assert (Condition => False,
-                 Message   => "Exception expected");
-      exception
-         when E : Validation_Error =>
-            Assert (Condition => Ada.Exceptions.Exception_Message (X => E)
-                      = "Found unexpected node tag 'writer' "
-                      & "when reading attribute value for vector number",
-                    Message   => "Exception mismatch: "
-                      & Ada.Exceptions.Exception_Message (X => E));
-      end;
-
 --  begin read only
    end Test_Set_Virtual_Resource;
 --  end read only
