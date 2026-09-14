@@ -64,7 +64,7 @@ is
       Bind_File_Prefix : constant String := "b__";
 
       Proj_Dir  : constant String   := Project.Project_Path.Display_Dir_Name;
-      CI_Dir    : constant String   := Proj_Dir & "/../ci/";
+      CI_Dir    : constant String   := Proj_Dir & "/../../lib/";
       Obj_Dir   : constant String   := Project.Object_Dir.Display_Full_Name;
       Src_Files : File_Array_Access := Project.Source_Files;
       Mains     : GNAT.Strings.String_List_Access
