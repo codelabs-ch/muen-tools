@@ -55,12 +55,13 @@ package body Mutools.Vres_Alloc.Test_Data.Tests is
 
       procedure Test_Event
         (Resource_Kind : Resource_Kind_Type;
+         Tag_Name      : String;
          Attr_Name     : String)
       is
       begin
          Node :=  DOM.Core.Documents.Create_Element
            (Doc      => Doc,
-            Tag_Name => "node");
+            Tag_Name => Tag_Name);
          Intervals.Clear (List => Ival);
          Intervals.Add_Interval (List             => Ival,
                                  Interval         => Intervals.Interval_Type'
@@ -91,7 +92,7 @@ package body Mutools.Vres_Alloc.Test_Data.Tests is
       begin
          Node :=  DOM.Core.Documents.Create_Element
            (Doc      => Doc,
-            Tag_Name => "node");
+            Tag_Name => "memory");
          Intervals.Add_Interval (List     => Ival,
                                  Interval => Intervals.Interval_Type'
                                    (First_Element => 16#0000#,
@@ -141,14 +142,18 @@ package body Mutools.Vres_Alloc.Test_Data.Tests is
       end;
 
       --  Positive test for Vector_Numbers and Event_Numbers
-      Test_Event (Resource_Kind => Vector_Numbers, Attr_Name => "vector");
-      Test_Event (Resource_Kind => Event_Numbers, Attr_Name => "event");
+      Test_Event (Resource_Kind => Vector_Numbers,
+                  Tag_Name      => "reader",
+                  Attr_Name     => "vector");
+      Test_Event (Resource_Kind => Event_Numbers,
+                  Tag_Name      => "writer",
+                  Attr_Name     => "event");
 
       --  Negative test for Virtual_Addresses: not aligned
       begin
          Node :=  DOM.Core.Documents.Create_Element
            (Doc      => Doc,
-            Tag_Name => "node");
+            Tag_Name => "memory");
          Intervals.Add_Interval (List     => Ival,
                                  Interval => Intervals.Interval_Type'
                                    (First_Element => 16#0000#,
@@ -446,6 +451,23 @@ package body Mutools.Vres_Alloc.Test_Data.Tests is
             Resource_Kind   => Vector_Numbers,
             Result_Ref      => "");
 
+      --  Negative Test: source event with 'id' set to 'auto'
+      begin
+         Test (Tag_Name        => "event",
+               Attribute_Name  => "id",
+               Attribute_Value => "auto",
+               Resource_Kind   => Event_Numbers,
+               Result_Ref      => "");
+         Assert (Condition => False,
+                 Message   => "Exception expected");
+      exception
+         when E : Validation_Error =>
+            Assert (Condition => Ada.Exceptions.Exception_Message (X => E)
+                      = "Invalid attribute value",
+                    Message   => "Exception mismatch: "
+                      & Ada.Exceptions.Exception_Message (X => E));
+      end;
+
       --  Negative Test: wrong tagname
       begin
          Test (Tag_Name        => "writer",
@@ -459,7 +481,7 @@ package body Mutools.Vres_Alloc.Test_Data.Tests is
          when E : Validation_Error =>
             Assert (Condition => Ada.Exceptions.Exception_Message (X => E)
                       = "Found unexpected node tag 'writer' "
-                      & "when reading attribute value for vector number",
+                      & "when accessing attribute for vector number",
                     Message   => "Exception mismatch: "
                       & Ada.Exceptions.Exception_Message (X => E));
       end;
@@ -477,7 +499,7 @@ package body Mutools.Vres_Alloc.Test_Data.Tests is
          when E : Validation_Error =>
             Assert (Condition => Ada.Exceptions.Exception_Message (X => E)
                       = "Found unexpected node tag 'foo' "
-                      & "when reading attribute value for event number",
+                      & "when accessing attribute for event number",
                     Message   => "Exception mismatch: "
                       & Ada.Exceptions.Exception_Message (X => E));
       end;
@@ -562,8 +584,66 @@ package body Mutools.Vres_Alloc.Test_Data.Tests is
             Value           => 17,
             Resource_Kind   => Event_Numbers,
             Result_Ref      => "17");
+
+      --  Arrays
+      Test (Tag_Name        => "array",
+            Attribute_Name  => "virtualAddressBase",
+            Value           => 16#0004_4000#,
+            Resource_Kind   => Virtual_Addresses,
+            Result_Ref      => "16#0004_4000#");
+      Test (Tag_Name        => "array",
+            Attribute_Name  => "eventBase",
+            Value           => 11,
+            Resource_Kind   => Event_Numbers,
+            Result_Ref      => "11");
+      Test (Tag_Name        => "array",
+            Attribute_Name  => "vectorBase",
+            Value           => 0,
+            Resource_Kind   => Vector_Numbers,
+            Result_Ref      => "0");
+
+      --  Negative test: tag without attribute for the given resource kind
+      begin
+         Test (Tag_Name        => "event",
+               Attribute_Name  => "vector",
+               Value           => 7,
+               Resource_Kind   => Vector_Numbers,
+               Result_Ref      => "");
+         Assert (Condition => False,
+                 Message   => "Exception expected");
+      exception
+         when E : Validation_Error =>
+            Assert (Condition => Ada.Exceptions.Exception_Message (X => E)
+                      = "Found unexpected node tag 'event' "
+                      & "when accessing attribute for vector number",
+                    Message   => "Exception mismatch: "
+                      & Ada.Exceptions.Exception_Message (X => E));
+      end;
 --  begin read only
    end Test_Set_Virtual_Resource;
+--  end read only
+
+--  begin read only
+   procedure Test_Requests_Allocation (Gnattest_T : in out Test);
+   procedure Test_Requests_Allocation_12efc9 (Gnattest_T : in out Test) renames Test_Requests_Allocation;
+--  id:2.2/12efc9b6826964ef/Requests_Allocation/1/0/
+   procedure Test_Requests_Allocation (Gnattest_T : in out Test) is
+--  end read only
+
+      pragma Unreferenced (Gnattest_T);
+   begin
+      Assert (Condition => Requests_Allocation (Value => ""),
+              Message   => "Empty value does not request allocation");
+      Assert (Condition => Requests_Allocation (Value => "auto"),
+              Message   => "'auto' does not request allocation");
+      Assert (Condition => not Requests_Allocation (Value => "0"),
+              Message   => "'0' requests allocation");
+      Assert (Condition => not Requests_Allocation (Value => "16#1000#"),
+              Message   => "'16#1000#' requests allocation");
+      Assert (Condition => not Requests_Allocation (Value => "Auto"),
+              Message   => "'Auto' requests allocation");
+--  begin read only
+   end Test_Requests_Allocation;
 --  end read only
 
 

@@ -657,7 +657,18 @@ package body Vres_Alloc.Test_Data.Tests is
       Test_Missing_Resource (Id_Value => "");
 
       --  Source event with 'id' attribute set to 'auto'.
-      Test_Missing_Resource (Id_Value => "auto");
+      begin
+         Test_Set_Resource (Logical => "es_x",
+                            Id      => "auto");
+         Assert (Condition => False,
+                 Message   => "Exception expected (auto)");
+      exception
+         when E : Mutools.Vres_Alloc.Validation_Error =>
+            Assert (Condition => Ada.Exceptions.Exception_Message (X => E)
+                      = "Invalid attribute value",
+                    Message   => "Exception mismatch: "
+                      & Ada.Exceptions.Exception_Message (X => E));
+      end;
 
       --  Source event with a set 'id' is added to the mapping.
       Test_Set_Resource (Logical => "es_x",

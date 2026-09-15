@@ -171,7 +171,8 @@ package body Comp_Vres_Alloc.Test_Data.Tests is
                Assert (Condition => False,
                        Message   => "Exception expected");
             exception
-               when E: Validation_Error =>
+               when E: Validation_Error
+                  | Mutools.Vres_Alloc.Validation_Error =>
                   Assert (Condition => Ada.Exceptions.Exception_Message (X => E)
                             = "Invalid attribute value",
                           Message   => "Exception mismatch: "
