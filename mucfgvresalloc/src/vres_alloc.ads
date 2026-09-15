@@ -34,6 +34,9 @@ is
       Size          : Interfaces.Unsigned_64;
    end record;
 
+   --  Maps the logical name of a resource, prefixed with its kind
+   --  (memory region, channel or event) and for device memory regions
+   --  additionally with the logical device name, to the virtual resource.
    package Logical_To_Interval_Package is new Ada.Containers.Indefinite_Hashed_Maps
       (Key_Type        => String,
        Element_Type    => Address_And_Size_Type,
@@ -62,10 +65,17 @@ private
        Hash            => Ada.Strings.Hash,
        Equivalent_Keys => "=");
 
-   --  Given a non-'array' node, add a mapping
-   --  'logical name'-> ('virtual resource','size')
-   --  to Mapping. Raises Validation_Error if the node does not carry the
-   --  requested virtual resource.
+   --  Given a non-'array' node, add a corresponding mapping with key
+   --  'prefix/logical name' and value ('virtual resource','size'). The
+   --  following prefixes are used:
+   --  channel reader/writer, memory -> "memory"
+   --  device memory                 -> "device/logical device name"
+   --  others                        -> "XML tag name"
+   --  Prefixes are prepended to mapping keys in order to avoid clashes of
+   --  logical names of unrelated resources. Raises Validation_Error if:
+   --   * node does not carry the requested virtual resource
+   --   * different resource is already mapped for the node
+   --   * virtual address resource is not aligned
    procedure Add_Resource_To_Mapping
      (Mapping       : in out Logical_To_Interval_Package.Map;
       Node          :        DOM.Core.Node;

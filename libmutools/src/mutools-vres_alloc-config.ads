@@ -55,6 +55,14 @@ is
    --  ATTENTION: If you change the values below you may have to adapt the
    --  code of mucfgcvresalloc, mucfgvresalloc and their unittests.
    -------------------------------------------------------------------------
+
+   --  XML tag names of array child elements.
+   Array_Element_Names : constant String_Vector.Vector
+     := String_Vector."&" ("memory", "reader")
+     & "writer"
+     & "event";
+
+   -------------------------------------------------------------------------
    --  All XPaths in this section are read by Mucfgcvresalloc and
    --  interpreted relative to the root of the respective component.
 
