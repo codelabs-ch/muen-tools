@@ -94,6 +94,7 @@ is
       Resource_Kind :        Mutools.Vres_Alloc.Resource_Kind_Type)
    is
       use type Interfaces.Unsigned_64;
+      use type Mutools.Vres_Alloc.Resource_Kind_Type;
       use type Muxml.String_Vector.Vector;
 
       Name_Filter    : constant Muxml.String_Vector.Vector
@@ -104,62 +105,41 @@ is
         (Muxml.Utils.Count_Element_Children
            (Node        => Node,
             Name_Filter => Name_Filter));
-      Size           : Interfaces.Unsigned_64;
-      New_Address    : Interfaces.Unsigned_64;
+      Size           : constant Interfaces.Unsigned_64
+        := Mutools.Vres_Alloc.Get_Resource_Size
+        (Elem          => Node,
+         Resource_Kind => Resource_Kind);
+
+      --  Value assigned to empty arrays.
+      Empty_Value : constant Interfaces.Unsigned_64
+        := (case Resource_Kind is
+               when Mutools.Vres_Alloc.Virtual_Addresses =>
+                  Mutools.Constants.Non_Canonical_Address,
+               when Mutools.Vres_Alloc.Vector_Numbers =>
+                  Vector_Numbers_Domain.Last_Element,
+               when Mutools.Vres_Alloc.Event_Numbers =>
+                  Event_Numbers_Domain.Last_Element);
    begin
-      case Resource_Kind is
-         when Mutools.Vres_Alloc.Virtual_Addresses =>
-            Size := Interfaces.Unsigned_64'Value
-              (DOM.Core.Elements.Get_Attribute
-                 (Elem => Node,
-                  Name => "elementSize"));
-            if not Mutools.Vres_Alloc.Is_Aligned (Size => Size) then
-               Mulog.Log (Msg => "Error: elementSize is not "
-                            & "a multiple of 16#1000#. XPath: '"
-                            & Mutools.Xmldebuglog.Get_Xpath (Node => Node)
-                            & "', elementSize: '"
-                            & Mutools.Utils.To_Hex (Number => Size)
-                            & "'");
-               raise Validation_Error with "Virtual resource not aligned";
-            end if;
+      if Resource_Kind = Mutools.Vres_Alloc.Virtual_Addresses
+        and then not Mutools.Vres_Alloc.Is_Aligned (Size => Size)
+      then
+         Mulog.Log (Msg => "Error: elementSize is not "
+                      & "a multiple of 16#1000#. XPath: '"
+                      & Mutools.Xmldebuglog.Get_Xpath (Node => Node)
+                      & "', elementSize: '"
+                      & Mutools.Utils.To_Hex (Number => Size)
+                      & "'");
+         raise Validation_Error with "Virtual resource not aligned";
+      end if;
 
-            if Count = 0 then
-               New_Address := Mutools.Constants.Non_Canonical_Address;
-            else
-               New_Address := Mutools.Intervals.Reserve_Interval
-                 (List => Av_Ival,
-                  Size => Count * Size);
-            end if;
-            DOM.Core.Elements.Set_Attribute
-              (Elem  => Node,
-               Name  => "virtualAddressBase",
-               Value => Mutools.Utils.To_Hex (Number => New_Address));
-
-         when Mutools.Vres_Alloc.Vector_Numbers =>
-            if Count = 0 then
-               New_Address := 255;
-            else
-               New_Address := Mutools.Intervals.Reserve_Interval
-                 (List => Av_Ival,
-                  Size => Count);
-            end if;
-            DOM.Core.Elements.Set_Attribute
-              (Elem  => Node,
-               Name  => "vectorBase",
-               Value => Mutools.Utils.To_Decimal (New_Address));
-         when Mutools.Vres_Alloc.Event_Numbers =>
-            if Count = 0 then
-               New_Address := 63;
-            else
-               New_Address := Mutools.Intervals.Reserve_Interval
-                 (List => Av_Ival,
-                  Size => Count);
-            end if;
-            DOM.Core.Elements.Set_Attribute
-              (Elem  => Node,
-               Name  => "eventBase",
-               Value => Mutools.Utils.To_Decimal (New_Address));
-      end case;
+      Mutools.Vres_Alloc.Set_Virtual_Resource
+        (Node          => Node,
+         Resource_Kind => Resource_Kind,
+         Value         =>
+           (if Count = 0 then Empty_Value
+            else Mutools.Intervals.Reserve_Interval
+              (List => Av_Ival,
+               Size => Count * Size)));
    end Allocate_Array;
 
    -------------------------------------------------------------------------
@@ -209,7 +189,7 @@ is
         := Muxml.String_Vector."&" ("reader", "writer") & "memory"
         & "event";
    begin
-      if Attr_Value = "" or Attr_Value = "auto" then
+      if Mutools.Vres_Alloc.Requests_Allocation (Value => Attr_Value) then
          --  the resources needs to be written - put it on the todo-list
          if not Read_Only then
             Muxml.Utils.Node_List_Package.Append
@@ -271,26 +251,13 @@ is
         (Elem          => Node,
          Resource_Kind => Resource_Kind);
    begin
-      if Attr_Value = "auto" or Attr_Value = "" then
+      if Mutools.Vres_Alloc.Requests_Allocation (Value => Attr_Value) then
          if Read_Only then
             Mulog.Log (Msg => "Found read-only node which requested automatic "
                          & "allocation of virtual resource. Xpath: '"
                          & Mutools.Xmldebuglog.Get_Xpath (Node => Node)
                          & "', value: '"
                          & Attr_Value
-                         & "'");
-            raise Validation_Error with "Invalid attribute value";
-         end if;
-
-         --  Source event ID allocation is requested by omitting the attribute,
-         --  'auto' is not valid in this context.
-         if Attr_Value = "auto"
-           and then DOM.Core.Elements.Get_Tag_Name (Elem => Node) = "event"
-         then
-            Mulog.Log (Msg => "Found source event with 'id' attribute set to "
-                         & "'auto', omit the attribute to request automatic "
-                         & "allocation. Xpath: '"
-                         & Mutools.Xmldebuglog.Get_Xpath (Node => Node)
                          & "'");
             raise Validation_Error with "Invalid attribute value";
          end if;

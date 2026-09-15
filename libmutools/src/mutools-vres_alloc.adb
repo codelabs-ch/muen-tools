@@ -27,6 +27,17 @@ with Mulog;
 
 package body Mutools.Vres_Alloc
 is
+
+   --  Return the name of the attribute of the specified resource kind in the
+   --  element with the given tag name. Raises Validation_Error if the tag has
+   --  no corresponding attribute.
+   function Resource_Attribute_Name
+     (Resource_Kind : Resource_Kind_Type;
+      Tag_Name      : String)
+      return String;
+
+   -------------------------------------------------------------------------
+
    procedure Allocate_And_Set_Single_Resource
      (Av_Ival       : in out Intervals.Interval_List_Type;
       Node          :        DOM.Core.Node;
@@ -120,75 +131,51 @@ is
       Tag_Name : constant String
         := DOM.Core.Elements.Get_Tag_Name (Elem => Elem);
    begin
-      case Resource_Kind is
-         when Virtual_Addresses =>
-            if Tag_Name = "memory"
-              or Tag_Name = "reader"
-              or Tag_Name = "writer"
-            then
+
+      --  Vector number of a target event is in the inject_interrupt child.
+
+      if Resource_Kind = Vector_Numbers and then Tag_Name = "event" then
+         declare
+            Child : constant DOM.Core.Node
+              := Muxml.Utils.Get_Unique_Element_Child
+              (Parent     => Elem,
+               Child_Name => "inject_interrupt");
+         begin
+            if Child /= null then
                return DOM.Core.Elements.Get_Attribute
-                 (Elem => Elem,
-                  Name => "virtualAddress");
-            elsif Tag_Name = "array" then
-               return DOM.Core.Elements.Get_Attribute
-                 (Elem => Elem,
-                  Name => "virtualAddressBase");
-            else
-               raise Validation_Error with
-                 "Found unexpected node tag '"
-                 & Tag_Name
-                 & "' when reading attribute value for virtual address";
-            end if;
-         when Vector_Numbers =>
-            if Tag_Name = "reader" then
-               return DOM.Core.Elements.Get_Attribute
-                 (Elem => Elem,
+                 (Elem => Child,
                   Name => "vector");
-            elsif Tag_Name = "array" then
-               return DOM.Core.Elements.Get_Attribute
-                 (Elem => Elem,
-                  Name => "vectorBase");
-            elsif Tag_Name = "event" then
-               declare
-                  Child : constant DOM.Core.Node
-                    := Muxml.Utils.Get_Unique_Element_Child
-                    (Parent     => Elem,
-                     Child_Name => "inject_interrupt");
-               begin
-                  if Child /= null then
-                     return DOM.Core.Elements.Get_Attribute
-                       (Elem => Child,
-                        Name => "vector");
-                  else
-                     return "";
-                  end if;
-               end;
             else
-               raise Validation_Error with
-                 "Found unexpected node tag '"
-                 & Tag_Name
-                 & "' when reading attribute value for vector number";
+               return "";
             end if;
-         when Event_Numbers =>
-            if Tag_Name = "writer" then
-               return DOM.Core.Elements.Get_Attribute
-                 (Elem => Elem,
-                  Name => "event");
-            elsif Tag_Name = "array" then
-               return DOM.Core.Elements.Get_Attribute
-                 (Elem => Elem,
-                  Name => "eventBase");
-            elsif Tag_Name = "event" then
-               return DOM.Core.Elements.Get_Attribute
-                 (Elem => Elem,
-                  Name => "id");
-            else
-               raise Validation_Error with
-                 "Found unexpected node tag '"
-                 & Tag_Name
-                 & "' when reading attribute value for event number";
-            end if;
-      end case;
+         end;
+      end if;
+
+      declare
+         Attr_Name : constant String
+           := Resource_Attribute_Name
+             (Resource_Kind => Resource_Kind,
+              Tag_Name      => Tag_Name);
+         Value     : constant String
+           := DOM.Core.Elements.Get_Attribute
+             (Elem => Elem,
+              Name => Attr_Name);
+      begin
+
+         --  The ID of a source event is requested by omitting the attribute,
+         --  'auto' is not a valid event ID.
+
+         if Attr_Name = "id" and then Value = "auto" then
+            Mulog.Log (Msg => "Found source event with 'id' attribute set to "
+                         & "'auto', omit the attribute to request automatic "
+                         & "allocation. Xpath: '"
+                         & Mutools.Xmldebuglog.Get_Xpath (Node => Elem)
+                         & "'");
+            raise Validation_Error with "Invalid attribute value";
+         end if;
+
+         return Value;
+      end;
    end Get_Resource_Value;
 
    -------------------------------------------------------------------------
@@ -240,36 +227,77 @@ is
 
    -------------------------------------------------------------------------
 
+   function Requests_Allocation (Value : String) return Boolean
+   is (Value = "" or else Value = "auto");
+
+   -------------------------------------------------------------------------
+
+   function Resource_Attribute_Name
+     (Resource_Kind : Resource_Kind_Type;
+      Tag_Name      : String)
+      return String
+   is
+   begin
+      case Resource_Kind is
+         when Virtual_Addresses =>
+            if Tag_Name = "memory"
+              or Tag_Name = "reader"
+              or Tag_Name = "writer"
+            then
+               return "virtualAddress";
+            elsif Tag_Name = "array" then
+               return "virtualAddressBase";
+            end if;
+         when Vector_Numbers =>
+
+            --  Vectors of target events are read from the inject_interrupt
+            --  child (see Get_Resource_Value) and never written. Thus, 'event'
+            --  does not have a corresponding attribute here.
+
+            if Tag_Name = "reader" then
+               return "vector";
+            elsif Tag_Name = "array" then
+               return "vectorBase";
+            end if;
+         when Event_Numbers =>
+            if Tag_Name = "writer" then
+               return "event";
+            elsif Tag_Name = "array" then
+               return "eventBase";
+            elsif Tag_Name = "event" then
+               return "id";
+            end if;
+      end case;
+
+      raise Validation_Error with
+        "Found unexpected node tag '"
+        & Tag_Name
+        & "' when accessing attribute for "
+        & (case Resource_Kind is
+              when Virtual_Addresses => "virtual address",
+              when Vector_Numbers    => "vector number",
+              when Event_Numbers     => "event number");
+   end Resource_Attribute_Name;
+
+   -------------------------------------------------------------------------
+
    procedure Set_Virtual_Resource
      (Node          : DOM.Core.Node;
       Resource_Kind : Resource_Kind_Type;
       Value         : Interfaces.Unsigned_64)
    is
    begin
-      case Resource_Kind is
-         when Virtual_Addresses =>
-            DOM.Core.Elements.Set_Attribute
-              (Elem  => Node,
-               Name  => "virtualAddress",
-               Value => Mutools.Utils.To_Hex (Number => Value));
-         when Vector_Numbers =>
-            DOM.Core.Elements.Set_Attribute
-              (Elem  => Node,
-               Name  => "vector",
-               Value => Mutools.Utils.To_Decimal (Value));
-         when Event_Numbers =>
-            if DOM.Core.Elements.Get_Tag_Name (Elem => Node) = "event" then
-               DOM.Core.Elements.Set_Attribute
-                 (Elem  => Node,
-                  Name  => "id",
-                  Value => Mutools.Utils.To_Decimal (Value));
-            else
-               DOM.Core.Elements.Set_Attribute
-                 (Elem  => Node,
-                  Name  => "event",
-                  Value => Mutools.Utils.To_Decimal (Value));
-            end if;
-      end case;
+      DOM.Core.Elements.Set_Attribute
+        (Elem  => Node,
+         Name  => Resource_Attribute_Name
+           (Resource_Kind => Resource_Kind,
+            Tag_Name      => DOM.Core.Elements.Get_Tag_Name (Elem => Node)),
+         Value =>
+           (case Resource_Kind is
+               when Virtual_Addresses =>
+                  Utils.To_Hex (Number => Value),
+               when Vector_Numbers | Event_Numbers =>
+                  Utils.To_Decimal (Value)));
    end Set_Virtual_Resource;
 
 end Mutools.Vres_Alloc;

@@ -54,17 +54,25 @@ is
    --  "virtualAddressBase", "vectorBase", "eventBase" or "id"
    --  attributes, depending on Resource_Kind and the tag of the node.
    --  If the needed attribute is not found, then "" is returned.
+   --  Raises Validation_Error if the 'id' of a source event is set to 'auto',
+   --  since allocation of source event IDs is requested by omission.
    function Get_Resource_Value
      (Elem          : DOM.Core.Node;
       Resource_Kind : Resource_Kind_Type)
      return String;
 
-   --  Depending on Resource_Kind, set the attribute "virtualAddress", "event"
-   --  (or "id" for source events), or "vector" of Node to Value.
+   --  Depending on Resource_Kind and the tag of Node, set the attribute
+   --  "virtualAddress", "event" (or "id" for source events) or "vector" of
+   --  Node to Value. For arrays, the corresponding "virtualAddressBase",
+   --  "eventBase" or "vectorBase" attribute is set.
    procedure Set_Virtual_Resource
      (Node          : DOM.Core.Node;
       Resource_Kind : Resource_Kind_Type;
       Value         : Interfaces.Unsigned_64);
+
+   --  Returns True if the given attribute value requests automatic allocation
+   --  of a virtual resource.
+   function Requests_Allocation (Value : String) return Boolean;
 
    --  Check if Address and Size is a multiple of 16#1000#
    --  (the size of one page) and that Size > 0 holds.
