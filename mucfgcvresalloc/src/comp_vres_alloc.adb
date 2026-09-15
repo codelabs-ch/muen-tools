@@ -95,17 +95,13 @@ is
    is
       use type Interfaces.Unsigned_64;
       use type Mutools.Vres_Alloc.Resource_Kind_Type;
-      use type Muxml.String_Vector.Vector;
 
-      Name_Filter    : constant Muxml.String_Vector.Vector
-        := Muxml.String_Vector."&" ("reader", "writer") & "memory"
-        & "event";
-      Count          : constant Interfaces.Unsigned_64
+      Count       : constant Interfaces.Unsigned_64
         := Interfaces.Unsigned_64
         (Muxml.Utils.Count_Element_Children
            (Node        => Node,
-            Name_Filter => Name_Filter));
-      Size           : constant Interfaces.Unsigned_64
+            Name_Filter => Mutools.Vres_Alloc.Config.Array_Element_Names));
+      Size        : constant Interfaces.Unsigned_64
         := Mutools.Vres_Alloc.Get_Resource_Size
         (Elem          => Node,
          Resource_Kind => Resource_Kind);
@@ -175,19 +171,15 @@ is
    is
       use type Interfaces.Unsigned_64;
       use type Mutools.Vres_Alloc.Resource_Kind_Type;
-      use type Muxml.String_Vector.Vector;
 
-      Attr_Value  : constant String
+      Attr_Value : constant String
         := Mutools.Vres_Alloc.Get_Resource_Value
         (Elem          => Node,
          Resource_Kind => Resource_Kind);
-      Size        : constant Interfaces.Unsigned_64
+      Size       : constant Interfaces.Unsigned_64
         := Mutools.Vres_Alloc.Get_Resource_Size
         (Elem          => Node,
          Resource_Kind => Resource_Kind);
-      Name_Filter : constant Muxml.String_Vector.Vector
-        := Muxml.String_Vector."&" ("reader", "writer") & "memory"
-        & "event";
    begin
       if Mutools.Vres_Alloc.Requests_Allocation (Value => Attr_Value) then
          --  the resources needs to be written - put it on the todo-list
@@ -227,7 +219,8 @@ is
             Size          => Size * Interfaces.Unsigned_64
               (Muxml.Utils.Count_Element_Children
                  (Node        => Node,
-                  Name_Filter => Name_Filter)));
+                  Name_Filter =>
+                    Mutools.Vres_Alloc.Config.Array_Element_Names)));
       end if;
    end Include_Array;
 
