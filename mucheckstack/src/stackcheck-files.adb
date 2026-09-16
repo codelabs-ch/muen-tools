@@ -64,7 +64,7 @@ is
       Bind_File_Prefix : constant String := "b__";
 
       Proj_Dir  : constant String   := Project.Project_Path.Display_Dir_Name;
-      CI_Dir    : constant String   := Proj_Dir & "/../ci/";
+      CI_Dir    : constant String   := Proj_Dir & "/../../lib/";
       Obj_Dir   : constant String   := Project.Object_Dir.Display_Full_Name;
       Src_Files : File_Array_Access := Project.Source_Files;
       Mains     : GNAT.Strings.String_List_Access
@@ -80,9 +80,13 @@ is
                  Suffix    => File_Extension (File => Src),
                  Normalize => True);
             CI_File     : constant Unbounded_String
-              := To_Unbounded_String (CI_Dir & (+Basename) & ".ci");
+              := To_Unbounded_String
+                (Ada.Directories.Full_Name
+                   (CI_Dir & (+Basename) & ".ci"));
             CI_File_Obj : constant Unbounded_String
-              := To_Unbounded_String (Obj_Dir & (+Basename) & ".ci");
+              := To_Unbounded_String
+                (Ada.Directories.Full_Name
+                   (Obj_Dir & (+Basename) & ".ci"));
          begin
             if not File_Set.Contains (Item => CI_File)
               and then Ada.Directories.Exists (Name => To_String (CI_File))

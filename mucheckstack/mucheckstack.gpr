@@ -16,7 +16,7 @@
 --  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --
 
-with "gnatcoll";
+with "gnatcoll_projects";
 
 with "libmutools";
 with "../shared_tools";
