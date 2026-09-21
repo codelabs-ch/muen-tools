@@ -4,6 +4,8 @@
 #include <dt-bindings/interrupt-controller/arm-gic.h>
 #include <dt-bindings/interrupt-controller/irq.h>
 
+__memreserve_cpu_spintable__
+
 / {
     model = "Xilinx UltraScale+ ZCU104 - Muen ARM64";
     compatible = "xlnx,zynqmp-zcu104-revA", "xlnx,zynqmp-zcu104", "xlnx,zynqmp";
@@ -46,7 +48,7 @@
             reg = <0x0>;
             operating-points-v2 = <0x1>;
         };
-        __sibling_cpus__
+__sibling_cpus__
     };
 
     cpu-opp-table {

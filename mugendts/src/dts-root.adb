@@ -30,6 +30,7 @@ with String_Templates;
 
 with DTS.APU_Devices;
 with DTS.SoC_Devices;
+with DTS.CPUs;
 with DTS.XML_Utils;
 
 package body DTS.Root
@@ -102,26 +103,6 @@ is
          Content  => (if Has_UART then "stdout-path = ""serial:115200n8"";"
                       else ""));
    end Add_Chosen_Node;
-
-   -------------------------------------------------------------------------
-
-   procedure Add_Cpu_Nodes
-     (Template     : in out Mutools.Templates.Template_Type;
-      Policy       :        Muxml.XML_Data_Type;
-      Subject_Name : String)
-   is
-      Siblings : constant DOM.Core.Node_List
-      := McKae.XML.XPath.XIA.XPath_Query
-        (N     => Policy.Doc,
-         XPath => "/system/subjects/subject/sibling[@ref='" & Subject_Name & "']");
-   begin
-      Mutools.Templates.Replace
-        (Template => Template,
-         Pattern  => "__sibling_cpus__",
-         Content  => (if DOM.Core.Nodes.Length (Siblings) > 0
-                      then String_Templates.muen_cpu_dsl
-                      else ""));
-   end Add_Cpu_Nodes;
 
    -------------------------------------------------------------------------
 
@@ -277,9 +258,9 @@ is
                         Policy   => Policy,
                         Subject  => Subject);
 
-      Add_Cpu_Nodes (Template => Template,
-                     Policy   => Policy,
-                     Subject_Name  => Subject_Name);
+      DTS.CPUs.Add_CPU_Nodes (Template => Template,
+                              Policy   => Policy,
+                              Subject_Name => Subject_Name);
 
       DTS.APU_Devices.Add_APU_Devices (Template => Template,
                                        Policy   => Policy,

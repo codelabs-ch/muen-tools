@@ -1,5 +1,5 @@
 --
---  Copyright (C) 2023, 2023  David Loosli <david@codelabs.ch>
+--  Copyright (C) 2026  Daniel Gröber <daniel@codelabs.ch>
 --
 --  This program is free software: you can redistribute it and/or modify
 --  it under the terms of the GNU General Public License as published by
@@ -20,30 +20,19 @@ with DOM.Core;
 with Mutools.Templates;
 with Muxml;
 
-package DTS.Root
+package DTS.CPUs
 is
 
-   procedure Write
-     (Policy       : Muxml.XML_Data_Type;
-      Subject      : DOM.Core.Node;
-      Subject_Name : String;
-      Filename     : String);
+   procedure Add_CPU_Nodes
+     (Template : in out Mutools.Templates.Template_Type;
+      Policy   :        Muxml.XML_Data_Type;
+      Subject_Name : String);
 
 private
 
-   procedure Add_Aliases_Node
-     (Template : in out Mutools.Templates.Template_Type;
-      Policy   :        Muxml.XML_Data_Type;
-      Subject  :        DOM.Core.Node);
+   procedure Generate_CPU_Node
+     (Sibbling  :        DOM.Core.Node;
+      Index     :        Unsigned_64;
+      Buffer    : in out Unbounded_String);
 
-   procedure Add_Chosen_Node
-     (Template : in out Mutools.Templates.Template_Type;
-      Policy   :        Muxml.XML_Data_Type;
-      Subject  :        DOM.Core.Node);
-
-   procedure Add_Memory_Nodes
-     (Template : in out Mutools.Templates.Template_Type;
-      Policy   :        Muxml.XML_Data_Type;
-      Subject  :        DOM.Core.Node);
-
-end DTS.Root;
+end DTS.CPUs;
