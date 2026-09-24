@@ -1966,6 +1966,64 @@ package body Cfgchecks.Test_Data.Tests is
 
 
 --  begin read only
+   procedure Test_Component_Memory_Resource_Name_Uniqueness (Gnattest_T : in out Test);
+   procedure Test_Component_Memory_Resource_Name_Uniqueness_5c4d2a (Gnattest_T : in out Test) renames Test_Component_Resource_Name_Uniqueness;
+--  id:2.2/5c4d2ae2f9c2a7b1/Component_Memory_Resource_Name_Uniqueness/1/0/
+   procedure Test_Component_Memory_Resource_Name_Uniqueness (Gnattest_T : in out Test) is
+--  end read only
+
+      pragma Unreferenced (Gnattest_T);
+
+      Policy : Muxml.XML_Data_Type;
+   begin
+      Muxml.Parse (Data => Policy,
+                   Kind => Muxml.Format_Src,
+                   File => "data/test_policy.xml");
+      Expanders.Components.Add_Channel_Arrays (Data => Policy);
+      Expanders.Components.Add_Memory_Arrays (Data => Policy);
+
+      --  Positive test, must not raise an exception.
+
+      Component_Memory_Resource_Name_Uniqueness (XML_Data => Policy);
+      Assert (Condition => Mucfgcheck.Validation_Errors.Is_Empty,
+              Message   => "Unexpected error in positive test");
+
+      --  Duplicate reader and memory region name.
+
+      Muxml.Utils.Set_Attribute
+        (Doc   => Policy.Doc,
+         XPath => "/system/components/component[@name='c2']/requires"
+         & "/channels/reader[@logical='primary_data']",
+         Name  => "logical",
+         Value => "mem1");
+
+      Component_Memory_Resource_Name_Uniqueness (XML_Data => Policy);
+      Assert (Condition => Mucfgcheck.Validation_Errors.Contains
+              (Msg => "Multiple channel readers/writers or memory regions with "
+               & "name 'mem1' in component 'c2'"),
+              Message   => "Exception mismatch (1)");
+
+      --  Duplicate reader and writer name.
+
+      Mucfgcheck.Validation_Errors.Clear;
+      Muxml.Utils.Set_Attribute
+        (Doc   => Policy.Doc,
+         XPath => "/system/components/component[@name='c2']/requires"
+         & "/channels/reader[@logical='mem1']",
+         Name  => "logical",
+         Value => "output1");
+
+      Component_Memory_Resource_Name_Uniqueness (XML_Data => Policy);
+      Assert (Condition => Mucfgcheck.Validation_Errors.Contains
+              (Msg => "Multiple channel readers/writers or memory regions with "
+               & "name 'output1' in component 'c2'"),
+              Message   => "Exception mismatch (2)");
+--  begin read only
+   end Test_Component_Memory_Resource_Name_Uniqueness;
+--  end read only
+
+
+--  begin read only
    procedure Test_Component_Source_Event_Array_ID_Range (Gnattest_T : in out Test);
    procedure Test_Component_Source_Event_Array_ID_Range_f46b0e (Gnattest_T : in out Test) renames Test_Component_Source_Event_Array_ID_Range;
 --  id:2.2/f46b0e948edd0bbc/Component_Source_Event_Array_ID_Range/1/0/
