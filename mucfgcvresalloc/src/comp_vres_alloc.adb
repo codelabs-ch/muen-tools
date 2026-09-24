@@ -94,71 +94,48 @@ is
       Resource_Kind :        Mutools.Vres_Alloc.Resource_Kind_Type)
    is
       use type Interfaces.Unsigned_64;
-      use type Muxml.String_Vector.Vector;
+      use type Mutools.Vres_Alloc.Resource_Kind_Type;
 
-      Name_Filter    : constant Muxml.String_Vector.Vector
-        := Muxml.String_Vector."&" ("reader", "writer") & "memory";
-      Count          : constant Interfaces.Unsigned_64
+      Count       : constant Interfaces.Unsigned_64
         := Interfaces.Unsigned_64
         (Muxml.Utils.Count_Element_Children
            (Node        => Node,
-            Name_Filter => Name_Filter));
-      Size           : Interfaces.Unsigned_64;
-      New_Address    : Interfaces.Unsigned_64;
+            Name_Filter => Mutools.Vres_Alloc.Config.Array_Element_Names));
+      Size        : constant Interfaces.Unsigned_64
+        := Mutools.Vres_Alloc.Get_Resource_Size
+        (Elem          => Node,
+         Resource_Kind => Resource_Kind);
+
+      --  Value assigned to empty arrays.
+      Empty_Value : constant Interfaces.Unsigned_64
+        := (case Resource_Kind is
+               when Mutools.Vres_Alloc.Virtual_Addresses =>
+                  Mutools.Constants.Non_Canonical_Address,
+               when Mutools.Vres_Alloc.Vector_Numbers =>
+                  Vector_Numbers_Domain.Last_Element,
+               when Mutools.Vres_Alloc.Event_Numbers =>
+                  Event_Numbers_Domain.Last_Element);
    begin
-      case Resource_Kind is
-         when Mutools.Vres_Alloc.Virtual_Addresses =>
-            Size := Interfaces.Unsigned_64'Value
-              (DOM.Core.Elements.Get_Attribute
-                 (Elem => Node,
-                  Name => "elementSize"));
-            if not Mutools.Vres_Alloc.Is_Aligned (Size => Size) then
-               Mulog.Log (Msg => "Error: elementSize is not "
-                            & "a multiple of 16#1000#. XPath: '"
-                            & Mutools.Xmldebuglog.Get_Xpath (Node => Node)
-                            & "', elementSize: '"
-                            & Mutools.Utils.To_Hex (Number => Size)
-                            & "'");
-               raise Validation_Error with "Virtual resource not aligned";
-            end if;
+      if Resource_Kind = Mutools.Vres_Alloc.Virtual_Addresses
+        and then not Mutools.Vres_Alloc.Is_Aligned (Size => Size)
+      then
+         Mulog.Log (Msg => "Error: elementSize is not "
+                      & "a multiple of 16#1000#. XPath: '"
+                      & Mutools.Xmldebuglog.Get_Xpath (Node => Node)
+                      & "', elementSize: '"
+                      & Mutools.Utils.To_Hex (Number => Size)
+                      & "'");
+         raise Validation_Error with "Virtual resource not aligned";
+      end if;
 
-            if Count = 0 then
-               New_Address := Mutools.Constants.Non_Canonical_Address;
-            else
-               New_Address := Mutools.Intervals.Reserve_Interval
-                 (List => Av_Ival,
-                  Size => Count * Size);
-            end if;
-            DOM.Core.Elements.Set_Attribute
-              (Elem  => Node,
-               Name  => "virtualAddressBase",
-               Value => Mutools.Utils.To_Hex (Number => New_Address));
-
-         when Mutools.Vres_Alloc.Reader_Vectors =>
-            if Count = 0 then
-               New_Address := 255;
-            else
-               New_Address := Mutools.Intervals.Reserve_Interval
-                 (List => Av_Ival,
-                  Size => Count);
-            end if;
-            DOM.Core.Elements.Set_Attribute
-              (Elem  => Node,
-               Name  => "vectorBase",
-               Value => Mutools.Utils.To_Decimal (New_Address));
-         when Mutools.Vres_Alloc.Writer_Events =>
-            if Count = 0 then
-               New_Address := 63;
-            else
-               New_Address := Mutools.Intervals.Reserve_Interval
-                 (List => Av_Ival,
-                  Size => Count);
-            end if;
-            DOM.Core.Elements.Set_Attribute
-              (Elem  => Node,
-               Name  => "eventBase",
-               Value => Mutools.Utils.To_Decimal (New_Address));
-      end case;
+      Mutools.Vres_Alloc.Set_Virtual_Resource
+        (Node          => Node,
+         Resource_Kind => Resource_Kind,
+         Value         =>
+           (if Count = 0 then Empty_Value
+            else Mutools.Intervals.Reserve_Interval
+              (List => Av_Ival,
+               Size => Count * Size)));
    end Allocate_Array;
 
    -------------------------------------------------------------------------
@@ -194,20 +171,17 @@ is
    is
       use type Interfaces.Unsigned_64;
       use type Mutools.Vres_Alloc.Resource_Kind_Type;
-      use type Muxml.String_Vector.Vector;
 
-      Attr_Value  : constant String
+      Attr_Value : constant String
         := Mutools.Vres_Alloc.Get_Resource_Value
         (Elem          => Node,
          Resource_Kind => Resource_Kind);
-      Size        : constant Interfaces.Unsigned_64
+      Size       : constant Interfaces.Unsigned_64
         := Mutools.Vres_Alloc.Get_Resource_Size
         (Elem          => Node,
          Resource_Kind => Resource_Kind);
-      Name_Filter : constant Muxml.String_Vector.Vector
-        := Muxml.String_Vector."&" ("reader", "writer") & "memory";
    begin
-      if Attr_Value = "" or Attr_Value = "auto" then
+      if Mutools.Vres_Alloc.Requests_Allocation (Value => Attr_Value) then
          --  the resources needs to be written - put it on the todo-list
          if not Read_Only then
             Muxml.Utils.Node_List_Package.Append
@@ -245,7 +219,8 @@ is
             Size          => Size * Interfaces.Unsigned_64
               (Muxml.Utils.Count_Element_Children
                  (Node        => Node,
-                  Name_Filter => Name_Filter)));
+                  Name_Filter =>
+                    Mutools.Vres_Alloc.Config.Array_Element_Names)));
       end if;
    end Include_Array;
 
@@ -269,13 +244,8 @@ is
         (Elem          => Node,
          Resource_Kind => Resource_Kind);
    begin
-      if Attr_Value = "auto" or Attr_Value = "" then
-         --  If the node is missing a resource, add it to the todo-list.
-         if not Read_Only then
-            Muxml.Utils.Node_List_Package.Append
-              (Container => Todo_List,
-               New_Item  => Node);
-         else
+      if Mutools.Vres_Alloc.Requests_Allocation (Value => Attr_Value) then
+         if Read_Only then
             Mulog.Log (Msg => "Found read-only node which requested automatic "
                          & "allocation of virtual resource. Xpath: '"
                          & Mutools.Xmldebuglog.Get_Xpath (Node => Node)
@@ -284,6 +254,11 @@ is
                          & "'");
             raise Validation_Error with "Invalid attribute value";
          end if;
+
+         --  The node is missing a resource, add it to the todo-list.
+         Muxml.Utils.Node_List_Package.Append
+           (Container => Todo_List,
+            New_Item  => Node);
       else
          --  If the resource is set already, exclude it from Av_Ival.
          if Resource_Kind = Mutools.Vres_Alloc.Virtual_Addresses and then
@@ -370,11 +345,11 @@ is
                     (List     => Available_Intervals,
                      Interval => Va_Space_Vm);
                end if;
-            when Mutools.Vres_Alloc.Writer_Events =>
+            when Mutools.Vres_Alloc.Event_Numbers =>
                Mutools.Intervals.Add_Interval
                  (List     => Available_Intervals,
                   Interval => Event_Numbers_Domain);
-            when Mutools.Vres_Alloc.Reader_Vectors =>
+            when Mutools.Vres_Alloc.Vector_Numbers =>
                Mutools.Intervals.Add_Interval
                  (List     => Available_Intervals,
                   Interval => Vector_Numbers_Domain);
@@ -389,18 +364,18 @@ is
               := (case Resource_Kind is
                  when Mutools.Vres_Alloc.Virtual_Addresses =>
                     Mutools.Vres_Alloc.Config.C_Va_Alloc_Read_Write_Targets,
-                 when Mutools.Vres_Alloc.Writer_Events =>
-                    Mutools.Vres_Alloc.Config.C_Writers_Read_Write_Targets,
-                 when Mutools.Vres_Alloc.Reader_Vectors =>
-                    Mutools.Vres_Alloc.Config.C_Readers_Read_Write_Targets);
+                 when Mutools.Vres_Alloc.Event_Numbers =>
+                    Mutools.Vres_Alloc.Config.C_Event_Numbers_Read_Write_Targets,
+                 when Mutools.Vres_Alloc.Vector_Numbers =>
+                    Mutools.Vres_Alloc.Config.C_Vector_Numbers_Read_Write_Targets);
             Target_List_R : constant Mutools.String_Vector.Vector
               := (case Resource_Kind is
                  when Mutools.Vres_Alloc.Virtual_Addresses =>
                     Mutools.Vres_Alloc.Config.C_Va_Alloc_Read_Only_Targets,
-                 when Mutools.Vres_Alloc.Writer_Events =>
-                    Mutools.Vres_Alloc.Config.C_Writers_Read_Only_Targets,
-                 when Mutools.Vres_Alloc.Reader_Vectors =>
-                    Mutools.Vres_Alloc.Config.C_Readers_Read_Only_Targets);
+                 when Mutools.Vres_Alloc.Event_Numbers =>
+                    Mutools.Vres_Alloc.Config.C_Event_Numbers_Read_Only_Targets,
+                 when Mutools.Vres_Alloc.Vector_Numbers =>
+                    Mutools.Vres_Alloc.Config.C_Vector_Numbers_Read_Only_Targets);
 
             R_W_Targets : constant DOM.Core.Node_List
               := McKae.XML.XPath.XIA.XPath_Query
@@ -514,9 +489,9 @@ is
       Assign_Missing_Virtual_Resources
         (Resource_Kind => Mutools.Vres_Alloc.Virtual_Addresses);
       Assign_Missing_Virtual_Resources
-        (Resource_Kind => Mutools.Vres_Alloc.Reader_Vectors);
+        (Resource_Kind => Mutools.Vres_Alloc.Vector_Numbers);
       Assign_Missing_Virtual_Resources
-        (Resource_Kind => Mutools.Vres_Alloc.Writer_Events);
+        (Resource_Kind => Mutools.Vres_Alloc.Event_Numbers);
 
       --  Write output with validation.
       if not Ada.Directories.Exists

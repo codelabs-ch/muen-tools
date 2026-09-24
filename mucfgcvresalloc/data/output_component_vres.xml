@@ -84,6 +84,18 @@
     <event id="31" logical="shutdown">
      <system_poweroff/>
     </event>
+    <array eventBase="7" logical="esa1">
+     <event logical="esa1_1"/>
+     <event logical="esa1_2"/>
+    </array>
+    <array eventBase="20" logical="esa2">
+     <event logical="esa2_1"/>
+    </array>
+    <array eventBase="63" logical="esa3"/>
+    <event id="15" logical="es4"/>
+    <event id="16" logical="es5">
+     <unmask_irq number="23"/>
+    </event>
    </source>
    <target>
     <event logical="et1">

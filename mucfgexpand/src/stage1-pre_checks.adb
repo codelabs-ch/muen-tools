@@ -63,6 +63,8 @@ is
       Check_Procs.Register
         (Process => Component_Event_Name_Uniqueness'Access);
       Check_Procs.Register
+        (Process => Component_Memory_Resource_Name_Uniqueness'Access);
+      Check_Procs.Register
         (Process => Subject_IRQ_MSI_Name_Uniqueness'Access);
       Check_Procs.Register
         (Process => Subject_IRQ_MSI_References'Access);

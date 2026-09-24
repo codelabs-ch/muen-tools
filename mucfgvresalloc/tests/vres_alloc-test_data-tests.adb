@@ -209,7 +209,7 @@ package body Vres_Alloc.Test_Data.Tests is
       exception
          when E: Muxml.Validation_Error =>
             Assert (Condition => Ada.Exceptions.Exception_Message (X => E)
-                      = "XML validation error - obj/vres_false_auto.xml:422:14"
+                      = "XML validation error - obj/vres_false_auto.xml:425:14"
                       & ": Invalid integer: ""auto""",
                     Message   => "Exception mismatch: "
                       & Ada.Exceptions.Exception_Message (X => E));
@@ -582,6 +582,298 @@ package body Vres_Alloc.Test_Data.Tests is
 
 --  begin read only
    end Test_Run;
+--  end read only
+
+
+--  begin read only
+   procedure Test_Add_Resource_To_Mapping (Gnattest_T : in out Test);
+   procedure Test_Add_Resource_To_Mapping_662a02 (Gnattest_T : in out Test) renames Test_Add_Resource_To_Mapping;
+--  id:2.2/662a025bf248481c/Add_Resource_To_Mapping/1/0/
+   procedure Test_Add_Resource_To_Mapping (Gnattest_T : in out Test) is
+--  end read only
+
+      pragma Unreferenced (Gnattest_T);
+
+      use type Interfaces.Unsigned_64;
+
+      Implementation : DOM.Core.DOM_Implementation;
+      Doc            : constant DOM.Core.Node
+        := DOM.Core.Create_Document (Implementation);
+      Mapping        : Logical_To_Interval_Package.Map;
+
+      ----------------------------------------------------------------------
+
+      --  Create element with given tag name and logical name. The attribute
+      --  Attr_Name is set to Attr_Value if it is not the empty string.
+      function Create_Node
+        (Tag_Name   : String;
+         Logical    : String;
+         Attr_Name  : String;
+         Attr_Value : String)
+         return DOM.Core.Node
+      is
+         Node : constant DOM.Core.Node
+           := DOM.Core.Documents.Create_Element
+           (Doc      => Doc,
+            Tag_Name => Tag_Name);
+      begin
+         DOM.Core.Elements.Set_Attribute
+           (Elem  => Node,
+            Name  => "logical",
+            Value => Logical);
+         if Attr_Name /= "" then
+            DOM.Core.Elements.Set_Attribute
+              (Elem  => Node,
+               Name  => Attr_Name,
+               Value => Attr_Value);
+         end if;
+         return Node;
+      end Create_Node;
+   begin
+      --  Source event with missing 'id' attribute.
+      begin
+         Add_Resource_To_Mapping
+           (Mapping       => Mapping,
+            Node          => Create_Node
+              (Tag_Name   => "event",
+               Logical    => "es_x",
+               Attr_Name  => "",
+               Attr_Value => ""),
+            Resource_Kind => Mutools.Vres_Alloc.Event_Numbers);
+         Assert (Condition => False,
+                 Message   => "Exception expected");
+      exception
+         when E : Validation_Error =>
+            Assert (Condition => Ada.Exceptions.Exception_Message (X => E)
+                      = "Missing attribute value at '/event'",
+                    Message   => "Exception mismatch: "
+                      & Ada.Exceptions.Exception_Message (X => E));
+      end;
+
+      --  Source event with 'id' set to 'auto' is rejected.
+      begin
+         Add_Resource_To_Mapping
+           (Mapping       => Mapping,
+            Node          => Create_Node
+              (Tag_Name   => "event",
+               Logical    => "es_x",
+               Attr_Name  => "id",
+               Attr_Value => "auto"),
+            Resource_Kind => Mutools.Vres_Alloc.Event_Numbers);
+         Assert (Condition => False,
+                 Message   => "Exception expected (auto)");
+      exception
+         when E : Mutools.Vres_Alloc.Validation_Error =>
+            Assert (Condition => Ada.Exceptions.Exception_Message (X => E)
+                      = "Invalid attribute value",
+                    Message   => "Exception mismatch: "
+                      & Ada.Exceptions.Exception_Message (X => E));
+      end;
+
+      --  Source event with a set 'id' is added to the mapping.
+      Add_Resource_To_Mapping
+        (Mapping       => Mapping,
+         Node          => Create_Node
+           (Tag_Name   => "event",
+            Logical    => "es_x",
+            Attr_Name  => "id",
+            Attr_Value => "5"),
+         Resource_Kind => Mutools.Vres_Alloc.Event_Numbers);
+      Assert (Condition => Logical_To_Interval_Package.Contains
+                (Container => Mapping,
+                 Key       => "event/es_x"),
+              Message   => "Mapping does not contain 'event/es_x'");
+      Assert (Condition => Mapping ("event/es_x").First_Address = 5,
+              Message   => "First_Address mismatch:"
+                & Mapping ("event/es_x").First_Address'Image);
+      Assert (Condition => Mapping ("event/es_x").Size = 1,
+              Message   => "Size mismatch:"
+                & Mapping ("event/es_x").Size'Image);
+
+      --  Re-adding the same logical with the same value is accepted.
+      Add_Resource_To_Mapping
+        (Mapping       => Mapping,
+         Node          => Create_Node
+           (Tag_Name   => "event",
+            Logical    => "es_x",
+            Attr_Name  => "id",
+            Attr_Value => "5"),
+         Resource_Kind => Mutools.Vres_Alloc.Event_Numbers);
+      Assert (Condition => Mapping ("event/es_x").First_Address = 5,
+              Message   => "First_Address mismatch (2):"
+                & Mapping ("event/es_x").First_Address'Image);
+
+      --  A channel writer with the same logical name is a different resource
+      --  and must not conflict with the source event.
+      Add_Resource_To_Mapping
+        (Mapping       => Mapping,
+         Node          => Create_Node
+           (Tag_Name   => "writer",
+            Logical    => "es_x",
+            Attr_Name  => "event",
+            Attr_Value => "20"),
+         Resource_Kind => Mutools.Vres_Alloc.Event_Numbers);
+      Assert (Condition => Mapping ("memory/es_x").First_Address = 20,
+              Message   => "First_Address mismatch (writer):"
+                & Mapping ("memory/es_x").First_Address'Image);
+      Assert (Condition => Mapping ("event/es_x").First_Address = 5,
+              Message   => "First_Address mismatch (3):"
+                & Mapping ("event/es_x").First_Address'Image);
+
+      --  Device memory regions are prefixed by their device name. Matching
+      --  logical memory name in different devices must not conflict.
+      declare
+         procedure Add_Device_Memory
+           (Device_Logical  : String;
+            Virtual_Address : String)
+         is
+            Memory : constant DOM.Core.Node
+              := DOM.Core.Nodes.Append_Child
+              (N         => Create_Node
+                 (Tag_Name   => "device",
+                  Logical    => Device_Logical,
+                  Attr_Name  => "",
+                  Attr_Value => ""),
+               New_Child => Create_Node
+                 (Tag_Name   => "memory",
+                  Logical    => "mmio",
+                  Attr_Name  => "virtualAddress",
+                  Attr_Value => Virtual_Address));
+         begin
+            DOM.Core.Elements.Set_Attribute
+              (Elem  => Memory,
+               Name  => "size",
+               Value => "16#1000#");
+            Add_Resource_To_Mapping
+              (Mapping       => Mapping,
+               Node          => Memory,
+               Resource_Kind => Mutools.Vres_Alloc.Virtual_Addresses);
+         end Add_Device_Memory;
+      begin
+         Add_Device_Memory (Device_Logical  => "dev_a",
+                            Virtual_Address => "16#e000_0000#");
+         Add_Device_Memory (Device_Logical  => "dev_b",
+                            Virtual_Address => "16#f000_0000#");
+         Assert (Condition => Mapping ("device/dev_a/mmio").First_Address
+                   = 16#e000_0000#,
+                 Message   => "First_Address mismatch (dev_a):"
+                   & Mapping ("device/dev_a/mmio").First_Address'Image);
+         Assert (Condition => Mapping ("device/dev_b/mmio").First_Address
+                   = 16#f000_0000#,
+                 Message   => "First_Address mismatch (dev_b):"
+                   & Mapping ("device/dev_b/mmio").First_Address'Image);
+         Assert (Condition => not Logical_To_Interval_Package.Contains
+                   (Container => Mapping,
+                    Key       => "memory/mmio"),
+                 Message   => "Device memory mapped as regular memory");
+
+         --  A regular memory region with the same logical name is a different
+         --  resource kind and must not conflict with device memory regions.
+         declare
+            Memory : constant DOM.Core.Node
+              := Create_Node
+                (Tag_Name   => "memory",
+                 Logical    => "mmio",
+                 Attr_Name  => "virtualAddress",
+                 Attr_Value => "16#1000_0000#");
+         begin
+            DOM.Core.Elements.Set_Attribute
+              (Elem  => Memory,
+               Name  => "size",
+               Value => "16#2000#");
+            Add_Resource_To_Mapping
+              (Mapping       => Mapping,
+               Node          => Memory,
+               Resource_Kind => Mutools.Vres_Alloc.Virtual_Addresses);
+         end;
+         Assert (Condition => Mapping ("memory/mmio").First_Address
+                   = 16#1000_0000#,
+                 Message   => "First_Address mismatch (memory):"
+                   & Mapping ("memory/mmio").First_Address'Image);
+         Assert (Condition => Mapping ("device/dev_a/mmio").First_Address
+                   = 16#e000_0000#,
+                 Message   => "Device memory overwritten by regular memory");
+      end;
+
+      --  Unaligned virtual address resources are rejected.
+      declare
+         Memory : constant DOM.Core.Node
+           := Create_Node
+             (Tag_Name   => "memory",
+              Logical    => "unaligned",
+              Attr_Name  => "virtualAddress",
+              Attr_Value => "16#1000_0001#");
+      begin
+         DOM.Core.Elements.Set_Attribute
+           (Elem  => Memory,
+            Name  => "size",
+            Value => "16#8000#");
+         Add_Resource_To_Mapping
+           (Mapping       => Mapping,
+            Node          => Memory,
+            Resource_Kind => Mutools.Vres_Alloc.Virtual_Addresses);
+         Assert (Condition => False,
+                 Message   => "Exception expected (alignment)");
+      exception
+         when E : Validation_Error =>
+            Assert (Condition => Ada.Exceptions.Exception_Message (X => E)
+                      = "Virtual resource not aligned",
+                    Message   => "Exception mismatch: "
+                      & Ada.Exceptions.Exception_Message (X => E));
+      end;
+
+      --  Re-adding the same logical with a different value is rejected.
+      begin
+         Add_Resource_To_Mapping
+           (Mapping       => Mapping,
+            Node          => Create_Node
+              (Tag_Name   => "event",
+               Logical    => "es_x",
+               Attr_Name  => "id",
+               Attr_Value => "6"),
+            Resource_Kind => Mutools.Vres_Alloc.Event_Numbers);
+         Assert (Condition => False,
+                 Message   => "Exception expected (conflict)");
+      exception
+         when E : Validation_Error =>
+            Assert (Condition => Ada.Exceptions.Exception_Message (X => E)
+                      = "Conflicting resource values for logical 'es_x': "
+                      & "found '(First_Address=16#0005#, Size=1)' and "
+                      & "'(First_Address=16#0006#, Size=1)'",
+                    Message   => "Exception mismatch: "
+                      & Ada.Exceptions.Exception_Message (X => E));
+      end;
+
+      --  Memory and channel reader/writer with same logical name is rejected.
+      declare
+         Reader : constant DOM.Core.Node
+           := Create_Node
+              (Tag_Name   => "reader",
+               Logical    => "mmio",
+               Attr_Name  => "virtualAddress",
+               Attr_Value => "16#1000#");
+      begin
+         DOM.Core.Elements.Set_Attribute
+           (Elem  => Reader,
+            Name  => "size",
+            Value => "16#1000#");
+         Add_Resource_To_Mapping
+           (Mapping       => Mapping,
+            Node          => Reader,
+            Resource_Kind => Mutools.Vres_Alloc.Virtual_Addresses);
+         Assert (Condition => False,
+                 Message   => "Exception expected (memory name clash)");
+      exception
+         when E : Validation_Error =>
+            Assert (Condition => Ada.Exceptions.Exception_Message (X => E)
+                      = "Conflicting resource values for logical 'mmio': "
+                      & "found '(First_Address=16#1000_0000#, Size=8192)' and "
+                      & "'(First_Address=16#1000#, Size=4096)'",
+                    Message   => "Exception mismatch: "
+                      & Ada.Exceptions.Exception_Message (X => E));
+      end;
+--  begin read only
+   end Test_Add_Resource_To_Mapping;
 --  end read only
 
 --  begin read only

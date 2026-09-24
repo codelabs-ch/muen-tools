@@ -142,6 +142,12 @@ is
    procedure Component_Event_Name_Uniqueness
      (XML_Data : Muxml.XML_Data_Type);
 
+   --  Check that component logical names of required channel readers, channel
+   --  writers and memory regions are unique. These resources all expand to
+   --  subject memory mappings and therefore share the same name space.
+   procedure Component_Memory_Resource_Name_Uniqueness
+     (XML_Data : Muxml.XML_Data_Type);
+
    --  Check that the event IDs of component source event arrays are in the
    --  valid range, i.e. the ID of the last array element (eventBase + number
    --  of elements - 1) must not exceed the maximum vmcall event ID.

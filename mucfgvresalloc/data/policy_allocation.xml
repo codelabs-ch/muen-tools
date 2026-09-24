@@ -242,6 +242,9 @@
       <event id="31" logical="shutdown">
        <system_poweroff/>
       </event>
+      <array eventBase="0" logical="doorbells">
+       <event logical="doorbell"/>
+      </array>
      </source>
      <target>
       <event logical="timer">

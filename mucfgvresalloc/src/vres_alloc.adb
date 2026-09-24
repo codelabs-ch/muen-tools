@@ -16,7 +16,6 @@
 --
 with Ada.Directories;
 
-with DOM.Core;
 with DOM.Core.Nodes;
 with DOM.Core.Elements;
 
@@ -50,6 +49,41 @@ is
 
    ----------------------------------------------------------------------
 
+   --  Add a mapping from the key of the given node (Mapping_Key) to the
+   --  specified Value to the given map. Raises Validation_Error if a mapping
+   --  with a different value is already present or if a virtual address
+   --  resource is not aligned.
+   procedure Add_Mapping
+     (Mapping       : in out Logical_To_Interval_Package.Map;
+      Node          :        DOM.Core.Node;
+      Value         :        Address_And_Size_Type;
+      Resource_Kind :        Mutools.Vres_Alloc.Resource_Kind_Type);
+
+   ----------------------------------------------------------------------
+
+   --  Return the virtual resource of the given resource kind declared by the
+   --  specified Node. Raises Validation_Error if the node requests automatic
+   --  allocation instead of declaring a fixed resource.
+   function Get_Fixed_Resource_Value
+     (Node          : DOM.Core.Node;
+      Resource_Kind : Mutools.Vres_Alloc.Resource_Kind_Type)
+      return Interfaces.Unsigned_64;
+
+   ----------------------------------------------------------------------
+
+   --  Return the key for the virtual resource of the given Node which is used
+   --  to store it in the value map. The logical name is prefixed with the
+   --  resource kind to ensure that they do not clash, since logical names are
+   --  only required to be unique per resource kind. Memory, channel reader
+   --  and writer logical names use the same prefix (memory) since they all
+   --  result in subject memory mappings. Device memory regions are
+   --  additionally prefixed with the logical device name as their names are
+   --  only unique per device. Raises Validation_Error if the node tag is not
+   --  a known resource element.
+   function Mapping_Key (Node : DOM.Core.Node) return String;
+
+   ----------------------------------------------------------------------
+
    --  Read targets within the given component declaration Comp_Node
    --  and use these entries to populate Components_Map (mapping logical
    --  names to virtual resources).
@@ -62,16 +96,6 @@ is
    --  Insert a new mapping into Components_Map mapping the 'name' of Comp_Node
    --  to its profile and empty mappings for virtual resources.
    procedure Init_Component_Head (Comp_Node : DOM.Core.Node);
-
-   ----------------------------------------------------------------------
-
-   --  Given a non-'array' node, add a mapping
-   --  'logical name'-> ('virtual resource','size')
-   --  to Mapping.
-   procedure Add_Resource_To_Mapping
-     (Mapping       : in out Logical_To_Interval_Package.Map;
-      Node          :        DOM.Core.Node;
-      Resource_Kind :        Mutools.Vres_Alloc.Resource_Kind_Type);
 
    ----------------------------------------------------------------------
 
@@ -125,11 +149,6 @@ is
 
    -------------------------------------------------------------------------
 
-   --  Return string representation of I for error messages
-   function To_String (I : Address_And_Size_Type) return String;
-
-   -------------------------------------------------------------------------
-
    procedure Add_Array_Entries_To_Mapping
      (Mapping       : in out Logical_To_Interval_Package.Map;
       Node          :        DOM.Core.Node;
@@ -138,75 +157,107 @@ is
       use type Interfaces.Unsigned_64;
       use type DOM.Core.Node_Types;
 
-      Res_Base_Value : constant String
-        := Mutools.Vres_Alloc.Get_Resource_Value (Elem => Node, Resource_Kind => Resource_Kind);
-      Size : constant Interfaces.Unsigned_64
-        := Mutools.Vres_Alloc.Get_Resource_Size (Elem => Node, Resource_Kind => Resource_Kind);
+      Base_U64   : constant Interfaces.Unsigned_64
+        := Get_Fixed_Resource_Value
+        (Node          => Node,
+         Resource_Kind => Resource_Kind);
+      Size       : constant Interfaces.Unsigned_64
+        := Mutools.Vres_Alloc.Get_Resource_Size
+        (Elem          => Node,
+         Resource_Kind => Resource_Kind);
+      Child_List : constant DOM.Core.Node_List
+        := DOM.Core.Nodes.Child_Nodes (N => Node);
+      Child      : DOM.Core.Node;
+      Count      : Interfaces.Unsigned_64 := 0;
    begin
-      if Res_Base_Value = "" or Res_Base_Value = "auto" then
-         raise Validation_Error with
-           "Missing attribute value at '"
-           & Mutools.Xmldebuglog.Get_Xpath (Node => Node)
-           & "'";
-      else
-         declare
-            Child      : DOM.Core.Node;
-            Child_List : constant DOM.Core.Node_List
-              := DOM.Core.Nodes.Child_Nodes (N => Node);
-            Count      : Interfaces.Unsigned_64
-              := 0;
-            Base_U64   : constant Interfaces.Unsigned_64
-              := Interfaces.Unsigned_64'Value (Res_Base_Value);
-            Cursor     : Logical_To_Interval_Package.Cursor;
-            Inserted   : Boolean;
-         begin
-            for I in 0 ..  DOM.Core.Nodes.Length (List => Child_List) - 1 loop
-               Child := DOM.Core.Nodes.Item (List  => Child_List,
-                                             Index => I);
-               if DOM.Core.Nodes.Node_Type (N => Child)
-                 = DOM.Core.Element_Node
-                 and (DOM.Core.Nodes.Node_Name (N => Child) = "memory"
-                        or DOM.Core.Nodes.Node_Name (N => Child) = "reader"
-                        or DOM.Core.Nodes.Node_Name (N => Child) = "writer")
-               then
-                  Logical_To_Interval_Package.Insert
-                    (Container => Mapping,
-                     Key       => DOM.Core.Elements.Get_Attribute
-                       (Elem => Child,
-                        Name => "logical"),
-                     New_Item  => (First_Address => Base_U64 + (Size * Count),
-                                   Size          => Size),
-                     Position  => Cursor,
-                     Inserted  => Inserted);
-
-                  --  If the key existed already, check if the value is equal.
-                  if not Inserted and then
-                    Logical_To_Interval_Package.Element (Position => Cursor)
-                    /= Address_And_Size_Type'
-                    (First_Address => Base_U64 + (Size * Count),
-                     Size          => Size)
-                  then
-                     raise Validation_Error with
-                       "Conflicting resource values for logical '"
-                       & DOM.Core.Elements.Get_Attribute
-                       (Elem => Child,
-                        Name => "logical")
-                       & "': found '"
-                       & To_String (I => Logical_To_Interval_Package.Element
-                                      (Position => Cursor))
-                       & "' and '"
-                       & To_String
-                       (I => (First_Address => Base_U64 + (Size * Count),
-                              Size          => Size))
-                       & "'";
-                  end if;
-
-                  Count := Count + 1;
-               end if;
-            end loop;
-         end;
-      end if;
+      for I in 0 ..  DOM.Core.Nodes.Length (List => Child_List) - 1 loop
+         Child := DOM.Core.Nodes.Item (List  => Child_List,
+                                       Index => I);
+         if DOM.Core.Nodes.Node_Type (N => Child) = DOM.Core.Element_Node
+           and then Mutools.Vres_Alloc.Config.Array_Element_Names.Contains
+             (DOM.Core.Nodes.Node_Name (N => Child))
+         then
+            Add_Mapping
+              (Mapping       => Mapping,
+               Node          => Child,
+               Value         => (First_Address => Base_U64 + (Size * Count),
+                                 Size          => Size),
+               Resource_Kind => Resource_Kind);
+            Count := Count + 1;
+         end if;
+      end loop;
    end Add_Array_Entries_To_Mapping;
+
+   -------------------------------------------------------------------------
+
+   procedure Add_Mapping
+     (Mapping       : in out Logical_To_Interval_Package.Map;
+      Node          :        DOM.Core.Node;
+      Value         :        Address_And_Size_Type;
+      Resource_Kind :        Mutools.Vres_Alloc.Resource_Kind_Type)
+   is
+      use type Mutools.Vres_Alloc.Resource_Kind_Type;
+
+      --  Return string representation of given address and size type.
+      function To_String (I : Address_And_Size_Type) return String;
+
+      ----------------------------------------------------------------------
+
+      function To_String (I : Address_And_Size_Type) return String
+      is
+      begin
+         return "(First_Address="
+           & Mutools.Utils.To_Hex (Number => I.First_Address)
+           & ", Size="
+           & Mutools.Utils.To_Decimal (I.Size)
+           & ")";
+      end To_String;
+
+      Cursor   : Logical_To_Interval_Package.Cursor;
+      Inserted : Boolean;
+   begin
+      if Resource_Kind = Mutools.Vres_Alloc.Virtual_Addresses
+        and then not Mutools.Vres_Alloc.Is_Aligned
+          (Address => Value.First_Address,
+           Size    => Value.Size)
+      then
+         Mulog.Log (Msg => "Error: Size or virtual address of node is not "
+                      & "a multiple of 16#1000#. XPath: '"
+                      & Mutools.Xmldebuglog.Get_Xpath (Node => Node)
+                      & "', Size: '"
+                      & Mutools.Utils.To_Hex (Number => Value.Size)
+                      & "', Virtual address: '"
+                      & Mutools.Utils.To_Hex (Number => Value.First_Address)
+                      & "'");
+         raise Validation_Error with "Virtual resource not aligned";
+      end if;
+
+      Logical_To_Interval_Package.Insert
+        (Container => Mapping,
+         Key       => Mapping_Key (Node => Node),
+         New_Item  => Value,
+         Position  => Cursor,
+         Inserted  => Inserted);
+
+      --  If the key exists, check if the value is equal.
+
+      if not Inserted and then
+        Logical_To_Interval_Package.Element (Position => Cursor) /= Value
+      then
+         Mulog.Log (Msg => "Error: Conflicting resource values for node at '"
+                      & Mutools.Xmldebuglog.Get_Xpath (Node => Node)
+                      & "'");
+         raise Validation_Error with
+           "Conflicting resource values for logical '"
+           & DOM.Core.Elements.Get_Attribute
+           (Elem => Node,
+            Name => "logical")
+           & "': found '"
+           & To_String (I => Logical_To_Interval_Package.Element
+                          (Position => Cursor))
+           & "' and '" & To_String (I => Value) & "'";
+      end if;
+   end Add_Mapping;
 
    -------------------------------------------------------------------------
 
@@ -215,46 +266,18 @@ is
       Node          :        DOM.Core.Node;
       Resource_Kind :        Mutools.Vres_Alloc.Resource_Kind_Type)
    is
-      Attr_Value : constant String
-        := Mutools.Vres_Alloc.Get_Resource_Value
-        (Elem          => Node,
-         Resource_Kind => Resource_Kind);
-      Size       : constant Interfaces.Unsigned_64
-        := Mutools.Vres_Alloc.Get_Resource_Size
-        (Elem          => Node,
-         Resource_Kind => Resource_Kind);
-      Logical    : constant String
-        := DOM.Core.Elements.Get_Attribute (Elem => Node,
-                                            Name => "logical");
-      Cursor     : Logical_To_Interval_Package.Cursor;
-      Inserted   : Boolean;
-      New_Value  : Address_And_Size_Type;
    begin
-      New_Value := Address_And_Size_Type'
-        (First_Address => Interfaces.Unsigned_64'Value (Attr_Value),
-         Size          => Size);
-      Logical_To_Interval_Package.Insert
-        (Container => Mapping,
-         Key       => Logical,
-         New_Item  => New_Value,
-         Position  => Cursor,
-         Inserted  => Inserted);
-
-      --  If the key exists already, check if the value is equal.
-      if not Inserted and then
-        Logical_To_Interval_Package.Element (Position => Cursor)
-        /= New_Value
-      then
-         raise Validation_Error with
-           "Conflicting resource values for logical '"
-           & Logical
-           & "': found '"
-           & To_String (I => Logical_To_Interval_Package.Element
-                          (Position => Cursor))
-           & "' and '"
-           & To_String (I => New_Value)
-           & "'";
-      end if;
+      Add_Mapping
+        (Mapping       => Mapping,
+         Node          => Node,
+         Value         =>
+           (First_Address => Get_Fixed_Resource_Value
+              (Node          => Node,
+               Resource_Kind => Resource_Kind),
+            Size          => Mutools.Vres_Alloc.Get_Resource_Size
+              (Elem          => Node,
+               Resource_Kind => Resource_Kind)),
+         Resource_Kind => Resource_Kind);
    end Add_Resource_To_Mapping;
 
    -------------------------------------------------------------------------
@@ -276,8 +299,8 @@ is
             when Mutools.Vres_Alloc.Virtual_Addresses =>
                Size := Interfaces.Unsigned_64'Value
                  (Get_Size_From_Physical (Node => Curr_Node));
-            when Mutools.Vres_Alloc.Reader_Vectors
-              | Mutools.Vres_Alloc.Writer_Events =>
+            when Mutools.Vres_Alloc.Vector_Numbers
+              | Mutools.Vres_Alloc.Event_Numbers =>
                Size := 1;
          end case;
          Mutools.Vres_Alloc.Allocate_And_Set_Single_Resource
@@ -302,6 +325,7 @@ is
       use type Mutools.Vres_Alloc.Resource_Kind_Type;
 
       Curr_Node : DOM.Core.Node;
+      Known     : Logical_To_Interval_Package.Cursor;
    begin
       for I in 0 .. DOM.Core.Nodes.Length (List => Targets) - 1 loop
          Curr_Node := DOM.Core.Nodes.Item (List  => Targets,
@@ -311,13 +335,10 @@ is
               := Mutools.Vres_Alloc.Get_Resource_Value
               (Elem          => Curr_Node,
                Resource_Kind => Resource_Kind);
-            Logical    : constant String
-              := DOM.Core.Elements.Get_Attribute
-              (Elem => Curr_Node,
-               Name => "logical");
             Size       : Interfaces.Unsigned_64;
          begin
-            if Attr_Value = "" or Attr_Value = "auto" then
+            if Mutools.Vres_Alloc.Requests_Allocation (Value => Attr_Value)
+            then
                if Read_Only then
                   Mulog.Log
                     (Msg => "Found read-only node which requested automatic "
@@ -329,29 +350,16 @@ is
                   raise Validation_Error with "Invalid attribute value";
                end if;
 
-               if Logical_To_Interval_Package.Contains
+               Known := Logical_To_Interval_Package.Find
                  (Container => Mapping,
-                  Key       => Logical)
+                  Key       => Mapping_Key (Node => Curr_Node));
+               if Logical_To_Interval_Package.Has_Element (Position => Known)
                then
-                  if Resource_Kind = Mutools.Vres_Alloc.Virtual_Addresses
-                    and then not Mutools.Vres_Alloc.Is_Aligned
-                    (Address => Mapping (Logical).First_Address)
-                  then
-                     Mulog.Log
-                       (Msg => "Error: Virtual address of node is not "
-                          & "a multiple of 16#1000#. XPath: '"
-                          & Mutools.Xmldebuglog.Get_Xpath (Node => Curr_Node)
-                          & "', Virtual address: '"
-                          & Mutools.Utils.To_Decimal
-                          (Mapping (Logical).First_Address)
-                          & "'");
-                     raise Validation_Error with "Virtual resource not aligned";
-                  end if;
-
                   Mutools.Vres_Alloc.Set_Virtual_Resource
                     (Node          => Curr_Node,
                      Resource_Kind => Resource_Kind,
-                     Value         => Mapping (Logical).First_Address);
+                     Value         => Logical_To_Interval_Package.Element
+                       (Position => Known).First_Address);
                else
                   Muxml.Utils.Node_List_Package.Append
                     (Container => Todo_List,
@@ -362,8 +370,8 @@ is
                   when Mutools.Vres_Alloc.Virtual_Addresses =>
                      Size := Interfaces.Unsigned_64'Value
                        (Get_Size_From_Physical (Node => Curr_Node));
-                  when Mutools.Vres_Alloc.Reader_Vectors
-                    | Mutools.Vres_Alloc.Writer_Events =>
+                  when Mutools.Vres_Alloc.Vector_Numbers
+                    | Mutools.Vres_Alloc.Event_Numbers =>
                      Size := 1;
                end case;
 
@@ -392,6 +400,28 @@ is
          end;
       end loop;
    end Assign_Resources_If_Known;
+
+   -------------------------------------------------------------------------
+
+   function Get_Fixed_Resource_Value
+     (Node          : DOM.Core.Node;
+      Resource_Kind : Mutools.Vres_Alloc.Resource_Kind_Type)
+      return Interfaces.Unsigned_64
+   is
+      Attr_Value : constant String
+        := Mutools.Vres_Alloc.Get_Resource_Value
+        (Elem          => Node,
+         Resource_Kind => Resource_Kind);
+   begin
+      if Mutools.Vres_Alloc.Requests_Allocation (Value => Attr_Value) then
+         raise Validation_Error with
+           "Missing attribute value at '"
+           & Mutools.Xmldebuglog.Get_Xpath (Node => Node)
+           & "'";
+      end if;
+
+      return Interfaces.Unsigned_64'Value (Attr_Value);
+   end Get_Fixed_Resource_Value;
 
    -------------------------------------------------------------------------
 
@@ -455,14 +485,14 @@ is
             Targets_List_1 := Config.C_Va_Alloc_Read_Write_Targets;
             Targets_List_2 := Config.C_Va_Alloc_Read_Only_Targets;
             Mapping_Access := Components_Map (Comp_Name).Va_Map'Access;
-         when Mutools.Vres_Alloc.Reader_Vectors =>
-            Targets_List_1 := Config.C_Readers_Read_Write_Targets;
-            Targets_List_2 := Config.C_Readers_Read_Only_Targets;
-            Mapping_Access := Components_Map (Comp_Name).Reader_Events_Map'Access;
-         when Mutools.Vres_Alloc.Writer_Events =>
-            Targets_List_1 := Config.C_Writers_Read_Write_Targets;
-            Targets_List_2 := Config.C_Writers_Read_Only_Targets;
-            Mapping_Access := Components_Map (Comp_Name).Writer_Events_Map'Access;
+         when Mutools.Vres_Alloc.Vector_Numbers =>
+            Targets_List_1 := Config.C_Vector_Numbers_Read_Write_Targets;
+            Targets_List_2 := Config.C_Vector_Numbers_Read_Only_Targets;
+            Mapping_Access := Components_Map (Comp_Name).Vector_Numbers_Map'Access;
+         when Mutools.Vres_Alloc.Event_Numbers =>
+            Targets_List_1 := Config.C_Event_Numbers_Read_Write_Targets;
+            Targets_List_2 := Config.C_Event_Numbers_Read_Only_Targets;
+            Mapping_Access := Components_Map (Comp_Name).Event_Numbers_Map'Access;
       end case;
 
       Targets := McKae.XML.XPath.XIA.XPath_Query
@@ -507,9 +537,9 @@ is
             New_Item  =>
               (Profile           => Mutools.String_Holder_Type.To_Holder
                  (Comp_Profile),
-               Va_Map            => Logical_To_Interval_Package.Empty_Map,
-               Reader_Events_Map => Logical_To_Interval_Package.Empty_Map,
-               Writer_Events_Map => Logical_To_Interval_Package.Empty_Map));
+               Va_Map             => Logical_To_Interval_Package.Empty_Map,
+               Vector_Numbers_Map => Logical_To_Interval_Package.Empty_Map,
+               Event_Numbers_Map  => Logical_To_Interval_Package.Empty_Map));
       end if;
    end Init_Component_Head;
 
@@ -534,10 +564,10 @@ is
             Resource_Kind => Mutools.Vres_Alloc.Virtual_Addresses);
          Init_Component_Elements
            (Comp_Node     => Curr_Component,
-            Resource_Kind => Mutools.Vres_Alloc.Writer_Events);
+            Resource_Kind => Mutools.Vres_Alloc.Event_Numbers);
          Init_Component_Elements
            (Comp_Node     => Curr_Component,
-            Resource_Kind => Mutools.Vres_Alloc.Reader_Vectors);
+            Resource_Kind => Mutools.Vres_Alloc.Vector_Numbers);
       end loop;
    end Initialize_Components_Map;
 
@@ -595,6 +625,46 @@ is
 
    -------------------------------------------------------------------------
 
+   function Mapping_Key (Node : DOM.Core.Node) return String
+   is
+      use type DOM.Core.Node;
+
+      Tag_Name : constant String
+        := DOM.Core.Elements.Get_Tag_Name (Elem => Node);
+      Logical  : constant String
+        := DOM.Core.Elements.Get_Attribute (Elem => Node,
+                                            Name => "logical");
+      Parent   : constant DOM.Core.Node
+        := DOM.Core.Nodes.Parent_Node (N => Node);
+   begin
+      if not Mutools.Vres_Alloc.Config.Array_Element_Names.Contains (Tag_Name)
+      then
+         raise Validation_Error with
+           "Found unexpected node tag '"
+           & Tag_Name
+           & "' at '"
+           & Mutools.Xmldebuglog.Get_Xpath (Node => Node)
+           & "'";
+      end if;
+
+      if Tag_Name = "memory"
+        and then Parent /= null
+        and then DOM.Core.Nodes.Node_Name (N => Parent) = "device"
+      then
+         return "device/"
+           & DOM.Core.Elements.Get_Attribute (Elem => Parent,
+                                              Name => "logical")
+           & "/" & Logical;
+      elsif Tag_Name = "reader" or Tag_Name = "writer" or Tag_Name = "memory"
+      then
+         return "memory/" & Logical;
+      else
+         return Tag_Name & "/" & Logical;
+      end if;
+   end Mapping_Key;
+
+   -------------------------------------------------------------------------
+
    procedure Put_Targets_In_Map
      (Mapping       : in out Logical_To_Interval_Package.Map;
       Targets       :        DOM.Core.Node_List;
@@ -643,7 +713,6 @@ is
          Resource_Kind  : Mutools.Vres_Alloc.Resource_Kind_Type)
       is
          use type Ada.Containers.Count_Type;
-         use type Mutools.Vres_Alloc.Resource_Kind_Type;
          type Map_Access_Type is access constant Logical_To_Interval_Package.Map;
 
          Available_Intervals : Mutools.Intervals.Interval_List_Type;
@@ -676,11 +745,11 @@ is
                     (List     => Available_Intervals,
                      Interval => Va_Space_Vm);
                end if;
-            when Mutools.Vres_Alloc.Writer_Events =>
+            when Mutools.Vres_Alloc.Event_Numbers =>
                Mutools.Intervals.Add_Interval
                  (List     => Available_Intervals,
                   Interval => Event_Numbers_Domain);
-            when Mutools.Vres_Alloc.Reader_Vectors =>
+            when Mutools.Vres_Alloc.Vector_Numbers =>
                Mutools.Intervals.Add_Interval
                  (List     => Available_Intervals,
                   Interval => Vector_Numbers_Domain);
@@ -698,14 +767,14 @@ is
                   Targets_List_R_W := Config.Va_Alloc_Read_Write_Targets;
                   Targets_List_R   := Config.Va_Alloc_Read_Only_Targets;
                   Mapping_Access   := Component_Info.Va_Map'Access;
-               when Mutools.Vres_Alloc.Reader_Vectors =>
-                  Targets_List_R_W := Config.Readers_Read_Write_Targets;
-                  Targets_List_R   := Config.Readers_Read_Only_Targets;
-                  Mapping_Access   := Component_Info.Reader_Events_Map'Access;
-               when Mutools.Vres_Alloc.Writer_Events =>
-                  Targets_List_R_W := Config.Writers_Read_Write_Targets;
-                  Targets_List_R   := Config.Writers_Read_Only_Targets;
-                  Mapping_Access   := Component_Info.Writer_Events_Map'Access;
+               when Mutools.Vres_Alloc.Vector_Numbers =>
+                  Targets_List_R_W := Config.Vector_Numbers_Read_Write_Targets;
+                  Targets_List_R   := Config.Vector_Numbers_Read_Only_Targets;
+                  Mapping_Access   := Component_Info.Vector_Numbers_Map'Access;
+               when Mutools.Vres_Alloc.Event_Numbers =>
+                  Targets_List_R_W := Config.Event_Numbers_Read_Write_Targets;
+                  Targets_List_R   := Config.Event_Numbers_Read_Only_Targets;
+                  Mapping_Access   := Component_Info.Event_Numbers_Map'Access;
             end case;
 
             --  Put Targets within Subject on todo-list if resource
@@ -744,25 +813,6 @@ is
          if Todo_List.Length > 0 then
             --  finish restriction of available intervals
             for Addr_And_Size of Mapping_Access.all loop
-               if Resource_Kind = Mutools.Vres_Alloc.Virtual_Addresses and then
-                 not Mutools.Vres_Alloc.Is_Aligned
-                 (Address => Addr_And_Size.First_Address,
-                  Size    => Addr_And_Size.Size)
-               then
-                  Mulog.Log (Msg => "Error: Size or virtual address of some "
-                               & "node in referenced component is not "
-                               & "a multiple of 16#1000#. "
-                               & "XPath of referencing subject: '"
-                               & Mutools.Xmldebuglog.Get_Xpath (Node => Subject)
-                               & "', Size: '"
-                               & Mutools.Utils.To_Hex
-                               (Number => Addr_And_Size.Size)
-                               & "', Virtual address: '"
-                               & Mutools.Utils.To_Decimal
-                               (Addr_And_Size.First_Address)
-                               & "'");
-                  raise Validation_Error with "Virtual resource not aligned";
-               end if;
                Mutools.Intervals.Subtract_Interval
                  (List => Available_Intervals,
                   First_Element => Addr_And_Size.First_Address,
@@ -840,11 +890,11 @@ is
                      Process_Subject
                        (Subject        => Curr_Subject,
                         Component_Info => Components_Map (Component_Name),
-                        Resource_Kind  => Mutools.Vres_Alloc.Reader_Vectors);
+                        Resource_Kind  => Mutools.Vres_Alloc.Vector_Numbers);
                      Process_Subject
                        (Subject        => Curr_Subject,
                         Component_Info => Components_Map (Component_Name),
-                        Resource_Kind  => Mutools.Vres_Alloc.Writer_Events);
+                        Resource_Kind  => Mutools.Vres_Alloc.Event_Numbers);
                   else
                      raise Validation_Error with
                        "Cannot find component with name '"
@@ -873,15 +923,5 @@ is
    end Run;
 
    ----------------------------------------------------------------------
-
-   function To_String (I : Address_And_Size_Type) return String
-   is
-   begin
-      return "(First_Address="
-        & Mutools.Utils.To_Hex (Number => I.First_Address)
-        & ", Size="
-        & Mutools.Utils.To_Decimal (I.Size)
-        & ")";
-   end To_String;
 
 end Vres_Alloc;

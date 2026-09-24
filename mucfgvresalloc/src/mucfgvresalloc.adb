@@ -22,6 +22,7 @@ with Muxml;
 
 with Mulog;
 with Mutools.Utils;
+with Mutools.Vres_Alloc;
 
 with Vres_Alloc;
 with Vres_Alloc.Cmd_Line;
@@ -41,6 +42,7 @@ exception
    when E : Muxml.XML_Input_Error
       | Mutools.Utils.File_Not_Found
       | Muxml.Validation_Error
+      | Mutools.Vres_Alloc.Validation_Error
       | Vres_Alloc.Validation_Error =>
       Mulog.Log (Level => Mulog.Error,
                  Msg   => "Allocation of virtual addresses failed, aborting");

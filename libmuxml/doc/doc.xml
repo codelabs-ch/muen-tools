@@ -728,15 +728,18 @@
         \item Assign missing virtual addresses of channels and memory regions,
         as well as arrays of channels and memory regions;
         \item Assign missing IRQs of channel reader events and arrays of channel readers;
-        \item Assign missing event IDs of channel writer events and arrays of channel writers;
+        \item Assign missing event IDs of channel writer events, arrays of channel
+        writers, source events and arrays of source events;
      \end{enumerate}
 
      Virtual addresses, IRQs and event IDs are considered to be \textit{virtual resources}.
      Each of the three virtual resources has its own domain.
      To request automatic allocation of the attribute \texttt{virtualAddress}
      (or \texttt{virtualAddressBase} for arrays) omit the attribute.
-     To request automatic allocation of event ids of readers or writers the respective
-     attribute must be set to \texttt{auto}.
+     To request automatic allocation of the vectors for channel readers or event IDs for
+     channel writers the respective attribute must be set to \texttt{auto}. The same
+     applies to the \texttt{eventBase} attribute of source event arrays. To request
+     automatic allocation of the \texttt{id} of a source event, omit the attribute.
 
      To determine which addresses or ids to choose, \texttt{mucfgcvresalloc}
      looks at the addresses and ids already present in the file.
@@ -762,7 +765,9 @@
 
      \texttt{mucfgvresalloc} can assign virtual addresses of channels and memory
      regions, IRQs of channel reader events, and IDs of channel writer events.
-     These attributes are considered to be \textit{virtual resources}.
+     It also takes the event base IDs of source event arrays in referenced
+     components into account. These attributes are considered to be
+     \textit{virtual resources}.
      Each of the three virtual resources has its own domain.
      To request automatic allocation of the attribute \texttt{virtualAddress}
      omit the attribute. For the other two resources the respective attribute
