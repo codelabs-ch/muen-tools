@@ -43,6 +43,15 @@
     <irq name="irq" number="21"/>
     <memory name="mmio" physicalAddress="16#d1c0_0000#" size="16#2000#" caching="UC"/>
    </device>
+   <device name="manual_eth">
+    <pci bus="16#04#" device="16#00#" function="0" msi="false">
+     <identification classcode="16#0c05#" deviceId="16#3c34#" revisionId="16#01#" vendorId="16#8089#"/>
+     <bars/>
+    </pci>
+    <memory caching="UC" name="mmio" physicalAddress="16#d1c0_4000#" size="16#1000#"/>
+    <memory caching="UC" name="mmconf" physicalAddress="16#f84a_0000#" size="16#1000#"/>
+    <ioPort end="16#d6ff#" name="ioport1" start="16#d600#"/>
+   </device>
    <device name="legacy_device">
     <memory caching="UC" name="mmio1" physicalAddress="16#d300_0000#" size="16#1000#"/>
    </device>
@@ -352,6 +361,12 @@
     </device>
     <device logical="wlan0" physical="wireless">
      <pci bus="16#23#" device="16#00#" function="0"/>
+    </device>
+    <device logical="manual0" physical="manual_eth">
+     <pci bus="16#00#" device="16#04#" function="0"/>
+     <memory executable="false" logical="mmio" physical="mmio" virtualAddress="16#feb5_0000#" writable="true"/>
+     <memory executable="false" logical="mmconf" physical="mmconf" virtualAddress="16#fb08_2000#" writable="true"/>
+     <ioPort logical="port1" physical="ioport1"/>
     </device>
     <device logical="legacy_dev" physical="legacy_device">
      <irq logical="irq" physical="irq" vector="66"/>

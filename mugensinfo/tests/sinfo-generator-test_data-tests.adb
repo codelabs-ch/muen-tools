@@ -14,7 +14,11 @@ with System.Assertions;
 --  This section can be used to add with clauses if necessary.
 --
 --  end read only
-
+with Ada.Directories;
+with Ada.Streams.Stream_IO;
+with Ada.Unchecked_Conversion;
+with Musinfo;
+with Muxml.Utils;
 --  begin read only
 --  end read only
 package body Sinfo.Generator.Test_Data.Tests is
@@ -58,9 +62,81 @@ package body Sinfo.Generator.Test_Data.Tests is
                  Message   => "Subject info file mismatch (" & Arch & ")");
          Ada.Directories.Delete_File (Name => Subject_Sinfo);
       end Write_Sinfo;
+
+      ----------------------------------------------------------------------
+
+      --  Write the sinfo of the given policy and deserialize it from
+      --  obj/lnx_sinfo.
+      function Get_Subject_Info
+        (Policy : Muxml.XML_Data_Type)
+         return Musinfo.Subject_Info_Type
+      is
+         subtype Sinfo_Stream is Ada.Streams.Stream_Element_Array
+           (1 .. Musinfo.Subject_Info_Type_Size);
+         function Convert is new Ada.Unchecked_Conversion
+           (Source => Sinfo_Stream,
+            Target => Musinfo.Subject_Info_Type);
+
+         File   : Ada.Streams.Stream_IO.File_Type;
+         Stream : Sinfo_Stream;
+         Last   : Ada.Streams.Stream_Element_Offset;
+      begin
+         Write (Output_Dir => "obj",
+                Policy     => Policy);
+         Ada.Streams.Stream_IO.Open
+           (File => File,
+            Mode => Ada.Streams.Stream_IO.In_File,
+            Name => "obj/lnx_sinfo");
+         Ada.Streams.Stream_IO.Read (File => File, Item => Stream, Last => Last);
+         Ada.Streams.Stream_IO.Close (File => File);
+         return Convert (S => Stream);
+      end Get_Subject_Info;
+
+      ----------------------------------------------------------------------
+
+      --  Verify that the I/O port resource of a device with an explicitly
+      --  empty <bars/> element is encoded with the No_BAR_Config marker.
+      procedure Check_No_BAR_Config
+      is
+         use type Musinfo.Name_Type;
+         use type Musinfo.Resource_Kind;
+
+         Policy : Muxml.XML_Data_Type;
+         Info   : Musinfo.Subject_Info_Type;
+         Port_Log_Name : constant String := "manual0_port1";
+         Port_Name : constant Musinfo.Name_Type
+           := Sinfo.Utils.Create_Name (Str => Port_Log_Name);
+         Found : Boolean := False;
+      begin
+         Muxml.Parse (Data => Policy,
+                      Kind => Muxml.Format_B,
+                      File => "data/test_policy_x86_64.xml");
+         Info := Get_Subject_Info (Policy => Policy);
+
+         for I in 1 .. Natural (Info.Resource_Count) loop
+            declare
+               Res : constant Musinfo.Resource_Type
+                 := Info.Resources (Musinfo.Resource_Index_Type (I));
+            begin
+               if Res.Kind = Musinfo.Res_Device_IO_Port
+                 and then Res.Name = Port_Name
+               then
+                  Assert (Condition => Res.Dev_IO_Port_Data.BAR_Idx
+                            = Musinfo.No_BAR_Config,
+                          Message   => "Unexpected manual device port BAR "
+                          & "index: should be No_BAR_Config");
+                  Found := True;
+               end if;
+            end;
+         end loop;
+         Assert (Condition => Found,
+                 Message   => "Manual device port resource not found");
+         Ada.Directories.Delete_File (Name => "obj/lnx_sinfo");
+      end Check_No_BAR_Config;
    begin
       Write_Sinfo (Arch => "x86_64");
       Write_Sinfo (Arch => "arm64");
+      Check_No_BAR_Config;
 --  begin read only
    end Test_Write;
 --  end read only

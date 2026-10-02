@@ -5,8 +5,6 @@
 
 with AUnit.Test_Fixtures;
 
-with Ada.Directories;
-
 with Test_Utils;
 
 with Sinfo.Utils.Test_Data;
