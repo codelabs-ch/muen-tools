@@ -224,6 +224,11 @@
     The \texttt{bars} element specifies which device I/O or memory
     resource is associated with which device PCI Base Address Register (BAR)
     or expansion ROM register.
+
+    An explicitly empty \texttt{bars} element (\texttt{&lt;bars/&gt;})
+    is permitted and signals that no BAR configuration is specified for the
+    device, e.g. because the device IO resources are declared manually in
+    the hardware configuration.
    </xs:documentation>
   </xs:annotation>
   <xs:sequence>
