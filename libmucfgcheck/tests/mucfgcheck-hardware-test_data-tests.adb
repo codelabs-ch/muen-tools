@@ -265,15 +265,29 @@ package body Mucfgcheck.Hardware.Test_Data.Tests is
 
       Muxml.Utils.Remove_Elements
         (Doc   => Data.Doc,
-         XPath => "/system/hardware/devices/device[@name='wireless']/pci/bars"
-         & "/memory");
+         XPath => "/system/hardware/devices/device[@name='ethernet_2']/pci/bars"
+         & "/memory[@ref='mmio1']");
       PCI_BAR_Config (XML_Data => Data);
       Assert (Condition => Validation_Errors.Contains
-              (Msg => "PCI device 'wireless' BAR config count mismatch: "
-               & "0 /= 1"),
+              (Msg => "PCI device 'ethernet_2' BAR config count mismatch: "
+               & "1 /= 2"),
               Message   => "Exception mismatch (BAR config count)");
 
       Validation_Errors.Clear;
+
+      --  Explicitly empty <bars/> element is allowed and signals that no BAR
+      --  configuration is specified for the device.
+
+      Muxml.Parse (Data => Data,
+                   Kind => Muxml.Format_B,
+                   File => "data/test_policy.xml");
+      Muxml.Utils.Remove_Elements
+        (Doc   => Data.Doc,
+         XPath => "/system/hardware/devices/device[@name='wireless']/pci/bars"
+         & "/memory");
+      PCI_BAR_Config (XML_Data => Data);
+      Assert (Condition => Validation_Errors.Is_Empty,
+              Message   => "Unexpected error for explicitly empty <bars> element");
 
       --  No BAR config given for PCI device.
 
