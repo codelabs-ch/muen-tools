@@ -105,6 +105,7 @@ is
       Physical_Dev  :        DOM.Core.Node;
       Physical_Port :        DOM.Core.Node)
    is
+      use type DOM.Core.Node;
       use type Interfaces.Unsigned_16;
 
       Device_Name : constant String
@@ -136,11 +137,21 @@ is
         := Muxml.Utils.Get_Element
           (Doc   => Physical_Dev,
            XPath => "pci/bars/ioPort[@ref='" & Phys_Port_Name & "']");
-      BAR_Idx : constant Musinfo.BAR_Range
-        := Musinfo.BAR_Range'Value
-          (DOM.Core.Elements.Get_Attribute
-             (Elem => BAR_Config, Name => "index"));
+      BAR_Idx : Musinfo.Raw_Port_BAR_Range;
    begin
+      if BAR_Config = null then
+
+         --  No BAR configuration for this I/O port (e.g. an explicitly empty
+         --  <bars/> element): the device BARs are not configured by the system
+         --  init. Encode this as No_BAR_Config.
+
+         BAR_Idx := Musinfo.No_BAR_Config;
+      else
+         BAR_Idx := Musinfo.Raw_BAR_Range'Value
+           (DOM.Core.Elements.Get_Attribute
+              (Elem => BAR_Config, Name => "index"));
+      end if;
+
       Mulog.Log
         (Msg => "Announcing device '" & Device_Name & "' I/O port to subject '"
          & Subject_Name & "': " & Log_Port_Name & "@"

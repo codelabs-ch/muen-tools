@@ -7,7 +7,17 @@ with AUnit.Test_Fixtures;
 
 with Ada.Directories;
 
+with Ada.Streams.Stream_IO;
+
+with Ada.Unchecked_Conversion;
+
+with Interfaces;
+
 with Test_Utils;
+
+with Musinfo;
+
+with Sinfo.Utils;
 
 with Sinfo.Utils.Test_Data;
 
