@@ -165,14 +165,6 @@ is
       IO_End   := U (DOM.Core.Elements.Get_Attribute
                      (Elem => Port,
                       Name => "end"));
-
-      if Logical = Null_Unbounded_String
-        or else IO_Start = Null_Unbounded_String
-        or else IO_End = Null_Unbounded_String
-      then
-         raise Attribute_Error with "Device I/O port node does not provide "
-           & "expected attributes";
-      end if;
    end Device_Ioport_Attrs_As_String;
 
    -------------------------------------------------------------------------

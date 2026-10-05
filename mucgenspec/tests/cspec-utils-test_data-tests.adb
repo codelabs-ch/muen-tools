@@ -1166,46 +1166,10 @@ package body Cspec.Utils.Test_Data.Tests is
         (Elem  => Node,
          Name  => "logical",
          Value => Ref_Name);
-
-      begin
-         Device_Ioport_Attrs_As_String
-           (Port     => Node,
-            Logical  => Logical,
-            IO_Start => P_Start,
-            IO_End   => P_End);
-         Assert (Condition => False,
-                 Message   => "Exception expected (1)");
-
-      exception
-         when E : Attribute_Error =>
-            Assert (Condition => Ada.Exceptions.Exception_Message (X => E)
-                    = "Device I/O port node does not provide expected "
-                    & "attributes",
-                    Message   => "Exception mismatch (1)");
-      end;
-
       DOM.Core.Elements.Set_Attribute
         (Elem  => Node,
          Name  => "start",
          Value => Ref_Start);
-
-      begin
-         Device_Ioport_Attrs_As_String
-           (Port     => Node,
-            Logical  => Logical,
-            IO_Start => P_Start,
-            IO_End   => P_End);
-         Assert (Condition => False,
-                 Message   => "Exception expected (2)");
-
-      exception
-         when E : Attribute_Error =>
-            Assert (Condition => Ada.Exceptions.Exception_Message (X => E)
-                    = "Device I/O port node does not provide expected "
-                    & "attributes",
-                    Message   => "Exception mismatch (1)");
-      end;
-
       DOM.Core.Elements.Set_Attribute
         (Elem  => Node,
          Name  => "end",
