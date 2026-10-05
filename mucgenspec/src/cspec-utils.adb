@@ -275,14 +275,6 @@ is
         (DOM.Core.Elements.Get_Attribute
            (Elem => Node,
             Name => "size"));
-
-      if Logical_Name = Null_Unbounded_String
-        or else Virtual_Address = Null_Unbounded_String
-        or else Size = Null_Unbounded_String
-      then
-         raise Attribute_Error with "Memory node does not provide "
-           & "expected attributes";
-      end if;
    end Memory_Attrs_As_String;
 
    -------------------------------------------------------------------------

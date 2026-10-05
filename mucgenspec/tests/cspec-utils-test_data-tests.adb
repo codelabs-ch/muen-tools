@@ -1005,23 +1005,6 @@ package body Cspec.Utils.Test_Data.Tests is
         (Elem  => Node,
          Name  => "logical",
          Value => Ref_Name);
-
-      begin
-         Memory_Attrs_As_String
-           (Node            => Node,
-            Logical_Name    => Name,
-            Virtual_Address => Addr,
-            Size            => Size);
-         Assert (Condition => False,
-                 Message   => "Exception expected");
-
-      exception
-         when E : Attribute_Error =>
-            Assert (Condition => Ada.Exceptions.Exception_Message (X => E)
-                    = "Memory node does not provide expected attributes",
-                    Message   => "Exception mismatch");
-      end;
-
       DOM.Core.Elements.Set_Attribute
         (Elem  => Node,
          Name  => "virtualAddress",
