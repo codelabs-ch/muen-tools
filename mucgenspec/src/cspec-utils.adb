@@ -181,13 +181,6 @@ is
       Vector := U (DOM.Core.Elements.Get_Attribute
                    (Elem => Irq,
                     Name => "vector"));
-
-      if Logical = Null_Unbounded_String
-        or else Vector = Null_Unbounded_String
-      then
-         raise Attribute_Error with "Device irq node does not provide "
-           & "expected attributes";
-      end if;
    end Device_Irq_Attrs_As_String;
 
    -------------------------------------------------------------------------

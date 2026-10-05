@@ -1217,22 +1217,6 @@ package body Cspec.Utils.Test_Data.Tests is
         (Elem  => Node,
          Name  => "logical",
          Value => Ref_Name);
-
-      begin
-         Device_Irq_Attrs_As_String
-           (Irq     => Node,
-            Logical => Logical,
-            Vector  => Vector);
-         Assert (Condition => False,
-                 Message   => "Exception expected");
-
-      exception
-         when E : Attribute_Error =>
-            Assert (Condition => Ada.Exceptions.Exception_Message (X => E)
-                    = "Device irq node does not provide expected attributes",
-                    Message   => "Exception mismatch");
-      end;
-
       DOM.Core.Elements.Set_Attribute
         (Elem  => Node,
          Name  => "vector",
