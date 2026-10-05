@@ -293,13 +293,6 @@ is
           (Elem => Node,
            Name => "writable");
    begin
-      if Exec'Length = 0 or else Write'Length = 0 then
-         raise Attribute_Error with Mutools.Utils.Capitalize
-           (Str => DOM.Core.Elements.Get_Tag_Name
-              (Elem => Node)) & " node does not provide expected permission "
-           & "attributes";
-      end if;
-
       Executable := U (Mutools.Utils.Capitalize (Str => Exec));
       Writable   := U (Mutools.Utils.Capitalize (Str => Write));
    end Memory_Perm_Attrs_As_String;

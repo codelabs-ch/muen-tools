@@ -1054,23 +1054,6 @@ package body Cspec.Utils.Test_Data.Tests is
         (Elem  => Node,
          Name  => "executable",
          Value => "true");
-
-      begin
-         Memory_Perm_Attrs_As_String
-           (Node       => Node,
-            Executable => Executable,
-            Writable   => Writable);
-         Assert (Condition => False,
-                 Message   => "Exception expected");
-
-      exception
-         when E : Attribute_Error =>
-            Assert (Condition => Ada.Exceptions.Exception_Message (X => E)
-                    = "Memory node does not provide expected permission "
-                    & "attributes",
-                    Message   => "Exception mismatch");
-      end;
-
       DOM.Core.Elements.Set_Attribute
         (Elem  => Node,
          Name  => "writable",
