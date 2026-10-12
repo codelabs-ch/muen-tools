@@ -1516,6 +1516,11 @@ package body Mucfgcheck.Subject.Test_Data.Tests is
       Muxml.Utils.Set_Element_Value
         (Doc   => Data.Doc,
          XPath => "/system/subjects/subject[@name='linux']/vcpu/x86_64/vmx/"
+         & "controls/proc2/EnableEPT",
+         Value => "0");
+      Muxml.Utils.Set_Element_Value
+        (Doc   => Data.Doc,
+         XPath => "/system/subjects/subject[@name='linux']/vcpu/x86_64/vmx/"
          & "controls/proc/INVLPGExiting",
          Value => "0");
 
@@ -1524,6 +1529,11 @@ package body Mucfgcheck.Subject.Test_Data.Tests is
               (Msg => "Processor-Based control 'INVLPG exiting' of "
                & "subject 'linux' invalid: must be 1"),
               Message   => "Exception mismatch (INVLPG exiting)");
+      Muxml.Utils.Set_Element_Value
+        (Doc   => Data.Doc,
+         XPath => "/system/subjects/subject[@name='linux']/vcpu/x86_64/vmx/"
+         & "controls/proc2/EnableEPT",
+         Value => "1");
 
       --  TSC Offsetting.
 

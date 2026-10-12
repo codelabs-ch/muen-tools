@@ -2121,11 +2121,14 @@ is
                   & "' invalid: must be 0");
             end if;
 
-            --  Direct execution of INVLPG is not supported.
+            --  Execution of INVLPG must be restricted if EPT is disabled.
 
             if Is_Element_Value (Node  => Proc_Ctrl,
-                                 XPath => "INVLPGExiting",
+                                 XPath => "../proc2/EnableEPT",
                                  Value => "0")
+              and Is_Element_Value (Node  => Proc_Ctrl,
+                                    XPath => "INVLPGExiting",
+                                    Value => "0")
             then
                Validation_Errors.Insert
                  (Msg => "Processor-Based control "
