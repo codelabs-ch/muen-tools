@@ -35,4 +35,13 @@ is
    --  specify any resources.
    procedure Add_Subject_Device_Resources (Data : in out Muxml.XML_Data_Type);
 
+   --  Resolve the platform <mitigations> override onto the hardware
+   --  <mitigations> facts. A missing override leaves the hardware facts
+   --  unchanged (inherit). An override replaces the hardware elements it
+   --  declares - mcu and archCapabilities wholly (the require list is
+   --  replaced), init, vmEntry and vmExit leaf-wise - and sets the effective
+   --  enable switch. The source-level override node is removed from the
+   --  policy after the operation.
+   procedure Resolve_Mitigations (Data : in out Muxml.XML_Data_Type);
+
 end Expanders.Platform;

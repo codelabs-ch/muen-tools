@@ -1,3 +1,27 @@
+    <cpu apicId="0"/>                                                                                                                                       <cpu apicId="0"/>
+    <cpu apicId="2"/>                                                                                                                                       <cpu apicId="2"/>
+     <mitigations>                                                                                                                                   |      <mitigations>
+      <mcu minRevision="16#14#"/>                                                                                                                    |       <mcu minRevision="16#14#"/>
+      <archCapabilities>                                                                                                                             |       <archCapabilities>
+       <require bit="RDCL_NO"/>                                                                                                                      |        <require bit="RDCL_NO"/>
+      </archCapabilities>                                                                                                                            |       </archCapabilities>
+      <init>                                                                                                                                         |       <init>
+       <eibrs enable="true"/>                                                                                                                        |        <eibrs enable="true"/>
+       <bhiDisS enable="false"/>                                                                                                                     |        <bhiDisS enable="false"/>
+      </init>                                                                                                                                        |       </init>
+      <vmEntry>                                                                                                                                      |       <vmEntry>
+       <ibpb enable="true"/>                                                                                                                         |        <ibpb enable="true"/>
+       <verw enable="false"/>                                                                                                                        |        <verw enable="false"/>
+      </vmEntry>                                                                                                                                     |       </vmEntry>
+      <vmExit>                                                                                                                                       |       <vmExit>
+       <ibrsLegacy enable="false"/>                                                                                                                  |        <ibrsLegacy enable="false"/>
+       <rsbStuffing enable="true" mode="singleCall"/>                                                                                                |        <rsbStuffing enable="true" mode="singleCall"/>
+       <bhbLoop enable="true"/>                                                                                                                      |        <bhbLoop enable="true"/>
+      </vmExit>                                                                                                                                      |       </vmExit>
+     </mitigations>                                                                                                                                  |      </mitigations>
+   </x86_64>                                                                                                                                               </x86_64>
+  </processor>                                                                                                                                            </processor>
+--
   <memory caching="UC" name="crash_audit" physicalAddress="16#0006_0000#" size="16#1000#" type="subject_crash_audit"/>                                    <memory caching="UC" name="crash_audit" physicalAddress="16#0006_0000#" size="16#1000#" type="subject_crash_audit"/>
   <memory caching="WB" name="microcode" physicalAddress="16#0007_0000#" size="16#1000#" type="kernel_microcode"/>                                         <memory caching="WB" name="microcode" physicalAddress="16#0007_0000#" size="16#1000#" type="kernel_microcode"/>
                                                                                                                                                      >    <memory alignment="16#1000#" caching="WB" name="lnx|vmcs" size="16#1000#" type="kernel_vmcs"/>

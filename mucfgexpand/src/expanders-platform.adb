@@ -19,7 +19,9 @@
 with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded;
 
+with DOM.Core;
 with DOM.Core.Documents;
+with DOM.Core.Documents.Local;
 with DOM.Core.Elements;
 with DOM.Core.Nodes;
 with DOM.Core.Append_Node;
@@ -37,6 +39,23 @@ package body Expanders.Platform
 is
 
    use Ada.Strings.Unbounded;
+
+   --  Apply the leaves of the given override section onto the corresponding
+   --  hardware facts section.
+   procedure Apply_Mitigation_Leaves
+     (Base_Node     : DOM.Core.Node;
+      Override_Node : DOM.Core.Node);
+
+   --  Apply the platform <mitigations> override onto the hardware facts.
+   procedure Apply_Mitigation_Override
+     (Base_Mitigations     : DOM.Core.Node;
+      Override_Mitigations : DOM.Core.Node);
+
+   --  Replace the child of Parent with the name of New_Child by a clone of
+   --  New_Child; a missing child is appended.
+   procedure Replace_Child
+     (Parent    : DOM.Core.Node;
+      New_Child : DOM.Core.Node);
 
    -------------------------------------------------------------------------
 
@@ -212,6 +231,95 @@ is
          end;
       end loop;
    end Add_Subject_Device_Resources;
+
+   -------------------------------------------------------------------------
+
+   procedure Apply_Mitigation_Leaves
+     (Base_Node     : DOM.Core.Node;
+      Override_Node : DOM.Core.Node)
+   is
+      use type DOM.Core.Node;
+      use type DOM.Core.Node_Types;
+
+      Child : DOM.Core.Node := DOM.Core.Nodes.First_Child (N => Override_Node);
+   begin
+      while Child /= null loop
+         if DOM.Core.Nodes.Node_Type (N => Child) = DOM.Core.Element_Node then
+            Replace_Child (Parent    => Base_Node,
+                           New_Child => Child);
+         end if;
+         Child := DOM.Core.Nodes.Next_Sibling (N => Child);
+      end loop;
+   end Apply_Mitigation_Leaves;
+
+   -------------------------------------------------------------------------
+
+   procedure Apply_Mitigation_Override
+     (Base_Mitigations     : DOM.Core.Node;
+      Override_Mitigations : DOM.Core.Node)
+   is
+      use type DOM.Core.Node;
+      use type DOM.Core.Node_Types;
+
+      Child : DOM.Core.Node := DOM.Core.Nodes.First_Child
+        (N => Override_Mitigations);
+   begin
+      while Child /= null loop
+         if DOM.Core.Nodes.Node_Type (N => Child) = DOM.Core.Element_Node then
+            declare
+               Child_Name : constant String
+                 := DOM.Core.Nodes.Node_Name (N => Child);
+               Base_Section : constant DOM.Core.Node := Muxml.Utils.Get_Element
+                 (Doc   => Base_Mitigations,
+                  XPath => Child_Name);
+            begin
+               if Child_Name = "mcu" or else Child_Name = "archCapabilities" then
+                  Replace_Child (Parent    => Base_Mitigations,
+                                 New_Child => Child);
+               else
+                  --  init, vmEntry and vmExit: replace the leaves given, the
+                  --  remaining leaves are inherited from the hardware facts.
+                  Apply_Mitigation_Leaves (Base_Node     => Base_Section,
+                                Override_Node => Child);
+               end if;
+            end;
+         end if;
+         Child := DOM.Core.Nodes.Next_Sibling (N => Child);
+      end loop;
+   end Apply_Mitigation_Override;
+
+   -------------------------------------------------------------------------
+
+   procedure Replace_Child
+     (Parent    : DOM.Core.Node;
+      New_Child : DOM.Core.Node)
+   is
+      use type DOM.Core.Node;
+
+      Cloned    : constant DOM.Core.Node := DOM.Core.Documents.Local.Clone_Node
+        (N    => New_Child,
+         Deep => True);
+      Node_Name : constant String := DOM.Core.Nodes.Node_Name (N => New_Child);
+      Existing  : DOM.Core.Node := DOM.Core.Nodes.First_Child (N => Parent);
+   begin
+      while Existing /= null loop
+         if DOM.Core.Nodes.Node_Name (N => Existing) = Node_Name then
+            declare
+               Dummy : DOM.Core.Node;
+            begin
+               Dummy := DOM.Core.Nodes.Replace_Child
+                 (N         => Parent,
+                  Old_Child => Existing,
+                  New_Child => Cloned);
+               DOM.Core.Nodes.Free (N => Dummy);
+            end;
+            return;
+         end if;
+         Existing := DOM.Core.Nodes.Next_Sibling (N => Existing);
+      end loop;
+
+      Muxml.Utils.Append_Child (Node => Parent, New_Child => Cloned);
+   end Replace_Child;
 
    -------------------------------------------------------------------------
 
@@ -532,5 +640,66 @@ is
          end;
       end loop;
    end Resolve_Device_Classes;
+
+   -------------------------------------------------------------------------
+
+   procedure Resolve_Mitigations (Data : in out Muxml.XML_Data_Type)
+   is
+      use type DOM.Core.Node;
+
+      Override : constant DOM.Core.Node
+        := Muxml.Utils.Get_Element
+          (Doc   => Data.Doc,
+           XPath => "/system/platform/mitigations");
+      Base     : constant DOM.Core.Node
+        := Muxml.Utils.Get_Element
+          (Doc   => Data.Doc,
+           XPath => "/system/hardware/processor/x86_64/mitigations");
+   begin
+      --  Mitigation resolution is not implemented for ARMv8-A yet; the
+      --  <mitigations> facts and the platform override are only defined for
+      --  the x86_64 processor.
+      if Mutools.XML_Utils.Is_Arm64 (Policy => Data) then
+         return;
+      end if;
+
+      if Override = null then
+         --  Inherit: no platform override present, the hardware facts are
+         --  used as-is.
+         return;
+      end if;
+
+      if DOM.Core.Elements.Get_Attribute
+        (Elem => Override,
+         Name => "enable") = "false"
+      then
+         --  Disable the whole mitigation policy; the override children are
+         --  inert and the hardware facts are retained.
+         DOM.Core.Elements.Set_Attribute
+           (Elem  => Base,
+            Name  => "enable",
+            Value => "false");
+      else
+         Apply_Mitigation_Override (Base_Mitigations     => Base,
+                                    Override_Mitigations => Override);
+         if DOM.Core.Elements.Get_Attribute_Node
+           (Elem => Override,
+            Name => "enable") /= null
+         then
+            DOM.Core.Elements.Set_Attribute
+              (Elem  => Base,
+               Name  => "enable",
+               Value => DOM.Core.Elements.Get_Attribute
+                 (Elem => Override,
+                  Name => "enable"));
+         end if;
+      end if;
+
+      --  Remove the source-level override directive from the policy; the
+      --  resolved policy carries only the effective <mitigations>.
+      Muxml.Utils.Remove_Elements
+        (Doc   => Data.Doc,
+         XPath => "/system/platform/mitigations");
+   end Resolve_Mitigations;
 
 end Expanders.Platform;

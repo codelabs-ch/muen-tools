@@ -50,6 +50,7 @@ is
       Procs.Register (Process => Platform.Add_Subject_Device_Resources'Access);
       Procs.Register (Process => Platform.Resolve_Device_Aliases'Access);
       Procs.Register (Process => Platform.Resolve_Device_Classes'Access);
+      Procs.Register (Process => Platform.Resolve_Mitigations'Access);
 
       --  Expand arrays before component libraries.
 

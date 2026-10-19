@@ -14,7 +14,9 @@ with System.Assertions;
 --  This section can be used to add with clauses if necessary.
 --
 --  end read only
-
+with DOM.Core;
+with Muxml;
+with Muxml.Utils;
 --  begin read only
 --  end read only
 package body Expanders.Platform.Test_Data.Tests is
@@ -120,6 +122,145 @@ package body Expanders.Platform.Test_Data.Tests is
          Expander => Add_Subject_Device_Resources'Access);
 --  begin read only
    end Test_Add_Subject_Device_Resources;
+--  end read only
+
+
+--  begin read only
+   procedure Test_Resolve_Mitigations (Gnattest_T : in out Test);
+   procedure Test_Resolve_Mitigations_58d5c9 (Gnattest_T : in out Test) renames Test_Resolve_Mitigations;
+--  id:2.2/58d5c996df743488/Resolve_Mitigations/1/0/
+   procedure Test_Resolve_Mitigations (Gnattest_T : in out Test) is
+--  end read only
+
+      pragma Unreferenced (Gnattest_T);
+
+      ----------------------------------------------------------------------
+
+      procedure Override
+      is
+         use type DOM.Core.Node;
+
+         Policy : Muxml.XML_Data_Type;
+      begin
+         Muxml.Parse (Data => Policy,
+                      Kind => Muxml.None,
+                      File => "data/policy_mitigations_override.xml");
+         Resolve_Mitigations (Data => Policy);
+
+         Assert (Condition => Muxml.Utils.Get_Attribute
+                   (Doc   => Policy.Doc,
+                    XPath => "/system/hardware/processor/x86_64/mitigations"
+                       & "/mcu",
+                    Name  => "minRevision") = "16#58#",
+                 Message   => "Platform mcu override not applied");
+         Assert (Condition => Muxml.Utils.Get_Attribute
+                   (Doc   => Policy.Doc,
+                    XPath => "/system/hardware/processor/x86_64/mitigations"
+                       & "/vmExit/rsbStuffing",
+                    Name  => "mode") = "fullFill32",
+                 Message   => "Platform rsbStuffing override not applied");
+         Assert (Condition => Muxml.Utils.Get_Attribute
+                   (Doc   => Policy.Doc,
+                    XPath => "/system/hardware/processor/x86_64/mitigations"
+                       & "/vmEntry/l1dFlush",
+                    Name  => "enable") = "true",
+                 Message   => "Platform l1dFlush override not applied");
+         Assert (Condition => Muxml.Utils.Get_Attribute
+                   (Doc   => Policy.Doc,
+                    XPath => "/system/hardware/processor/x86_64/mitigations"
+                       & "/init/eibrs",
+                    Name  => "enable") = "true",
+                 Message   => "Non-overridden init leaf not inherited");
+         Assert (Condition => Muxml.Utils.Get_Attribute
+                   (Doc   => Policy.Doc,
+                    XPath => "/system/hardware/processor/x86_64/mitigations"
+                       & "/archCapabilities/require",
+                    Name  => "bit") = "RDCL_NO",
+                 Message   => "Non-overridden require not inherited");
+         Assert (Condition => Muxml.Utils.Get_Element
+                   (Doc   => Policy.Doc,
+                    XPath => "/system/platform/mitigations") = null,
+                 Message   => "Platform mitigations directive not removed");
+      end Override;
+
+      ----------------------------------------------------------------------
+
+      procedure Disable
+      is
+         use type DOM.Core.Node;
+
+         Policy : Muxml.XML_Data_Type;
+      begin
+         Muxml.Parse (Data => Policy,
+                      Kind => Muxml.None,
+                      File => "data/policy_mitigations_disabled.xml");
+         Resolve_Mitigations (Data => Policy);
+
+         Assert (Condition => Muxml.Utils.Get_Attribute
+                   (Doc   => Policy.Doc,
+                    XPath => "/system/hardware/processor/x86_64/mitigations",
+                    Name  => "enable") = "false",
+                 Message   => "Platform enable=false not applied");
+         Assert (Condition => Muxml.Utils.Get_Element
+                   (Doc   => Policy.Doc,
+                    XPath => "/system/platform/mitigations") = null,
+                 Message   => "Platform mitigations directive not removed");
+      end Disable;
+
+      ----------------------------------------------------------------------
+
+      procedure Inherit
+      is
+         Policy : Muxml.XML_Data_Type;
+      begin
+         Muxml.Parse (Data => Policy,
+                      Kind => Muxml.None,
+                      File => "data/policy_mitigations_override.xml");
+         Muxml.Utils.Remove_Elements
+           (Doc   => Policy.Doc,
+            XPath => "/system/platform/mitigations");
+
+         Resolve_Mitigations (Data => Policy);
+
+         Assert (Condition => Muxml.Utils.Get_Attribute
+                   (Doc   => Policy.Doc,
+                    XPath => "/system/hardware/processor/x86_64/mitigations"
+                       & "/mcu",
+                    Name  => "minRevision") = "16#14#",
+                 Message   => "Hardware facts not inherited unchanged");
+      end Inherit;
+
+      ----------------------------------------------------------------------
+
+      procedure Override_Explicit_Enable
+      is
+         use type DOM.Core.Node;
+
+         Policy : Muxml.XML_Data_Type;
+      begin
+         Muxml.Parse (Data => Policy,
+                      Kind => Muxml.None,
+                      File => "data/policy_mitigations_override_enable.xml");
+         Resolve_Mitigations (Data => Policy);
+
+         Assert (Condition => Muxml.Utils.Get_Attribute
+                   (Doc   => Policy.Doc,
+                    XPath => "/system/hardware/processor/x86_64/mitigations",
+                    Name  => "enable") = "true",
+                 Message   => "Explicit platform enable not propagated");
+         Assert (Condition => Muxml.Utils.Get_Element
+                   (Doc   => Policy.Doc,
+                    XPath => "/system/platform/mitigations") = null,
+                 Message   => "Platform mitigations directive not removed");
+      end Override_Explicit_Enable;
+
+   begin
+      Override;
+      Disable;
+      Inherit;
+      Override_Explicit_Enable;
+--  begin read only
+   end Test_Resolve_Mitigations;
 --  end read only
 
 --  begin read only
