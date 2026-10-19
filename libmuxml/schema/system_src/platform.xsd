@@ -15,9 +15,10 @@
    </xs:documentation>
   </xs:annotation>
   <xs:sequence>
-   <xs:element name="config"            type="configType"     minOccurs="0" maxOccurs="1"/>
-   <xs:element name="mappings"          type="mappingsType"   minOccurs="0" maxOccurs="1"/>
-   <xs:element name="kernelDiagnostics" type="kernelDiagType" minOccurs="1" maxOccurs="1"/>
+   <xs:element name="config"            type="configType"              minOccurs="0" maxOccurs="1"/>
+   <xs:element name="mappings"          type="mappingsType"            minOccurs="0" maxOccurs="1"/>
+   <xs:element name="mitigations"       type="mitigationsOverrideType" minOccurs="0" maxOccurs="1"/>
+   <xs:element name="kernelDiagnostics" type="kernelDiagType"          minOccurs="1" maxOccurs="1"/>
   </xs:sequence>
  </xs:complexType>
 
@@ -34,6 +35,78 @@
   <xs:sequence>
    <xs:element name="aliases" type="aliasesType"    minOccurs="0" maxOccurs="1"/>
    <xs:element name="classes" type="devClassesType" minOccurs="0" maxOccurs="1"/>
+  </xs:sequence>
+ </xs:complexType>
+
+ <xs:complexType name="mitigationsOverrideType">
+  <xs:annotation>
+   <xs:documentation>
+    Platform-level override of the hardware mitigation facts. Absent in the
+    platform: the hardware facts are used as-is. Present: the given elements
+    replace the corresponding hardware elements - \texttt{mcu} and
+    \texttt{archCapabilities} wholly (the \texttt{archCapabilities} require
+    list replaces the hardware list), \texttt{init}, \texttt{vmEntry} and
+    \texttt{vmExit} leaf-wise (only the leaves given are replaced, the others
+    are inherited). \texttt{enable="false"} disables the mitigation policy
+    entirely; the hardware facts are then inert.
+   </xs:documentation>
+  </xs:annotation>
+  <xs:sequence>
+   <xs:element name="mcu" type="mcuType" minOccurs="0" maxOccurs="1"/>
+   <xs:element name="archCapabilities" type="archCapabilitiesType" minOccurs="0" maxOccurs="1"/>
+   <xs:element name="init" type="initMitigationsOverrideType" minOccurs="0" maxOccurs="1"/>
+   <xs:element name="vmEntry" type="vmEntryMitigationsOverrideType" minOccurs="0" maxOccurs="1"/>
+   <xs:element name="vmExit" type="vmExitMitigationsOverrideType" minOccurs="0" maxOccurs="1"/>
+  </xs:sequence>
+  <xs:attribute name="enable" type="booleanType" use="optional" default="true">
+   <xs:annotation>
+    <xs:documentation>
+     Enable the mitigation policy. \texttt{false} disables it entirely.
+    </xs:documentation>
+   </xs:annotation>
+  </xs:attribute>
+ </xs:complexType>
+
+ <xs:complexType name="initMitigationsOverrideType">
+  <xs:annotation>
+   <xs:documentation>
+    Platform override of the \texttt{init} section: only the mitigation leaves
+    given are replaced, the others are inherited from the hardware facts.
+   </xs:documentation>
+  </xs:annotation>
+  <xs:sequence>
+   <xs:element name="eibrs" type="eibrsType" minOccurs="0" maxOccurs="1"/>
+   <xs:element name="bhiDisS" type="bhiDisSType" minOccurs="0" maxOccurs="1"/>
+  </xs:sequence>
+ </xs:complexType>
+
+ <xs:complexType name="vmEntryMitigationsOverrideType">
+  <xs:annotation>
+   <xs:documentation>
+    Platform override of the \texttt{vmEntry} section: only the mitigation
+    leaves given are replaced, the others are inherited from the hardware
+    facts.
+   </xs:documentation>
+  </xs:annotation>
+  <xs:sequence>
+   <xs:element name="ibpb"     type="ibpbType"     minOccurs="0" maxOccurs="1"/>
+   <xs:element name="verw"     type="verwType"     minOccurs="0" maxOccurs="1"/>
+   <xs:element name="l1dFlush" type="l1dFlushType" minOccurs="0" maxOccurs="1"/>
+  </xs:sequence>
+ </xs:complexType>
+
+ <xs:complexType name="vmExitMitigationsOverrideType">
+  <xs:annotation>
+   <xs:documentation>
+    Platform override of the \texttt{vmExit} section: only the mitigation
+    leaves given are replaced, the others are inherited from the hardware
+    facts.
+   </xs:documentation>
+  </xs:annotation>
+  <xs:sequence>
+   <xs:element name="ibrsLegacy" type="ibrsLegacyType" minOccurs="0" maxOccurs="1"/>
+   <xs:element name="rsbStuffing" type="rsbStuffingType" minOccurs="0" maxOccurs="1"/>
+   <xs:element name="bhbLoop" type="bhbLoopType" minOccurs="0" maxOccurs="1"/>
   </xs:sequence>
  </xs:complexType>
 

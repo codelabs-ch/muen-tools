@@ -265,80 +265,6 @@
   </xs:attribute>
  </xs:complexType>
 
- <xs:complexType name="processorType">
-  <xs:annotation>
-   <xs:documentation>
-    The \texttt{processor} element contains architecture-specific CPU
-    information. Currently supported architectures are x86_64 and arm64.
-
-    See line \ref{lst:af-lineref-processor} in listing \ref{lst:annotated-policy}
-    for an example processor element.
-   </xs:documentation>
-  </xs:annotation>
-  <xs:choice  minOccurs="1" maxOccurs="1">
-   <xs:element name="x86_64" type="x86_64CpuArchitectureType"/>
-   <xs:element name="arm64"  type="arm64CpuArchitectureType"/>
-  </xs:choice>
-  <xs:attribute name="cpuCores" type="xs:positiveInteger" use="required">
-  <xs:annotation>
-   <xs:documentation>
-    Number of available CPU cores. Note that this value designates physical,
-    hardware cores, not Hyper-Threading (HT) \emph{threads}. HT is disabled on
-    Muen.
-   </xs:documentation>
-  </xs:annotation>
-  </xs:attribute>
- </xs:complexType>
-
- <xs:complexType name="x86_64CpuArchitectureType">
-  <xs:annotation>
-   <xs:documentation>
-    The \texttt{x64_64} element specifies the number of CPU cores, the
-    Time-Stamp Counter (TSC) frequency in kHz and the Intel VMX preemption
-    timer rate. Additionally, the APIC ID of the Bootstrap Processor (BSP) is
-    given.
-
-    Since Intel CPUs can have arbitrary APIC identifiers, the APIC IDs of all
-    physical CPUs are enumerated here. The APIC ID is required for interrupt and
-    IPI routing.
-
-    The \texttt{x86\_64} element also lists register values for all CPUID
-    leaves of the hardware target, and some MSR values of interest.
-
-    See line \ref{lst:af-lineref-processor} in listing \ref{lst:annotated-policy}
-    for an example processor element.
-   </xs:documentation>
-  </xs:annotation>
-  <xs:sequence>
-   <xs:element name="cpu" type="x86_64CpuCoreType" minOccurs="1" maxOccurs="unbounded"/>
-   <xs:element name="cpuid" type="cpuIDValueType" minOccurs="0" maxOccurs="unbounded"/>
-   <xs:element name="msr" type="msrValueType" minOccurs="0" maxOccurs="unbounded"/>
-  </xs:sequence>
-  <xs:attribute name="bspApicId" type="xs:unsignedInt" use="required">
-   <xs:annotation>
-    <xs:documentation>
-     APIC ID of bootstrap processor.
-    </xs:documentation>
-   </xs:annotation>
-  </xs:attribute>
-  <xs:attribute name="tscFrequency" type="xs:positiveInteger" use="required">
-   <xs:annotation>
-    <xs:documentation>
-     Times-Stamp Counter frequency in kHz.
-    </xs:documentation>
-   </xs:annotation>
-  </xs:attribute>
-  <xs:attribute name="vmxTimerRate" type="vmxTimerRateType" use="required">
-   <xs:annotation>
-    <xs:documentation>
-     The VMX-premption timer counts down at a rate proportional to that of the
-     timestamp counter (TSC). This value specifies this proportion, see Intel
-     SDM Vol. 3C, "25.5.1 VMX-Preemption Timer" for more details.
-    </xs:documentation>
-   </xs:annotation>
-  </xs:attribute>
- </xs:complexType>
-
  <xs:complexType name="arm64CpuArchitectureType">
   <xs:annotation>
    <xs:documentation>
@@ -496,5 +422,279 @@
   </xs:annotation>
   <xs:restriction base="xs:string"/>
  </xs:simpleType>
+
+ <xs:simpleType name="microcodeRevisionType">
+  <xs:annotation>
+   <xs:documentation>
+    Microcode update revision.
+   </xs:documentation>
+  </xs:annotation>
+  <xs:restriction base="xs:string">
+   <xs:pattern value="16#[0-9a-fA-F]+#"/>
+  </xs:restriction>
+ </xs:simpleType>
+
+ <xs:simpleType name="archCapabilityBitType">
+  <xs:annotation>
+   <xs:documentation>
+    IA32_ARCH_CAPABILITIES (MSR 0x10A) bit names, see Intel SDM Vol. 4,
+    Table 2-2.
+   </xs:documentation>
+  </xs:annotation>
+  <xs:restriction base="xs:string">
+   <xs:enumeration value="RDCL_NO"/>
+   <xs:enumeration value="IBRS_ALL"/>
+   <xs:enumeration value="SKIP_L1DFL_VMENTRY"/>
+   <xs:enumeration value="SSB_NO"/>
+   <xs:enumeration value="MDS_NO"/>
+   <xs:enumeration value="IF_PSCHANGE_MC_NO"/>
+   <xs:enumeration value="TAA_NO"/>
+   <xs:enumeration value="SBDR_SSDP_NO"/>
+   <xs:enumeration value="FBSDP_NO"/>
+   <xs:enumeration value="PSDP_NO"/>
+   <xs:enumeration value="FB_CLEAR"/>
+   <xs:enumeration value="BHI_NO"/>
+   <xs:enumeration value="PBRSB_NO"/>
+   <xs:enumeration value="GDS_CTRL"/>
+   <xs:enumeration value="GDS_NO"/>
+   <xs:enumeration value="RFDS_NO"/>
+   <xs:enumeration value="RFDS_CLEAR"/>
+  </xs:restriction>
+ </xs:simpleType>
+
+ <xs:complexType name="mcuType">
+  <xs:annotation>
+   <xs:documentation>
+    The \texttt{mcu} element specifies the minimum microcode revision the
+    loaded update must result in. It applies uniformly to every CPU core.
+   </xs:documentation>
+  </xs:annotation>
+  <xs:attribute name="minRevision" type="microcodeRevisionType" use="required">
+   <xs:annotation>
+    <xs:documentation>
+     Minimum microcode revision, the loaded revision must be greater or
+     equal.
+    </xs:documentation>
+   </xs:annotation>
+  </xs:attribute>
+ </xs:complexType>
+
+ <xs:complexType name="archCapabilitiesRequireType">
+  <xs:annotation>
+   <xs:documentation>
+    A single IA32_ARCH_CAPABILITIES bit required to be set by the
+    boot-time check.
+   </xs:documentation>
+  </xs:annotation>
+  <xs:attribute name="bit" type="archCapabilityBitType" use="required">
+   <xs:annotation>
+    <xs:documentation>
+     Name of the required bit.
+    </xs:documentation>
+   </xs:annotation>
+  </xs:attribute>
+ </xs:complexType>
+
+ <xs:complexType name="archCapabilitiesType">
+  <xs:annotation>
+   <xs:documentation>
+    The \texttt{archCapabilities} element declares the IA32_ARCH_CAPABILITIES
+    immunity and analysis bits the mitigation policy relies on. At boot, the
+    kernel verifies that the post-microcode-load register value matches the
+    declared expectations and panics on mismatch.
+   </xs:documentation>
+  </xs:annotation>
+  <xs:sequence>
+   <xs:element name="require" type="archCapabilitiesRequireType" minOccurs="0" maxOccurs="unbounded"/>
+  </xs:sequence>
+ </xs:complexType>
+
+ <xs:complexType name="eibrsType">
+  <xs:annotation>
+   <xs:documentation>
+    Enable the enhanced Indirect Branch Restricted Speculation (eIBRS)
+    mitigation at bring-up. Writes IA32_SPEC_CTRL.IBRS = 1 once per core;
+    eIBRS is sticky, so no re-apply per VM entry or exit.
+   </xs:documentation>
+  </xs:annotation>
+  <xs:attribute name="enable" type="booleanType" use="required">
+   <xs:annotation>
+    <xs:documentation>
+     Write IA32_SPEC_CTRL.IBRS = 1 at bring-up when true.
+    </xs:documentation>
+   </xs:annotation>
+  </xs:attribute>
+ </xs:complexType>
+
+ <xs:complexType name="ibrsLegacyType">
+  <xs:annotation>
+   <xs:documentation>
+    Enable the legacy Indirect Branch Restricted Speculation (IBRS)
+    re-assert on a CPU without eIBRS. Legacy IBRS is not sticky across the
+    guest's execution, so IA32_SPEC_CTRL.IBRS = 1 is written unconditionally
+    on every VM exit (before the first indirect branch of the exit path);
+    there is no bring-up write.
+   </xs:documentation>
+  </xs:annotation>
+  <xs:attribute name="enable" type="booleanType" use="required">
+   <xs:annotation>
+    <xs:documentation>
+     Re-assert IA32_SPEC_CTRL.IBRS = 1 on every VM exit when true.
+    </xs:documentation>
+   </xs:annotation>
+  </xs:attribute>
+ </xs:complexType>
+
+ <xs:complexType name="ibpbType">
+  <xs:annotation>
+   <xs:documentation>
+    Execute IA32_PRED_CMD.IBPB on every scheduling-partition crossing.
+   </xs:documentation>
+  </xs:annotation>
+  <xs:attribute name="enable" type="booleanType" use="required">
+   <xs:annotation>
+    <xs:documentation>
+     Emit the IBPB flush on partition crossing when true.
+    </xs:documentation>
+   </xs:annotation>
+  </xs:attribute>
+ </xs:complexType>
+
+ <xs:complexType name="verwType">
+  <xs:annotation>
+   <xs:documentation>
+    Execute the VERW fill-buffer clear before VM entry.
+   </xs:documentation>
+  </xs:annotation>
+  <xs:attribute name="enable" type="booleanType" use="required">
+   <xs:annotation>
+    <xs:documentation>
+     Emit the VERW fill-buffer clear when true.
+    </xs:documentation>
+   </xs:annotation>
+  </xs:attribute>
+ </xs:complexType>
+
+ <xs:simpleType name="rsbStuffingModeType">
+  <xs:annotation>
+   <xs:documentation>
+    RSB-stuffing sequence variant.
+   </xs:documentation>
+  </xs:annotation>
+  <xs:restriction base="xs:string">
+   <xs:enumeration value="singleCall"/>
+   <xs:enumeration value="fullFill32"/>
+  </xs:restriction>
+ </xs:simpleType>
+
+ <xs:complexType name="rsbStuffingType">
+  <xs:annotation>
+   <xs:documentation>
+    Stuff the Return Stack Buffer (RSB) on the VM-exit path.
+   </xs:documentation>
+  </xs:annotation>
+  <xs:attribute name="enable" type="booleanType" use="required">
+   <xs:annotation>
+    <xs:documentation>
+     Emit the RSB-stuffing sequence when true.
+    </xs:documentation>
+   </xs:annotation>
+  </xs:attribute>
+  <xs:attribute name="mode" type="rsbStuffingModeType" use="required">
+   <xs:annotation>
+    <xs:documentation>
+     Sequence variant: \texttt{singleCall} for an eIBRS host with the PBRSB
+     bug, \texttt{fullFill32} for a non-eIBRS host.
+    </xs:documentation>
+   </xs:annotation>
+  </xs:attribute>
+ </xs:complexType>
+
+ <xs:complexType name="bhbLoopType">
+  <xs:annotation>
+   <xs:documentation>
+    Run the Branch History Buffer (BHB) clearing loop on the VM-exit path.
+   </xs:documentation>
+  </xs:annotation>
+  <xs:attribute name="enable" type="booleanType" use="required">
+   <xs:annotation>
+    <xs:documentation>
+     Emit the BHB-clearing loop when true.
+    </xs:documentation>
+   </xs:annotation>
+  </xs:attribute>
+ </xs:complexType>
+
+ <xs:complexType name="bhiDisSType">
+  <xs:annotation>
+   <xs:documentation>
+    Set the IA32_SPEC_CTRL.BHI_DIS_S bit at bring-up to mitigate Branch
+    History Injection (BHI) in hardware.
+   </xs:documentation>
+  </xs:annotation>
+  <xs:attribute name="enable" type="booleanType" use="required">
+   <xs:annotation>
+    <xs:documentation>
+     Write IA32_SPEC_CTRL.BHI_DIS_S = 1 at bring-up when true.
+    </xs:documentation>
+   </xs:annotation>
+  </xs:attribute>
+ </xs:complexType>
+
+ <xs:complexType name="initMitigationsType">
+  <xs:annotation>
+   <xs:documentation>
+    Mitigations applied once per core at bring-up.
+   </xs:documentation>
+  </xs:annotation>
+   <xs:sequence>
+    <xs:element name="eibrs" type="eibrsType" minOccurs="1" maxOccurs="1"/>
+    <xs:element name="bhiDisS" type="bhiDisSType" minOccurs="1" maxOccurs="1"/>
+   </xs:sequence>
+  </xs:complexType>
+
+ <xs:complexType name="vmEntryMitigationsType">
+  <xs:annotation>
+   <xs:documentation>
+    Mitigations applied on the VM-entry path.
+   </xs:documentation>
+  </xs:annotation>
+  <xs:sequence>
+   <xs:element name="ibpb" type="ibpbType" minOccurs="1" maxOccurs="1"/>
+   <xs:element name="verw" type="verwType" minOccurs="1" maxOccurs="1"/>
+  </xs:sequence>
+ </xs:complexType>
+
+ <xs:complexType name="vmExitMitigationsType">
+  <xs:annotation>
+   <xs:documentation>
+    Mitigations applied on the VM-exit path.
+   </xs:documentation>
+  </xs:annotation>
+   <xs:sequence>
+    <xs:element name="ibrsLegacy" type="ibrsLegacyType" minOccurs="1" maxOccurs="1"/>
+    <xs:element name="rsbStuffing" type="rsbStuffingType" minOccurs="1" maxOccurs="1"/>
+    <xs:element name="bhbLoop" type="bhbLoopType" minOccurs="1" maxOccurs="1"/>
+   </xs:sequence>
+  </xs:complexType>
+
+ <xs:complexType name="mitigationsFactsType">
+  <xs:annotation>
+   <xs:documentation>
+    The transient-execution mitigation requirements of the target CPU: the
+    required microcode revision, the IA32_ARCH_CAPABILITIES bits the policy
+    relies on and the per-mitigation settings of the init, vmEntry and
+    vmExit paths. The platform \texttt{mitigations} override (see
+    \texttt{platform}) adjusts these requirements for a specific system.
+   </xs:documentation>
+  </xs:annotation>
+  <xs:sequence>
+   <xs:element name="mcu" type="mcuType" minOccurs="1" maxOccurs="1"/>
+   <xs:element name="archCapabilities" type="archCapabilitiesType" minOccurs="1" maxOccurs="1"/>
+   <xs:element name="init" type="initMitigationsType" minOccurs="1" maxOccurs="1"/>
+   <xs:element name="vmEntry" type="vmEntryMitigationsType" minOccurs="1" maxOccurs="1"/>
+   <xs:element name="vmExit" type="vmExitMitigationsType" minOccurs="1" maxOccurs="1"/>
+   </xs:sequence>
+  </xs:complexType>
 
 </xs:schema>

@@ -6,6 +6,25 @@
    <cpu apicId="2"/>
    <cpu apicId="4"/>
    <cpu apicId="4294967295"/>
+   <mitigations>
+    <mcu minRevision="16#14#"/>
+    <archCapabilities>
+     <require bit="RDCL_NO"/>
+    </archCapabilities>
+    <init>
+     <eibrs enable="true"/>
+     <bhiDisS enable="false"/>
+    </init>
+    <vmEntry>
+     <ibpb enable="true"/>
+     <verw enable="false"/>
+    </vmEntry>
+    <vmExit>
+     <ibrsLegacy enable="false"/>
+     <rsbStuffing enable="true" mode="singleCall"/>
+     <bhbLoop enable="true"/>
+    </vmExit>
+   </mitigations>
   </x86_64>
  </processor>
  <memory/>
