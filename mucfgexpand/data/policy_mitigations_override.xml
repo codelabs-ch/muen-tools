@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<system>
+ <config/>
+ <hardware>
+  <processor cpuCores="2">
+   <x86_64 bspApicId="0" tscFrequency="50" vmxTimerRate="0">
+    <cpu apicId="0"/>
+    <mitigations>
+     <mcu minRevision="16#14#"/>
+     <archCapabilities>
+      <require bit="RDCL_NO"/>
+     </archCapabilities>
+     <init>
+      <eibrs enable="true"/>
+      <bhiDisS enable="false"/>
+     </init>
+     <vmEntry>
+      <ibpb enable="true"/>
+      <verw enable="false"/>
+     </vmEntry>
+     <vmExit>
+      <ibrsLegacy enable="false"/>
+      <rsbStuffing enable="true" mode="singleCall"/>
+      <bhbLoop enable="true"/>
+     </vmExit>
+    </mitigations>
+   </x86_64>
+  </processor>
+ </hardware>
+ <platform>
+  <mitigations>
+   <mcu minRevision="16#58#"/>
+   <vmEntry>
+    <l1dFlush enable="true"/>
+   </vmEntry>
+   <vmExit>
+    <rsbStuffing enable="true" mode="fullFill32"/>
+   </vmExit>
+  </mitigations>
+ </platform>
+</system>
