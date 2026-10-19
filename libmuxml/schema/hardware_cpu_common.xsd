@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+
+ <xs:complexType name="processorType">
+  <xs:annotation>
+   <xs:documentation>
+    The \texttt{processor} element contains architecture-specific CPU
+    information. Currently supported architectures are x86_64 and arm64.
+
+    See line \ref{lst:af-lineref-processor} in listing \ref{lst:annotated-policy}
+    for an example processor element.
+   </xs:documentation>
+  </xs:annotation>
+  <xs:choice  minOccurs="1" maxOccurs="1">
+   <xs:element name="x86_64" type="x86_64CpuArchitectureType"/>
+   <xs:element name="arm64"  type="arm64CpuArchitectureType"/>
+  </xs:choice>
+  <xs:attribute name="cpuCores" type="xs:positiveInteger" use="required">
+  <xs:annotation>
+   <xs:documentation>
+    Number of available CPU cores. Note that this value designates physical,
+    hardware cores, not Hyper-Threading (HT) \emph{threads}. HT is disabled on
+    Muen.
+   </xs:documentation>
+  </xs:annotation>
+  </xs:attribute>
+ </xs:complexType>
+
+ <xs:complexType name="x86_64CpuArchitectureType">
+  <xs:annotation>
+   <xs:documentation>
+    The \texttt{x86\_64} element specifies the number of CPU cores, the
+    Time-Stamp Counter (TSC) frequency in kHz and the Intel VMX preemption
+    timer rate. Additionally, the APIC ID of the Bootstrap Processor (BSP) is
+    given.
+
+    Since Intel CPUs can have arbitrary APIC identifiers, the APIC IDs of all
+    physical CPUs are enumerated here. The APIC ID is required for interrupt and
+    IPI routing.
+
+    The \texttt{x86\_64} element also lists register values for all CPUID
+    leaves of the hardware target, and some MSR values of interest.
+
+    The \texttt{mitigations} element declares the transient-execution
+    mitigation requirements of the target CPU.
+
+    See line \ref{lst:af-lineref-processor} in listing \ref{lst:annotated-policy}
+    for an example processor element.
+   </xs:documentation>
+  </xs:annotation>
+  <xs:sequence>
+   <xs:element name="cpu" type="x86_64CpuCoreType" minOccurs="1" maxOccurs="unbounded"/>
+   <xs:element name="cpuid" type="cpuIDValueType" minOccurs="0" maxOccurs="unbounded"/>
+   <xs:element name="msr" type="msrValueType" minOccurs="0" maxOccurs="unbounded"/>
+   <xs:element name="mitigations" type="mitigationsType" minOccurs="1" maxOccurs="1"/>
+  </xs:sequence>
+  <xs:attribute name="bspApicId" type="xs:unsignedInt" use="required">
+   <xs:annotation>
+    <xs:documentation>
+     APIC ID of bootstrap processor.
+    </xs:documentation>
+   </xs:annotation>
+  </xs:attribute>
+  <xs:attribute name="tscFrequency" type="xs:positiveInteger" use="required">
+   <xs:annotation>
+    <xs:documentation>
+     Times-Stamp Counter frequency in kHz.
+    </xs:documentation>
+   </xs:annotation>
+  </xs:attribute>
+  <xs:attribute name="vmxTimerRate" type="vmxTimerRateType" use="required">
+   <xs:annotation>
+    <xs:documentation>
+     The VMX-premption timer counts down at a rate proportional to that of the
+     timestamp counter (TSC). This value specifies this proportion, see Intel
+     SDM Vol. 3C, "25.5.1 VMX-Preemption Timer" for more details.
+    </xs:documentation>
+   </xs:annotation>
+  </xs:attribute>
+ </xs:complexType>
+
+</xs:schema>

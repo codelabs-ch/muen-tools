@@ -10,6 +10,25 @@
     <cpu apicId="2" cpuId="1"/>
     <cpuid eax="16#0000_000d#" ebx="16#756e_6547#" ecx="16#6c65_746e#" edx="16#4965_6e69#" leaf="16#0000_0000#" subleaf="16#00#"/>
     <msr address="16#0000_003a#" name="IA32_FEATURE_CONTROL" regval="16#0000_0000_0010_0005#"/>
+    <mitigations>
+     <mcu minRevision="16#14#"/>
+     <archCapabilities>
+      <require bit="RDCL_NO"/>
+     </archCapabilities>
+     <init>
+      <eibrs enable="true"/>
+      <bhiDisS enable="false"/>
+     </init>
+     <vmEntry>
+      <ibpb enable="true"/>
+      <verw enable="false"/>
+     </vmEntry>
+     <vmExit>
+      <ibrsLegacy enable="false"/>
+      <rsbStuffing enable="true" mode="singleCall"/>
+      <bhbLoop enable="true"/>
+     </vmExit>
+    </mitigations>
    </x86_64>
   </processor>
   <memory>

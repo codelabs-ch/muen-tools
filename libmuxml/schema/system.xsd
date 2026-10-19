@@ -21,8 +21,9 @@
  <xs:include_format schemaLocation="./subject.xsd"/>
  <xs:include_format schemaLocation="./system.xsd"/>
  <xs:include_format schemaLocation="./vcpu.xsd"/>
- <xs:include_format schemaLocation="./hardware_misc.xsd"/>
  <xs:include_format schemaLocation="./hardware.xsd"/>
+ <xs:include_format schemaLocation="./hardware_cpu.xsd"/>
+ <xs:include_format schemaLocation="./hardware_misc.xsd"/>
  <xs:include_format schemaLocation="./platform.xsd"/>
  <xs:include_format schemaLocation="./device_domains.xsd"/>
 

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+
+ <xs:include schemaLocation="../hardware_cpu_common.xsd"/>
+
+ <xs:complexType name="mitigationsType">
+  <xs:annotation>
+   <xs:documentation>
+    The effective mitigation policy of the system. \texttt{enable="false"}
+    disables the whole mitigation policy - no microcode floor, no ARCH_CAP
+    check and no mitigation sequences are applied.
+   </xs:documentation>
+  </xs:annotation>
+  <xs:complexContent>
+   <xs:extension base="mitigationsFactsType">
+    <xs:attribute name="enable" type="booleanType" use="optional" default="true">
+     <xs:annotation>
+      <xs:documentation>
+       Enable the mitigation policy.
+      </xs:documentation>
+     </xs:annotation>
+    </xs:attribute>
+   </xs:extension>
+  </xs:complexContent>
+ </xs:complexType>
+
+</xs:schema>

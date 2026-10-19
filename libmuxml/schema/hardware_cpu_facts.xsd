@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+
+ <xs:include schemaLocation="hardware_cpu_common.xsd"/>
+
+ <xs:complexType name="mitigationsType">
+  <xs:annotation>
+   <xs:documentation>
+    The transient-execution mitigation requirements of the target CPU: the
+    required microcode revision, the IA32_ARCH_CAPABILITIES bits the policy
+    relies on and the per-mitigation settings of the init, vmEntry and
+    vmExit paths. The platform \texttt{mitigations} override (see
+    \texttt{platform}) adjusts these requirements for a specific system.
+   </xs:documentation>
+  </xs:annotation>
+  <xs:complexContent>
+   <xs:extension base="mitigationsFactsType"/>
+  </xs:complexContent>
+ </xs:complexType>
+
+</xs:schema>
