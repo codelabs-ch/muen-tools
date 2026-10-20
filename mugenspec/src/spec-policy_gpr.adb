@@ -19,6 +19,9 @@
 with Ada.Characters.Handling;
 with Ada.Strings.Unbounded;
 
+with DOM.Core;
+with DOM.Core.Elements;
+
 with Muxml.Utils;
 
 with Mulog;
@@ -50,6 +53,10 @@ is
       --  Returns the string "True" if the microcode update facility should be
       --  active and "False" otherwise.
       function Has_MCU return String;
+
+      --  Returns the string "True" if the transient-execution mitigation
+      --  policy is enabled and "False" otherwise.
+      function Has_Mitigations return String;
 
       --  Returns the string "True" if the scheduling plan has multiple major
       --  frames and "False" otherwise.
@@ -102,6 +109,23 @@ is
 
       ----------------------------------------------------------------------
 
+      function Has_Mitigations return String
+      is
+         Mitigations : constant DOM.Core.Node := Muxml.Utils.Get_Element
+           (Doc   => Policy.Doc,
+            XPath => "/system/hardware/processor/x86_64/mitigations");
+      begin
+         if DOM.Core.Elements.Get_Attribute
+             (Elem => Mitigations,
+              Name => "enable") = "false"
+         then
+            return "False";
+         end if;
+         return "True";
+      end Has_Mitigations;
+
+      ----------------------------------------------------------------------
+
       function Has_Multiple_Major_Frames return String
       is
       begin
@@ -127,6 +151,10 @@ is
         (Template => Tmpl,
          Pattern  => "__mcu_enabled__",
          Content  => Has_MCU);
+      Mutools.Templates.Replace
+        (Template => Tmpl,
+         Pattern  => "__mitigations_enabled__",
+         Content  => Has_Mitigations);
       Mutools.Templates.Replace
         (Template => Tmpl,
          Pattern  => "__multiple_major_frames__",
