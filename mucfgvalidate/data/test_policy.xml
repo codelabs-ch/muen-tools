@@ -5,7 +5,7 @@
   <processor cpuCores="1">
    <x86_64 bspApicId="0" tscFrequency="2900000" vmxTimerRate="5">
     <cpu apicId="0" cpuId="0"/>
-    <mitigations>
+    <mitigations enable="false">
      <mcu minRevision="16#14#"/>
      <archCapabilities>
       <require bit="RDCL_NO"/>
