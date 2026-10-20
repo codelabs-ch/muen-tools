@@ -104,13 +104,10 @@ is
          Mode       : String := "")
          return Boolean
       is
-         pragma Unreferenced (Mitigation, Mode);
       begin
-         --  The x86_64 kernel implements no mitigation sequence yet; every
-         --  enabled sequence therefore fails. This predicate is extended in
-         --  lockstep with the kernel primitives, one arm per implemented
-         --  sequence.
-         return False;
+         --  Implemented sequences, extended in lockstep with the kernel
+         --  primitives (kernel/src/asm/mitigations.S).
+         return Mitigation = "rsbStuffing" and then Mode = "fullFill32";
       end Is_Implemented;
    begin
       if DOM.Core.Elements.Get_Attribute
