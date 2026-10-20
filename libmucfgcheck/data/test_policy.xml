@@ -11,7 +11,7 @@
     <cpu apicId="2" cpuId="1"/>
     <cpu apicId="4" cpuId="2"/>
     <cpu apicId="6" cpuId="3"/>
-    <mitigations>
+    <mitigations enable="false">
      <mcu minRevision="16#14#"/>
      <archCapabilities>
       <require bit="RDCL_NO"/>
