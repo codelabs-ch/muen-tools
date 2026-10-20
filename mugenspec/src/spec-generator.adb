@@ -27,6 +27,7 @@ with Spec.Skp_IOMMU;
 with Spec.Skp_Subjects;
 with Spec.Skp_MCU;
 with Spec.Skp_Kernel_Policy_H;
+with Spec.Skp_Mitigations_H;
 
 package body Spec.Generator
 is
@@ -48,6 +49,9 @@ is
         (Output_Dir => Output_Dir,
          Policy     => Policy);
       Spec.Skp_Kernel_Policy_H.Write
+        (Output_Dir => Output_Dir,
+         Policy     => Policy);
+      Spec.Skp_Mitigations_H.Write
         (Output_Dir => Output_Dir,
          Policy     => Policy);
       Skp_Subjects.Write
