@@ -79,18 +79,53 @@ package body Mucfgcheck.Mitigations.Test_Data.Tests is
                & "for the x86_64 target kernel"),
               Message   => "Exception mismatch (bhbLoop)");
 
-      --  Re-disabling the policy clears the errors.
+      --  fullFill32 is implemented: flipping the mode clears the
+      --  rsbStuffing error, the other enabled leaves are still rejected.
 
       Validation_Errors.Clear;
       Muxml.Utils.Set_Attribute
         (Doc   => Data.Doc,
-         XPath => "/system/hardware/processor/x86_64/mitigations",
+         XPath => "/system/hardware/processor/x86_64/mitigations/"
+         & "vmExit/rsbStuffing",
+         Name  => "mode",
+         Value => "fullFill32");
+
+      Check_Implementation (XML_Data => Data);
+      Assert (Condition => Validation_Errors.Contains
+              (Msg => "Mitigation 'eibrs' is enabled but not implemented "
+               & "for the x86_64 target kernel"),
+              Message   => "Exception mismatch after mode flip (eibrs)");
+      Assert
+        (Condition => not Validation_Errors.Contains
+         (Msg => "Mitigation 'rsbStuffing' (mode 'fullFill32') is "
+          & "enabled but not implemented for the x86_64 target kernel"),
+         Message   => "fullFill32 reported as not implemented");
+
+      --  Only the implemented rsbStuffing fullFill32 remains enabled:
+      --  no errors.
+
+      Validation_Errors.Clear;
+      Muxml.Utils.Set_Attribute
+        (Doc   => Data.Doc,
+         XPath => "/system/hardware/processor/x86_64/mitigations/init/eibrs",
+         Name  => "enable",
+         Value => "false");
+      Muxml.Utils.Set_Attribute
+        (Doc   => Data.Doc,
+         XPath => "/system/hardware/processor/x86_64/mitigations/"
+         & "vmEntry/ibpb",
+         Name  => "enable",
+         Value => "false");
+      Muxml.Utils.Set_Attribute
+        (Doc   => Data.Doc,
+         XPath => "/system/hardware/processor/x86_64/mitigations/"
+         & "vmExit/bhbLoop",
          Name  => "enable",
          Value => "false");
 
       Check_Implementation (XML_Data => Data);
       Assert (Condition => Validation_Errors.Is_Empty,
-              Message   => "Unexpected error after re-disabling policy");
+              Message   => "Unexpected error with only fullFill32 enabled");
 --  begin read only
    end Test_Check_Implementation;
 --  end read only
