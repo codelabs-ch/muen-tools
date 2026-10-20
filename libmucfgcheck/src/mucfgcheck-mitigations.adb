@@ -107,7 +107,8 @@ is
       begin
          --  Implemented sequences, extended in lockstep with the kernel
          --  primitives (kernel/src/asm/mitigations.S).
-         return Mitigation = "rsbStuffing" and then Mode = "fullFill32";
+         return (Mitigation = "rsbStuffing" and then Mode = "fullFill32")
+           or else Mitigation = "bhbLoop";
       end Is_Implemented;
    begin
       if DOM.Core.Elements.Get_Attribute
