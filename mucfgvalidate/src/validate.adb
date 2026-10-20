@@ -21,6 +21,7 @@ with Mulog;
 with Mucfgcheck.Config;
 with Mucfgcheck.Memory;
 with Mucfgcheck.MSR;
+with Mucfgcheck.Mitigations;
 with Mucfgcheck.Device;
 with Mucfgcheck.Scheduling;
 with Mucfgcheck.Kernel;
@@ -745,6 +746,8 @@ is
         (Process => MSR.Start_Smaller_End'Access);
       XML_Processors.Register
         (Process => MSR.Check_Whitelist'Access);
+      XML_Processors.Register
+        (Process => Mitigations.Check_Implementation'Access);
       XML_Processors.Register
         (Process => Device.Physical_Device_Name_Uniqueness'Access);
       XML_Processors.Register
