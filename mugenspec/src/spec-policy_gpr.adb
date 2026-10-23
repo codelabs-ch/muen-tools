@@ -21,6 +21,9 @@ with Ada.Strings.Unbounded;
 
 with DOM.Core;
 with DOM.Core.Elements;
+with DOM.Core.Nodes;
+
+with McKae.XML.XPath.XIA;
 
 with Muxml.Utils;
 
@@ -34,6 +37,8 @@ with String_Templates;
 
 package body Spec.Policy_Gpr
 is
+
+   use McKae.XML.XPath.XIA;
 
    -------------------------------------------------------------------------
 
@@ -49,6 +54,11 @@ is
 
       --  Returns all valid diagnostics device kinds as string.
       function Get_Diagnostics_Kind return String;
+
+      --  Returns the string "True" if the enabled mitigation policy requires
+      --  IA32_ARCH_CAPABILITIES bits (non-empty <archCapabilities/>) and
+      --  "False" otherwise (the ARCH_CAP kernel check is then compiled out).
+      function Has_Arch_Cap_Check return String;
 
       --  Returns the string "True" if the microcode update facility should be
       --  active and "False" otherwise.
@@ -96,6 +106,29 @@ is
 
          return To_String (Source => Buf);
       end Get_Diagnostics_Kind;
+
+      ----------------------------------------------------------------------
+
+      function Has_Arch_Cap_Check return String
+      is
+         Mitigations : constant DOM.Core.Node := Muxml.Utils.Get_Element
+           (Doc   => Policy.Doc,
+            XPath => "/system/hardware/processor/x86_64/mitigations");
+         Requires : constant DOM.Core.Node_List := XPath_Query
+           (N     => Policy.Doc,
+            XPath => "/system/hardware/processor/x86_64/mitigations/"
+              & "archCapabilities/require");
+      begin
+         --  Disabled policy or no require bits: no ARCH_CAP check.
+         if DOM.Core.Elements.Get_Attribute
+             (Elem => Mitigations,
+              Name => "enable") = "false"
+           or else DOM.Core.Nodes.Length (List => Requires) = 0
+         then
+            return "False";
+         end if;
+         return "True";
+      end Has_Arch_Cap_Check;
 
       ----------------------------------------------------------------------
 
@@ -155,6 +188,10 @@ is
         (Template => Tmpl,
          Pattern  => "__mitigations_enabled__",
          Content  => Has_Mitigations);
+      Mutools.Templates.Replace
+        (Template => Tmpl,
+         Pattern  => "__archcap_check_enabled__",
+         Content  => Has_Arch_Cap_Check);
       Mutools.Templates.Replace
         (Template => Tmpl,
          Pattern  => "__multiple_major_frames__",

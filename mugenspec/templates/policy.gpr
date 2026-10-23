@@ -9,5 +9,6 @@ __debug_device_type__
    Has_Multiple_Major_Frames : Boolean := "__multiple_major_frames__";
    MCU_Enabled               : Boolean := "__mcu_enabled__";
    Mitigations_Enabled       : Boolean := "__mitigations_enabled__";
+   Arch_Cap_Check_Enabled    : Boolean := "__archcap_check_enabled__";
 
 end Policy;
