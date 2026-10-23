@@ -63,7 +63,17 @@ package body Spec.Skp_Mitigations.Test_Data.Tests is
            (Condition => Ada.Strings.Fixed.Index
             (Source  => Content,
              Pattern => "Min_MCU_Revision : constant := 16#14#;") > 0,
-            Message   => "min revision wrong or missing");
+            Message   => "Min revision wrong or missing");
+         Assert
+           (Condition => Ada.Strings.Fixed.Index
+            (Source  => Content,
+             Pattern => "Arch_Cap_Mask     : constant := 16#0001#;") > 0,
+            Message   => "Arch cap mask wrong or missing");
+         Assert
+           (Condition => Ada.Strings.Fixed.Index
+            (Source  => Content,
+             Pattern => "Arch_Cap_Expected : constant := 16#0001#;") > 0,
+            Message   => "Arch cap expected wrong or missing");
       end;
 
       --  A disabled mitigation policy does not emit the spec.
@@ -77,7 +87,7 @@ package body Spec.Skp_Mitigations.Test_Data.Tests is
       Write (Output_Dir => Output_Dir,
              Policy     => Policy);
       Assert (Condition => not Ada.Directories.Exists (Name => Path),
-              Message   => "mitigation spec written for disabled policy");
+              Message   => "Mitigation spec written for disabled policy");
 
       Ada.Directories.Delete_Tree (Directory => Output_Dir);
 --  begin read only

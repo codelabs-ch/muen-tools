@@ -10,5 +10,6 @@ abstract project Policy is
    Has_Multiple_Major_Frames : Boolean := "True";
    MCU_Enabled               : Boolean := "True";
    Mitigations_Enabled       : Boolean := "True";
+   Arch_Cap_Check_Enabled     : Boolean := "True";
 
 end Policy;
