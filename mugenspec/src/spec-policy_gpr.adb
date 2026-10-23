@@ -72,6 +72,11 @@ is
       --  frames and "False" otherwise.
       function Has_Multiple_Major_Frames return String;
 
+      --  Returns the string "True" if any vmEntry mitigation leaf is
+      --  enabled (the VM-entry mitigation primitives are then compiled in)
+      --  and "False" otherwise.
+      function Has_VM_Entry_Mitigations return String;
+
       ----------------------------------------------------------------------
 
       function Get_Debug_Device_Type return String
@@ -166,6 +171,29 @@ is
            (Str => Mutools.XML_Utils.Has_Multiple_Major_Frames
               (Data => Policy)'Img);
       end Has_Multiple_Major_Frames;
+
+      ----------------------------------------------------------------------
+
+      function Has_VM_Entry_Mitigations return String
+      is
+         use McKae.XML.XPath.XIA;
+
+         Leaves : constant DOM.Core.Node_List := XPath_Query
+           (N     => Policy.Doc,
+            XPath => "/system/hardware/processor/x86_64/mitigations/"
+              & "vmEntry/*");
+      begin
+         for I in 0 .. DOM.Core.Nodes.Length (List => Leaves) - 1 loop
+            if DOM.Core.Elements.Get_Attribute
+              (Elem => DOM.Core.Nodes.Item (List  => Leaves,
+                                            Index => I),
+               Name => "enable") = "true"
+            then
+               return "True";
+            end if;
+         end loop;
+         return "False";
+      end Has_VM_Entry_Mitigations;
    begin
       Mulog.Log (Msg => "Writing policy project file to '" & Filename & "'");
 
@@ -192,6 +220,10 @@ is
         (Template => Tmpl,
          Pattern  => "__archcap_check_enabled__",
          Content  => Has_Arch_Cap_Check);
+      Mutools.Templates.Replace
+        (Template => Tmpl,
+         Pattern  => "__vm_entry_enabled__",
+         Content  => Has_VM_Entry_Mitigations);
       Mutools.Templates.Replace
         (Template => Tmpl,
          Pattern  => "__multiple_major_frames__",
