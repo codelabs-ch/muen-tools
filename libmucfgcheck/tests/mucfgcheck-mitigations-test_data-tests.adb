@@ -67,16 +67,12 @@ package body Mucfgcheck.Mitigations.Test_Data.Tests is
                & "for the x86_64 target kernel"),
               Message   => "Exception mismatch (eibrs)");
       Assert (Condition => Validation_Errors.Contains
-              (Msg => "Mitigation 'ibpb' is enabled but not implemented "
-               & "for the x86_64 target kernel"),
-              Message   => "Exception mismatch (ibpb)");
-      Assert (Condition => Validation_Errors.Contains
               (Msg => "Mitigation 'rsbStuffing' (mode 'singleCall') is "
                & "enabled but not implemented for the x86_64 target kernel"),
               Message   => "Exception mismatch (rsbStuffing)");
 
-      --  fullFill32 and bhbLoop are implemented: flipping the mode clears
-      --  the rsbStuffing error, eibrs/ibpb are still rejected.
+      --  fullFill32, bhbLoop and ibpb are implemented: flipping the mode
+      --  clears the rsbStuffing error, only eibrs is still rejected.
 
       Validation_Errors.Clear;
       Muxml.Utils.Set_Attribute
@@ -101,20 +97,19 @@ package body Mucfgcheck.Mitigations.Test_Data.Tests is
          (Msg => "Mitigation 'bhbLoop' is enabled but not implemented "
           & "for the x86_64 target kernel"),
          Message   => "bhbLoop reported as not implemented");
+      Assert
+        (Condition => not Validation_Errors.Contains
+         (Msg => "Mitigation 'ibpb' is enabled but not implemented "
+          & "for the x86_64 target kernel"),
+         Message   => "ibpb reported as not implemented");
 
-      --  Only implemented sequences remain enabled (rsbStuffing fullFill32
-      --  and bhbLoop): no errors.
+      --  Only implemented sequences remain enabled (rsbStuffing fullFill32,
+      --  bhbLoop and ibpb): no errors.
 
       Validation_Errors.Clear;
       Muxml.Utils.Set_Attribute
         (Doc   => Data.Doc,
          XPath => "/system/hardware/processor/x86_64/mitigations/init/eibrs",
-         Name  => "enable",
-         Value => "false");
-      Muxml.Utils.Set_Attribute
-        (Doc   => Data.Doc,
-         XPath => "/system/hardware/processor/x86_64/mitigations/"
-         & "vmEntry/ibpb",
          Name  => "enable",
          Value => "false");
 
