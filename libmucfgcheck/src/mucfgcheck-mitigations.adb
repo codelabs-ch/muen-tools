@@ -106,9 +106,11 @@ is
       is
       begin
          --  Implemented sequences, extended in lockstep with the kernel
-         --  primitives (kernel/src/asm/mitigations.S).
+         --  primitives (kernel/src/asm/mitigations.S, and the Ada VM-entry
+         --  primitives of SK.Mitigations.VM_Entry).
          return (Mitigation = "rsbStuffing" and then Mode = "fullFill32")
-           or else Mitigation = "bhbLoop";
+           or else Mitigation = "bhbLoop"
+           or else Mitigation = "ibpb";
       end Is_Implemented;
    begin
       if DOM.Core.Elements.Get_Attribute
