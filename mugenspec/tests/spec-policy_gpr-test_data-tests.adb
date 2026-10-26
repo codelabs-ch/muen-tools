@@ -14,7 +14,11 @@ with System.Assertions;
 --  This section can be used to add with clauses if necessary.
 --
 --  end read only
-
+with Ada.Directories;
+with Ada.Strings.Fixed;
+with Muxml;
+with Muxml.Utils;
+with Test_Utils;
 --  begin read only
 --  end read only
 package body Spec.Policy_Gpr.Test_Data.Tests is
@@ -51,6 +55,45 @@ package body Spec.Policy_Gpr.Test_Data.Tests is
               (Filename1 => "data/policy.gpr.ref",
                Filename2 => Policy_GPR),
               Message   => "Policy project file mismatch");
+      Ada.Directories.Delete_File (Name => Policy_GPR);
+
+      --  A disabled mitigation policy disables all mitigation settings of the
+      --  generated project file, regardless of the inert hardware facts.
+      Muxml.Utils.Set_Attribute
+        (Doc   => Policy.Doc,
+         XPath => "/system/hardware/processor/x86_64/mitigations",
+         Name  => "enable",
+         Value => "false");
+      Write (Output_Dir => "obj",
+             Policy     => Policy);
+      declare
+         Content : constant String := Test_Utils.Read_File
+           (Filename => Policy_GPR);
+      begin
+         Assert (Condition =>
+                   Ada.Strings.Fixed.Index
+                     (Source  => Content,
+                      Pattern => "Mitigations_Enabled       : Boolean := "
+                         & """False"";") > 0
+                   and then Ada.Strings.Fixed.Index
+                     (Source  => Content,
+                      Pattern => "Arch_Cap_Check_Enabled    : Boolean := "
+                         & """False"";") > 0
+                   and then Ada.Strings.Fixed.Index
+                     (Source  => Content,
+                      Pattern => "VM_Entry_Enabled          : Boolean := "
+                         & """False"";") > 0
+                   and then Ada.Strings.Fixed.Index
+                     (Source  => Content,
+                      Pattern => "VM_Entry_Ibpb_Enabled     : Boolean := "
+                         & """False"";") > 0
+                   and then Ada.Strings.Fixed.Index
+                     (Source  => Content,
+                      Pattern => "VM_Entry_Verw_Enabled     : Boolean := "
+                         & """False"";") > 0,
+                 Message   => "Disabled policy does not clear all mitigation "
+                    & "settings");
+      end;
       Ada.Directories.Delete_File (Name => Policy_GPR);
 --  begin read only
    end Test_Write;

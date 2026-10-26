@@ -12,5 +12,7 @@ abstract project Policy is
    Mitigations_Enabled       : Boolean := "True";
    Arch_Cap_Check_Enabled    : Boolean := "True";
    VM_Entry_Enabled          : Boolean := "True";
+   VM_Entry_Ibpb_Enabled     : Boolean := "True";
+   VM_Entry_Verw_Enabled     : Boolean := "False";
 
 end Policy;

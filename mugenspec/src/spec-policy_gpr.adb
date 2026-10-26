@@ -72,6 +72,10 @@ is
       --  frames and "False" otherwise.
       function Has_Multiple_Major_Frames return String;
 
+      --  Returns the string "True" if the given vmEntry mitigation leaf is
+      --  enabled and "False" otherwise.
+      function Has_VM_Entry_Leaf (Name : String) return String;
+
       --  Returns the string "True" if any vmEntry mitigation leaf is
       --  enabled (the VM-entry mitigation primitives are then compiled in)
       --  and "False" otherwise.
@@ -174,15 +178,45 @@ is
 
       ----------------------------------------------------------------------
 
+      function Has_VM_Entry_Leaf (Name : String) return String
+      is
+         Mitigations : constant DOM.Core.Node := Muxml.Utils.Get_Element
+           (Doc   => Policy.Doc,
+            XPath => "/system/hardware/processor/x86_64/mitigations");
+         Leaf : constant DOM.Core.Node := Muxml.Utils.Get_Element
+           (Doc   => Policy.Doc,
+            XPath => "/system/hardware/processor/x86_64/mitigations/"
+              & "vmEntry/" & Name);
+         Enabled : constant Boolean :=
+           DOM.Core.Elements.Get_Attribute
+             (Elem => Mitigations,
+              Name => "enable") /= "false"
+           and then DOM.Core.Elements.Get_Attribute
+             (Elem => Leaf,
+              Name => "enable") = "true";
+      begin
+         return Mutools.Utils.To_Ada_Identifier
+           (Str => Enabled'Img);
+      end Has_VM_Entry_Leaf;
+
+      ----------------------------------------------------------------------
+
       function Has_VM_Entry_Mitigations return String
       is
-         use McKae.XML.XPath.XIA;
-
+         Mitigations : constant DOM.Core.Node := Muxml.Utils.Get_Element
+           (Doc   => Policy.Doc,
+            XPath => "/system/hardware/processor/x86_64/mitigations");
          Leaves : constant DOM.Core.Node_List := XPath_Query
            (N     => Policy.Doc,
             XPath => "/system/hardware/processor/x86_64/mitigations/"
               & "vmEntry/*");
       begin
+         if DOM.Core.Elements.Get_Attribute
+             (Elem => Mitigations,
+              Name => "enable") = "false"
+         then
+            return "False";
+         end if;
          for I in 0 .. DOM.Core.Nodes.Length (List => Leaves) - 1 loop
             if DOM.Core.Elements.Get_Attribute
               (Elem => DOM.Core.Nodes.Item (List  => Leaves,
@@ -224,6 +258,14 @@ is
         (Template => Tmpl,
          Pattern  => "__vm_entry_enabled__",
          Content  => Has_VM_Entry_Mitigations);
+      Mutools.Templates.Replace
+        (Template => Tmpl,
+         Pattern  => "__vm_entry_ibpb_enabled__",
+         Content  => Has_VM_Entry_Leaf (Name => "ibpb"));
+      Mutools.Templates.Replace
+        (Template => Tmpl,
+         Pattern  => "__vm_entry_verw_enabled__",
+         Content  => Has_VM_Entry_Leaf (Name => "verw"));
       Mutools.Templates.Replace
         (Template => Tmpl,
          Pattern  => "__multiple_major_frames__",

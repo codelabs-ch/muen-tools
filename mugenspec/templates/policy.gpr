@@ -11,5 +11,7 @@ __debug_device_type__
    Mitigations_Enabled       : Boolean := "__mitigations_enabled__";
    Arch_Cap_Check_Enabled    : Boolean := "__archcap_check_enabled__";
    VM_Entry_Enabled          : Boolean := "__vm_entry_enabled__";
+   VM_Entry_Ibpb_Enabled     : Boolean := "__vm_entry_ibpb_enabled__";
+   VM_Entry_Verw_Enabled     : Boolean := "__vm_entry_verw_enabled__";
 
 end Policy;
