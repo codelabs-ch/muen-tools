@@ -261,44 +261,97 @@ package body Mucfgcheck.Hardware.Test_Data.Tests is
          Value => "3");
       Validation_Errors.Clear;
 
-      --  BAR config resource count.
+      --  More BAR config entries than device resources.
 
-      Muxml.Utils.Remove_Elements
-        (Doc   => Data.Doc,
-         XPath => "/system/hardware/devices/device[@name='ethernet_2']/pci/bars"
-         & "/memory[@ref='mmio1']");
-      PCI_BAR_Config (XML_Data => Data);
-      Assert (Condition => Validation_Errors.Contains
-              (Msg => "PCI device 'ethernet_2' BAR config count mismatch: "
-               & "1 /= 2"),
-              Message   => "Exception mismatch (BAR config count)");
+      declare
+         Data : Muxml.XML_Data_Type;
+      begin
+         Muxml.Parse (Data => Data,
+                      Kind => Muxml.Format_B,
+                      File => "data/test_policy.xml");
+         Muxml.Utils.Remove_Elements
+           (Doc   => Data.Doc,
+            XPath => "/system/hardware/devices/device[@name='ethernet_2']"
+            & "/memory[@name='mmio2']");
+         PCI_BAR_Config (XML_Data => Data);
+         Assert (Condition => Validation_Errors.Contains
+                 (Msg => "PCI device 'ethernet_2' BAR config count mismatch: "
+                  & "2 > 1"),
+                 Message   => "Exception mismatch (BAR config count)");
+      end;
 
       Validation_Errors.Clear;
 
-      --  Explicitly empty <bars/> element is allowed and signals that no BAR
-      --  configuration is specified for the device.
+      --  Partial BAR config is allowed, e.g. for devices with additional
+      --  memory regions without BAR configuration (SR-IOV windows).
 
-      Muxml.Parse (Data => Data,
-                   Kind => Muxml.Format_B,
-                   File => "data/test_policy.xml");
-      Muxml.Utils.Remove_Elements
-        (Doc   => Data.Doc,
-         XPath => "/system/hardware/devices/device[@name='wireless']/pci/bars"
-         & "/memory");
-      PCI_BAR_Config (XML_Data => Data);
-      Assert (Condition => Validation_Errors.Is_Empty,
-              Message   => "Unexpected error for explicitly empty <bars> element");
+      declare
+         Data : Muxml.XML_Data_Type;
+      begin
+         Muxml.Parse (Data => Data,
+                      Kind => Muxml.Format_B,
+                      File => "data/test_policy.xml");
+         Muxml.Utils.Remove_Elements
+           (Doc   => Data.Doc,
+            XPath => "/system/hardware/devices/device[@name='ethernet_2']/"
+            & "pci/bars/memory[@ref='mmio1']");
+         PCI_BAR_Config (XML_Data => Data);
+         Assert (Condition => Validation_Errors.Is_Empty,
+                 Message   => "Partially configured BARs not allowed");
+      end;
 
-      --  No BAR config given for PCI device.
+      --  Every I/O port resource must have a BAR config entry.
 
-      Muxml.Utils.Remove_Elements
-        (Doc   => Data.Doc,
-         XPath => "/system/hardware/devices/device[@name='wireless']/pci/bars");
-      PCI_BAR_Config (XML_Data => Data);
-      Assert (Condition => Validation_Errors.Contains
-              (Msg => "PCI device 'wireless' does not provide BAR config <bars>"
-               & " element"),
-              Message   => "Exception mismatch (BAR config presence)");
+      declare
+         Data : Muxml.XML_Data_Type;
+      begin
+         Muxml.Parse (Data => Data,
+                      Kind => Muxml.Format_B,
+                      File => "data/test_policy.xml");
+         Muxml.Utils.Remove_Elements
+           (Doc   => Data.Doc,
+            XPath => "/system/hardware/devices/device[@name='ethernet']/"
+            & "pci/bars/ioPort[@ref='ioport1']");
+         PCI_BAR_Config (XML_Data => Data);
+         Assert (Condition => Validation_Errors.Contains
+                 (Msg => "PCI device 'ethernet' BAR config I/O port count "
+                  & "mismatch: 1 /= 2"),
+                 Message   => "Exception mismatch (BAR config I/O port count)");
+      end;
+
+      Validation_Errors.Clear;
+
+      declare
+         Data : Muxml.XML_Data_Type;
+      begin
+         Muxml.Parse (Data => Data,
+                      Kind => Muxml.Format_B,
+                      File => "data/test_policy.xml");
+
+         --  Explicitly empty <bars/> element is allowed and signals that
+         --  no BAR configuration is specified for the device.
+
+         Muxml.Utils.Remove_Elements
+           (Doc   => Data.Doc,
+            XPath => "/system/hardware/devices/device[@name='wireless']/"
+            & "pci/bars/*");
+         PCI_BAR_Config (XML_Data => Data);
+         Assert (Condition => Validation_Errors.Is_Empty,
+                 Message   => "Unexpected error for explicitly empty <bars> element");
+
+         --  No BAR config given for PCI device.
+
+         Muxml.Utils.Remove_Elements
+           (Doc   => Data.Doc,
+            XPath => "/system/hardware/devices/device[@name='wireless']/"
+            & "pci/bars");
+         PCI_BAR_Config (XML_Data => Data);
+         Assert (Condition => Validation_Errors.Contains
+                 (Msg => "PCI device 'wireless' does not provide BAR config <bars>"
+                  & " element"),
+                 Message   => "Exception mismatch (BAR config presence)");
+      end;
+
 --  begin read only
    end Test_PCI_BAR_Config;
 --  end read only
