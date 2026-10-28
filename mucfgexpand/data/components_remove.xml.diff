@@ -12,6 +12,7 @@
       <vmEntry>                                                                                                                                      |       <vmEntry>
        <ibpb enable="true"/>                                                                                                                         |        <ibpb enable="true"/>
        <verw enable="false"/>                                                                                                                        |        <verw enable="false"/>
+       <l1dFlush enable="false"/>                                                                                                                    |        <l1dFlush enable="false"/>
       </vmEntry>                                                                                                                                     |       </vmEntry>
       <vmExit>                                                                                                                                       |       <vmExit>
        <ibrsLegacy enable="false"/>                                                                                                                  |        <ibrsLegacy enable="false"/>

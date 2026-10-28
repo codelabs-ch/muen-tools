@@ -18,6 +18,7 @@
      <vmEntry>
       <ibpb enable="true"/>
       <verw enable="false"/>
+      <l1dFlush enable="false"/>
      </vmEntry>
      <vmExit>
       <ibrsLegacy enable="false"/>
