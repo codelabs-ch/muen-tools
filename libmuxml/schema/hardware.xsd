@@ -228,7 +228,10 @@
     An explicitly empty \texttt{bars} element (\texttt{&lt;bars/&gt;})
     is permitted and signals that no BAR configuration is specified for the
     device, e.g. because the device IO resources are declared manually in
-    the hardware configuration.
+    the hardware configuration. A non-empty \texttt{bars} element may omit
+    entries for additional memory regions without BAR configuration, such as
+    memory-mapped configuration space or SR-IOV windows. Every device I/O
+    port resource must have a corresponding \texttt{ioPort} entry.
    </xs:documentation>
   </xs:annotation>
   <xs:sequence>

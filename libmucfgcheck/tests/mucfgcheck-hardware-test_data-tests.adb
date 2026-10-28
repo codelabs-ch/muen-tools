@@ -261,17 +261,51 @@ package body Mucfgcheck.Hardware.Test_Data.Tests is
          Value => "3");
       Validation_Errors.Clear;
 
-      --  BAR config resource count.
+      --  More BAR config entries than device resources.
 
+      Muxml.Parse (Data => Data,
+                   Kind => Muxml.Format_B,
+                   File => "data/test_policy.xml");
+      Muxml.Utils.Remove_Elements
+        (Doc   => Data.Doc,
+         XPath => "/system/hardware/devices/device[@name='ethernet_2']"
+         & "/memory[@name='mmio2']");
+      PCI_BAR_Config (XML_Data => Data);
+      Assert (Condition => Validation_Errors.Contains
+              (Msg => "PCI device 'ethernet_2' BAR config count mismatch: "
+               & "2 > 1"),
+              Message   => "Exception mismatch (BAR config count)");
+
+      Validation_Errors.Clear;
+
+      --  Partial BAR config is allowed, e.g. for devices with additional
+      --  memory regions without BAR configuration (mmconf, SR-IOV windows).
+
+      Muxml.Parse (Data => Data,
+                   Kind => Muxml.Format_B,
+                   File => "data/test_policy.xml");
       Muxml.Utils.Remove_Elements
         (Doc   => Data.Doc,
          XPath => "/system/hardware/devices/device[@name='ethernet_2']/pci/bars"
          & "/memory[@ref='mmio1']");
       PCI_BAR_Config (XML_Data => Data);
+      Assert (Condition => Validation_Errors.Is_Empty,
+              Message   => "Partially configured BARs not allowed");
+
+      --  Every I/O port resource must have a BAR config entry.
+
+      Muxml.Parse (Data => Data,
+                   Kind => Muxml.Format_B,
+                   File => "data/test_policy.xml");
+      Muxml.Utils.Remove_Elements
+        (Doc   => Data.Doc,
+         XPath => "/system/hardware/devices/device[@name='ethernet']/pci/bars"
+         & "/ioPort[@ref='ioport1']");
+      PCI_BAR_Config (XML_Data => Data);
       Assert (Condition => Validation_Errors.Contains
-              (Msg => "PCI device 'ethernet_2' BAR config count mismatch: "
-               & "1 /= 2"),
-              Message   => "Exception mismatch (BAR config count)");
+              (Msg => "PCI device 'ethernet' BAR config I/O port count "
+               & "mismatch: 1 /= 2"),
+              Message   => "Exception mismatch (BAR config I/O port count)");
 
       Validation_Errors.Clear;
 
