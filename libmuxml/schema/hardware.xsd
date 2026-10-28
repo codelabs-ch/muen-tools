@@ -583,6 +583,21 @@
   </xs:attribute>
  </xs:complexType>
 
+ <xs:complexType name="l1dFlushType">
+  <xs:annotation>
+   <xs:documentation>
+    Flush the L1 data cache (L1D) via IA32_FLUSH_CMD before VM entry.
+   </xs:documentation>
+  </xs:annotation>
+  <xs:attribute name="enable" type="booleanType" use="required">
+   <xs:annotation>
+    <xs:documentation>
+     Emit the L1D flush (IA32_FLUSH_CMD) on the VM-entry path when true.
+    </xs:documentation>
+   </xs:annotation>
+  </xs:attribute>
+ </xs:complexType>
+
  <xs:simpleType name="rsbStuffingModeType">
   <xs:annotation>
    <xs:documentation>
@@ -670,6 +685,7 @@
   <xs:sequence>
    <xs:element name="ibpb" type="ibpbType" minOccurs="1" maxOccurs="1"/>
    <xs:element name="verw" type="verwType" minOccurs="1" maxOccurs="1"/>
+   <xs:element name="l1dFlush" type="l1dFlushType" minOccurs="1" maxOccurs="1"/>
   </xs:sequence>
  </xs:complexType>
 
