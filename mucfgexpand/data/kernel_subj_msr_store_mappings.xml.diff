@@ -69,7 +69,7 @@
                                                                                                                                                      >          <InterruptWindowExiting>0</InterruptWindowExiting>
                                                                                                                                                      >          <UseTSCOffsetting>0</UseTSCOffsetting>
                                                                                                                                                      >          <HLTExiting>0</HLTExiting>
-                                                                                                                                                     >          <INVLPGExiting>1</INVLPGExiting>
+                                                                                                                                                     >          <INVLPGExiting>0</INVLPGExiting>
                                                                                                                                                      >          <MWAITExiting>1</MWAITExiting>
                                                                                                                                                      >          <RDPMCExiting>1</RDPMCExiting>
                                                                                                                                                      >          <RDTSCExiting>1</RDTSCExiting>
@@ -827,7 +827,7 @@
                                                                                                                                                      >          <InterruptWindowExiting>0</InterruptWindowExiting>
                                                                                                                                                      >          <UseTSCOffsetting>0</UseTSCOffsetting>
                                                                                                                                                      >          <HLTExiting>0</HLTExiting>
-                                                                                                                                                     >          <INVLPGExiting>1</INVLPGExiting>
+                                                                                                                                                     >          <INVLPGExiting>0</INVLPGExiting>
                                                                                                                                                      >          <MWAITExiting>1</MWAITExiting>
                                                                                                                                                      >          <RDPMCExiting>1</RDPMCExiting>
                                                                                                                                                      >          <RDTSCExiting>1</RDTSCExiting>

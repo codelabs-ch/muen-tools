@@ -52,22 +52,19 @@ is
    --  Return common array attributes as unbounded strings.
    procedure Array_Attrs_As_String
      (Arr          :     DOM.Core.Node;
-      Array_Kind   :     String;
       Element_Size : out Unbounded_String;
       Virtual_Base : out Unbounded_String);
 
    --  Convert given array node to string representation.
    function To_Array_Str
-     (Arr        : DOM.Core.Node;
-      Array_Kind : String;
-      Logical    : Unbounded_String)
+     (Arr     : DOM.Core.Node;
+      Logical : Unbounded_String)
       return Unbounded_String;
 
    -------------------------------------------------------------------------
 
    procedure Array_Attrs_As_String
      (Arr          :     DOM.Core.Node;
-      Array_Kind   :     String;
       Element_Size : out Unbounded_String;
       Virtual_Base : out Unbounded_String)
    is
@@ -80,13 +77,6 @@ is
         (DOM.Core.Elements.Get_Attribute
            (Elem => Arr,
             Name => "virtualAddressBase"));
-
-      if Element_Size = Null_Unbounded_String
-        or else Virtual_Base = Null_Unbounded_String
-      then
-         raise Attribute_Error with Array_Kind & " array node does not "
-           & "provide expected attributes";
-      end if;
    end Array_Attrs_As_String;
 
    -------------------------------------------------------------------------
@@ -175,14 +165,6 @@ is
       IO_End   := U (DOM.Core.Elements.Get_Attribute
                      (Elem => Port,
                       Name => "end"));
-
-      if Logical = Null_Unbounded_String
-        or else IO_Start = Null_Unbounded_String
-        or else IO_End = Null_Unbounded_String
-      then
-         raise Attribute_Error with "Device I/O port node does not provide "
-           & "expected attributes";
-      end if;
    end Device_Ioport_Attrs_As_String;
 
    -------------------------------------------------------------------------
@@ -199,13 +181,6 @@ is
       Vector := U (DOM.Core.Elements.Get_Attribute
                    (Elem => Irq,
                     Name => "vector"));
-
-      if Logical = Null_Unbounded_String
-        or else Vector = Null_Unbounded_String
-      then
-         raise Attribute_Error with "Device irq node does not provide "
-           & "expected attributes";
-      end if;
    end Device_Irq_Attrs_As_String;
 
    -------------------------------------------------------------------------
@@ -285,14 +260,6 @@ is
         (DOM.Core.Elements.Get_Attribute
            (Elem => Node,
             Name => "size"));
-
-      if Logical_Name = Null_Unbounded_String
-        or else Virtual_Address = Null_Unbounded_String
-        or else Size = Null_Unbounded_String
-      then
-         raise Attribute_Error with "Memory node does not provide "
-           & "expected attributes";
-      end if;
    end Memory_Attrs_As_String;
 
    -------------------------------------------------------------------------
@@ -311,13 +278,6 @@ is
           (Elem => Node,
            Name => "writable");
    begin
-      if Exec'Length = 0 or else Write'Length = 0 then
-         raise Attribute_Error with Mutools.Utils.Capitalize
-           (Str => DOM.Core.Elements.Get_Tag_Name
-              (Elem => Node)) & " node does not provide expected permission "
-           & "attributes";
-      end if;
-
       Executable := U (Mutools.Utils.Capitalize (Str => Exec));
       Writable   := U (Mutools.Utils.Capitalize (Str => Write));
    end Memory_Perm_Attrs_As_String;
@@ -325,9 +285,8 @@ is
    -------------------------------------------------------------------------
 
    function To_Array_Str
-     (Arr        : DOM.Core.Node;
-      Array_Kind : String;
-      Logical    : Unbounded_String)
+     (Arr     : DOM.Core.Node;
+      Logical : Unbounded_String)
       return Unbounded_String
    is
       Res, Addr, Size : Unbounded_String;
@@ -337,7 +296,6 @@ is
    begin
       Array_Attrs_As_String
         (Arr          => Arr,
-         Array_Kind   => Array_Kind,
          Element_Size => Size,
          Virtual_Base => Addr);
 
@@ -472,9 +430,8 @@ is
                      (Elem => Arr,
                       Name => "logical")));
 
-      Res := To_Array_Str (Arr        => Arr,
-                           Array_Kind => "Channel",
-                           Logical    => Logical);
+      Res := To_Array_Str (Arr     => Arr,
+                           Logical => Logical);
 
       Res := Res & To_Reader_Writer_Str (Logical => Logical);
       Res := Res & ASCII.LF & ASCII.LF & To_Name_Array (Arr => Arr);
@@ -818,9 +775,8 @@ is
                                    Executable => Exec,
                                    Writable   => Writ);
 
-      Res := To_Array_Str (Arr        => Arr,
-                           Array_Kind => "Memory",
-                           Logical    => Logical);
+      Res := To_Array_Str (Arr     => Arr,
+                           Logical => Logical);
 
       Res := Res
         & ASCII.LF

@@ -1005,23 +1005,6 @@ package body Cspec.Utils.Test_Data.Tests is
         (Elem  => Node,
          Name  => "logical",
          Value => Ref_Name);
-
-      begin
-         Memory_Attrs_As_String
-           (Node            => Node,
-            Logical_Name    => Name,
-            Virtual_Address => Addr,
-            Size            => Size);
-         Assert (Condition => False,
-                 Message   => "Exception expected");
-
-      exception
-         when E : Attribute_Error =>
-            Assert (Condition => Ada.Exceptions.Exception_Message (X => E)
-                    = "Memory node does not provide expected attributes",
-                    Message   => "Exception mismatch");
-      end;
-
       DOM.Core.Elements.Set_Attribute
         (Elem  => Node,
          Name  => "virtualAddress",
@@ -1071,23 +1054,6 @@ package body Cspec.Utils.Test_Data.Tests is
         (Elem  => Node,
          Name  => "executable",
          Value => "true");
-
-      begin
-         Memory_Perm_Attrs_As_String
-           (Node       => Node,
-            Executable => Executable,
-            Writable   => Writable);
-         Assert (Condition => False,
-                 Message   => "Exception expected");
-
-      exception
-         when E : Attribute_Error =>
-            Assert (Condition => Ada.Exceptions.Exception_Message (X => E)
-                    = "Memory node does not provide expected permission "
-                    & "attributes",
-                    Message   => "Exception mismatch");
-      end;
-
       DOM.Core.Elements.Set_Attribute
         (Elem  => Node,
          Name  => "writable",
@@ -1200,46 +1166,10 @@ package body Cspec.Utils.Test_Data.Tests is
         (Elem  => Node,
          Name  => "logical",
          Value => Ref_Name);
-
-      begin
-         Device_Ioport_Attrs_As_String
-           (Port     => Node,
-            Logical  => Logical,
-            IO_Start => P_Start,
-            IO_End   => P_End);
-         Assert (Condition => False,
-                 Message   => "Exception expected (1)");
-
-      exception
-         when E : Attribute_Error =>
-            Assert (Condition => Ada.Exceptions.Exception_Message (X => E)
-                    = "Device I/O port node does not provide expected "
-                    & "attributes",
-                    Message   => "Exception mismatch (1)");
-      end;
-
       DOM.Core.Elements.Set_Attribute
         (Elem  => Node,
          Name  => "start",
          Value => Ref_Start);
-
-      begin
-         Device_Ioport_Attrs_As_String
-           (Port     => Node,
-            Logical  => Logical,
-            IO_Start => P_Start,
-            IO_End   => P_End);
-         Assert (Condition => False,
-                 Message   => "Exception expected (2)");
-
-      exception
-         when E : Attribute_Error =>
-            Assert (Condition => Ada.Exceptions.Exception_Message (X => E)
-                    = "Device I/O port node does not provide expected "
-                    & "attributes",
-                    Message   => "Exception mismatch (1)");
-      end;
-
       DOM.Core.Elements.Set_Attribute
         (Elem  => Node,
          Name  => "end",
@@ -1287,22 +1217,6 @@ package body Cspec.Utils.Test_Data.Tests is
         (Elem  => Node,
          Name  => "logical",
          Value => Ref_Name);
-
-      begin
-         Device_Irq_Attrs_As_String
-           (Irq     => Node,
-            Logical => Logical,
-            Vector  => Vector);
-         Assert (Condition => False,
-                 Message   => "Exception expected");
-
-      exception
-         when E : Attribute_Error =>
-            Assert (Condition => Ada.Exceptions.Exception_Message (X => E)
-                    = "Device irq node does not provide expected attributes",
-                    Message   => "Exception mismatch");
-      end;
-
       DOM.Core.Elements.Set_Attribute
         (Elem  => Node,
          Name  => "vector",

@@ -26,7 +26,38 @@ with Unicode.CES.Utf8;
 
 package body Muxml.Grammar
 is
+
+   --  Parse the built-in XSD of the given kind and return the corresponding
+   --  XML grammar.
+   function Load_Grammar
+     (Kind : Valid_Schema_Kind)
+      return Schema.Validators.XML_Grammar;
+
+   --  Cache of parsed grammars.
+   Grammars_Cache : array (Valid_Schema_Kind) of Schema.Validators.XML_Grammar
+     := (others => Schema.Validators.No_Grammar);
+
+   --  Flags designating which entries in the grammars cache have been loaded.
+   Grammar_Loaded : array (Valid_Schema_Kind) of Boolean := (others => False);
+
+   -------------------------------------------------------------------------
+
    function Get_Grammar
+     (Kind : Valid_Schema_Kind)
+      return Schema.Validators.XML_Grammar
+   is
+   begin
+      if not Grammar_Loaded (Kind) then
+         Grammars_Cache (Kind) := Load_Grammar (Kind => Kind);
+         Grammar_Loaded (Kind) := True;
+      end if;
+
+      return Grammars_Cache (Kind);
+   end Get_Grammar;
+
+   -------------------------------------------------------------------------
+
+   function Load_Grammar
      (Kind : Valid_Schema_Kind)
       return Schema.Validators.XML_Grammar
    is
@@ -62,6 +93,6 @@ is
       when E : others =>
          raise Validation_Error with "Error validating " & Kind'Img
            & " XSD - " & Ada.Exceptions.Exception_Message (X => E);
-   end Get_Grammar;
+   end Load_Grammar;
 
 end Muxml.Grammar;
