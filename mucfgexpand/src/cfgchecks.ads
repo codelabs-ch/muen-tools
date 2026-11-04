@@ -73,8 +73,11 @@ is
    --  Check that subjects configured for initialization via Muinit with
    --  assigned PCI devices providing supported reset methods have mmconf
    --  regions mapped. Otherwise device reset and therefore init code will
-   --  fail.
-   procedure Subject_Muinit_PCI_Dev_Reset (XML_Data : Muxml.XML_Data_Type);
+   --  fail. Registered as a stage2 expansion step between loader handling
+   --  and monitor removal, because loader subjects are only then still
+   --  present in the policy, and therefore requires the policy in out.
+   procedure Subject_Muinit_PCI_Dev_Reset
+     (XML_Data : in out Muxml.XML_Data_Type);
 
    --  Check that each channel has exactly one reader and one writer.
    procedure Channel_Reader_Writer (XML_Data : Muxml.XML_Data_Type);

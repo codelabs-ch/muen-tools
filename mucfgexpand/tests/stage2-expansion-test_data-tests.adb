@@ -40,12 +40,12 @@ package body Stage2.Expansion.Test_Data.Tests is
  
     begin
       Register (Arch => Mutools.Types.X86_64);
-      Assert (Condition => Procs.Get_Count = 68,
+      Assert (Condition => Procs.Get_Count = 69,
               Message   => "Count mismatch(X86_64):" & Get_Count'Img);
       Procs.Clear;
 
       Register (Arch => Mutools.Types.Arm64);
-      Assert (Condition => Procs.Get_Count = 61,
+      Assert (Condition => Procs.Get_Count = 62,
               Message   => "Count mismatch(Arm64):" & Get_Count'Img);
       Procs.Clear;
  
