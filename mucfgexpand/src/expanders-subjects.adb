@@ -2744,6 +2744,96 @@ is
                   end if;
                end;
             end loop;
+
+            --  Copy devices that the loader must reset into the loader
+            --  subject. A device is only eligible if it has an FLR reset
+            --  method and the loadee maps its mmconf region, otherwise the
+            --  loader could not access the device configuration space. The
+            --  cloned device node carries the mmconf mapping at its fixed
+            --  MMCFG virtual address, as required by Mupci.Config_Space.
+            --  IRQ resources are not required for a reset and are omitted
+            --  to avoid duplicate physical IRQ assignments.
+
+            if not Self_Loader then
+               declare
+                  Ldr_Devs_Node : constant DOM.Core.Node
+                    := Muxml.Utils.Get_Element
+                      (Doc   => Ldr_Subj_Node,
+                       XPath => "devices");
+                  Devs          : constant DOM.Core.Node_List
+                    := McKae.XML.XPath.XIA.XPath_Query
+                      (N     => Loadee_Subj,
+                       XPath => "devices/device");
+               begin
+                  for J in 0 .. DOM.Core.Nodes.Length (List => Devs) - 1 loop
+                     declare
+                        use type DOM.Core.Node;
+
+                        Dev : constant DOM.Core.Node
+                          := DOM.Core.Nodes.Item
+                            (List  => Devs,
+                             Index => J);
+                        Log_Name : constant String
+                          := DOM.Core.Elements.Get_Attribute
+                            (Elem => Dev,
+                             Name => "logical");
+                        Phys_Name : constant String
+                          := DOM.Core.Elements.Get_Attribute
+                            (Elem => Dev,
+                             Name => "physical");
+                        Phys_Dev : constant DOM.Core.Node
+                          := Muxml.Utils.Get_Element
+                            (Doc   => Data.Doc,
+                             XPath => "/system/hardware/devices/device"
+                             & "[@name='" & Phys_Name & "']");
+                        Reset_Cap : constant DOM.Core.Node
+                          := (if Phys_Dev = null then null
+                              else Muxml.Utils.Get_Element
+                                (Doc   => Phys_Dev,
+                                 XPath => "capabilities/capability"
+                                 & "[@name='pci_reset_method' and "
+                                 & "text()='flr']"));
+                        Mmconf : constant DOM.Core.Node
+                          := Muxml.Utils.Get_Element
+                            (Doc   => Dev,
+                             XPath => "memory[@logical='mmconf' or "
+                             & "@physical='mmconf']");
+                     begin
+                        if Reset_Cap /= null and then Mmconf /= null then
+                           Mulog.Log
+                             (Msg => "Mapping device '" & Log_Name
+                              & "' of subject '" & Loadee_Name
+                              & "' to loader subject '" & Ldr_Subj_Name
+                              & "' for reset");
+                           declare
+                              Copy  : constant DOM.Core.Node
+                                := DOM.Core.Nodes.Clone_Node
+                                  (N    => Dev,
+                                   Deep => True);
+                              IRQs  : constant DOM.Core.Node_List
+                                := McKae.XML.XPath.XIA.XPath_Query
+                                  (N     => Copy,
+                                   XPath => "irq");
+                              Dummy : DOM.Core.Node;
+                           begin
+                              for K in 0 .. DOM.Core.Nodes.Length
+                                (List => IRQs) - 1
+                              loop
+                                 Dummy := DOM.Core.Nodes.Remove_Child
+                                   (N         => Copy,
+                                    Old_Child => DOM.Core.Nodes.Item
+                                      (List  => IRQs,
+                                       Index => K));
+                              end loop;
+                              Muxml.Utils.Append_Child
+                                (Node      => Ldr_Devs_Node,
+                                 New_Child => Copy);
+                           end;
+                        end if;
+                     end;
+                  end loop;
+               end;
+            end if;
          end;
       end loop;
 
