@@ -45,15 +45,13 @@ is
    --  e.g. "RDCL_NO" to 0, see Intel SDM Vol. 4, Table 2-2.
    function Arch_Cap_Bit (Name : String) return Natural;
 
-   --  Compute the IA32_ARCH_CAPABILITIES check mask and expected value from
-   --  the <archCapabilities><require> bits. Every require bit is required-1
-   --  (mask and expected); there is no required-0 / prerequisite contribution
-   --  - the require set is measured at collection time and the mask is empty
+   --  Compute the IA32_ARCH_CAPABILITIES required mask from the
+   --  <archCapabilities><require> bits. Every require bit must be set - the
+   --  require set is measured at collection time and the mask is empty
    --  (check disabled) if there are no require bits.
-   procedure Compute_Arch_Cap_Check
+   procedure Compute_Arch_Cap_Mask
      (Mitigations : DOM.Core.Node;
-      Mask        : out Interfaces.Unsigned_64;
-      Expected    : out Interfaces.Unsigned_64);
+      Mask        : out Interfaces.Unsigned_64);
 
    -------------------------------------------------------------------------
 
@@ -100,14 +98,12 @@ is
 
    -------------------------------------------------------------------------
 
-   procedure Compute_Arch_Cap_Check
+   procedure Compute_Arch_Cap_Mask
      (Mitigations : DOM.Core.Node;
-      Mask        : out Interfaces.Unsigned_64;
-      Expected    : out Interfaces.Unsigned_64)
+      Mask        : out Interfaces.Unsigned_64)
    is
    begin
-      Mask     := 0;
-      Expected := 0;
+      Mask := 0;
 
       declare
          Requires : constant DOM.Core.Node_List := XPath_Query
@@ -126,12 +122,11 @@ is
                  := Shift_Left (Value  => 1,
                                 Amount => Arch_Cap_Bit (Name));
             begin
-               Mask     := Mask or Bit;
-               Expected := Expected or Bit;
+               Mask := Mask or Bit;
             end;
          end loop;
       end;
-   end Compute_Arch_Cap_Check;
+   end Compute_Arch_Cap_Mask;
 
    -------------------------------------------------------------------------
 
@@ -158,13 +153,11 @@ is
       Mulog.Log (Msg => "Writing mitigation spec to '" & Pkg & "'");
 
       declare
-         Mask     : Interfaces.Unsigned_64;
-         Expected : Interfaces.Unsigned_64;
+         Mask : Interfaces.Unsigned_64;
       begin
-         Compute_Arch_Cap_Check
+         Compute_Arch_Cap_Mask
            (Mitigations => Mitigations,
-            Mask        => Mask,
-            Expected    => Expected);
+            Mask        => Mask);
 
          Tmpl := Mutools.Templates.Create
            (Content => String_Templates.skp_mitigations_ads);
@@ -179,10 +172,6 @@ is
            (Template => Tmpl,
             Pattern  => "__arch_cap_mask__",
             Content  => Mutools.Utils.To_Hex (Number => Mask));
-         Mutools.Templates.Replace
-           (Template => Tmpl,
-            Pattern  => "__arch_cap_expected__",
-            Content  => Mutools.Utils.To_Hex (Number => Expected));
 
          Mutools.Templates.Write
            (Template => Tmpl,

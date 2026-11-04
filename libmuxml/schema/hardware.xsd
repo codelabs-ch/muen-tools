@@ -507,9 +507,9 @@
   <xs:annotation>
    <xs:documentation>
     The \texttt{archCapabilities} element declares the IA32_ARCH_CAPABILITIES
-    immunity and analysis bits the mitigation policy relies on. At boot, the
-    kernel verifies that the post-microcode-load register value matches the
-    declared expectations and panics on mismatch.
+    bits the mitigation policy requires to be set. At boot, the kernel
+    verifies that every declared bit is set in the post-microcode-load
+    register value and panics on mismatch.
    </xs:documentation>
   </xs:annotation>
   <xs:sequence>

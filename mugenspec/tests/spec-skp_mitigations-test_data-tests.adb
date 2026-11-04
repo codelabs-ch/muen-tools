@@ -67,13 +67,8 @@ package body Spec.Skp_Mitigations.Test_Data.Tests is
          Assert
            (Condition => Ada.Strings.Fixed.Index
             (Source  => Content,
-             Pattern => "Arch_Cap_Mask     : constant := 16#0001#;") > 0,
+             Pattern => "Arch_Cap_Mask : constant := 16#0001#;") > 0,
             Message   => "Arch cap mask wrong or missing");
-         Assert
-           (Condition => Ada.Strings.Fixed.Index
-            (Source  => Content,
-             Pattern => "Arch_Cap_Expected : constant := 16#0001#;") > 0,
-            Message   => "Arch cap expected wrong or missing");
       end;
 
       --  A disabled mitigation policy does not emit the spec.
