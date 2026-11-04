@@ -133,10 +133,60 @@ package body Sinfo.Generator.Test_Data.Tests is
                  Message   => "Manual device port resource not found");
          Ada.Directories.Delete_File (Name => "obj/lnx_sinfo");
       end Check_No_BAR_Config;
+
+      ----------------------------------------------------------------------
+
+      --  Verify that a device with FLR support but without mmconf mapping
+      --  is not announced with a reset method.
+      procedure Check_Reset_Method
+      is
+         use type Musinfo.Dev_Reset_Method_Type;
+         use type Musinfo.Name_Type;
+         use type Musinfo.Resource_Kind;
+
+         Policy       : Muxml.XML_Data_Type;
+         Info         : Musinfo.Subject_Info_Type;
+         Dev_Log_Name : constant String := "eth0";
+         Dev_Name     : constant Musinfo.Name_Type
+           := Sinfo.Utils.Create_Name (Str => Dev_Log_Name);
+         Found        : Boolean := False;
+      begin
+         Muxml.Parse (Data => Policy,
+                      Kind => Muxml.Format_B,
+                      File => "data/test_policy_x86_64.xml");
+         Muxml.Utils.Remove_Elements
+           (Doc   => Policy.Doc,
+            XPath => "/system/subjects/subject[@name='lnx']/devices/"
+            & "device[@logical='" & Dev_Log_Name
+            & "']/memory[@logical='mmconf']");
+         Info := Get_Subject_Info (Policy => Policy);
+
+         for I in 1 .. Natural (Info.Resource_Count) loop
+            declare
+               Res : constant Musinfo.Resource_Type
+                 := Info.Resources (Musinfo.Resource_Index_Type (I));
+            begin
+               if Res.Kind = Musinfo.Res_Device
+                 and then Res.Name = Dev_Name
+               then
+                  Assert (Condition => Res.Dev_Data.Reset_Method
+                            = Musinfo.Dev_Reset_Method_None,
+                          Message   => "Unexpected reset method for device "
+                          & "without mmconf: "
+                          & Res.Dev_Data.Reset_Method'Img);
+                  Found := True;
+               end if;
+            end;
+         end loop;
+         Assert (Condition => Found,
+                 Message   => "FLR device without mmconf not found");
+         Ada.Directories.Delete_File (Name => "obj/lnx_sinfo");
+      end Check_Reset_Method;
    begin
       Write_Sinfo (Arch => "x86_64");
       Write_Sinfo (Arch => "arm64");
       Check_No_BAR_Config;
+      Check_Reset_Method;
 --  begin read only
    end Test_Write;
 --  end read only
