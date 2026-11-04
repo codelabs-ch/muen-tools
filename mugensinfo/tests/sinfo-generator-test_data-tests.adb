@@ -14,7 +14,7 @@ with System.Assertions;
 --  This section can be used to add with clauses if necessary.
 --
 --  end read only
-
+with Muxml.Utils;
 --  begin read only
 --  end read only
 package body Sinfo.Generator.Test_Data.Tests is
@@ -110,10 +110,67 @@ package body Sinfo.Generator.Test_Data.Tests is
          end loop;
          Ada.Directories.Delete_File (Name => "obj/lnx_sinfo");
       end Check_No_BAR_Config;
+
+      ----------------------------------------------------------------------
+
+      --  Verify that a device with FLR support but without mmconf mapping
+      --  is not announced with a reset method.
+      procedure Check_Reset_Method
+      is
+         use type Musinfo.Dev_Reset_Method_Type;
+         use type Musinfo.Name_Type;
+         use type Musinfo.Resource_Kind;
+
+         subtype Sinfo_Stream is Ada.Streams.Stream_Element_Array
+           (1 .. Musinfo.Subject_Info_Type_Size);
+         function Convert is new Ada.Unchecked_Conversion
+           (Source => Sinfo_Stream,
+            Target => Musinfo.Subject_Info_Type);
+
+         Policy : Muxml.XML_Data_Type;
+         File   : Ada.Streams.Stream_IO.File_Type;
+         Stream : Sinfo_Stream;
+         Last   : Ada.Streams.Stream_Element_Offset;
+         Info   : Musinfo.Subject_Info_Type;
+      begin
+         Muxml.Parse (Data => Policy,
+                      Kind => Muxml.Format_B,
+                      File => "data/test_policy_x86_64.xml");
+         Muxml.Utils.Remove_Elements
+           (Doc   => Policy.Doc,
+            XPath => "/system/subjects/subject[@name='lnx']/devices/"
+            & "device[@logical='eth0']/memory[@logical='mmconf']");
+         Write (Output_Dir => "obj",
+                Policy     => Policy);
+         Ada.Streams.Stream_IO.Open
+           (File => File,
+            Mode => Ada.Streams.Stream_IO.In_File,
+            Name => "obj/lnx_sinfo");
+         Ada.Streams.Stream_IO.Read (File => File, Item => Stream, Last => Last);
+         Ada.Streams.Stream_IO.Close (File => File);
+         Info := Convert (S => Stream);
+
+         for I in 1 .. Natural (Info.Resource_Count) loop
+            declare
+               Res : constant Musinfo.Resource_Type
+                 := Info.Resources (Musinfo.Resource_Index_Type (I));
+            begin
+               if Res.Kind = Musinfo.Res_Device
+                 and then Res.Name = Sinfo.Utils.Create_Name (Str => "eth0")
+               then
+                  Assert (Condition => Res.Dev_Data.Reset_Method
+                            = Musinfo.Dev_Reset_Method_None,
+                          Message   => "Reset method without mmconf");
+               end if;
+            end;
+         end loop;
+         Ada.Directories.Delete_File (Name => "obj/lnx_sinfo");
+      end Check_Reset_Method;
    begin
       Write_Sinfo (Arch => "x86_64");
       Write_Sinfo (Arch => "arm64");
       Check_No_BAR_Config;
+      Check_Reset_Method;
 --  begin read only
    end Test_Write;
 --  end read only
