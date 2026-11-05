@@ -16,6 +16,8 @@
 --  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --
 
+with Mutools.XML_Utils;
+
 with Spec.Utils;
 with Spec.Policy_Gpr;
 with Spec.Skp;
@@ -67,9 +69,12 @@ is
       Skp_Events.Write
         (Output_Dir => Output_Dir,
          Policy     => Policy);
-      Policy_Gpr.Write
-        (Output_Dir => Output_Dir,
-         Policy     => Policy);
+      --  The policy project file is only used by the x86_64 kernel.
+      if not Mutools.XML_Utils.Is_Arm64 (Policy => Policy) then
+         Policy_Gpr.Write
+           (Output_Dir => Output_Dir,
+            Policy     => Policy);
+      end if;
       Skp_IOMMU.Write
         (Output_Dir => Output_Dir,
          Policy     => Policy);
