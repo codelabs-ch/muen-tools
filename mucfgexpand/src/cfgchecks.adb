@@ -2695,6 +2695,10 @@ is
         := McKae.XML.XPath.XIA.XPath_Query
            (N     => XML_Data.Doc,
             XPath => "/system/subjects/subject[monitor/loader]");
+      All_Log_Devs : constant DOM.Core.Node_List
+        := McKae.XML.XPath.XIA.XPath_Query
+           (N     => XML_Data.Doc,
+            XPath => "/system/subjects/subject/devices/device");
       Devs : constant Muxml.Utils.Matching_Pairs_Type
         := Muxml.Utils.Get_Matching
            (Left_Nodes  => Log_Devs,
@@ -2712,12 +2716,19 @@ is
          Loadee_Subj      : DOM.Core.Node);
 
       --  Return the name of the first BAR resource of the physical device
-      --  that is not mapped by the logical device. Return an empty string if
-      --  all BAR resources are mapped.
+      --  that is used by a subject but not mapped by the logical device.
+      --  Return an empty string if all used BAR resources are mapped.
       function Get_Unmapped_BAR
         (Log_Dev  : DOM.Core.Node;
          Phys_Dev : DOM.Core.Node)
          return String;
+
+      --  Return True if any subject maps the given BAR resource of the
+      --  physical device.
+      function Is_BAR_Used
+        (Phys_Dev : DOM.Core.Node;
+         Phys_Res : DOM.Core.Node_List)
+         return Boolean;
 
       ----------------------------------------------------------------------
 
@@ -2830,7 +2841,10 @@ is
                      Right_Nodes => Phys_Res,
                      Match       => Mutools.Match.Is_Valid_Reference'Access);
             begin
-               if DOM.Core.Nodes.Length (List => Nodes.Right) = 0 then
+               if Is_BAR_Used (Phys_Dev => Phys_Dev,
+                               Phys_Res => Phys_Res)
+                 and then DOM.Core.Nodes.Length (List => Nodes.Right) = 0
+               then
                   return Ref;
                end if;
             end;
@@ -2838,6 +2852,53 @@ is
 
          return "";
       end Get_Unmapped_BAR;
+
+      ----------------------------------------------------------------------
+
+      function Is_BAR_Used
+        (Phys_Dev : DOM.Core.Node;
+         Phys_Res : DOM.Core.Node_List)
+         return Boolean
+      is
+         Phys_Dev_Name : constant String
+           := DOM.Core.Elements.Get_Attribute
+              (Elem => Phys_Dev,
+               Name => "name");
+         Phys_Dev_List : constant DOM.Core.Node_List
+           := McKae.XML.XPath.XIA.XPath_Query
+              (N     => XML_Data.Doc,
+               XPath => "/system/hardware/devices/device[@name='"
+               & Phys_Dev_Name & "']");
+         Dev_Pairs : constant Muxml.Utils.Matching_Pairs_Type
+           := Muxml.Utils.Get_Matching
+              (Left_Nodes  => All_Log_Devs,
+               Right_Nodes => Phys_Dev_List,
+               Match       => Mutools.Match.Is_Valid_Reference'Access);
+      begin
+         for I in 0 .. DOM.Core.Nodes.Length (List => Dev_Pairs.Left) - 1 loop
+            declare
+               Log_Dev : constant DOM.Core.Node
+                 := DOM.Core.Nodes.Item
+                    (List  => Dev_Pairs.Left,
+                     Index => I);
+               Log_Res : constant DOM.Core.Node_List
+                 := McKae.XML.XPath.XIA.XPath_Query
+                    (N     => Log_Dev,
+                     XPath => "memory | ioPort");
+               Nodes : constant Muxml.Utils.Matching_Pairs_Type
+                 := Muxml.Utils.Get_Matching
+                    (Left_Nodes  => Log_Res,
+                     Right_Nodes => Phys_Res,
+                     Match       => Mutools.Match.Is_Valid_Reference'Access);
+            begin
+               if DOM.Core.Nodes.Length (List => Nodes.Right) /= 0 then
+                  return True;
+               end if;
+            end;
+         end loop;
+
+         return False;
+      end Is_BAR_Used;
    begin
       for I in 0 .. Log_Dev_Count - 1 loop
          declare
