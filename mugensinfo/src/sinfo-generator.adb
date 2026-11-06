@@ -105,6 +105,7 @@ is
       Physical_Dev  :        DOM.Core.Node;
       Physical_Port :        DOM.Core.Node)
    is
+      use type DOM.Core.Node;
       use type Interfaces.Unsigned_16;
 
       Device_Name : constant String
@@ -136,11 +137,21 @@ is
         := Muxml.Utils.Get_Element
           (Doc   => Physical_Dev,
            XPath => "pci/bars/ioPort[@ref='" & Phys_Port_Name & "']");
-      BAR_Idx : constant Musinfo.BAR_Range
-        := Musinfo.BAR_Range'Value
-          (DOM.Core.Elements.Get_Attribute
-             (Elem => BAR_Config, Name => "index"));
+      BAR_Idx : Musinfo.Raw_Port_BAR_Range;
    begin
+      if BAR_Config = null then
+
+         --  No BAR configuration for this I/O port (e.g. an explicitly empty
+         --  <bars/> element): the device BARs must not be configured by Muinit.
+         --  Encode as No_BAR_Config.
+
+         BAR_Idx := Musinfo.No_BAR_Config;
+      else
+         BAR_Idx := Musinfo.Raw_BAR_Range'Value
+           (DOM.Core.Elements.Get_Attribute
+              (Elem => BAR_Config, Name => "index"));
+      end if;
+
       Mulog.Log
         (Msg => "Announcing device '" & Device_Name & "' I/O port to subject '"
          & Subject_Name & "': " & Log_Port_Name & "@"
@@ -234,7 +245,8 @@ is
             BAR_Idx := Musinfo.Expansion_ROM_BAR_Idx;
          else
 
-            --  No BAR config, mmconf.
+            --  No BAR config for this memory region (e.g. mmconf, SR-IOV regions).
+
             BAR_Idx          := Musinfo.No_BAR_Config;
             Physical_Address := 0;
          end if;
@@ -304,6 +316,7 @@ is
    is
       use type Interfaces.Unsigned_64;
       use type DOM.Core.Node;
+      use type Musinfo.Dev_Reset_Method_Type;
 
       Log_Name : constant String
         := DOM.Core.Elements.Get_Attribute
@@ -316,7 +329,7 @@ is
         := Muxml.Utils.Get_Element
           (Doc   => Logical_Dev,
            XPath => "irq");
-      Reset_Method : constant Musinfo.Dev_Reset_Method_Type
+      Reset_Method : Musinfo.Dev_Reset_Method_Type
         := Get_PCI_Reset_Method (Physical_Dev => Physical_Dev);
       Identification : constant DOM.Core.Node
         := Muxml.Utils.Get_Element
@@ -341,6 +354,13 @@ is
       IRQ_Start, IRQ_End, IRTE_Start, IRTE_End,
       IR_Count : Interfaces.Unsigned_64 := 0;
    begin
+      if Muxml.Utils.Get_Element
+        (Doc   => Logical_Dev,
+         XPath => "memory[@physical='mmconf']") = null
+      then
+         Reset_Method := Musinfo.Dev_Reset_Method_None;
+      end if;
+
       if IRQ_Node /= null then
          declare
             Vecs : constant DOM.Core.Node_List
@@ -383,7 +403,10 @@ is
          & Mutools.Utils.To_Hex (Number => Interfaces.Unsigned_64 (SID))
          & (if IRQ_Node /= null then ", IRTE" & IRTE_Start'Img & " .."
            & IRTE_End'Img & ", IRQ" & IRQ_Start'Img & " .." & IRQ_End'Img
-           & (if MSI then ", MSI" else "") else ""));
+           & (if MSI then ", MSI" else "") else "")
+         & (if Reset_Method /= Musinfo.Dev_Reset_Method_None
+            then ", " & Reset_Method'Img
+            else ""));
 
       Utils.Append_Resource
         (Info     => Info,

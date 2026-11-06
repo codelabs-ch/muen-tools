@@ -125,12 +125,93 @@ package body Expanders.Subjects.Test_Data.Tests is
 
       pragma Unreferenced (Gnattest_T);
 
+      ----------------------------------------------------------------------
+
+      procedure Reset_Device_Mapping
+      is
+         use type DOM.Core.Node;
+
+         Dev_Name  : constant String := "reset_nic";
+         Loader    : constant String := "subject1";
+         Loadee    : constant String := "lnx";
+         Policy    : Muxml.XML_Data_Type;
+         Lnxs_Devs : DOM.Core.Node;
+         Copy      : DOM.Core.Node;
+      begin
+         Muxml.Parse (Data => Policy,
+                      Kind => Muxml.Format_Src,
+                      File => "data/test_policy.xml");
+
+         Lnxs_Devs := Muxml.Utils.Get_Element
+           (Doc   => Policy.Doc,
+            XPath => "/system/subjects/subject[@name='" & Loadee
+            & "']/devices");
+         Copy := DOM.Core.Nodes.Clone_Node
+           (N    => Muxml.Utils.Get_Element
+              (Doc   => Policy.Doc,
+               XPath => "/system/subjects/subject[@name='" & Loader
+               & "']/devices/device[@logical='nic1']"),
+            Deep => True);
+         DOM.Core.Elements.Set_Attribute
+           (Elem  => Copy,
+            Name  => "logical",
+            Value => Dev_Name);
+         Muxml.Utils.Append_Child
+           (Node      => Lnxs_Devs,
+            New_Child => Copy);
+         Assert (Condition => Muxml.Utils.Get_Element
+                 (Doc   => Policy.Doc,
+                  XPath => "/system/subjects/subject[@name='" & Loadee
+                  & "']/devices/device[@logical='" & Dev_Name & "']")
+                 /= null,
+                 Message   => "Reset device missing on loadee");
+
+         Prepare_Loader_Expansion (Data => Policy);
+         Handle_Loaders (Data => Policy);
+
+         declare
+            Copied : constant DOM.Core.Node
+              := Muxml.Utils.Get_Element
+                (Doc   => Policy.Doc,
+                 XPath => "/system/subjects/subject[@name='" & Loader
+                 & "']/devices/device[@logical='" & Dev_Name & "']");
+         begin
+            Assert (Condition => Copied /= null,
+                    Message   => "Reset device not mapped to loader");
+
+            declare
+               Mmconf : constant DOM.Core.Node
+                 := Muxml.Utils.Get_Element
+                   (Doc   => Copied,
+                    XPath => "memory[@logical='mmconf']");
+            begin
+               Assert (Condition => Mmconf /= null,
+                       Message   => "mmconf mapping not copied");
+               Assert (Condition => DOM.Core.Elements.Get_Attribute
+                       (Elem => Mmconf,
+                        Name => "virtualAddress") = "16#dead_beef#",
+                       Message   => "mmconf address changed");
+            end;
+
+            Assert (Condition => Muxml.Utils.Get_Element
+                    (Doc   => Copied,
+                     XPath => "irq") = null,
+                    Message   => "IRQs copied to loader device");
+         end;
+
+         Assert (Condition => Muxml.Utils.Get_Element
+                 (Doc   => Policy.Doc,
+                  XPath => "/system/subjects/subject[@name='" & Loader
+                  & "']/devices/device[@logical='xhci']") = null,
+                 Message   => "Non-reset device mapped to loader");
+      end Reset_Device_Mapping;
    begin
       Test_Utils.Expander.Run_Test
         (Filename => "obj/subjects_monitor_loaders.xml",
          Ref_Diff => "data/subjects_monitor_loaders.xml.diff",
          Pre      => Prepare_Loader_Expansion'Access,
          Expander => Handle_Loaders'Access);
+      Reset_Device_Mapping;
 --  begin read only
    end Test_Handle_Loaders;
 --  end read only

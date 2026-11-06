@@ -44,8 +44,11 @@ is
 
    --D @Item List => validators_hw
    --D Validate that PCI devices provide a BAR configuration and check that
-   --D the element count matches the device's IO resource count. Also verify
-   --D that port/memory references are unique.
+   --D the element count does not exceed the device's IO resource count. An
+   --D explicitly empty <bars/> element is allowed, as are additional memory
+   --D regions without BAR configuration (mmconf, SR-IOV). Every I/O port
+   --D resource must have a BAR configuration entry. Also verify that
+   --D port/memory references are unique.
    procedure PCI_BAR_Config (XML_Data : Muxml.XML_Data_Type);
 
    --D @Item List => validators_hw

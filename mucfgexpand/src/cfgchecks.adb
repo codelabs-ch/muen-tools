@@ -18,6 +18,7 @@
 
 with Ada.Exceptions;
 with Ada.Containers.Hashed_Sets;
+with Ada.Strings.Unbounded;
 with Ada.Strings.Unbounded.Hash;
 
 with Interfaces;
@@ -2674,19 +2675,34 @@ is
 
    -------------------------------------------------------------------------
 
-   procedure Subject_Muinit_PCI_Dev_Reset (XML_Data : Muxml.XML_Data_Type)
+   procedure Subject_Muinit_PCI_Dev_Reset
+     (XML_Data : in out Muxml.XML_Data_Type)
    is
       --  For now only FLR reset is supported and therefore checked.
       Phys_Devs : constant DOM.Core.Node_List
         := McKae.XML.XPath.XIA.XPath_Query
            (N     => XML_Data.Doc,
             XPath => "/system/hardware/devices/device/capabilities/capability"
-            & "[@name='pci_reset_method' and text()='flr']/../..");
+            & "[@name='pci_reset_method' and "
+            & "translate(text(), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', "
+            & "'abcdefghijklmnopqrstuvwxyz')='flr']/../..");
       Log_Devs : constant DOM.Core.Node_List
         := McKae.XML.XPath.XIA.XPath_Query
            (N     => XML_Data.Doc,
             XPath => "/system/subjects/subject/memory/memory"
             & "[@logical='muinit']/../../devices/device");
+      Subjects : constant DOM.Core.Node_List
+        := McKae.XML.XPath.XIA.XPath_Query
+           (N     => XML_Data.Doc,
+            XPath => "/system/subjects/subject");
+      Loader_Subjs : constant DOM.Core.Node_List
+        := McKae.XML.XPath.XIA.XPath_Query
+           (N     => XML_Data.Doc,
+            XPath => "/system/subjects/subject[monitor/loader]");
+      All_Log_Devs : constant DOM.Core.Node_List
+        := McKae.XML.XPath.XIA.XPath_Query
+           (N     => XML_Data.Doc,
+            XPath => "/system/subjects/subject/devices/device");
       Devs : constant Muxml.Utils.Matching_Pairs_Type
         := Muxml.Utils.Get_Matching
            (Left_Nodes  => Log_Devs,
@@ -2694,6 +2710,196 @@ is
             Match       => Mutools.Match.Is_Valid_Reference'Access);
       Log_Dev_Count : constant Natural := DOM.Core.Nodes.Length
          (List => Devs.Left);
+
+      --  Check mmconf and BAR resource mappings of the reset-capable devices
+      --  of Loadee_Subj. A subject loader only resets devices that map
+      --  mmconf.
+      procedure Check_Loadee_Devices
+        (Ldr_Subj_Name    : String;
+         Loadee_Subj_Name : String;
+         Loadee_Subj      : DOM.Core.Node);
+
+      --  Return the name of the first BAR resource of the physical device
+      --  that is used by a subject but not mapped by the logical device.
+      --  Return an empty string if all used BAR resources are mapped.
+      function Get_Unmapped_BAR
+        (Log_Dev  : DOM.Core.Node;
+         Phys_Dev : DOM.Core.Node)
+         return String;
+
+      --  Return True if any subject maps the given BAR resource of the
+      --  physical device.
+      function Is_BAR_Used
+        (Phys_Dev : DOM.Core.Node;
+         Phys_Res : DOM.Core.Node_List)
+         return Boolean;
+
+      ----------------------------------------------------------------------
+
+      procedure Check_Loadee_Devices
+        (Ldr_Subj_Name    : String;
+         Loadee_Subj_Name : String;
+         Loadee_Subj      : DOM.Core.Node)
+      is
+         use type DOM.Core.Node;
+
+         Loadee_Devs : constant DOM.Core.Node_List
+           := McKae.XML.XPath.XIA.XPath_Query
+              (N     => Loadee_Subj,
+               XPath => "devices/device");
+         Loadee_Dev_Pairs : constant Muxml.Utils.Matching_Pairs_Type
+           := Muxml.Utils.Get_Matching
+              (Left_Nodes  => Loadee_Devs,
+               Right_Nodes => Phys_Devs,
+               Match       => Mutools.Match.Is_Valid_Reference'Access);
+      begin
+         for I in 0 .. DOM.Core.Nodes.Length
+           (List => Loadee_Dev_Pairs.Left) - 1
+         loop
+            declare
+               Log_Dev : constant DOM.Core.Node
+                 := DOM.Core.Nodes.Item
+                    (List  => Loadee_Dev_Pairs.Left,
+                     Index => I);
+               Phys_Dev : constant DOM.Core.Node
+                 := DOM.Core.Nodes.Item
+                    (List  => Loadee_Dev_Pairs.Right,
+                     Index => I);
+               Phys_Dev_Name : constant String
+                 := DOM.Core.Elements.Get_Attribute
+                    (Elem => Phys_Dev,
+                     Name => "name");
+               Log_Dev_Mmconf : constant DOM.Core.Node_List
+                 := McKae.XML.XPath.XIA.XPath_Query
+                    (N     => Log_Dev,
+                     XPath => "memory");
+               Mmconf : constant DOM.Core.Node_List
+                 := Muxml.Utils.Get_Elements
+                    (Nodes     => Log_Dev_Mmconf,
+                     Ref_Attr  => "physical",
+                     Ref_Value => "mmconf");
+            begin
+               if DOM.Core.Nodes.Length (List => Mmconf) /= 0 then
+                  declare
+                     Unmapped : constant String
+                       := Get_Unmapped_BAR
+                          (Log_Dev  => Log_Dev,
+                           Phys_Dev => Phys_Dev);
+                  begin
+                     if Unmapped /= "" then
+                        Mucfgcheck.Validation_Errors.Insert
+                          (Msg => "Loader subject '" & Ldr_Subj_Name
+                           & "' resets PCI device '" & Phys_Dev_Name
+                           & "' of subject '" & Loadee_Subj_Name
+                           & "' but subject '" & Loadee_Subj_Name
+                           & "' does not map BAR resource '"
+                           & Unmapped & "'");
+                     end if;
+                  end;
+               end if;
+            end;
+         end loop;
+      end Check_Loadee_Devices;
+
+      ----------------------------------------------------------------------
+
+      function Get_Unmapped_BAR
+        (Log_Dev  : DOM.Core.Node;
+         Phys_Dev : DOM.Core.Node)
+         return String
+      is
+         use Ada.Strings.Unbounded;
+
+         use type DOM.Core.Node;
+
+         Unmapped    : Unbounded_String;
+         BAR_Entries : constant DOM.Core.Node_List
+           := McKae.XML.XPath.XIA.XPath_Query
+              (N     => Phys_Dev,
+               XPath => "pci/bars/memory[@ref] | pci/bars/ioPort[@ref]");
+         Log_Res     : constant DOM.Core.Node_List
+           := McKae.XML.XPath.XIA.XPath_Query
+              (N     => Log_Dev,
+               XPath => "memory | ioPort");
+      begin
+         for I in 0 .. DOM.Core.Nodes.Length (List => BAR_Entries) - 1 loop
+            declare
+               BAR : constant DOM.Core.Node
+                 := DOM.Core.Nodes.Item
+                    (List  => BAR_Entries,
+                     Index => I);
+               Ref : constant String
+                 := DOM.Core.Elements.Get_Attribute
+                    (Elem => BAR,
+                     Name => "ref");
+               Kind : constant String
+                 := DOM.Core.Nodes.Node_Name (N => BAR);
+               Phys_Res : constant DOM.Core.Node_List
+                 := McKae.XML.XPath.XIA.XPath_Query
+                    (N     => Phys_Dev,
+                     XPath => Kind & "[@name='" & Ref & "']");
+               Nodes : constant Muxml.Utils.Matching_Pairs_Type
+                 := Muxml.Utils.Get_Matching
+                    (Left_Nodes  => Log_Res,
+                     Right_Nodes => Phys_Res,
+                     Match       => Mutools.Match.Is_Valid_Reference'Access);
+            begin
+               if Is_BAR_Used (Phys_Dev => Phys_Dev,
+                               Phys_Res => Phys_Res)
+                 and then DOM.Core.Nodes.Length (List => Nodes.Right) = 0
+               then
+                  if Length (Unmapped) > 0 then
+                     Unmapped := Unmapped & ", ";
+                  end if;
+                  Unmapped := Unmapped & Ref;
+               end if;
+            end;
+         end loop;
+
+         return To_String (Unmapped);
+      end Get_Unmapped_BAR;
+
+      ----------------------------------------------------------------------
+
+      function Is_BAR_Used
+        (Phys_Dev : DOM.Core.Node;
+         Phys_Res : DOM.Core.Node_List)
+         return Boolean
+      is
+         Phys_Dev_Name : constant String
+           := DOM.Core.Elements.Get_Attribute
+              (Elem => Phys_Dev,
+               Name => "name");
+         Log_Devs : constant DOM.Core.Node_List
+           := Muxml.Utils.Get_Elements
+                (Nodes     => All_Log_Devs,
+                 Ref_Attr  => "physical",
+                 Ref_Value => Phys_Dev_Name);
+      begin
+         for I in 0 .. DOM.Core.Nodes.Length (List => Log_Devs) - 1 loop
+            declare
+               Log_Dev : constant DOM.Core.Node
+                 := DOM.Core.Nodes.Item
+                    (List  => Log_Devs,
+                     Index => I);
+               Log_Res : constant DOM.Core.Node_List
+                 := McKae.XML.XPath.XIA.XPath_Query
+                    (N     => Log_Dev,
+                     XPath => "memory | ioPort");
+               Nodes : constant Muxml.Utils.Matching_Pairs_Type
+                 := Muxml.Utils.Get_Matching
+                    (Left_Nodes  => Log_Res,
+                     Right_Nodes => Phys_Res,
+                     Match       => Mutools.Match.Is_Valid_Reference'Access);
+            begin
+               if DOM.Core.Nodes.Length (List => Nodes.Right) /= 0 then
+                  return True;
+               end if;
+            end;
+         end loop;
+
+         return False;
+      end Is_BAR_Used;
    begin
       for I in 0 .. Log_Dev_Count - 1 loop
          declare
@@ -2726,25 +2932,80 @@ is
                     := DOM.Core.Elements.Get_Attribute
                        (Elem => Phys_Dev,
                         Name => "name");
-                  Phys_Dev_Mem : constant DOM.Core.Node_List
-                    := McKae.XML.XPath.XIA.XPath_Query
-                       (N     => Phys_Dev,
-                        XPath => "memory[@name='mmconf']");
-                  Log_Dev_Mem : constant DOM.Core.Node_List
+                  Log_Dev_Mmconf : constant DOM.Core.Node_List
                     := McKae.XML.XPath.XIA.XPath_Query
                        (N     => Log_Dev,
                         XPath => "memory");
-                  Nodes : constant Muxml.Utils.Matching_Pairs_Type
-                    := Muxml.Utils.Get_Matching
-                       (Left_Nodes  => Log_Dev_Mem,
-                        Right_Nodes => Phys_Dev_Mem,
-                        Match       => Mutools.Match.Is_Valid_Reference'Access);
+                  Mmconf : constant DOM.Core.Node_List
+                    := Muxml.Utils.Get_Elements
+                       (Nodes     => Log_Dev_Mmconf,
+                        Ref_Attr  => "physical",
+                        Ref_Value => "mmconf");
                begin
-                  if DOM.Core.Nodes.Length (List => Nodes.Left) = 0 then
+                  if DOM.Core.Nodes.Length (List => Mmconf) = 0 then
                      Mucfgcheck.Validation_Errors.Insert
                        (Msg => "Subject '" & Subj_Name & "' uses muinit and "
                         & "maps reset-capable PCI device '" & Phys_Dev_Name
                         & "' but does not map mmconf region");
+                  else
+                     declare
+                        Unmapped : constant String
+                          := Get_Unmapped_BAR
+                             (Log_Dev  => Log_Dev,
+                              Phys_Dev => Phys_Dev);
+                     begin
+                        if Unmapped /= "" then
+                           Mucfgcheck.Validation_Errors.Insert
+                             (Msg => "Subject '" & Subj_Name & "' uses "
+                              & "muinit and maps reset-capable PCI device '"
+                              & Phys_Dev_Name & "' but does not map BAR "
+                              & "resource '" & Unmapped & "'");
+                        end if;
+                     end;
+                  end if;
+               end;
+            end if;
+         end;
+      end loop;
+
+      --  Subject loaders run the device reset code of libmuinit, resetting
+      --  the devices copied from their loadee. Check the loadee's reset
+      --  devices.
+
+      for I in 0 .. DOM.Core.Nodes.Length (List => Loader_Subjs) - 1 loop
+         declare
+            use type DOM.Core.Node;
+
+            Ldr_Subj : constant DOM.Core.Node
+              := DOM.Core.Nodes.Item
+                 (List  => Loader_Subjs,
+                  Index => I);
+            Ldr_Subj_Name : constant String
+              := DOM.Core.Elements.Get_Attribute
+                 (Elem => Ldr_Subj,
+                  Name => "name");
+            Ldr_Node : constant DOM.Core.Node
+              := Muxml.Utils.Get_Element
+                 (Doc   => Ldr_Subj,
+                  XPath => "monitor/loader");
+            Loadee_Name : constant String
+              := DOM.Core.Elements.Get_Attribute
+                 (Elem => Ldr_Node,
+                  Name => "subject");
+         begin
+            if Loadee_Name /= Ldr_Subj_Name then
+               declare
+                  Loadee_Subj : constant DOM.Core.Node
+                    := Muxml.Utils.Get_Element
+                       (Nodes     => Subjects,
+                        Ref_Attr  => "name",
+                        Ref_Value => Loadee_Name);
+               begin
+                  if Loadee_Subj /= null then
+                     Check_Loadee_Devices
+                       (Ldr_Subj_Name    => Ldr_Subj_Name,
+                        Loadee_Subj_Name => Loadee_Name,
+                        Loadee_Subj      => Loadee_Subj);
                   end if;
                end;
             end if;

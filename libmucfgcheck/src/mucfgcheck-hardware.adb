@@ -687,53 +687,82 @@ is
                     (Msg => "PCI device '" & Dev_Name & "' does not provide BAR"
                      & " config <bars> element");
                else
-
-                  --  Verify that there is a BAR config for every mem/ioport
-                  --  resource.
-
                   declare
-                     Config_Bars : constant Natural := DOM.Core.Nodes.Length
-                       (List => McKae.XML.XPath.XIA.XPath_Query
+                     Config_Bars : constant DOM.Core.Node_List
+                       := McKae.XML.XPath.XIA.XPath_Query
                           (N     => Config,
-                           XPath => "*[self::memory or self::ioPort or self::rom]"));
+                           XPath => "*[self::memory or self::ioPort or self::rom]");
+                     Config_Bars_Count : constant Natural
+                       := DOM.Core.Nodes.Length (List => Config_Bars);
+                     Config_Ports : constant DOM.Core.Node_List
+                       := McKae.XML.XPath.XIA.XPath_Query
+                          (N     => Config,
+                           XPath => "ioPort");
+                     Config_Ports_Count : constant Natural
+                       := DOM.Core.Nodes.Length (List => Config_Ports);
+                     Port_Res_Count : constant Natural
+                       := DOM.Core.Nodes.Length
+                         (List => McKae.XML.XPath.XIA.XPath_Query
+                            (N     => Dev,
+                             XPath => "ioPort"));
                   begin
-                     if Res_Count /= Config_Bars then
-                        Validation_Errors.Insert
-                          (Msg => "PCI device '" & Dev_Name & "' BAR config"
-                           & " count mismatch:" & Config_Bars'Img & " /="
-                           & Res_Count'Img);
+
+                     --  An explicitly empty <bars/> element is allowed and
+                     --  signals that no BAR configuration is specified for
+                     --  this device (e.g. device IO resources are specified
+                     --  manually).
+
+                     if Config_Bars_Count > 0 then
+
+                        --  Additional memory regions without BAR configuration
+                        --  (SR-IOV windows, ...) are permitted, so a
+                        --  device may have fewer BAR config entries than
+                        --  resources. Only more entries than available
+                        --  resources are rejected.
+
+                        if Config_Bars_Count > Res_Count then
+                           Validation_Errors.Insert
+                             (Msg => "PCI device '" & Dev_Name & "' BAR config"
+                              & " count mismatch:" & Config_Bars_Count'Img & " >"
+                              & Res_Count'Img);
+                        end if;
+
+                        --  Every I/O port resource must have a BAR config
+                        --  entry. Only additional memory regions may be left
+                        --  unconfigured.
+
+                        if Config_Ports_Count /= Port_Res_Count then
+                           Validation_Errors.Insert
+                             (Msg => "PCI device '" & Dev_Name & "' BAR config"
+                              & " I/O port count mismatch:" & Config_Ports_Count'Img
+                              & " /=" & Port_Res_Count'Img);
+                        end if;
+
+                        --  Verify mem/port ref attribute uniqueness.
+
+                        Attr_Uniqueness
+                          (Nodes     =>
+                             McKae.XML.XPath.XIA.XPath_Query
+                               (N     => Config,
+                                XPath => "memory"),
+                           Attr_Name => "ref",
+                           Error_Msg => "PCI device '" & Dev_Name
+                           & "' BAR config memory reference not unique.");
+                        Attr_Uniqueness
+                          (Nodes     => Config_Ports,
+                           Attr_Name => "ref",
+                           Error_Msg => "PCI device '" & Dev_Name
+                           & "' BAR config IO port reference not unique.");
+
+                        --  Index attribute uniqueness.
+
+                        Attr_Uniqueness
+                          (Nodes     => Config_Bars,
+                           Attr_Name => "index",
+                           Error_Msg => "PCI device '" & Dev_Name
+                           & "' BAR config index attributes not unique.");
                      end if;
                   end;
-
-                  --  Verify mem/port ref attribute uniqueness.
-
-                  Attr_Uniqueness
-                    (Nodes     =>
-                       McKae.XML.XPath.XIA.XPath_Query
-                         (N     => Config,
-                          XPath => "memory"),
-                     Attr_Name => "ref",
-                     Error_Msg => "PCI device '" & Dev_Name
-                     & "' BAR config memory reference not unique.");
-                  Attr_Uniqueness
-                    (Nodes     =>
-                       McKae.XML.XPath.XIA.XPath_Query
-                         (N     => Config,
-                          XPath => "ioPort"),
-                     Attr_Name => "ref",
-                     Error_Msg => "PCI device '" & Dev_Name
-                     & "' BAR config IO port reference not unique.");
-
-                  --  Index attribute uniqueness.
-
-                  Attr_Uniqueness
-                    (Nodes     =>
-                       McKae.XML.XPath.XIA.XPath_Query
-                         (N     => Config,
-                          XPath => "*[self::memory or self::ioPort or self::rom]"),
-                     Attr_Name => "index",
-                     Error_Msg => "PCI device '" & Dev_Name
-                     & "' BAR config index attributes not unique.");
                end if;
             end if;
          end;

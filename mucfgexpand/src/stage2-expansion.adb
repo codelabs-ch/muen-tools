@@ -16,6 +16,8 @@
 --  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --
 
+with Cfgchecks;
+
 with Expanders.Events;
 with Expanders.Memory;
 with Expanders.Kernel;
@@ -159,6 +161,13 @@ is
       --  Handle_Profile.
 
       Procs.Register (Process => Subjects.Handle_Loaders'Access);
+
+      --  Reset device mappings are checked here while the monitor elements
+      --  are still present, i.e. before the remove monitors expander runs.
+      --  The check is therefore registered as an expansion step and takes
+      --  the policy in out mode.
+
+      Procs.Register (Process => Cfgchecks.Subject_Muinit_PCI_Dev_Reset'Access);
       Procs.Register (Process => Subjects.Remove_Monitors'Access);
       Procs.Register (Process => Subjects.Remove_Device_MSIs'Access);
 

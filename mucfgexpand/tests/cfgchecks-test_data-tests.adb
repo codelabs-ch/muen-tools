@@ -852,7 +852,120 @@ package body Cfgchecks.Test_Data.Tests is
       pragma Unreferenced (Gnattest_T);
 
       Policy : Muxml.XML_Data_Type;
-      Log_Dev, Muinit_Mem_Node : DOM.Core.Node;
+
+      ----------------------------------------------------------------------
+
+      procedure Add_BAR
+      is
+         Dev_Node : constant DOM.Core.Node
+           := Muxml.Utils.Get_Element
+              (Doc   => Policy.Doc,
+               XPath => "/system/hardware/devices/device[@name='nic1']");
+         Pci_Node : constant DOM.Core.Node
+           := Muxml.Utils.Get_Element
+              (Doc   => Policy.Doc,
+               XPath => "/system/hardware/devices/device[@name='nic1']/pci");
+         Bars_Node : constant DOM.Core.Node
+           := DOM.Core.Documents.Create_Element
+              (Doc      => Policy.Doc,
+               Tag_Name => "bars");
+         Bar_Node : constant DOM.Core.Node
+           := DOM.Core.Documents.Create_Element
+              (Doc      => Policy.Doc,
+               Tag_Name => "memory");
+         Bar2_Node : constant DOM.Core.Node
+           := DOM.Core.Documents.Create_Element
+              (Doc      => Policy.Doc,
+               Tag_Name => "memory");
+         Mem_Node : constant DOM.Core.Node
+           := DOM.Core.Documents.Create_Element
+              (Doc      => Policy.Doc,
+               Tag_Name => "memory");
+      begin
+         DOM.Core.Elements.Set_Attribute
+           (Elem => Bar_Node, Name => "index", Value => "0");
+         DOM.Core.Elements.Set_Attribute
+           (Elem => Bar_Node, Name => "is64bit", Value => "false");
+         DOM.Core.Elements.Set_Attribute
+           (Elem => Bar_Node, Name => "prefetchable", Value => "true");
+         DOM.Core.Elements.Set_Attribute
+           (Elem => Bar_Node, Name => "ref", Value => "mmio1");
+         DOM.Core.Elements.Set_Attribute
+           (Elem => Bar2_Node, Name => "index", Value => "4");
+         DOM.Core.Elements.Set_Attribute
+           (Elem => Bar2_Node, Name => "is64bit", Value => "false");
+         DOM.Core.Elements.Set_Attribute
+           (Elem => Bar2_Node, Name => "prefetchable", Value => "false");
+         DOM.Core.Elements.Set_Attribute
+           (Elem => Bar2_Node, Name => "ref", Value => "mmio3");
+         DOM.Core.Elements.Set_Attribute
+           (Elem => Mem_Node, Name => "name", Value => "mmio3");
+         DOM.Core.Elements.Set_Attribute
+           (Elem => Mem_Node,
+            Name => "physicalAddress",
+            Value => "16#d260_0000#");
+         DOM.Core.Elements.Set_Attribute
+           (Elem => Mem_Node, Name => "size", Value => "16#1000#");
+         DOM.Core.Elements.Set_Attribute
+           (Elem => Mem_Node, Name => "caching", Value => "UC");
+         Muxml.Utils.Append_Child (Node => Bars_Node, New_Child => Bar_Node);
+         Muxml.Utils.Append_Child (Node => Bars_Node, New_Child => Bar2_Node);
+         Muxml.Utils.Append_Child (Node => Pci_Node, New_Child => Bars_Node);
+         Muxml.Utils.Append_Child (Node => Dev_Node, New_Child => Mem_Node);
+      end Add_BAR;
+
+      ----------------------------------------------------------------------
+
+      procedure Add_Mapping
+        (Subject_Name : String;
+         Dev_Name     : String;
+         Logical_Name : String)
+      is
+         Dev_Node : constant DOM.Core.Node
+           := Muxml.Utils.Get_Element
+              (Doc   => Policy.Doc,
+               XPath => "/system/subjects/subject[@name='" & Subject_Name
+               & "']/devices/device[@logical='" & Dev_Name & "']");
+         Mem_Node : constant DOM.Core.Node
+           := DOM.Core.Documents.Create_Element
+              (Doc      => Policy.Doc,
+               Tag_Name => "memory");
+      begin
+         DOM.Core.Elements.Set_Attribute
+           (Elem => Mem_Node, Name => "logical", Value => Logical_Name);
+         DOM.Core.Elements.Set_Attribute
+           (Elem => Mem_Node, Name => "physical", Value => Logical_Name);
+         DOM.Core.Elements.Set_Attribute
+           (Elem => Mem_Node,
+            Name => "virtualAddress",
+            Value => "16#d250_0000#");
+         DOM.Core.Elements.Set_Attribute
+           (Elem => Mem_Node, Name => "writable", Value => "true");
+         DOM.Core.Elements.Set_Attribute
+           (Elem => Mem_Node, Name => "executable", Value => "false");
+         Muxml.Utils.Append_Child (Node => Dev_Node, New_Child => Mem_Node);
+      end Add_Mapping;
+
+      ----------------------------------------------------------------------
+
+      procedure Add_Loadee_Device
+      is
+         Lnx_Devs : constant DOM.Core.Node
+           := Muxml.Utils.Get_Element
+              (Doc   => Policy.Doc,
+               XPath => "/system/subjects/subject[@name='lnx']/devices");
+         Src_Dev : constant DOM.Core.Node
+           := Muxml.Utils.Get_Element
+              (Doc   => Policy.Doc,
+               XPath => "/system/subjects/subject[@name='subject1']/devices/"
+               & "device[@logical='nic1']");
+      begin
+         Muxml.Utils.Append_Child
+           (Node      => Lnx_Devs,
+            New_Child => DOM.Core.Nodes.Clone_Node
+              (N => Src_Dev, Deep => True));
+      end Add_Loadee_Device;
+
    begin
       Muxml.Parse (Data => Policy,
                    Kind => Muxml.Format_Src,
@@ -861,12 +974,62 @@ package body Cfgchecks.Test_Data.Tests is
       Expanders.Components.Add_Library_Resources (Data => Policy);
       Expanders.Components.Add_Provided_Memory (Data => Policy);
       Expanders.Components.Add_Memory (Data => Policy);
+      Add_BAR;
+      Add_Mapping (Subject_Name => "subject3",
+                   Dev_Name     => "nic1",
+                   Logical_Name => "mmio1");
+      Add_Mapping (Subject_Name => "subject3",
+                   Dev_Name     => "nic1",
+                   Logical_Name => "mmio3");
+      Add_Mapping (Subject_Name => "subject1",
+                   Dev_Name     => "nic1",
+                   Logical_Name => "mmio3");
+      Add_Loadee_Device;
+      Expanders.Subjects.Add_Device_Resources (Data => Policy);
 
       --  Positive test, must not raise an exception.
 
       Subject_Muinit_PCI_Dev_Reset (XML_Data => Policy);
       Assert (Condition => Mucfgcheck.Validation_Errors.Is_Empty,
               Message   => "Unexpected error in positive test");
+
+      --  BAR resources missing on muinit subject.
+
+      Muxml.Utils.Remove_Elements
+        (Doc   => Policy.Doc,
+         XPath => "/system/subjects/subject[@name='subject3']/devices/device"
+         & "[@logical='nic1']/memory[@logical='mmio1']");
+      Muxml.Utils.Remove_Elements
+        (Doc   => Policy.Doc,
+         XPath => "/system/subjects/subject[@name='subject3']/devices/device"
+         & "[@logical='nic1']/memory[@logical='mmio3']");
+      Subject_Muinit_PCI_Dev_Reset (XML_Data => Policy);
+      Assert (Condition => Mucfgcheck.Validation_Errors.Contains
+              (Msg => "Subject 'subject3' uses muinit and maps reset-capable"
+               & " PCI device 'nic1' but does not map BAR resource"
+               & " 'mmio1, mmio3'"),
+              Message  => "BAR mapping mismatch (muinit)");
+      Mucfgcheck.Validation_Errors.Clear;
+      Add_Mapping (Subject_Name => "subject3",
+                   Dev_Name     => "nic1",
+                   Logical_Name => "mmio1");
+      Add_Mapping (Subject_Name => "subject3",
+                   Dev_Name     => "nic1",
+                   Logical_Name => "mmio3");
+
+      --  BAR resource missing on the loader's loadee.
+
+      Muxml.Utils.Remove_Elements
+        (Doc   => Policy.Doc,
+         XPath => "/system/subjects/subject[@name='lnx']/devices/device"
+         & "[@logical='nic1']/memory[@logical='mmio1']");
+      Subject_Muinit_PCI_Dev_Reset (XML_Data => Policy);
+      Assert (Condition => Mucfgcheck.Validation_Errors.Contains
+              (Msg => "Loader subject 'subject1' resets PCI device 'nic1' of"
+               & " subject 'lnx' but subject 'lnx' does not map BAR resource"
+               & " 'mmio1'"),
+              Message  => "BAR mapping mismatch (loader)");
+      Mucfgcheck.Validation_Errors.Clear;
 
       Muxml.Utils.Set_Attribute
         (Doc   => Policy.Doc,
