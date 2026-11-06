@@ -73,23 +73,27 @@ package body Spec.Policy_Gpr.Test_Data.Tests is
          Assert (Condition =>
                    Ada.Strings.Fixed.Index
                      (Source  => Content,
-                      Pattern => "Mitigations_Enabled       : Boolean := "
+                      Pattern => "Mitigations_Enabled        : Boolean := "
                          & """False"";") > 0
                    and then Ada.Strings.Fixed.Index
                      (Source  => Content,
-                      Pattern => "Arch_Cap_Check_Enabled    : Boolean := "
+                      Pattern => "Arch_Cap_Check_Enabled     : Boolean := "
                          & """False"";") > 0
                    and then Ada.Strings.Fixed.Index
                      (Source  => Content,
-                      Pattern => "VM_Entry_Enabled          : Boolean := "
+                      Pattern => "VM_Entry_Enabled           : Boolean := "
                          & """False"";") > 0
                    and then Ada.Strings.Fixed.Index
                      (Source  => Content,
-                      Pattern => "VM_Entry_Ibpb_Enabled     : Boolean := "
+                      Pattern => "VM_Entry_Ibpb_Enabled      : Boolean := "
                          & """False"";") > 0
                    and then Ada.Strings.Fixed.Index
                      (Source  => Content,
-                      Pattern => "VM_Entry_Verw_Enabled     : Boolean := "
+                      Pattern => "VM_Entry_Verw_Enabled      : Boolean := "
+                         & """False"";") > 0
+                   and then Ada.Strings.Fixed.Index
+                     (Source  => Content,
+                      Pattern => "VM_Entry_L1d_Flush_Enabled : Boolean := "
                          & """False"";") > 0,
                  Message   => "Disabled policy does not clear all mitigation "
                     & "settings");

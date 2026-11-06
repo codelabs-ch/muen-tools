@@ -268,6 +268,10 @@ is
          Content  => Has_VM_Entry_Leaf (Name => "verw"));
       Mutools.Templates.Replace
         (Template => Tmpl,
+         Pattern  => "__vm_entry_l1dflush_enabled__",
+         Content  => Has_VM_Entry_Leaf (Name => "l1dFlush"));
+      Mutools.Templates.Replace
+        (Template => Tmpl,
          Pattern  => "__multiple_major_frames__",
          Content  => Has_Multiple_Major_Frames);
       Mutools.Templates.Write

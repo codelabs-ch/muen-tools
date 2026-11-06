@@ -6,12 +6,13 @@ __debug_device_type__
 
    type Boolean is ("True", "False");
 
-   Has_Multiple_Major_Frames : Boolean := "__multiple_major_frames__";
-   MCU_Enabled               : Boolean := "__mcu_enabled__";
-   Mitigations_Enabled       : Boolean := "__mitigations_enabled__";
-   Arch_Cap_Check_Enabled    : Boolean := "__archcap_check_enabled__";
-   VM_Entry_Enabled          : Boolean := "__vm_entry_enabled__";
-   VM_Entry_Ibpb_Enabled     : Boolean := "__vm_entry_ibpb_enabled__";
-   VM_Entry_Verw_Enabled     : Boolean := "__vm_entry_verw_enabled__";
+   Has_Multiple_Major_Frames  : Boolean := "__multiple_major_frames__";
+   MCU_Enabled                : Boolean := "__mcu_enabled__";
+   Mitigations_Enabled        : Boolean := "__mitigations_enabled__";
+   Arch_Cap_Check_Enabled     : Boolean := "__archcap_check_enabled__";
+   VM_Entry_Enabled           : Boolean := "__vm_entry_enabled__";
+   VM_Entry_Ibpb_Enabled      : Boolean := "__vm_entry_ibpb_enabled__";
+   VM_Entry_Verw_Enabled      : Boolean := "__vm_entry_verw_enabled__";
+   VM_Entry_L1d_Flush_Enabled : Boolean := "__vm_entry_l1dflush_enabled__";
 
 end Policy;

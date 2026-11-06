@@ -7,12 +7,13 @@ abstract project Policy is
 
    type Boolean is ("True", "False");
 
-   Has_Multiple_Major_Frames : Boolean := "True";
-   MCU_Enabled               : Boolean := "True";
-   Mitigations_Enabled       : Boolean := "True";
-   Arch_Cap_Check_Enabled    : Boolean := "True";
-   VM_Entry_Enabled          : Boolean := "True";
-   VM_Entry_Ibpb_Enabled     : Boolean := "True";
-   VM_Entry_Verw_Enabled     : Boolean := "False";
+   Has_Multiple_Major_Frames  : Boolean := "True";
+   MCU_Enabled                : Boolean := "True";
+   Mitigations_Enabled        : Boolean := "True";
+   Arch_Cap_Check_Enabled     : Boolean := "True";
+   VM_Entry_Enabled           : Boolean := "True";
+   VM_Entry_Ibpb_Enabled      : Boolean := "True";
+   VM_Entry_Verw_Enabled      : Boolean := "False";
+   VM_Entry_L1d_Flush_Enabled : Boolean := "False";
 
 end Policy;
