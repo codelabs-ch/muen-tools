@@ -22,8 +22,8 @@
      </init>
      <vmEntry>
       <ibpb enable="true"/>
-      <verw enable="false"/>
-      <l1dFlush enable="false"/>
+      <verw enable="true"/>
+      <l1dFlush enable="true"/>
      </vmEntry>
      <vmExit>
       <ibrsLegacy enable="false"/>

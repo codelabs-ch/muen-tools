@@ -111,7 +111,8 @@ is
          return (Mitigation = "rsbStuffing" and then Mode = "fullFill32")
            or else Mitigation = "bhbLoop"
            or else Mitigation = "ibpb"
-           or else Mitigation = "verw";
+           or else Mitigation = "verw"
+           or else Mitigation = "l1dFlush";
       end Is_Implemented;
    begin
       if DOM.Core.Elements.Get_Attribute
