@@ -857,6 +857,10 @@ package body Cfgchecks.Test_Data.Tests is
 
       procedure Add_BAR
       is
+         Dev_Node : constant DOM.Core.Node
+           := Muxml.Utils.Get_Element
+              (Doc   => Policy.Doc,
+               XPath => "/system/hardware/devices/device[@name='nic1']");
          Pci_Node : constant DOM.Core.Node
            := Muxml.Utils.Get_Element
               (Doc   => Policy.Doc,
@@ -869,6 +873,14 @@ package body Cfgchecks.Test_Data.Tests is
            := DOM.Core.Documents.Create_Element
               (Doc      => Policy.Doc,
                Tag_Name => "memory");
+         Bar2_Node : constant DOM.Core.Node
+           := DOM.Core.Documents.Create_Element
+              (Doc      => Policy.Doc,
+               Tag_Name => "memory");
+         Mem_Node : constant DOM.Core.Node
+           := DOM.Core.Documents.Create_Element
+              (Doc      => Policy.Doc,
+               Tag_Name => "memory");
       begin
          DOM.Core.Elements.Set_Attribute
            (Elem => Bar_Node, Name => "index", Value => "0");
@@ -878,8 +890,28 @@ package body Cfgchecks.Test_Data.Tests is
            (Elem => Bar_Node, Name => "prefetchable", Value => "true");
          DOM.Core.Elements.Set_Attribute
            (Elem => Bar_Node, Name => "ref", Value => "mmio1");
+         DOM.Core.Elements.Set_Attribute
+           (Elem => Bar2_Node, Name => "index", Value => "4");
+         DOM.Core.Elements.Set_Attribute
+           (Elem => Bar2_Node, Name => "is64bit", Value => "false");
+         DOM.Core.Elements.Set_Attribute
+           (Elem => Bar2_Node, Name => "prefetchable", Value => "false");
+         DOM.Core.Elements.Set_Attribute
+           (Elem => Bar2_Node, Name => "ref", Value => "mmio3");
+         DOM.Core.Elements.Set_Attribute
+           (Elem => Mem_Node, Name => "name", Value => "mmio3");
+         DOM.Core.Elements.Set_Attribute
+           (Elem => Mem_Node,
+            Name => "physicalAddress",
+            Value => "16#d260_0000#");
+         DOM.Core.Elements.Set_Attribute
+           (Elem => Mem_Node, Name => "size", Value => "16#1000#");
+         DOM.Core.Elements.Set_Attribute
+           (Elem => Mem_Node, Name => "caching", Value => "UC");
          Muxml.Utils.Append_Child (Node => Bars_Node, New_Child => Bar_Node);
+         Muxml.Utils.Append_Child (Node => Bars_Node, New_Child => Bar2_Node);
          Muxml.Utils.Append_Child (Node => Pci_Node, New_Child => Bars_Node);
+         Muxml.Utils.Append_Child (Node => Dev_Node, New_Child => Mem_Node);
       end Add_BAR;
 
       ----------------------------------------------------------------------
