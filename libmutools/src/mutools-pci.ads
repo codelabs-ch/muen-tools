@@ -49,7 +49,8 @@ is
    --  device, Null_BDF is returned.
    function Get_BDF (Dev : DOM.Core.Node) return BDF_Type;
 
-   --  Create device PCI node with given parameters.
+   --  Create device PCI node with given parameters. Caller must insert/append
+   --  the node into a document or free the node after use.
    function Create_PCI_Node
      (Policy : in out Muxml.XML_Data_Type;
       Bus    :        Bus_Range;
