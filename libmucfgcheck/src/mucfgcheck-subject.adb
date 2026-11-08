@@ -1271,6 +1271,10 @@ is
                   Address_Attr => "virtualAddress",
                   Name_Attr    => "logical",
                   Add_Msg      => " of subject '" & Subj_Name & "'");
+
+               Muxml.Utils.Free_Clones
+                 (List  => Mem_Nodes,
+                  Count => DOM.Core.Nodes.Length (List => Mem_Nodes));
             end if;
          end;
       end loop;
