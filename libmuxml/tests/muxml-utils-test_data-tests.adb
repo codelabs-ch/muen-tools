@@ -1177,6 +1177,91 @@ package body Muxml.Utils.Test_Data.Tests is
 
 
 --  begin read only
+   procedure Test_Free_Clones (Gnattest_T : in out Test);
+   procedure Test_Free_Clones_b0e583 (Gnattest_T : in out Test) renames Test_Free_Clones;
+--  id:2.2/b0e58353bdec2a19/Free_Clones/1/0/
+   procedure Test_Free_Clones (Gnattest_T : in out Test) is
+--  end read only
+
+      pragma Unreferenced (Gnattest_T);
+
+      use type DOM.Core.Node_List;
+
+      Data       : XML_Data_Type;
+      Empty_List : DOM.Core.Node_List;
+      List       : DOM.Core.Node_List;
+      Node_1     : DOM.Core.Node;
+      Node_2     : DOM.Core.Node;
+      Node_3     : DOM.Core.Node;
+   begin
+      --  Freeing an empty list must be a no-op.
+      Free_Clones (List  => List,
+                   Count => 0);
+      Assert (Condition => List = Empty_List,
+              Message   => "Empty list mismatch (1)");
+
+      --  A count larger than the list length must be handled gracefully.
+      Free_Clones (List  => List,
+                   Count => 10);
+      Assert (Condition => List = Empty_List,
+              Message   => "Empty list mismatch (2)");
+
+      Muxml.Parse
+        (Data => Data,
+         Kind => Muxml.None,
+         File => "data/format_src.xml");
+
+      Node_1 := DOM.Core.Nodes.Clone_Node
+        (N    => Get_Element (Doc   => Data.Doc,
+                              XPath => "/system/config/string"),
+         Deep => False);
+      Node_2 := DOM.Core.Nodes.Clone_Node
+        (N    => Get_Element (Doc   => Data.Doc,
+                              XPath => "/system/hardware/processor"),
+         Deep => False);
+      Node_3 := DOM.Core.Nodes.Clone_Node
+        (N    => Get_Element (Doc   => Data.Doc,
+                              XPath => "/system/platform/config/boolean"),
+         Deep => False);
+
+      DOM.Core.Append_Node (List => List,
+                            N    => Node_1);
+      DOM.Core.Append_Node (List => List,
+                            N    => Node_2);
+      DOM.Core.Append_Node (List => List,
+                            N    => Node_3);
+
+      --  Free the first two clones. The last clone must not be affected and
+      --  the list must be reset to an empty list.
+      Free_Clones (List  => List,
+                   Count => 2);
+      Assert (Condition => DOM.Core.Nodes.Node_Name (N => Node_3) = "boolean",
+              Message   => "Node 3 was freed");
+      Assert (Condition => List = Empty_List,
+              Message   => "List not reset after partial free");
+
+      --  A count larger than the list length frees all nodes and resets the
+      --  list. The list can be reused after Free_Clones.
+      DOM.Core.Append_Node (List => List,
+                            N    => Node_3);
+      Assert (Condition => DOM.Core.Nodes.Length (List => List) = 1,
+              Message   => "List cannot be reused");
+      Free_Clones (List  => List,
+                   Count => 10);
+      Assert (Condition => List = Empty_List,
+              Message   => "List not reset after full free");
+
+      --  Freeing the already reset list again must be a no-op.
+      Free_Clones (List  => List,
+                   Count => 10);
+      Assert (Condition => List = Empty_List,
+              Message   => "List not reset after repeated free");
+--  begin read only
+   end Test_Free_Clones;
+--  end read only
+
+
+--  begin read only
    procedure Test_1_Insert_Before (Gnattest_T : in out Test);
    procedure Test_Insert_Before_dad83c (Gnattest_T : in out Test) renames Test_1_Insert_Before;
 --  id:2.2/dad83cdf3cb585d7/Insert_Before/1/0/

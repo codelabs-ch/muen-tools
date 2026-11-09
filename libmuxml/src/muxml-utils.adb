@@ -186,6 +186,36 @@ is
 
    -------------------------------------------------------------------------
 
+   procedure Free_Clones
+     (List  : in out DOM.Core.Node_List;
+      Count :        Natural)
+   is
+      Element_Count : constant Natural
+        := Natural'Min (Count, DOM.Core.Nodes.Length (List => List));
+   begin
+      for I in 1 .. Element_Count loop
+         declare
+            Node : DOM.Core.Node := DOM.Core.Nodes.Item
+              (List  => List,
+               Index => I - 1);
+         begin
+            DOM.Core.Nodes.Free (N => Node);
+         end;
+      end loop;
+      DOM.Core.Free (List => List);
+
+      --  Reset the list to a default-initialized, empty list. The code is
+      --  convoluted because DOM.Core.Null_List is private.
+
+      declare
+         Unused_Empty_List : DOM.Core.Node_List;
+      begin
+         List := Unused_Empty_List;
+      end;
+   end Free_Clones;
+
+   -------------------------------------------------------------------------
+
    function Get_Ancestor_Names
      (Node : DOM.Core.Node)
      return  String_Vector.Vector
