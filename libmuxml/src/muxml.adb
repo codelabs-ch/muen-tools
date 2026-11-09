@@ -84,6 +84,11 @@ is
                                 Value => False);
          end if;
 
+         --  For reparsing into the same Doc, we must release the previously
+         --  parsed document to avoid leaking memory of the associated DOM.
+         --  Freeing a not yet initialized Doc is safe.
+         DOM.Core.Nodes.Free (N => Data.Doc);
+
          begin
             Reader.Parse (Input => Input);
          exception

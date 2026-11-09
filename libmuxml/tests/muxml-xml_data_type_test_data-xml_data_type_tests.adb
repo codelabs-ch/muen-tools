@@ -39,28 +39,32 @@ package body Muxml.XML_Data_Type_Test_Data.XML_Data_Type_Tests is
       pragma Unreferenced (Gnattest_T);
 
    begin
-      for K in Core_Schema_Kind loop
-         declare
-            Data     : XML_Data_Type;
-            K_Str    : constant String := Ada.Characters.Handling.To_Lower
-              (Item => K'Img);
-            Src_File : constant String := "data/" & K_Str & ".xml";
-            Dst_File : constant String := "obj/" & K_Str & ".xml";
-         begin
-            Parse (Data => Data,
-                   Kind => K,
-                   File => Src_File);
-            Write (Data => Data,
-                   Kind => K,
-                   File => Dst_File);
-            Assert
-              (Condition => Test_Utils.Equal_Files
-                 (Filename1 => Src_File,
-                  Filename2 => Dst_File),
-               Message => "Stored " & K_Str & " XML differs from loaded one");
-            Ada.Directories.Delete_File (Name => Dst_File);
-         end;
-      end loop;
+      declare
+         --  Use one instance for all schema kinds to exercise reparsing.
+         Data : XML_Data_Type;
+      begin
+         for K in Core_Schema_Kind loop
+            declare
+               K_Str    : constant String := Ada.Characters.Handling.To_Lower
+                 (Item => K'Img);
+               Src_File : constant String := "data/" & K_Str & ".xml";
+               Dst_File : constant String := "obj/" & K_Str & ".xml";
+            begin
+               Parse (Data => Data,
+                      Kind => K,
+                      File => Src_File);
+               Write (Data => Data,
+                      Kind => K,
+                      File => Dst_File);
+               Assert
+                 (Condition => Test_Utils.Equal_Files
+                    (Filename1 => Src_File,
+                     Filename2 => Dst_File),
+                  Message => "Stored " & K_Str & " XML differs from loaded one");
+               Ada.Directories.Delete_File (Name => Dst_File);
+            end;
+         end loop;
+      end;
 
       -- parser that adds location information
       declare
