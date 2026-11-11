@@ -219,7 +219,7 @@ is
         (Doc   => Policy.Doc,
          XPath => "/system/" & Section_Name);
 
-      Top_Node := DOM.Core.Documents.Local.Adopt_Node
+      Top_Node := DOM.Core.Documents.Adopt_Node
         (Doc    => Policy.Doc,
          Source => DOM.Core.Documents.Local.Clone_Node
            (N    => DOM.Core.Documents.Get_Element (Doc => Section.Doc),

@@ -78,7 +78,7 @@ is
                                          Index => I);
             begin
                if Clone then
-                  Node := DOM.Core.Documents.Local.Adopt_Node
+                  Node := DOM.Core.Documents.Adopt_Node
                     (Doc    => Policy.Doc,
                      Source => DOM.Core.Documents.Local.Clone_Node
                        (N    => Node,

@@ -52,7 +52,7 @@ is
 
    begin
       while Child /= null loop
-         New_Child := DOM.Core.Documents.Local.Adopt_Node
+         New_Child := DOM.Core.Documents.Adopt_Node
             (Doc    => DOM.Core.Nodes.Owner_Document (N => Target),
              Source => DOM.Core.Documents.Local.Clone_Node
                           (N    => Child,
@@ -365,7 +365,7 @@ is
       New_Child      : DOM.Core.Node;
    begin
       New_Doc   := DOM.Core.Create_Document (Implementation);
-      New_Child := DOM.Core.Documents.Local.Adopt_Node
+      New_Child := DOM.Core.Documents.Adopt_Node
                  (Doc    => New_Doc,
                   Source => DOM.Core.Documents.Local.Clone_Node
                                (N    => Src_Node,

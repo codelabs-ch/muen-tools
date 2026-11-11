@@ -66,7 +66,7 @@ is
       Muxml.Parse_String (Data => Data,
                           Kind => Muxml.VCPU_Profile,
                           XML  => Profile_Map (Profile, Architecture).XML.all);
-      VCPU_Node := DOM.Core.Documents.Local.Adopt_Node
+      VCPU_Node := DOM.Core.Documents.Adopt_Node
         (Doc    => Doc_Node,
          Source => DOM.Core.Documents.Local.Clone_Node
            (N    => DOM.Core.Documents.Get_Element (Doc => Data.Doc),

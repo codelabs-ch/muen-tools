@@ -1352,7 +1352,7 @@ is
                end if;
 
                while Src_Node /= null loop
-                  Content_Node := DOM.Core.Documents.Local.Adopt_Node
+                  Content_Node := DOM.Core.Documents.Adopt_Node
                     (Doc    => Policy.Doc,
                      Source => DOM.Core.Documents.Local.Clone_Node
                        (N    => Src_Node,

@@ -39,7 +39,7 @@ is
       Muxml.Parse (Data => Component,
                    Kind => Muxml.Component_Ext,
                    File => Component_File);
-      Component_Node := DOM.Core.Documents.Local.Adopt_Node
+      Component_Node := DOM.Core.Documents.Adopt_Node
         (Doc    => Policy.Doc,
          Source => DOM.Core.Documents.Local.Clone_Node
            (N    => DOM.Core.Documents.Get_Element (Doc => Component.Doc),

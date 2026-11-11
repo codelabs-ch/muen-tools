@@ -869,7 +869,7 @@ is
 
                   Append_Child
                     (Node      => Left,
-                     New_Child => DOM.Core.Documents.Local.Adopt_Node
+                     New_Child => DOM.Core.Documents.Adopt_Node
                        (Doc    => Left_Doc,
                         Source => DOM.Core.Documents.Local.Clone_Node
                           (N    => R_Child,
@@ -882,7 +882,7 @@ is
                   begin
                      Dummy := DOM.Core.Nodes.Insert_Before
                        (N         => Left,
-                        New_Child => DOM.Core.Documents.Local.Adopt_Node
+                        New_Child => DOM.Core.Documents.Adopt_Node
                           (Doc    => Left_Doc,
                            Source => DOM.Core.Documents.Local.Clone_Node
                              (N    => R_Child,
