@@ -772,9 +772,20 @@ is
                   Address_Attr => "virtualAddress",
                   Name_Attr    => "logical",
                   Add_Msg      => " of kernel running on CPU " & CPU_ID);
+
+               --  Only the kernel memory node clones at the front of the list
+               --  are owned by this iteration, the appended device memory node
+               --  clones are shared for all CPU iterations.
+               Muxml.Utils.Free_Clones
+                 (List  => Mem_Nodes,
+                  Count => DOM.Core.Nodes.Length (List => Memory));
             end if;
          end;
       end loop Check_CPUs;
+
+      Muxml.Utils.Free_Clones
+        (List  => Dev_Mem_Nodes,
+         Count => KDev_Mem_Count);
    end Virtual_Memory_Overlap;
 
 end Mucfgcheck.Kernel;

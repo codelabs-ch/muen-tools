@@ -60,6 +60,8 @@ is
    --  data is validated against the built-in system policy XML schema.
    --  If Add_Location is True, the parser adds an attribute "originOfNode"
    --  stating filename and location within the file to each element-node.
+   --  Any document previously stored in Data is freed, invalidating all
+   --  DOM.Core.Node handles obtained from it.
    procedure Parse
      (Data         : out XML_Data_Type;
       Kind         :     Schema_Kind;
@@ -67,7 +69,9 @@ is
       Add_Location :     Boolean := False);
 
    --  Parse the given XML string into the DOM data structure. The XML data is
-   --  validated against the specified built-in XML schema.
+   --  validated against the specified built-in XML schema. Any document
+   --  previously stored in Data is freed, invalidating all DOM.Core.Node
+   --  handles obtained from it.
    procedure Parse_String
      (Data : out XML_Data_Type;
       Kind :     Schema_Kind;

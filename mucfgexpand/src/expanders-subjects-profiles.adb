@@ -309,13 +309,9 @@ is
                           (This_Device     : DOM.Core.Node;
                            Other_Devs_Node : DOM.Core.Node)
                         is
-                           New_Dev : constant DOM.Core.Node
-                             := DOM.Core.Documents.Local.Clone_Node
-                               (N    => This_Device,
-                                Deep => True);
                            Physical : constant String
                              := DOM.Core.Elements.Get_Attribute
-                               (Elem => New_Dev,
+                               (Elem => This_Device,
                                 Name => "physical");
                         begin
                            if Muxml.Utils.Get_Element
@@ -326,12 +322,19 @@ is
                               return;
                            end if;
 
-                           Muxml.Utils.Append_Child
-                             (Node      => Other_Devs_Node,
-                              New_Child => New_Dev);
-                           Muxml.Utils.Remove_Elements
-                             (Doc   => New_Dev,
-                              XPath => "irq");
+                           declare
+                              New_Dev : constant DOM.Core.Node
+                                := DOM.Core.Documents.Local.Clone_Node
+                                  (N    => This_Device,
+                                   Deep => True);
+                           begin
+                              Muxml.Utils.Append_Child
+                                (Node      => Other_Devs_Node,
+                                 New_Child => New_Dev);
+                              Muxml.Utils.Remove_Elements
+                                (Doc   => New_Dev,
+                                 XPath => "irq");
+                           end;
                         end Append_And_Remove_IRQs;
 
                         Other_Subj : constant DOM.Core.Node

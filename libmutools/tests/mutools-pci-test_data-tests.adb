@@ -7,6 +7,7 @@
 
 with AUnit.Assertions; use AUnit.Assertions;
 with System.Assertions;
+with DOM.Core.Nodes;
 
 --  begin read only
 --  id:2.2/00/
@@ -150,7 +151,7 @@ package body Mutools.PCI.Test_Data.Tests is
          for D in Device_Range loop
             for F in Function_Range loop
                declare
-                  PCI_Node : constant DOM.Core.Node
+                  PCI_Node : DOM.Core.Node
                     := Create_PCI_Node (Policy => Data,
                                         Bus    => B,
                                         Device => D,
@@ -177,6 +178,7 @@ package body Mutools.PCI.Test_Data.Tests is
                   Assert (Condition => F = Function_Range'Value (Fun_Str),
                           Message   => B'Img & "," & D'Img & "," & F'Img
                           & ": function mismatch " & Fun_Str);
+                  DOM.Core.Nodes.Free (N => PCI_Node);
                end;
             end loop;
          end loop;

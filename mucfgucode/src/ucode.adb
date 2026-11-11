@@ -164,6 +164,7 @@ is
                        (Doc   => Data.Doc,
                         XPath => "/system/memory"),
                      Old_Child => Node);
+                  DOM.Core.Nodes.Free (N => Node);
                end if;
                Mulog.Log
                  (Msg => "Adding file-backed memory region for MCU, size"

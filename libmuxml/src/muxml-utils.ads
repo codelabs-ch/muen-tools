@@ -184,6 +184,15 @@ is
      (Node      : DOM.Core.Node;
       New_Child : DOM.Core.Node);
 
+   --  Free the first Count nodes of the given list as well as the list itself.
+   --  If Count is larger than the list length then all nodes are freed. Nodes
+   --  beyond Count are left alive but detached from the list. The list is
+   --  reset to an empty list and can be reused.
+   --  Note: the nodes must be detached clones that are not part of any document.
+   procedure Free_Clones
+     (List  : in out DOM.Core.Node_List;
+      Count :        Natural);
+
    --  Insert New_Child node into children list of given parent node. The new
    --  child is inserted just before the reference child specified by name. If
    --  no child with the given reference name exists, the node is appended at
