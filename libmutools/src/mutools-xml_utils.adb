@@ -21,7 +21,7 @@ with Ada.Containers.Ordered_Multisets;
 with Ada.Containers.Generic_Constrained_Array_Sort;
 
 with DOM.Core.Nodes;
-with DOM.Core.Documents.Local;
+with DOM.Core.Documents;
 with DOM.Core.Elements;
 with DOM.Core.Append_Node;
 
@@ -1354,7 +1354,7 @@ is
                while Src_Node /= null loop
                   Content_Node := DOM.Core.Documents.Adopt_Node
                     (Doc    => Policy.Doc,
-                     Source => DOM.Core.Documents.Local.Clone_Node
+                     Source => DOM.Core.Nodes.Clone_Node
                        (N    => Src_Node,
                         Deep => True));
                   Content_Node := DOM.Core.Nodes.Insert_Before

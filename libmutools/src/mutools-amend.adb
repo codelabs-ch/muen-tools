@@ -22,7 +22,6 @@ with Ada.Exceptions;
 
 with DOM.Core.Nodes;
 with DOM.Core.Elements;
-with DOM.Core.Documents.Local;
 
 with McKae.XML.XPath.XIA;
 
@@ -497,7 +496,7 @@ is
                else
                   Dummy := DOM.Core.Nodes.Append_Child
                              (N         => Parent_Child_Marked,
-                              New_Child => DOM.Core.Documents.Local.Clone_Node
+                              New_Child => DOM.Core.Nodes.Clone_Node
                                              (N    => New_Child_Child,
                                               Deep => True));
                end if;

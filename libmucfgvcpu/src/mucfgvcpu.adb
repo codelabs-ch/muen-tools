@@ -19,7 +19,7 @@
 with Ada.Strings.Unbounded;
 
 with DOM.Core.Nodes;
-with DOM.Core.Documents.Local;
+with DOM.Core.Documents;
 
 with Muxml.Utils;
 
@@ -68,7 +68,7 @@ is
                           XML  => Profile_Map (Profile, Architecture).XML.all);
       VCPU_Node := DOM.Core.Documents.Adopt_Node
         (Doc    => Doc_Node,
-         Source => DOM.Core.Documents.Local.Clone_Node
+         Source => DOM.Core.Nodes.Clone_Node
            (N    => DOM.Core.Documents.Get_Element (Doc => Data.Doc),
             Deep => True));
 

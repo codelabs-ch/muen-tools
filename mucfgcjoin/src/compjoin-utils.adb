@@ -16,7 +16,8 @@
 --  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --
 
-with DOM.Core.Documents.Local;
+with DOM.Core.Documents;
+with DOM.Core.Nodes;
 
 with Muxml.Utils;
 
@@ -41,7 +42,7 @@ is
                    File => Component_File);
       Component_Node := DOM.Core.Documents.Adopt_Node
         (Doc    => Policy.Doc,
-         Source => DOM.Core.Documents.Local.Clone_Node
+         Source => DOM.Core.Nodes.Clone_Node
            (N    => DOM.Core.Documents.Get_Element (Doc => Component.Doc),
             Deep => True));
 

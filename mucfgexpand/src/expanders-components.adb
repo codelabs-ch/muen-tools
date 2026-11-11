@@ -25,7 +25,7 @@ with Interfaces;
 
 with DOM.Core.Nodes;
 with DOM.Core.Elements;
-with DOM.Core.Documents.Local;
+with DOM.Core.Documents;
 
 with McKae.XML.XPath.XIA;
 
@@ -1031,7 +1031,7 @@ is
                    (Doc   => Subj_Node,
                     XPath => "memory");
                Phys_Mem      : constant DOM.Core.Node
-                 := DOM.Core.Documents.Local.Clone_Node
+                 := DOM.Core.Nodes.Clone_Node
                    (N    => Memory,
                     Deep => True);
                Phys_Name     : constant String := Subj_Name & "|" & Mem_Name;

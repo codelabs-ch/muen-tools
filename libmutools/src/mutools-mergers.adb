@@ -18,7 +18,7 @@
 with Ada.Strings.Unbounded;
 
 with DOM.Core.Nodes;
-with DOM.Core.Documents.Local;
+with DOM.Core.Documents;
 
 with McKae.XML.XPath.XIA;
 
@@ -80,7 +80,7 @@ is
                if Clone then
                   Node := DOM.Core.Documents.Adopt_Node
                     (Doc    => Policy.Doc,
-                     Source => DOM.Core.Documents.Local.Clone_Node
+                     Source => DOM.Core.Nodes.Clone_Node
                        (N    => Node,
                         Deep => True));
                end if;

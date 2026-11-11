@@ -17,10 +17,9 @@
 --
 
 with DOM.Core.Append_Node;
-with DOM.Core.Elements;
 with DOM.Core.Attrs;
-with DOM.Core.Documents.Local;
-with DOM.Core;
+with DOM.Core.Documents;
+with DOM.Core.Elements;
 
 with McKae.XML.XPath.XIA;
 
@@ -791,7 +790,7 @@ is
       if Clone_Child then
          Inserted_Node := DOM.Core.Nodes.Insert_Before
            (N         => Parent,
-            New_Child => DOM.Core.Documents.Local.Clone_Node
+            New_Child => DOM.Core.Nodes.Clone_Node
               (N    => New_Child,
                Deep => True),
             Ref_Child => Ref_Child);
@@ -871,7 +870,7 @@ is
                     (Node      => Left,
                      New_Child => DOM.Core.Documents.Adopt_Node
                        (Doc    => Left_Doc,
-                        Source => DOM.Core.Documents.Local.Clone_Node
+                        Source => DOM.Core.Nodes.Clone_Node
                           (N    => R_Child,
                            Deep => True)));
                elsif Is_List_Tag
@@ -884,7 +883,7 @@ is
                        (N         => Left,
                         New_Child => DOM.Core.Documents.Adopt_Node
                           (Doc    => Left_Doc,
-                           Source => DOM.Core.Documents.Local.Clone_Node
+                           Source => DOM.Core.Nodes.Clone_Node
                              (N    => R_Child,
                               Deep => True)),
                         Ref_Child => DOM.Core.Nodes.Next_Sibling

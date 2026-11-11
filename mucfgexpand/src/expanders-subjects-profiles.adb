@@ -22,7 +22,7 @@ with Interfaces;
 
 with DOM.Core.Nodes;
 with DOM.Core.Elements;
-with DOM.Core.Documents.Local;
+with DOM.Core.Documents;
 with DOM.Core.Append_Node;
 
 with McKae.XML.XPath.XIA;
@@ -324,7 +324,7 @@ is
 
                            declare
                               New_Dev : constant DOM.Core.Node
-                                := DOM.Core.Documents.Local.Clone_Node
+                                := DOM.Core.Nodes.Clone_Node
                                   (N    => This_Device,
                                    Deep => True);
                            begin

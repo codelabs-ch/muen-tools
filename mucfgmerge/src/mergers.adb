@@ -19,7 +19,7 @@
 with Ada.Strings.Unbounded;
 
 with DOM.Core.Nodes;
-with DOM.Core.Documents.Local;
+with DOM.Core.Documents;
 
 with Muxml.Utils;
 with Mutools.Mergers;
@@ -221,7 +221,7 @@ is
 
       Top_Node := DOM.Core.Documents.Adopt_Node
         (Doc    => Policy.Doc,
-         Source => DOM.Core.Documents.Local.Clone_Node
+         Source => DOM.Core.Nodes.Clone_Node
            (N    => DOM.Core.Documents.Get_Element (Doc => Section.Doc),
             Deep => True));
 

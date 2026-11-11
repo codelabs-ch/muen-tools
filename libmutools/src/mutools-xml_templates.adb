@@ -30,7 +30,6 @@ with DOM.Core.Nodes;
 with DOM.Core.Attrs;
 with DOM.Core.Elements;
 with DOM.Core.Documents;
-with DOM.Core.Documents.Local;
 
 package body Mutools.XML_Templates
 is
@@ -54,7 +53,7 @@ is
       while Child /= null loop
          New_Child := DOM.Core.Documents.Adopt_Node
             (Doc    => DOM.Core.Nodes.Owner_Document (N => Target),
-             Source => DOM.Core.Documents.Local.Clone_Node
+             Source => DOM.Core.Nodes.Clone_Node
                           (N    => Child,
                            Deep => True));
          if Append_Mode then
@@ -367,7 +366,7 @@ is
       New_Doc   := DOM.Core.Create_Document (Implementation);
       New_Child := DOM.Core.Documents.Adopt_Node
                  (Doc    => New_Doc,
-                  Source => DOM.Core.Documents.Local.Clone_Node
+                  Source => DOM.Core.Nodes.Clone_Node
                                (N    => Src_Node,
                                 Deep => True));
       New_Child := DOM.Core.Nodes.Append_Child (N         => New_Doc,
