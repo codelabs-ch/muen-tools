@@ -843,6 +843,7 @@ is
                               Set_Device_BDFs
                                 (Logical_Devices => Alloc_Log_Devs,
                                  PCI_Node        => PCI_Node);
+                              DOM.Core.Nodes.Free (N => PCI_Node);
                            end;
                         end loop;
                      end;
