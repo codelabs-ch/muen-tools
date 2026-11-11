@@ -26,7 +26,7 @@ with Schema.Validators;
 with Schema.Dom_Readers_With_Location;
 with Sax.Readers;
 with Input_Sources.File;
-with Input_Sources.Strings.Local;
+with Input_Sources.Strings;
 with Unicode.CES.Utf8;
 
 with Muxml.Grammar;
@@ -155,7 +155,7 @@ is
       Str_Input : Input_Sources.Strings.String_Input;
    begin
       begin
-         Input_Sources.Strings.Local.Open
+         Input_Sources.Strings.Open
            (Str      => XML,
             Encoding => Unicode.CES.Utf8.Utf8_Encoding,
             Input    => Str_Input);
