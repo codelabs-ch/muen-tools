@@ -81,6 +81,10 @@ is
       --  and "False" otherwise.
       function Has_VM_Entry_Mitigations return String;
 
+      --  Returns the string "True" if the given vmExit mitigation leaf is
+      --  enabled and "False" otherwise.
+      function Has_VM_Exit_Leaf (Name : String) return String;
+
       ----------------------------------------------------------------------
 
       function Get_Debug_Device_Type return String
@@ -228,6 +232,29 @@ is
          end loop;
          return "False";
       end Has_VM_Entry_Mitigations;
+
+      ----------------------------------------------------------------------
+
+      function Has_VM_Exit_Leaf (Name : String) return String
+      is
+         Mitigations : constant DOM.Core.Node := Muxml.Utils.Get_Element
+           (Doc   => Policy.Doc,
+            XPath => "/system/hardware/processor/x86_64/mitigations");
+         Leaf : constant DOM.Core.Node := Muxml.Utils.Get_Element
+           (Doc   => Policy.Doc,
+            XPath => "/system/hardware/processor/x86_64/mitigations/"
+              & "vmExit/" & Name);
+         Enabled : constant Boolean :=
+           DOM.Core.Elements.Get_Attribute
+             (Elem => Mitigations,
+              Name => "enable") /= "false"
+           and then DOM.Core.Elements.Get_Attribute
+             (Elem => Leaf,
+              Name => "enable") = "true";
+      begin
+         return Mutools.Utils.To_Ada_Identifier
+           (Str => Enabled'Img);
+      end Has_VM_Exit_Leaf;
    begin
       Mulog.Log (Msg => "Writing policy project file to '" & Filename & "'");
 
@@ -270,6 +297,10 @@ is
         (Template => Tmpl,
          Pattern  => "__vm_entry_l1dflush_enabled__",
          Content  => Has_VM_Entry_Leaf (Name => "l1dFlush"));
+      Mutools.Templates.Replace
+        (Template => Tmpl,
+         Pattern  => "__vm_exit_ibrslegacy_enabled__",
+         Content  => Has_VM_Exit_Leaf (Name => "ibrsLegacy"));
       Mutools.Templates.Replace
         (Template => Tmpl,
          Pattern  => "__multiple_major_frames__",

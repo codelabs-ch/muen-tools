@@ -15,5 +15,6 @@ abstract project Policy is
    VM_Entry_Ibpb_Enabled      : Boolean := "True";
    VM_Entry_Verw_Enabled      : Boolean := "False";
    VM_Entry_L1d_Flush_Enabled : Boolean := "False";
+   VM_Exit_IbrsLegacy_Enabled : Boolean := "False";
 
 end Policy;

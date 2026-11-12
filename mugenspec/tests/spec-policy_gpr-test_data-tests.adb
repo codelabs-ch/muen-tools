@@ -94,6 +94,10 @@ package body Spec.Policy_Gpr.Test_Data.Tests is
                    and then Ada.Strings.Fixed.Index
                      (Source  => Content,
                       Pattern => "VM_Entry_L1d_Flush_Enabled : Boolean := "
+                         & """False"";") > 0
+                   and then Ada.Strings.Fixed.Index
+                     (Source  => Content,
+                      Pattern => "VM_Exit_IbrsLegacy_Enabled : Boolean := "
                          & """False"";") > 0,
                  Message   => "Disabled policy does not clear all mitigation "
                     & "settings");

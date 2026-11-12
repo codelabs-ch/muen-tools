@@ -14,5 +14,6 @@ __debug_device_type__
    VM_Entry_Ibpb_Enabled      : Boolean := "__vm_entry_ibpb_enabled__";
    VM_Entry_Verw_Enabled      : Boolean := "__vm_entry_verw_enabled__";
    VM_Entry_L1d_Flush_Enabled : Boolean := "__vm_entry_l1dflush_enabled__";
+   VM_Exit_IbrsLegacy_Enabled : Boolean := "__vm_exit_ibrslegacy_enabled__";
 
 end Policy;
