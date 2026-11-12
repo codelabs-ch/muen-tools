@@ -26,7 +26,7 @@
       <l1dFlush enable="true"/>
      </vmEntry>
      <vmExit>
-      <ibrsLegacy enable="false"/>
+      <ibrsLegacy enable="true"/>
       <rsbStuffing enable="true" mode="singleCall"/>
       <bhbLoop enable="true"/>
      </vmExit>

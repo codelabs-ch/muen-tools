@@ -71,9 +71,9 @@ package body Mucfgcheck.Mitigations.Test_Data.Tests is
                & "enabled but not implemented for the x86_64 target kernel"),
               Message   => "Exception mismatch (rsbStuffing)");
 
-      --  fullFill32, bhbLoop, ibpb, verw and l1dFlush are implemented:
-      --  flipping the mode clears the rsbStuffing error, only eibrs is
-      --  still rejected.
+      --  fullFill32, bhbLoop, ibpb, verw, l1dFlush and ibrsLegacy are
+      --  implemented: flipping the mode clears the rsbStuffing error, only
+      --  eibrs is still rejected.
 
       Validation_Errors.Clear;
       Muxml.Utils.Set_Attribute
@@ -113,9 +113,14 @@ package body Mucfgcheck.Mitigations.Test_Data.Tests is
          (Msg => "Mitigation 'l1dFlush' is enabled but not implemented "
           & "for the x86_64 target kernel"),
          Message   => "l1dFlush reported as not implemented");
+      Assert
+        (Condition => not Validation_Errors.Contains
+         (Msg => "Mitigation 'ibrsLegacy' is enabled but not implemented "
+          & "for the x86_64 target kernel"),
+         Message   => "ibrsLegacy reported as not implemented");
 
       --  Only implemented sequences remain enabled (rsbStuffing fullFill32,
-      --  bhbLoop, ibpb, verw and l1dFlush): no errors.
+      --  bhbLoop, ibpb, verw, l1dFlush and ibrsLegacy): no errors.
 
       Validation_Errors.Clear;
       Muxml.Utils.Set_Attribute

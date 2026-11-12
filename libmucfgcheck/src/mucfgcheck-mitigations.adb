@@ -112,7 +112,8 @@ is
            or else Mitigation = "bhbLoop"
            or else Mitigation = "ibpb"
            or else Mitigation = "verw"
-           or else Mitigation = "l1dFlush";
+           or else Mitigation = "l1dFlush"
+           or else Mitigation = "ibrsLegacy";
       end Is_Implemented;
    begin
       if DOM.Core.Elements.Get_Attribute
