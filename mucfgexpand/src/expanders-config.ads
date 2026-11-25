@@ -74,7 +74,7 @@ is
          Kernel_RO_Section_Addr          => 16#0017_0000#,
          Kernel_RO_Section_Size          => 16#0001_2000#),
       Mutools.Types.X86_64 =>
-        (Kernel_Text_Section_Size        => 16#0001_1000#,
+        (Kernel_Text_Section_Size        => 16#0001_2000#,
          Kernel_Data_Section_Addr        => 16#0012_0000#,
          Kernel_BSS_Section_Addr         => 16#0012_2000#,
          Kernel_BSS_Section_Size         => 16#0000_4000#,
